@@ -8,6 +8,8 @@ Holodeck is an early, actively changing prototype. It is available from source; 
 
 ![Tidemark Island](examples/tidemark/preview.png)
 
+![The cove mood board, with the palm study and the island it describes](examples/tidemark/cove-mood-board.png)
+
 ## Start locally
 
 You need Git, Node.js and npm. Agent authoring currently uses an installed Codex CLI signed in with ChatGPT.
