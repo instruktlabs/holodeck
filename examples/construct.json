@@ -1,0 +1,43 @@
+{
+  "id": "construct",
+  "title": "A new world",
+  "intent": "An unmade grid construct with a reusable cove for conversation, references and world planning. The surrounding world takes shape from accepted ideas.",
+  "rules": "Keep a clear walking route. The cove can be hidden and recalled. Build the surrounding world from conversation, references and accepted bible rules.",
+  "environment": {"type":"construct","clearPath":true,"groundColor":"#abb492","fogColor":"#eee2c9","sunColor":"#ffd6a0","sunIntensity":3.3},
+  "runtime": {
+    "version": 1,
+    "modules": ["collision.boxes@1","camera.walk-orbit@1"],
+    "spawn": [1.25,1.72,2.35],
+    "look": [0.46,-0.14],
+    "overview": [10,12,14],
+    "target": [0,0,0],
+    "bounds": [-29,29,-41,20],
+    "blockers": [
+      {"id":"cove-shell-0","position":[3.619535,0.725,0.636077],"rotation":[0,-1.744755,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-1","position":[3.486266,0.725,1.162571],"rotation":[0,-1.892671,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-2","position":[3.27686,0.725,1.663674],"rotation":[0,-2.040588,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-3","position":[2.995889,0.725,2.128444],"rotation":[0,-2.188505,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-4","position":[2.649489,0.725,2.54673],"rotation":[0,-2.336421,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-5","position":[2.245226,0.725,2.909396],"rotation":[0,-2.484338,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-6","position":[1.791928,0.725,3.208523],"rotation":[0,-2.632255,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-7","position":[1.299495,0.725,3.437577],"rotation":[0,-2.780171,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-8","position":[0.778682,0.725,3.591557],"rotation":[0,-2.928088,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-9","position":[0.240863,0.725,3.667098],"rotation":[0,-3.076005,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-10","position":[-0.302216,0.725,3.662552],"rotation":[0,-3.223921,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-11","position":[-0.838695,0.725,3.578018],"rotation":[0,-3.371838,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-12","position":[-1.356858,0.725,3.415342],"rotation":[0,-3.519755,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-13","position":[-1.845387,0.725,3.178077],"rotation":[0,-3.667671,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-14","position":[-2.293614,0.725,2.871404],"rotation":[0,-3.815588,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-15","position":[-2.69175,0.725,2.502021],"rotation":[0,-3.963505,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-16","position":[-3.031099,0.725,2.077995],"rotation":[0,-4.111421,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-17","position":[-3.304251,0.725,1.608587],"rotation":[0,-4.259338,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-18","position":[-3.505239,0.725,1.104048],"rotation":[0,-4.407255,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-19","position":[-3.629675,0.725,0.575398],"rotation":[0,-4.555171,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-20","position":[-3.674841,0.725,0.034181],"rotation":[0,-4.703088,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-21","position":[-3.63975,0.725,-0.507783],"rotation":[0,-4.851005,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-22","position":[-3.525169,0.725,-1.038657],"rotation":[0,-4.998921,0],"size":[0.66,1.45,1.2],"layer":"origin"},
+      {"id":"cove-shell-23","position":[-3.3336,0.725,-1.546847],"rotation":[0,-5.146838,0],"size":[0.66,1.45,1.2],"layer":"origin"}
+    ]
+  },
+  "objects": []
+}

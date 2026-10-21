@@ -1,0 +1,88 @@
+{
+  "ok": true,
+  "collection": "project",
+  "asset": {
+    "assetId": "a_398fac8bc29e4717a276476ed963e001",
+    "revisionId": "r_62e28c9e86fe47e7859d08c4379328e5",
+    "parentRevision": "r_bab33a2fcdbd4c2cb39f7027afd97351",
+    "name": "Hearth Cove origin kit",
+    "tags": [],
+    "createdAt": "2026-10-21T15:39:34.236Z",
+    "editable": true,
+    "files": {
+      "asset.glb": {
+        "sha256": "sha256:1c2c03ad0de29438c95fcc3911132785b11e4463e349fbe610c8725c42b2fc35",
+        "bytes": 1516652
+      },
+      "source.kiln.js": {
+        "sha256": "sha256:564371b0ff6add4974b76aae8e6302b72bf78b002afdeb440a0c7de7022b8895",
+        "bytes": 6884
+      },
+      "preview.png": {
+        "sha256": "sha256:88a4bd9b35f55f3be018e24614229ab570a5936aceb863affde5896c09a737b2",
+        "bytes": 124996
+      }
+    },
+    "build": {
+      "engine": "sha256:a76aa3c91adf9a9759ebff048aeeeed9cd2d4350bb083274c85574e38d0ee4c2",
+      "rebuild": "engine-required",
+      "warningCount": 0,
+      "warnings": []
+    }
+  },
+  "resources": [
+    {
+      "type": "resource_link",
+      "name": "asset.glb",
+      "uri": "kiln://assets/project/a_398fac8bc29e4717a276476ed963e001/r_62e28c9e86fe47e7859d08c4379328e5/asset.glb",
+      "mimeType": "model/gltf-binary",
+      "size": 1516652,
+      "annotations": {
+        "audience": [
+          "user"
+        ],
+        "priority": 0.9
+      }
+    },
+    {
+      "type": "resource_link",
+      "name": "source.kiln.js",
+      "uri": "kiln://assets/project/a_398fac8bc29e4717a276476ed963e001/r_62e28c9e86fe47e7859d08c4379328e5/source.kiln.js",
+      "mimeType": "text/javascript",
+      "size": 6884,
+      "annotations": {
+        "audience": [
+          "user",
+          "assistant"
+        ],
+        "priority": 0.5
+      }
+    },
+    {
+      "type": "resource_link",
+      "name": "preview.png",
+      "uri": "kiln://assets/project/a_398fac8bc29e4717a276476ed963e001/r_62e28c9e86fe47e7859d08c4379328e5/preview.png",
+      "mimeType": "image/png",
+      "size": 124996,
+      "annotations": {
+        "audience": [
+          "user"
+        ],
+        "priority": 0.8
+      }
+    },
+    {
+      "type": "resource_link",
+      "name": "manifest.json",
+      "uri": "kiln://assets/project/a_398fac8bc29e4717a276476ed963e001/r_62e28c9e86fe47e7859d08c4379328e5/manifest.json",
+      "mimeType": "application/json",
+      "size": 34617,
+      "annotations": {
+        "audience": [
+          "user"
+        ],
+        "priority": 0.3
+      }
+    }
+  ]
+}

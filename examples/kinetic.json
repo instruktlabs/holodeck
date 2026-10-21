@@ -1,0 +1,654 @@
+{
+  "id": "kinetic",
+  "title": "The motion gallery",
+  "intent": "A quiet open-air exhibit of copper and ivory mechanisms. Walk among the plinths or inspect the whole composition from above.",
+  "rules": "Each mechanism can be stopped independently from nearby. Pause and reset affect activity, not saved layout. Camera changes do not reset motion.",
+  "environment": {
+    "type": "meadow",
+    "clearPath": true,
+    "groundColor": "#b9b6a4",
+    "fogColor": "#e1e4dc",
+    "sunColor": "#ffe7c3",
+    "sunIntensity": 2.8
+  },
+  "runtime": {
+    "version": 1,
+    "modules": [
+      "collision.boxes@1",
+      "camera.walk-orbit@1",
+      "motion.spin@1"
+    ],
+    "spawn": [
+      0.55,
+      1.72,
+      2.35
+    ],
+    "look": [
+      0,
+      -0.08
+    ],
+    "overview": [
+      13,
+      16,
+      18
+    ],
+    "target": [
+      0,
+      0,
+      -5
+    ],
+    "bounds": [
+      -15,
+      15,
+      -22,
+      12
+    ],
+    "blockers": [
+      {
+        "id": "cove-wall-0",
+        "position": [
+          3.603379584321038,
+          0.65,
+          0.5815114541419978
+        ],
+        "rotation": [
+          0,
+          -1.7307963267948965,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-1",
+        "position": [
+          3.248191713500474,
+          0.65,
+          1.6648575291438166
+        ],
+        "rotation": [
+          0,
+          -2.04443269043126,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-2",
+        "position": [
+          2.576097083045756,
+          0.65,
+          2.585773350222936
+        ],
+        "rotation": [
+          0,
+          -2.3580690540676237,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-3",
+        "position": [
+          1.6526679714094341,
+          0.65,
+          3.2544106342435377
+        ],
+        "rotation": [
+          0,
+          -2.6717054177039876,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-4",
+        "position": [
+          0.5679978685490779,
+          0.65,
+          3.6055344154956703
+        ],
+        "rotation": [
+          0,
+          -2.985341781340351,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-5",
+        "position": [
+          -0.5720884104109986,
+          0.65,
+          3.6048876335710403
+        ],
+        "rotation": [
+          0,
+          -3.2989781449767146,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-6",
+        "position": [
+          -1.656359423414307,
+          0.65,
+          3.252533391137841
+        ],
+        "rotation": [
+          0,
+          -3.6126145086130785,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-7",
+        "position": [
+          -2.579029292161865,
+          0.65,
+          2.5828487973884706
+        ],
+        "rotation": [
+          0,
+          -3.9262508722494425,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-8",
+        "position": [
+          -3.250078601512147,
+          0.65,
+          1.6611709978183602
+        ],
+        "rotation": [
+          0,
+          -4.239887235885806,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-9",
+        "position": [
+          -3.604037058779826,
+          0.65,
+          0.5774226172758213
+        ],
+        "rotation": [
+          0,
+          -4.553523599522169,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-10",
+        "position": [
+          -3.606371041065865,
+          0.65,
+          -0.5626614560830603
+        ],
+        "rotation": [
+          0,
+          -4.867159963158533,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-11",
+        "position": [
+          -3.2568528355907986,
+          0.65,
+          -1.6478499953891959
+        ],
+        "rotation": [
+          0,
+          -5.180796326794897,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "gallery-floor",
+      "label": "gallery floor",
+      "position": [
+        0,
+        0,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "cylinder",
+        "size": [
+          17,
+          0.12,
+          14
+        ],
+        "color": "#d7cdb8",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "gallery-walk",
+      "label": "gallery walk",
+      "position": [
+        0,
+        -0.005,
+        -5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          3,
+          0.12,
+          10
+        ],
+        "color": "#ded3bd",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "plinth-0",
+      "label": "plinth 0",
+      "position": [
+        -4,
+        0.6,
+        -9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "cylinder",
+        "size": [
+          2.6,
+          1.2,
+          2.6
+        ],
+        "color": "#b5a387",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          2.6,
+          1.2,
+          2.6
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "mechanism-0",
+      "label": "Copper orbit",
+      "position": [
+        -4,
+        2.3,
+        -9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "torus",
+        "size": [
+          2.8,
+          2.8,
+          2.8
+        ],
+        "color": "#a87750",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null,
+      "behavior": {
+        "type": "spin",
+        "speed": 0.45
+      }
+    },
+    {
+      "id": "plinth-1",
+      "label": "plinth 1",
+      "position": [
+        0,
+        0.6,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "cylinder",
+        "size": [
+          2.6,
+          1.2,
+          2.6
+        ],
+        "color": "#b5a387",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          2.6,
+          1.2,
+          2.6
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "mechanism-1",
+      "label": "Ivory orbit",
+      "position": [
+        0,
+        2.3,
+        -12
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "torus",
+        "size": [
+          2.8,
+          2.8,
+          2.8
+        ],
+        "color": "#e9debf",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null,
+      "behavior": {
+        "type": "spin",
+        "speed": 0.7
+      }
+    },
+    {
+      "id": "plinth-2",
+      "label": "plinth 2",
+      "position": [
+        4,
+        0.6,
+        -9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "cylinder",
+        "size": [
+          2.6,
+          1.2,
+          2.6
+        ],
+        "color": "#b5a387",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          2.6,
+          1.2,
+          2.6
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "mechanism-2",
+      "label": "Sage orbit",
+      "position": [
+        4,
+        2.3,
+        -9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "torus",
+        "size": [
+          2.8,
+          2.8,
+          2.8
+        ],
+        "color": "#8a9c91",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null,
+      "behavior": {
+        "type": "spin",
+        "speed": 1
+      }
+    },
+    {
+      "id": "rear-screen",
+      "label": "rear screen",
+      "position": [
+        0,
+        1.2,
+        -17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          15,
+          2.4,
+          0.35
+        ],
+        "color": "#a99d83",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          15,
+          2.4,
+          0.35
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  ]
+}

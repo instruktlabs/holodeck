@@ -1,0 +1,26 @@
+{
+  "engine": "@instruktlabs/kiln@1.3.1",
+  "programRef": "p_0d38a7e0146d",
+  "collection": "project",
+  "assetId": "a_4f6ce20d78fd4aefa27b934c7a9224c2",
+  "revisionId": "r_cf893c2415774c149c65fdd180a69082",
+  "files": {
+    "asset.glb": {
+      "sha256": "sha256:8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec",
+      "bytes": 91072
+    },
+    "source.kiln.js": {
+      "sha256": "sha256:0d38a7e0146d17c88ad134b38737de89644925e02602e3c38eeae86c2fc6ac5d",
+      "bytes": 8723
+    },
+    "preview.png": {
+      "sha256": "sha256:aa1492679f7a557245d94aa163138a98d9806c81e86e896ef544509cfd37eb38",
+      "bytes": 35053
+    }
+  },
+  "derivedFrom": {
+    "assetId": "a_398fac8bc29e4717a276476ed963e001",
+    "revisionId": "r_62e28c9e86fe47e7859d08c4379328e5"
+  },
+  "scope": "Prototype module; runtime and architecture checked separately"
+}

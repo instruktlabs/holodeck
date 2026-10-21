@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Holodeck · Being in the world</title>
+  <style>
+    @font-face{font-family:Inter;src:url('/fonts/Inter-Regular.ttf')}
+    *{box-sizing:border-box}body{margin:0;background:#eeeae1;color:#343b32;font:14px Inter,system-ui,sans-serif}
+    button,a{font:inherit;color:inherit}button{cursor:pointer}a{text-underline-offset:4px}
+    header{max-width:1640px;margin:auto;padding:24px 28px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+    .brand{font:25px Georgia,serif;letter-spacing:.02em;text-decoration:none}.tag{font-size:10px;letter-spacing:.15em;color:#737666}
+    main{max-width:1640px;margin:0 auto;padding:0 24px 32px}.heading{display:flex;justify-content:space-between;align-items:end;gap:28px;margin:15px 4px 24px}
+    h1{font:normal clamp(28px,3.5vw,43px)/1.1 Georgia,serif;margin:8px 0 12px}p{line-height:1.65;color:#646c5d;margin:0}
+    nav{display:flex;gap:5px;flex-shrink:0;padding:5px;border:1px solid #d2caba;border-radius:30px}
+    nav button{border:0;background:transparent;border-radius:24px;padding:11px 18px;font-size:12px;white-space:nowrap}
+    nav button[aria-pressed=true]{background:#dcd6c7;color:#3f4c39}
+    .frame{position:relative;overflow:hidden;background:#ded9cc;border:1px solid #cfc7b7;border-radius:12px;box-shadow:0 15px 50px #4b483014}
+    .frame img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#ded9cc}.frame:fullscreen{display:grid;place-items:center;background:#252923}.frame:fullscreen img{max-height:100vh;object-fit:contain}
+    .fullscreen{position:absolute;right:12px;bottom:12px;border:1px solid #d1c8b8;background:#f1ecdfec;border-radius:6px;padding:8px 10px;font-size:11px}
+    .caption{display:grid;grid-template-columns:1fr 1fr auto;gap:30px;margin:24px 4px}.caption h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;color:#737666;margin:0 0 8px}.caption p{font-size:13px;max-width:500px}
+    .actions{display:flex;gap:8px;align-items:start}.actions button{border:1px solid #c7beab;background:#e4ddce;border-radius:7px;padding:11px 16px;white-space:nowrap}.actions button:disabled{opacity:.35;cursor:default}
+    .note{font-size:11px;border-top:1px solid #d4ccbc;padding-top:18px;display:flex;justify-content:space-between;gap:20px;color:#777b6c}
+    button:focus-visible,a:focus-visible{outline:2px solid #9a713e;outline-offset:4px}
+    @media(max-width:900px){.heading{display:block}nav{margin-top:20px;width:fit-content}.caption{grid-template-columns:1fr 1fr}.actions{grid-column:1/-1}.tag{display:none}}
+    @media(max-width:550px){header{padding:20px}main{padding:0 12px 24px}.caption{grid-template-columns:1fr;gap:18px}.note{display:block}nav button{padding:10px 12px}.frame{border-radius:6px}}
+  </style>
+</head>
+<body>
+  <header><a class="brand" href="/design.html">◯ holodeck</a><span class="tag">FIRST-PERSON INTERACTION STUDY</span><a href="/prototype.html">Enter the walkable prototype ↗</a></header>
+  <main>
+    <div class="heading"><div><span class="tag">BEING IN THE WORLD</span><h1 id="title">A conversation from inside the cove.</h1><p id="intro">References within reach. One decision at a time.</p></div><nav aria-label="Walkthrough moments"><button aria-pressed="true" data-step="0">01 Discuss</button><button aria-pressed="false" data-step="1">02 Direct</button><button aria-pressed="false" data-step="2">03 Review</button></nav></div>
+    <section class="frame" aria-label="First-person concept mockup"><img id="scene" src="/design/first-person/01-discuss.png" alt="First-person view inside the cove with references and one world-rule decision"><button class="fullscreen" id="fullscreen">View full screen</button></section>
+    <section class="caption" aria-live="polite"><div><h2>What you do</h2><p id="action"></p></div><div><h2>What stays relevant</h2><p id="context"></p></div><div class="actions"><button id="previous" disabled>← Back</button><button id="next">Step outside →</button></div></section>
+    <div class="note"><span>Concept walkthrough · generated visual studies · no agent connected</span><span>Use ← → to step through the moments. Movement and controls shown inside the images are proposed.</span></div>
+  </main>
+  <script>
+    const steps=[
+      {title:'A conversation from inside the cove.',intro:'References within reach. One decision at a time.',image:'01-discuss.png',alt:'Eye-level view from inside the cozy cove, with the Kiln core, two reference images, and a compact decision block',action:'Describe a quiet woodland and stream. Compare the two references, then decide whether the route should always stay clear.',context:'The active decision and its references. The world bible stays nearby; completed conversation can fold into history.',next:'Step outside →'},
+      {title:'Keep moving. Keep directing.',intro:'The conversation follows your task, without filling your view.',image:'02-direct.png',alt:'First-person view at the cove threshold looking at a stream crossing, with a short voice transcript and one building-task block',action:'Move to the stream, point at the crossing, and say: “Put a small bridge here. Keep it simple.”',context:'The selected crossing, your short transcript, and one cancellable task. Its target stays tied to where you pointed when you submitted.',next:'Inspect the proposal →'},
+      {title:'Review the change where it belongs.',intro:'A proposal attached to the object you are looking at.',image:'03-review.png',alt:'First-person review of a proposed timber bridge with a compact Apply or Revise block and its relevant reference',action:'Walk closer and inspect the preview. Apply it, or ask for a specific revision such as lower rails.',context:'The proposed bridge, its reference, and concise evidence. “Checked” rows here illustrate future runtime results; they are not measurements from a built world.',next:'Revise the crossing ↺'},
+    ];
+    let step=0;
+    function show(index){step=Math.max(0,Math.min(2,index));const s=steps[step];document.getElementById('title').textContent=s.title;document.getElementById('intro').textContent=s.intro;document.getElementById('scene').src='/design/first-person/'+s.image;document.getElementById('scene').alt=s.alt;document.getElementById('action').textContent=s.action;document.getElementById('context').textContent=s.context;document.getElementById('previous').disabled=step===0;document.getElementById('next').textContent=s.next;document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.step)===step));}
+    document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>show(Number(b.dataset.step))));
+    document.getElementById('previous').onclick=()=>show(step-1);
+    document.getElementById('next').onclick=()=>show(step===2?1:step+1);
+    document.getElementById('fullscreen').onclick=()=>document.querySelector('.frame').requestFullscreen();
+    document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();show(step+1);}if(e.key==='ArrowLeft'){e.preventDefault();show(step-1);}});
+    show(0);
+  </script>
+</body>
+</html>

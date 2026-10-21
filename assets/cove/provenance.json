@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "engine": "@instruktlabs/kiln@1.3.1",
+  "workspace": "separate Holodeck asset workspace",
+  "programRef": "p_dab0ef4b428c",
+  "collection": "project",
+  "assetId": "a_398fac8bc29e4717a276476ed963e001",
+  "revisionId": "r_bab33a2fcdbd4c2cb39f7027afd97351",
+  "files": {
+    "asset.glb": {
+      "sha256": "sha256:f1516459ed3b1d26d15dbd9656bb75543d7de28a45f71d31325ad4559745ad04",
+      "bytes": 891836
+    },
+    "source.kiln.js": {
+      "sha256": "sha256:dab0ef4b428c441fc4e306348f9873e9604dfb7ecc6348a729e1a052ea272f1d",
+      "bytes": 4863
+    },
+    "preview.png": {
+      "sha256": "sha256:e1b7238921695d78229827d2e590a1afcc60982d05cd1e1599ce999c0a1ee429",
+      "bytes": 104539
+    }
+  },
+  "runtimePath": "public/assets/hearth-cove.glb",
+  "scope": "Prototype origin kit; not production-qualified",
+  "review": "GPU material-faithful sheet plus actual browser WebGPU/WebGL2 views"
+}

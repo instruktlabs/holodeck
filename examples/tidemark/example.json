@@ -1,0 +1,174 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "tidemark",
+  "title": "Tidemark Island",
+  "description": "A quiet tropical island with open beaches, layered jungle, a thatched shelter, and gently moving wildlife.",
+  "sourceRevision": 8,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "inhabitant.maker@1",
+      "motion.boids@1",
+      "motion.gait@1",
+      "motion.patrol@1",
+      "terrain.heightfield@1",
+      "water.ocean@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "23d781278b91cb83c9f046939bc846c83a76b4ae3850deafe3b1551029af5578",
+    "bytes": 313751
+  },
+  "assets": [
+    {
+      "id": "canopy",
+      "file": "assets/imports/8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec.glb",
+      "sha256": "8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec",
+      "bytes": 91072
+    },
+    {
+      "id": "coastal-flybird",
+      "file": "assets/imports/e8db14c772b6d5e01cbadd775f09b5c15d29f14d42b73507263cf87fc8b00c5d.glb",
+      "sha256": "e8db14c772b6d5e01cbadd775f09b5c15d29f14d42b73507263cf87fc8b00c5d",
+      "bytes": 22560
+    },
+    {
+      "id": "hearth",
+      "file": "assets/imports/d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4.glb",
+      "sha256": "d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4",
+      "bytes": 228096
+    },
+    {
+      "id": "island-bird",
+      "file": "assets/imports/e7ada7acce37b4dbdcf95ceea76a11dfb11091f446936b1a5bec2fa7d247b060.glb",
+      "sha256": "e7ada7acce37b4dbdcf95ceea76a11dfb11091f446936b1a5bec2fa7d247b060",
+      "bytes": 28444
+    },
+    {
+      "id": "island-crab",
+      "file": "assets/imports/3a2ffbdbd1509fadac5386e45fbb604bbdca1da0255db49221d8b240b08f5204.glb",
+      "sha256": "3a2ffbdbd1509fadac5386e45fbb604bbdca1da0255db49221d8b240b08f5204",
+      "bytes": 32276
+    },
+    {
+      "id": "island-grass",
+      "file": "assets/imports/3c4e14de82253733dde8cdb0be4e78e240523ea19154e905c80fadff32cfc57f.glb",
+      "sha256": "3c4e14de82253733dde8cdb0be4e78e240523ea19154e905c80fadff32cfc57f",
+      "bytes": 40056
+    },
+    {
+      "id": "island-hut-frame",
+      "file": "assets/imports/4e8e56f77fbb7f34ed4301c1fac43828ba26dba3a0303627d68e3b06f6453291.glb",
+      "sha256": "4e8e56f77fbb7f34ed4301c1fac43828ba26dba3a0303627d68e3b06f6453291",
+      "bytes": 83700
+    },
+    {
+      "id": "island-hut-furnishings",
+      "file": "assets/imports/09504a0e9d729dbfd629dcd36ff7e3656d1e7880898aa508b56fa8219847726b.glb",
+      "sha256": "09504a0e9d729dbfd629dcd36ff7e3656d1e7880898aa508b56fa8219847726b",
+      "bytes": 69144
+    },
+    {
+      "id": "island-hut-roof",
+      "file": "assets/imports/ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf.glb",
+      "sha256": "ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf",
+      "bytes": 376528
+    },
+    {
+      "id": "island-palm",
+      "file": "assets/imports/06eb939f28106c33c9a804fc396c74aa80090b7dbc5a290fd7e733d8646a5586.glb",
+      "sha256": "06eb939f28106c33c9a804fc396c74aa80090b7dbc5a290fd7e733d8646a5586",
+      "bytes": 996120
+    },
+    {
+      "id": "island-resident",
+      "file": "assets/imports/07ef366785d37de58670a8bf8a8aeab3094dfc6f3dab09fe5eb76fc5ee627952.glb",
+      "sha256": "07ef366785d37de58670a8bf8a8aeab3094dfc6f3dab09fe5eb76fc5ee627952",
+      "bytes": 55416
+    },
+    {
+      "id": "island-shore",
+      "file": "assets/imports/f30abc5985480aba8c193cfd5791be79bfe89b248c14f16d3cc27d939549c8cd.glb",
+      "sha256": "f30abc5985480aba8c193cfd5791be79bfe89b248c14f16d3cc27d939549c8cd",
+      "bytes": 66276
+    },
+    {
+      "id": "island-shrub",
+      "file": "assets/imports/a8de02df07e9eda172ceeb30b5a7764c8d7dffb49056619d52c58d6564d4965f.glb",
+      "sha256": "a8de02df07e9eda172ceeb30b5a7764c8d7dffb49056619d52c58d6564d4965f",
+      "bytes": 94364
+    },
+    {
+      "id": "jungle-fern",
+      "file": "assets/imports/80de23da824d0864cdc1325dfde18022db4f0d0b3be1f98f78e5304af8bc6f77.glb",
+      "sha256": "80de23da824d0864cdc1325dfde18022db4f0d0b3be1f98f78e5304af8bc6f77",
+      "bytes": 60784
+    },
+    {
+      "id": "jungle-groundcover",
+      "file": "assets/imports/f17a2c2ecf6ffe03b18cd7965780fe45aadb0d32dc42c24879a997d616417611.glb",
+      "sha256": "f17a2c2ecf6ffe03b18cd7965780fe45aadb0d32dc42c24879a997d616417611",
+      "bytes": 12292
+    },
+    {
+      "id": "jungle-sapling",
+      "file": "assets/imports/fadf9b9eff37c2791c7c73c98a132d98195da42bc39f33a9514e1e8ddbbe8381.glb",
+      "sha256": "fadf9b9eff37c2791c7c73c98a132d98195da42bc39f33a9514e1e8ddbbe8381",
+      "bytes": 37484
+    },
+    {
+      "id": "jungle-understory",
+      "file": "assets/imports/f106b90124a2245dc537d9b12d58b570ec0c8657880dff13c27d79b70357fcc4.glb",
+      "sha256": "f106b90124a2245dc537d9b12d58b570ec0c8657880dff13c27d79b70357fcc4",
+      "bytes": 31564
+    },
+    {
+      "id": "lamp",
+      "file": "assets/imports/3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c.glb",
+      "sha256": "3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c",
+      "bytes": 34576
+    },
+    {
+      "id": "moodboard",
+      "file": "assets/imports/d8705827571824ca392790a714c12443ff9433fab77d8192e89be53f0ea7f378.glb",
+      "sha256": "d8705827571824ca392790a714c12443ff9433fab77d8192e89be53f0ea7f378",
+      "bytes": 17852
+    },
+    {
+      "id": "planting",
+      "file": "assets/imports/3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28.glb",
+      "sha256": "3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28",
+      "bytes": 436248
+    },
+    {
+      "id": "rug",
+      "file": "assets/imports/8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1.glb",
+      "sha256": "8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1",
+      "bytes": 18760
+    },
+    {
+      "id": "seating",
+      "file": "assets/imports/de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0.glb",
+      "sha256": "de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0",
+      "bytes": 7752
+    },
+    {
+      "id": "structure",
+      "file": "assets/imports/4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4.glb",
+      "sha256": "4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4",
+      "bytes": 741484
+    }
+  ],
+  "preview": {
+    "file": "preview.png",
+    "sha256": "85ebe80830b8b2b0add3bf25af7d112d6a20b9b89aea0f2eb7fce51c8ac772a4",
+    "bytes": 491413,
+    "width": 1146,
+    "height": 884
+  },
+  "integrity": "d674f599b497fc5db766fde6764746ede99a38c71de1be43313e4697b59fa33c"
+}

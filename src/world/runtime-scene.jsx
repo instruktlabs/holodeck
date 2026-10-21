@@ -1,0 +1,174 @@
+import React,{useEffect,useLayoutEffect,useMemo,useRef} from 'react';
+import {useFrame,useThree} from '@react-three/fiber';
+import * as THREE from 'three/webgpu';
+import {Cove,PlacedAsset,Construct,probe} from '../prototype/scene.jsx';
+import {MoodBoard} from './moodboard.jsx';
+import {resolveWorldKey,createFreeCamera,stepFreeCamera,isWorldInputTarget,stepCameraLook,firstPersonEyePosition} from './inhabit.mjs';
+import {WorldMaterialsProvider,WorldSurfaceMaterial} from './world-materials.js';
+import {Tree} from './vegetation.jsx';
+import {Landscape,LandscapeSky} from './landscape.jsx';
+import {createInhabitant,stepInhabitant} from './inhabitant.mjs';
+import {Maker} from './inhabitant.jsx';
+import {pickWorldAim} from './aim.mjs';
+import {planStaticBatches} from './static-batches.mjs';
+import {StaticAssetBatch} from './static-batches.jsx';
+import {FlockAsset} from './flock.jsx';
+import {SUN_SHADOW,configureSunShadow,shadowViewFocus} from './sun-shadow.mjs';
+
+function Shape({shape,id}){
+ if(shape.type==='tree')return <group position={shape.offset}><Tree size={shape.size} color={shape.color} seed={id}/></group>;
+ return <mesh position={shape.offset} scale={shape.size} castShadow receiveShadow>
+  {shape.type==='box'?<boxGeometry/>:shape.type==='cylinder'?<cylinderGeometry args={[.5,.5,1,32]}/>:shape.type==='sphere'?<sphereGeometry args={[.5,24,16]}/>:<torusGeometry args={[.38,.1,12,48]}/>}
+  {shape.surface?<WorldSurfaceMaterial surface={shape.surface} color={shape.color}/>:<meshStandardMaterial color={shape.color} roughness={.65} metalness={shape.type==='torus'?.3:0}/>}
+ </mesh>;
+}
+function Entity({item,runtime,model,select}){
+ const group=useRef();
+ useFrame(()=>{const motion=runtime.renderMotion?.(item);group.current.rotation.y=motion?item.rotation[1]+motion.angle:runtime.yaw(item);group.current.position.set(...(motion?.position??runtime.position?.(item)??item.position));},-1);
+ return <group ref={group} position={item.position} rotation={item.rotation} scale={item.scale} visible={runtime.visible(item)} userData={{target:item.id}} onClick={e=>{e.stopPropagation();select(item.id,{additive:e.shiftKey});}}>
+  {item.shape?<Shape shape={item.shape} id={item.id}/>:<PlacedAsset model={model} item={{...item,position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}} select={select} runtime={runtime} gaitScale={item.scale[0]} asset={runtime.scene.assets.find(a=>a.id===item.asset)}/>}
+ </group>;
+}
+function Driver({runtime}){useFrame((_,dt)=>runtime.step(dt),-2);return null;}
+function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson}){
+ const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
+ const actor=useRef(null),free=useRef(null);
+ const config=runtime.scene.runtime;
+ const cameraConfig=JSON.stringify([config.spawn,config.look,config.overview,config.target,config.possession]);
+ const landscapeBounds=[runtime.scene.terrain?.bounds,runtime.scene.water?.bounds].filter(Boolean),landscapeBoundsKey=JSON.stringify(landscapeBounds);
+ useLayoutEffect(()=>{
+  walk.current={position:[...config.spawn],yaw:config.look[0],pitch:config.look[1]};
+  actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;
+  probe.arrivalReset={tick:homeTick,spawn:[...config.spawn],feet:actor.current?[...actor.current.position]:null};
+  setPerson(config.possession?.camera??'first');
+  const d=new THREE.Vector3(...config.overview).sub(new THREE.Vector3(...config.target));
+  view.current={yaw:Math.atan2(d.x,d.z),pitch:Math.asin(d.y/d.length()),distance:d.length()};keys.current.clear();
+ },[homeTick,cameraConfig,!!runtime.scene.terrain,!!runtime.scene.water]);
+ useLayoutEffect(()=>{
+  // Geometry extents can change without a new spawn or possession config.
+  // Update projection separately so a landscape edit does not respawn the maker.
+  const width=landscapeBounds.length?Math.max(...landscapeBounds.map(b=>b[1]))-Math.min(...landscapeBounds.map(b=>b[0])):0;
+  const depth=landscapeBounds.length?Math.max(...landscapeBounds.map(b=>b[3]))-Math.min(...landscapeBounds.map(b=>b[2])):0;
+  camera.far=Math.max(160,(width+depth)*1.5);camera.updateProjectionMatrix();
+ },[camera,landscapeBoundsKey]);
+ useLayoutEffect(()=>{
+  if(mode==='free'){
+   const orientation=new THREE.Euler().setFromQuaternion(camera.quaternion,'YXZ');
+   free.current=createFreeCamera(camera.position.toArray(),[orientation.y,orientation.x]);
+  }
+  keys.current.clear();
+ },[mode,camera]);
+ useEffect(()=>{
+  const el=gl.domElement;keys.current.clear();drag.current=false;setMoving(false);
+  const typing=()=>isWorldInputTarget(document.activeElement);
+  const clear=()=>{keys.current.clear();drag.current=false;};
+  const down=e=>{
+   const target=runtime.interaction(aim.current,probe.actorEye??camera.position.toArray());
+   const intent=resolveWorldKey({code:e.code,repeat:e.repeat,editable:typing(),mode:inhabiting?'inhabit':'author',cameraMode:mode,target,possessed:!!actor.current});
+   if(!intent)return;
+   e.preventDefault();
+   if(intent.type==='move'||intent.type==='look'){keys.current.add(intent.code);return;}
+   if(intent.type==='jump'){keys.current.add('Space');return;}
+   if(intent.type==='select'){select(intent.id,{additive:e.shiftKey});return;}
+   if(intent.type==='toggle-hud'){toggleHud();return;}
+   if(intent.type==='toggle-person'){setPerson(p=>p==='first'?'third':'first');return;}
+   if(intent.type==='toggle-free'){clear();toggleFree();return;}
+   if(intent.type==='interact'||intent.type==='unavailable'){interact(intent.id);return;}
+   clear();
+   if(intent.type==='compose')focusInput();else leaveWorld();
+  };
+  const up=e=>keys.current.delete(e.code),move=e=>{if(!(drag.current||document.pointerLockElement===el))return;const orbit=mode==='overview',v=mode==='free'?free.current:orbit?view.current:walk.current;v.yaw-=e.movementX*.003;v.pitch=THREE.MathUtils.clamp(v.pitch+(orbit?1:-1)*e.movementY*.003,orbit?.15:-1.5,mode==='free'?1.45:1.3);};
+  const pointer=e=>{if(e.button===2){drag.current=true;e.preventDefault();}else if(e.button===0&&inhabiting&&document.pointerLockElement!==el)requestLook();},release=()=>{drag.current=false;},context=e=>e.preventDefault();
+  const zoom=e=>{if(mode==='overview'){e.preventDefault();const b=config.bounds,max=Math.max(45,b[1]-b[0],b[3]-b[2]);view.current.distance=THREE.MathUtils.clamp(view.current.distance+e.deltaY*.04,3,max*1.5);}};
+  let wasLocked=document.pointerLockElement===el;
+  const lock=()=>{const isLocked=document.pointerLockElement===el;setLocked(isLocked);clear();if(wasLocked&&!isLocked)leaveWorld();wasLocked=isLocked;};
+  window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('blur',clear);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',clear);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
+  return()=>{clear();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('blur',clear);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',clear);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
+ },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree]);
+ useFrame((_,dt)=>{
+  let moving=false;
+  if(actor.current)actor.current.camera=person;
+  if(mode==='walk'||mode==='free'){
+   const k=keys.current;stepCameraLook(mode==='free'?free.current:walk.current,{turn:Number(k.has('ArrowRight'))-Number(k.has('ArrowLeft')),tilt:Number(k.has('ArrowUp'))-Number(k.has('ArrowDown'))},dt,{maxPitch:mode==='free'?1.45:1.3});
+  }
+  if(mode==='walk'){
+   const k=keys.current,f=Number(k.has('KeyW'))-Number(k.has('KeyS')),r=Number(k.has('KeyD'))-Number(k.has('KeyA')),w=walk.current,len=Math.hypot(f,r)||1;
+   if(actor.current){
+    const a=actor.current;a.camera=person;
+    stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space'),sprint:k.has('ShiftLeft')||k.has('ShiftRight'),yaw:w.yaw},dt,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time,blocked:(x,z,feetY,height)=>runtime.blocked(x,z,a.radius,feetY,height)});
+    moving=a.speed>.01;
+    const eye=new THREE.Vector3(a.position[0],a.position[1]+a.eyeHeight,a.position[2]);w.position=eye.toArray();
+    camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
+    if(person==='first')camera.position.set(...firstPersonEyePosition(a.position,a.eyeHeight,w.yaw,w.pitch,(...args)=>runtime.blocked(...args)));
+    if(person==='third'){
+     const follow=a.config.thirdPerson,distance=follow.distance,height=follow.height;
+     const offset=new THREE.Vector3(0,height,distance).applyEuler(new THREE.Euler(w.pitch,w.yaw,0,'YXZ'));
+     // Retract a single follow camera before the first terrain or box obstruction.
+     const steps=Math.ceil(offset.length()/.08);let safe=0;
+     for(let i=1;i<=steps;i++){
+      const t=i/steps,p=eye.clone().addScaledVector(offset,t),ground=runtime.terrain?.sample(p.x,p.z);
+      if((ground&&p.y<ground.height+.18)||runtime.blocked(p.x,p.z,.14,p.y-.14,.28))break;safe=t;
+     }
+     camera.position.copy(eye).addScaledVector(offset,safe);
+     // Frame the full inhabitant while retaining a forward point for looking.
+     const focus=eye.clone().add(new THREE.Vector3(0,-.6,0)).add(new THREE.Vector3(0,0,-1.4).applyEuler(new THREE.Euler(w.pitch,w.yaw,0,'YXZ')));camera.lookAt(focus);
+    }
+    probe.actorEye=eye.toArray();
+   }else{
+   moving=!!(f||r);const distance=Math.min(dt,.04)*(k.has('ShiftLeft')||k.has('ShiftRight')?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
+   // Small steps bound tunnelling through the narrowest supported blockers.
+   const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.06));for(let i=0;i<steps;i++){if(!runtime.blocked(w.position[0]+dx/steps,w.position[2]))w.position[0]+=dx/steps;if(!runtime.blocked(w.position[0],w.position[2]+dz/steps))w.position[2]+=dz/steps;}
+   camera.position.set(...w.position);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
+    probe.actorEye=null;
+   }
+  }else{
+   if(actor.current){const a=actor.current;stepInhabitant(a,{stop:true},dt,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time,blocked:(x,z,feetY,height)=>runtime.blocked(x,z,a.radius,feetY,height)});probe.actorEye=[a.position[0],a.position[1]+a.eyeHeight,a.position[2]];}else probe.actorEye=null;
+   if(mode==='free'){
+    const k=keys.current,v=free.current,input={forward:Number(k.has('KeyW'))-Number(k.has('KeyS')),strafe:Number(k.has('KeyD'))-Number(k.has('KeyA')),up:Number(k.has('KeyE'))-Number(k.has('KeyQ')),sprint:k.has('ShiftLeft')||k.has('ShiftRight')};
+    stepFreeCamera(v,input,dt);moving=!!(input.forward||input.strafe||input.up);camera.position.set(...v.position);camera.rotation.set(v.pitch,v.yaw,0,'YXZ');
+   }else{
+    const v=view.current,t=config.target;camera.position.set(t[0]+Math.sin(v.yaw)*Math.cos(v.pitch)*v.distance,t[1]+Math.sin(v.pitch)*v.distance,t[2]+Math.cos(v.yaw)*Math.cos(v.pitch)*v.distance);camera.lookAt(...t);
+   }
+  }
+  if(moving!==lastMoving.current){setMoving(moving);lastMoving.current=moving;}
+  camera.updateMatrixWorld();ray.setFromCamera({x:0,y:0},camera);
+  const target=pickWorldAim(ray,scene,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time});
+  if(aim.current!==target){aim.current=target;setAim(target);}
+  const a=actor.current,b=config.bounds;
+  // A geometry/bounds edit may strand the existing pose. Report it instead of
+  // silently teleporting; the host can offer the explicit Recall action.
+  const outOfBounds=!!a&&(runtime.terrain?.sample(a.position[0],a.position[2]).inBounds===false||a.position[0]-a.radius<b[0]||a.position[0]+a.radius>b[1]||a.position[2]-a.radius<b[2]||a.position[2]+a.radius>b[3]);
+  probe.actor=a?{position:[...a.position],eyePosition:[a.position[0],a.position[1]+a.eyeHeight,a.position[2]],mode:a.mode,camera:person,possessed:mode==='walk',grounded:a.grounded,verticalVelocity:a.verticalVelocity,speed:a.speed,supportHeight:a.supportHeight,waterDepth:a.waterDepth,outOfBounds}:null;
+  const look=mode==='free'?free.current:walk.current;
+  probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();probe.ready=true;
+ },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} firstPerson={mode==='walk'&&person==='first'}/>:null;
+}
+function Sun({runtime,environment,cameraMode}){
+ const {camera}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]),focus=useMemo(()=>new THREE.Vector3(),[]),last=useRef({});
+ const direction=useMemo(()=>new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize().multiplyScalar(SUN_SHADOW.lightDistance),[environment]);
+ useLayoutEffect(()=>configureSunShadow(light.current),[]);
+ useFrame(()=>{
+  const matrix=camera.matrixWorld.elements,previous=last.current,groundHeight=runtime.scene.water?.level??0;
+  if(cameraMode==='walk'||previous.mode!==cameraMode||previous.terrain!==runtime.terrain||previous.groundHeight!==groundHeight||matrix.some((value,index)=>value!==previous.matrix?.[index])){
+   shadowViewFocus({mode:cameraMode,actor:runtime.actor,camera,terrain:runtime.terrain,groundHeight},focus);
+   last.current={mode:cameraMode,terrain:runtime.terrain,groundHeight,matrix:[...matrix]};
+  }
+  target.position.copy(focus);light.current.position.copy(focus).add(direction);target.updateMatrixWorld();
+ },-.25);
+ return <><primitive object={target}/><directionalLight ref={light} target={target} color={environment.sunColor} intensity={environment.sunIntensity} castShadow/></>;
+}
+export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
+ const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
+ const staticPlan=useMemo(()=>planStaticBatches(s.objects,bundle.models),[s.objects,bundle.models]);
+ return <WorldMaterialsProvider>
+  <color attach="background" args={[e.fogColor]}/><fog attach="fog" args={[e.fogColor,e.fogNear??28,e.fogFar??85]}/>
+  <hemisphereLight args={['#f1eee2','#95806d',1.8]}/>
+  <Sun runtime={runtime} environment={e} cameraMode={cameraMode}/>
+  {(s.terrain||s.water)&&<><Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime}/><LandscapeSky environment={e}/></>}
+  {!s.terrain&&(e.type==='construct'?<Construct/>:!s.water&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[180,180]}/><WorldSurfaceMaterial surface="soil" color={e.groundColor}/></mesh>)}
+  <group visible={cove}><Cove gltf={bundle.models[s.origin]}/>{s.moodboard&&<MoodBoard model={bundle.models[s.moodboard.asset]} board={s.moodboard} references={bundle.payload.world.references||[]} pins={bundle.payload.world.bible.referenceIds||[]} select={controls.select}/>}</group>
+  {staticPlan.batches.map(batch=><StaticAssetBatch key={batch.key} batch={batch} model={bundle.models[batch.asset]} asset={s.assets.find(a=>a.id===batch.asset)} runtime={runtime} select={controls.select}/>)}
+  {staticPlan.individual.map(item=>item.behavior?.type==='flock'?<FlockAsset key={item.id} item={item} model={bundle.models[item.asset]} runtime={runtime} select={controls.select}/>:<Entity key={item.id} item={item} model={bundle.models[item.asset]} runtime={runtime} select={controls.select}/>)}
+  <Driver runtime={runtime}/><ViewController runtime={runtime} mode={cameraMode} {...controls}/>
+ </WorldMaterialsProvider>;
+}

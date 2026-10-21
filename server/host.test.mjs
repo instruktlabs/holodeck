@@ -1,0 +1,42 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {EventEmitter} from 'node:events';
+import {mkdtemp,rm} from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import {createHost} from './host.mjs';
+
+test('host shutdown detaches broadcasts before agent disconnect and closes once',async t=>{
+ const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-host-close-')),errors=[];let closes=0;
+ const agent=Object.assign(new EventEmitter(),{snapshot:()=>({connected:true}),close(){closes++;this.emit('agent',{connected:false,status:'disconnected'});}});
+ const host=await createHost(root,{agentFactory:()=>agent});
+ const server=createServer((req,res)=>{res.on('error',e=>errors.push(e));host.middleware(req,res,()=>res.end());});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ t.after(async()=>{await host.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await rm(root,{recursive:true,force:true});});
+ const base=`http://127.0.0.1:${server.address().port}`,session=await fetch(base+'/api/session'),cookie=session.headers.get('set-cookie').split(';')[0];await session.json();
+ const events=await fetch(base+'/api/events',{headers:{cookie}}),reader=events.body.getReader();assert.equal((await reader.read()).done,false);
+ await host.close();await new Promise(resolve=>setImmediate(resolve));
+ assert.deepEqual(errors,[],'agent.close must not broadcast into an ended SSE response');
+ assert.equal(agent.listenerCount('agent'),0);assert.equal(host.store.listenerCount('world'),0);
+ await host.close();assert.equal(closes,1);await reader.cancel();
+});
+test('local host requires same-origin session, stages changes and rejects stale acceptance',async t=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-host-'));
+  let turnRequest;
+  const host=await createHost(root,{agentFactory:()=>Object.assign(new EventEmitter(),{snapshot:()=>({connected:false}),startTurn:async request=>{turnRequest=request;return {status:'mock'};},close(){}})});
+  const server=createServer((req,res)=>host.middleware(req,res,()=>{res.statusCode=404;res.end();}));await new Promise(r=>server.listen(0,'127.0.0.1',r));
+  t.after(async()=>{await host.close();await new Promise(r=>server.close(r));await rm(root,{recursive:true,force:true});});
+  const base=`http://127.0.0.1:${server.address().port}`;
+  assert.equal((await fetch(base+'/api/world',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})).status,401);
+  assert.equal((await fetch(base+'/api/session',{headers:{Origin:'https://foreign.example'}})).status,403);
+  const session=await fetch(base+'/api/session'),cookie=session.headers.get('set-cookie').split(';')[0],w=(await session.json()).world;
+  const post=(route,data)=>fetch(base+'/api/'+route,{method:'POST',headers:{cookie,'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const selectedRefs=[{id:'tree-1',part:'canopy'},{id:'gate',part:null}];
+  assert.equal((await post('agent/turn',{text:'Review these references',model:'test-model',selectedRefs})).status,200);
+  assert.deepEqual(turnRequest.selectedRefs,selectedRefs);
+  const proposed=await post('propose',{baseRevision:0,bible:{...w.bible,title:'Proposed'},summary:'Rename'});assert.equal(proposed.status,200);assert.equal(host.store.current.bible.title,w.bible.title);
+  const id=(await proposed.json()).proposalId;await post('world',{baseRevision:0,bible:{...w.bible,title:'User edit'}});assert.equal((await post('proposal/apply',{id})).status,400);assert.equal(host.store.current.bible.title,'User edit');
+  const next=await (await post('propose',{baseRevision:1,bible:{...w.bible,title:'Accepted'}})).json();assert.equal((await post('proposal/apply',{id:next.proposalId})).status,200);assert.equal(host.store.current.bible.title,'Accepted');
+  const checked=await (await post('check',{})).json();assert.equal(checked.advisory,true);assert.equal(checked.worldRevision,2);assert.equal(checked.observation.status,'missing');assert.equal(host.store.current.revision,2);
+});

@@ -1,0 +1,2298 @@
+{
+  "id": "courtyard",
+  "title": "The quiet courtyard",
+  "intent": "A warm limestone water court framed by continuous earth planting beds. Narrow stone paths lead through a timber gate to a recessed pool beneath layered garden trees.",
+  "rules": "Walk through the gate to reach the garden. The cove can be hidden and recalled. Gate state is transient; layout edits are saved.",
+  "environment": {
+    "type": "meadow",
+    "clearPath": true,
+    "groundColor": "#8c836c",
+    "fogColor": "#e0dccb",
+    "sunColor": "#ffe1b2",
+    "sunIntensity": 2.5
+  },
+  "runtime": {
+    "version": 1,
+    "modules": [
+      "collision.boxes@1",
+      "camera.walk-orbit@1",
+      "interaction.hinge@1"
+    ],
+    "spawn": [
+      0.55,
+      1.72,
+      2.35
+    ],
+    "look": [
+      0,
+      -0.08
+    ],
+    "overview": [
+      13,
+      16,
+      18
+    ],
+    "target": [
+      0,
+      0,
+      -5
+    ],
+    "bounds": [
+      -15,
+      15,
+      -22,
+      12
+    ],
+    "blockers": [
+      {
+        "id": "cove-wall-0",
+        "position": [
+          3.603379584321038,
+          0.65,
+          0.5815114541419978
+        ],
+        "rotation": [
+          0,
+          -1.7307963267948965,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-1",
+        "position": [
+          3.248191713500474,
+          0.65,
+          1.6648575291438166
+        ],
+        "rotation": [
+          0,
+          -2.04443269043126,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-2",
+        "position": [
+          2.576097083045756,
+          0.65,
+          2.585773350222936
+        ],
+        "rotation": [
+          0,
+          -2.3580690540676237,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-3",
+        "position": [
+          1.6526679714094341,
+          0.65,
+          3.2544106342435377
+        ],
+        "rotation": [
+          0,
+          -2.6717054177039876,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-4",
+        "position": [
+          0.5679978685490779,
+          0.65,
+          3.6055344154956703
+        ],
+        "rotation": [
+          0,
+          -2.985341781340351,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-5",
+        "position": [
+          -0.5720884104109986,
+          0.65,
+          3.6048876335710403
+        ],
+        "rotation": [
+          0,
+          -3.2989781449767146,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-6",
+        "position": [
+          -1.656359423414307,
+          0.65,
+          3.252533391137841
+        ],
+        "rotation": [
+          0,
+          -3.6126145086130785,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-7",
+        "position": [
+          -2.579029292161865,
+          0.65,
+          2.5828487973884706
+        ],
+        "rotation": [
+          0,
+          -3.9262508722494425,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-8",
+        "position": [
+          -3.250078601512147,
+          0.65,
+          1.6611709978183602
+        ],
+        "rotation": [
+          0,
+          -4.239887235885806,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-9",
+        "position": [
+          -3.604037058779826,
+          0.65,
+          0.5774226172758213
+        ],
+        "rotation": [
+          0,
+          -4.553523599522169,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-10",
+        "position": [
+          -3.606371041065865,
+          0.65,
+          -0.5626614560830603
+        ],
+        "rotation": [
+          0,
+          -4.867159963158533,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      },
+      {
+        "id": "cove-wall-11",
+        "position": [
+          -3.2568528355907986,
+          0.65,
+          -1.6478499953891959
+        ],
+        "rotation": [
+          0,
+          -5.180796326794897,
+          0
+        ],
+        "size": [
+          1.15,
+          1.3,
+          0.65
+        ],
+        "layer": "origin"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "id": "approach",
+      "label": "approach",
+      "position": [
+        0,
+        -0.015,
+        -7.2
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          2.2,
+          0.12,
+          16.4
+        ],
+        "color": "#c8bea8",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "threshold-wall-west",
+      "label": "threshold wall west",
+      "position": [
+        -4.55,
+        0.85,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          6.7,
+          1.7,
+          0.6
+        ],
+        "color": "#c9b798",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          6.7,
+          1.7,
+          0.6
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "threshold-wall-east",
+      "label": "threshold wall east",
+      "position": [
+        4.55,
+        0.85,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          6.7,
+          1.7,
+          0.6
+        ],
+        "color": "#c9b798",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          6.7,
+          1.7,
+          0.6
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "gate-pier-west",
+      "label": "gate pier west",
+      "position": [
+        -1.2,
+        1.2,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.4,
+          2.4,
+          0.5
+        ],
+        "color": "#b39a76",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.4,
+          2.4,
+          0.5
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "gate-pier-east",
+      "label": "gate pier east",
+      "position": [
+        1.2,
+        1.2,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.4,
+          2.4,
+          0.5
+        ],
+        "color": "#b39a76",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.4,
+          2.4,
+          0.5
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-gate",
+      "label": "Garden gate",
+      "position": [
+        -1,
+        1,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          1.98,
+          1.8,
+          0.14
+        ],
+        "color": "#8f6950",
+        "offset": [
+          0.99,
+          0,
+          0.08
+        ],
+        "surface": "wood"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          1.98,
+          1.8,
+          0.14
+        ],
+        "offset": [
+          0.99,
+          0,
+          0.08
+        ]
+      },
+      "behavior": {
+        "type": "hinge",
+        "angle": 1.55,
+        "speed": 1.2
+      }
+    },
+    {
+      "id": "garden-dais",
+      "label": "garden dais",
+      "position": [
+        0,
+        0.065,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "cylinder",
+        "size": [
+          4.9,
+          0.16,
+          4.9
+        ],
+        "color": "#bfb59c",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "water-basin",
+      "label": "Pool floor and stone base",
+      "position": [
+        0,
+        0.3,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "cylinder",
+        "size": [
+          2.28,
+          0.4,
+          2.28
+        ],
+        "color": "#aaa080",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          2.5,
+          0.9,
+          2.5
+        ],
+        "offset": [
+          0,
+          0.15,
+          0
+        ]
+      }
+    },
+    {
+      "id": "water-surface",
+      "label": "Rippled courtyard pool",
+      "position": [
+        0,
+        0.66,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "cylinder",
+        "size": [
+          1.65,
+          0.028,
+          1.65
+        ],
+        "color": "#4f8f8d",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "water"
+      },
+      "collider": null
+    },
+    {
+      "id": "tree--5--10-trunk",
+      "label": "Garden tree",
+      "position": [
+        -5,
+        2.54,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          4.3,
+          5,
+          4.1
+        ],
+        "color": "#d8dfb5",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.42,
+          2.5,
+          0.42
+        ],
+        "offset": [
+          0,
+          -1.25,
+          0
+        ]
+      }
+    },
+    {
+      "id": "tree--5--15-trunk",
+      "label": "Garden tree",
+      "position": [
+        -5,
+        2.54,
+        -15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          4.3,
+          5,
+          4.1
+        ],
+        "color": "#d8dfb5",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.42,
+          2.5,
+          0.42
+        ],
+        "offset": [
+          0,
+          -1.25,
+          0
+        ]
+      }
+    },
+    {
+      "id": "tree-5--10-trunk",
+      "label": "Garden tree",
+      "position": [
+        5,
+        2.54,
+        -10
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          4.3,
+          5,
+          4.1
+        ],
+        "color": "#d8dfb5",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.42,
+          2.5,
+          0.42
+        ],
+        "offset": [
+          0,
+          -1.25,
+          0
+        ]
+      }
+    },
+    {
+      "id": "tree-5--15-trunk",
+      "label": "Garden tree",
+      "position": [
+        5,
+        2.54,
+        -15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          4.3,
+          5,
+          4.1
+        ],
+        "color": "#d8dfb5",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.42,
+          2.5,
+          0.42
+        ],
+        "offset": [
+          0,
+          -1.25,
+          0
+        ]
+      }
+    },
+    {
+      "id": "bench--3_5",
+      "label": "west garden seat",
+      "position": [
+        -1.95,
+        0.37,
+        -10.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.85,
+          0.7,
+          2.2
+        ],
+        "color": "#b9a788",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.85,
+          0.7,
+          2.2
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "bench-3_5",
+      "label": "east garden seat",
+      "position": [
+        1.95,
+        0.37,
+        -10.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.85,
+          0.7,
+          2.2
+        ],
+        "color": "#b9a788",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.85,
+          0.7,
+          2.2
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-boundary-west",
+      "label": "West garden wall",
+      "position": [
+        -7.9,
+        0.85,
+        -13
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.5,
+          1.7,
+          12
+        ],
+        "color": "#cbb995",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.5,
+          1.7,
+          12
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-boundary-east",
+      "label": "East garden wall",
+      "position": [
+        7.9,
+        0.85,
+        -13
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.5,
+          1.7,
+          12
+        ],
+        "color": "#cbb995",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.5,
+          1.7,
+          12
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-boundary-rear",
+      "label": "Rear garden wall",
+      "position": [
+        0,
+        0.85,
+        -19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          16.3,
+          1.7,
+          0.5
+        ],
+        "color": "#cbb995",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          16.3,
+          1.7,
+          0.5
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-bed--1--9_5",
+      "label": "Planted bed",
+      "position": [
+        -5.15,
+        -0.005,
+        -10.05
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          4.9,
+          0.09,
+          5.3
+        ],
+        "color": "#806747",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "soil"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-bed--1--14_5",
+      "label": "Planted bed",
+      "position": [
+        -5.15,
+        -0.005,
+        -15.7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          4.9,
+          0.09,
+          6
+        ],
+        "color": "#806747",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "soil"
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub--1-0",
+      "label": "Border shrub",
+      "position": [
+        -6.3,
+        0.56,
+        -8.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub--1-1",
+      "label": "Border shrub",
+      "position": [
+        -6.45,
+        0.56,
+        -10.8
+      ],
+      "rotation": [
+        0,
+        0.7,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub--1-2",
+      "label": "Border shrub",
+      "position": [
+        -6.3,
+        0.56,
+        -12.8
+      ],
+      "rotation": [
+        0,
+        1.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub--1-3",
+      "label": "Border shrub",
+      "position": [
+        -6.45,
+        0.56,
+        -14.8
+      ],
+      "rotation": [
+        0,
+        2.0999999999999996,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub--1-4",
+      "label": "Border shrub",
+      "position": [
+        -6.3,
+        0.56,
+        -16.8
+      ],
+      "rotation": [
+        0,
+        2.8,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-bed-1--9_5",
+      "label": "Planted bed",
+      "position": [
+        5.15,
+        -0.005,
+        -10.05
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          4.9,
+          0.09,
+          5.3
+        ],
+        "color": "#806747",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "soil"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-bed-1--14_5",
+      "label": "Planted bed",
+      "position": [
+        5.15,
+        -0.005,
+        -15.7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          4.9,
+          0.09,
+          6
+        ],
+        "color": "#806747",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "soil"
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub-1-0",
+      "label": "Border shrub",
+      "position": [
+        6.3,
+        0.56,
+        -8.8
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub-1-1",
+      "label": "Border shrub",
+      "position": [
+        6.45,
+        0.56,
+        -10.8
+      ],
+      "rotation": [
+        0,
+        0.7,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub-1-2",
+      "label": "Border shrub",
+      "position": [
+        6.3,
+        0.56,
+        -12.8
+      ],
+      "rotation": [
+        0,
+        1.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub-1-3",
+      "label": "Border shrub",
+      "position": [
+        6.45,
+        0.56,
+        -14.8
+      ],
+      "rotation": [
+        0,
+        2.0999999999999996,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "border-shrub-1-4",
+      "label": "Border shrub",
+      "position": [
+        6.3,
+        0.56,
+        -16.8
+      ],
+      "rotation": [
+        0,
+        2.8,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "tree",
+        "size": [
+          1.35,
+          1.04,
+          1.2
+        ],
+        "color": "#c7d6a2",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      },
+      "collider": null
+    },
+    {
+      "id": "threshold-coping--1",
+      "label": "Limestone coping",
+      "position": [
+        -4.37,
+        1.75,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          6.34,
+          0.1,
+          0.72
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "threshold-coping-1",
+      "label": "Limestone coping",
+      "position": [
+        4.37,
+        1.75,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          6.34,
+          0.1,
+          0.72
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-coping-west",
+      "label": "west wall coping",
+      "position": [
+        -7.9,
+        1.75,
+        -13
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.72,
+          0.1,
+          11.28
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-corner-west-front",
+      "label": "west front wall corner",
+      "position": [
+        -7.9,
+        0.91,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "color": "#bca786",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-corner-cap-west-front",
+      "label": "west front corner cap",
+      "position": [
+        -7.9,
+        1.88,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.86,
+          0.12,
+          0.86
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-corner-west-rear",
+      "label": "west rear wall corner",
+      "position": [
+        -7.9,
+        0.91,
+        -19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "color": "#bca786",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-corner-cap-west-rear",
+      "label": "west rear corner cap",
+      "position": [
+        -7.9,
+        1.88,
+        -19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.86,
+          0.12,
+          0.86
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-bed-edge-west",
+      "label": "west planting edge",
+      "position": [
+        -2.65,
+        0.035,
+        -13.15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.1,
+          0.1,
+          11.1
+        ],
+        "color": "#a89879",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "seat-landing-west",
+      "label": "west seat landing",
+      "position": [
+        -1.85,
+        -0.005,
+        -10.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          1.45,
+          0.12,
+          2.8
+        ],
+        "color": "#c8bea8",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-coping-east",
+      "label": "east wall coping",
+      "position": [
+        7.9,
+        1.75,
+        -13
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.72,
+          0.1,
+          11.28
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-corner-east-front",
+      "label": "east front wall corner",
+      "position": [
+        7.9,
+        0.91,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "color": "#bca786",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-corner-cap-east-front",
+      "label": "east front corner cap",
+      "position": [
+        7.9,
+        1.88,
+        -7
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.86,
+          0.12,
+          0.86
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-corner-east-rear",
+      "label": "east rear wall corner",
+      "position": [
+        7.9,
+        0.91,
+        -19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "color": "#bca786",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": {
+        "type": "box",
+        "size": [
+          0.72,
+          1.82,
+          0.72
+        ],
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "garden-corner-cap-east-rear",
+      "label": "east rear corner cap",
+      "position": [
+        7.9,
+        1.88,
+        -19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.86,
+          0.12,
+          0.86
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-bed-edge-east",
+      "label": "east planting edge",
+      "position": [
+        2.65,
+        0.035,
+        -13.15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          0.1,
+          0.1,
+          11.1
+        ],
+        "color": "#a89879",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "seat-landing-east",
+      "label": "east seat landing",
+      "position": [
+        1.85,
+        -0.005,
+        -10.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          1.45,
+          0.12,
+          2.8
+        ],
+        "color": "#c8bea8",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "garden-coping-rear",
+      "label": "Rear wall coping",
+      "position": [
+        0,
+        1.75,
+        -19
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "box",
+        "size": [
+          15.08,
+          0.1,
+          0.72
+        ],
+        "color": "#d5c7aa",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    },
+    {
+      "id": "water-basin-rim",
+      "label": "Carved limestone pool rim",
+      "position": [
+        0,
+        0.65,
+        -14
+      ],
+      "rotation": [
+        -1.5707963267948966,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "shape": {
+        "type": "torus",
+        "size": [
+          2.7,
+          2.7,
+          2
+        ],
+        "color": "#c4b898",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "surface": "stone"
+      },
+      "collider": null
+    }
+  ]
+}
