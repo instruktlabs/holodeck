@@ -3,9 +3,12 @@
 Research checked 2026-10-21. This is an engineering decision record, not a provider
 endorsement or a finding that every possible deployment is permitted. A provider's
 current agreement, account plan and organization policy still govern its use.
-Only the local Codex and Cursor adapters are implemented. Cursor spawns the
+The local Codex, Cursor and Claude Code adapters are implemented. Cursor spawns the
 installed `agent acp` process in the selected world and authenticates with
-`cursor_login`. Image generation stays on Codex. No proxy was installed or adopted.
+`cursor_login`. The Claude Code adapter (added 2026-10-22) runs the user's
+installed, unmodified `claude` CLI with its own sign-in; see
+[Anthropic Claude Code](#anthropic-claude-code). Image generation stays on Codex.
+No proxy was installed or adopted.
 
 ## Decision
 
@@ -41,7 +44,7 @@ subscription-token proxying or multi-account rotation.
 | Product | Candidate Holodeck route | Subscription assessment / condition |
 | --- | --- | --- |
 | OpenAI Codex | Installed `codex app-server`, managed ChatGPT login | Documented client integration; current implementation uses this route. |
-| Anthropic Claude Code | Unmodified installed CLI, native end-user authentication | Current help explicitly supports subscription usage for `-p`/Agent SDK; product offering, login ownership and commercial host conditions still apply. |
+| Anthropic Claude Code | Unmodified installed CLI, native end-user authentication | Current help explicitly supports subscription usage for `-p`/Agent SDK; product offering, login ownership and commercial host conditions still apply. Local adapter implemented for personal bring-your-own-CLI use. |
 | Google Gemini CLI | Installed CLI via ACP | Documented developer-tool interface; no third-party direct backing-service access using CLI OAuth. |
 | GitHub Copilot | Official SDK with the user's CLI login | Explicit desktop-app scenario in official authentication guidance. |
 | Kimi Code | Installed CLI via ACP, or documented subscription API key | Personal interactive coding; no resale, identity spoofing or unattended batch/pipeline service. |
@@ -93,20 +96,56 @@ must be read alongside the newer end-user subscription guidance. The
 classifies `claude -p` as using the Agent SDK via CLI: merely replacing an SDK
 package with a subprocess is not a separate policy exemption.
 
-**Proposed adapter, not implemented:** Holodeck could launch the user's installed,
-unmodified CLI in the selected world workspace; consume documented JSON/stream
-events; expose local world tools through MCP; and preserve native authentication,
-session, permission and interruption behavior. This is our conditional engineering
-interpretation of the documented route, not Holodeck-specific legal clearance.
-It must not collect tokens, provide a separate Claude.ai login, pool usage, or
-silently change billing. No inference or authentication test was performed here.
+Rechecked 2026-10-22: the October 7 support article still says subscription
+limits cover the Agent SDK, `claude -p` and third-party apps. A personal local
+tool that launches the user's own installed, unmodified CLI with its own sign-in
+is the case these sources carve out. Distributing Holodeck to other people with
+this connection still needs Anthropic's written clearance before it is advertised;
+describe it as bring-your-own installed Claude Code, and do not present Holodeck
+or its connection under the Claude Code product name.
 
-Read-only inspection identified installed CLI 2.1.300 and examined `--help`.
-Implementation note: `--bare` deliberately skips subscription OAuth credentials
-and requires an API/provider route. Do not use it for the user's own-subscription
-profile. Evaluate workspace discovery, MCP configuration and permission handling
-through the documented non-bare controls instead; validate their actual behavior
-before enabling an adapter.
+**Adapter, implemented 2026-10-22** (`server/claude.mjs`, tested against CLI
+2.1.300). Holodeck launches the installed CLI in the selected world folder, one
+process per turn:
+
+- `claude -p --output-format stream-json --verbose`, with the prompt on stdin.
+  The first turn passes `--session-id <uuid>`; later turns and reconnects pass
+  `--resume <id>`. The `session_id` from the `system`/`init` event is persisted.
+  `--input-format stream-json` is not used because the CLI reference does not
+  document its stdin message schema.
+- Assistant `text` blocks stream into the conversation; `tool_use` names become
+  progress. The final `result` event decides completed or error.
+- Stop sends SIGINT, which the documentation says ends the turn; SIGTERM follows
+  only if the process is still running after five seconds. On Windows, Node
+  delivers both as process termination.
+- `--permission-mode manual` (the documented alias of `default`) with
+  `--permission-prompt-tool mcp__holodeck__permission_prompt`. Permission prompts
+  appear as Holodeck approval cards (Allow once / Reject) and return
+  `{"behavior":"allow","updatedInput":...}` or `{"behavior":"deny","message":...}`.
+  `bypassPermissions` and the skip-permission flags are never passed. Holodeck's
+  own world tools are pre-allowed with `--allowedTools`; Kiln and native tools
+  still prompt.
+- `--mcp-config` (a temporary file outside the world) plus `--strict-mcp-config`
+  supply only the Holodeck bridge and the world's `kiln_workspace` server. The
+  bridge is a stdio MCP server that forwards to the host over a local pipe with a
+  per-connection token. `--setting-sources user` keeps the user's own settings and
+  skips the world folder's project/local settings, so an untrusted world cannot
+  add hooks or MCP servers.
+- Auth: Holodeck never passes `--bare`. It removes `ANTHROPIC_*` variables,
+  `CLAUDE_CODE_USE_*`/`*_SKIP_*_AUTH` provider switches, `AWS_BEARER_TOKEN_BEDROCK`
+  and `CLAUDE_CODE_SIMPLE` from the child environment. Connect runs
+  `claude auth status --json` and proceeds only for `loggedIn` with `authMethod`
+  `claude.ai` on the first-party provider; it shows the auth method and plan
+  type, not the email or organization. If signed out, it tells the user to run
+  `claude` in a terminal. A turn whose `init` event reports an `apiKeySource`
+  other than `none` is stopped. Holodeck offers no Claude login and never reads,
+  copies or stores Claude credentials.
+- Models are `--model` aliases (account default, fable, opus, sonnet, haiku) with
+  optional `--effort`. Image generation stays on Codex.
+
+This is our conditional engineering interpretation of the documented route, not
+Holodeck-specific legal clearance. It must not collect tokens, provide a separate
+Claude.ai login, pool usage, or silently change billing.
 
 The [Consumer Terms](https://www.anthropic.com/legal/consumer-terms) prohibit
 automated access except via API keys or explicit permission. Our local public

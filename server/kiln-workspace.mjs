@@ -12,14 +12,18 @@ export async function ensureKilnWorkspace(root){
     child.stdout.on('data',d=>{output=(output+d).slice(-12000);});child.stderr.on('data',()=>{});child.on('error',reject);child.on('exit',code=>code===0?resolve():reject(new Error(`Kiln workspace setup failed. Run kiln-init --check for this world. ${output.slice(-1000)}`)));
   });
 }
-export async function kilnOverrides(root){
-  let manifest;try{manifest=JSON.parse(await readFile(path.join(root,'.kiln/workspace.json'),'utf8'));}catch{return [];}
+// The world's kiln_workspace MCP server as a provider-neutral stdio launch.
+export async function kilnServer(root){
+  let manifest;try{manifest=JSON.parse(await readFile(path.join(root,'.kiln/workspace.json'),'utf8'));}catch{return null;}
   const runtime=manifest.runtime,node=manifest.node||process.execPath;
   if(typeof runtime!=='string'||typeof node!=='string')throw new Error('Repair the Kiln workspace manifest before connecting');
   const server=path.join(runtime,'dist/mcp-server.mjs');await access(server);await access(node);
+  return {command:node,args:[server],env:{KILN_WORKSPACE:root,KILN_PROGRAM_STORE:path.join(root,'.kiln/programs'),KILN_RENDER:'auto'}};
+}
+export async function kilnOverrides(root){
+  const server=await kilnServer(root);if(!server)return [];
   return [
-    ['mcp_servers.kiln_workspace.command',node],['mcp_servers.kiln_workspace.args',[server]],
-    ['mcp_servers.kiln_workspace.env.KILN_WORKSPACE',root],['mcp_servers.kiln_workspace.env.KILN_PROGRAM_STORE',path.join(root,'.kiln/programs')],
-    ['mcp_servers.kiln_workspace.env.KILN_RENDER','auto'],
+    ['mcp_servers.kiln_workspace.command',server.command],['mcp_servers.kiln_workspace.args',server.args],
+    ...Object.entries(server.env).map(([key,value])=>[`mcp_servers.kiln_workspace.env.${key}`,value]),
   ].flatMap(([key,value])=>['-c',`${key}=${JSON.stringify(value)}`]);
 }

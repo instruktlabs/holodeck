@@ -4,6 +4,7 @@ import path from 'node:path';
 import { WorldStore } from './world-store.mjs';
 import { CodexAgent } from './codex.mjs';
 import { CursorAgent } from './cursor.mjs';
+import { ClaudeAgent } from './claude.mjs';
 import { MAX_ASSET_BYTES } from '../src/world/contract.mjs';
 import {ensureKilnWorkspace} from './kiln-workspace.mjs';
 import {checkWorld} from './coherence.mjs';
@@ -11,7 +12,7 @@ import {listRevisions,restoreRevision,remixRevision} from './history.mjs';
 
 async function body(req,limit=1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw new Error('Request is too large');chunks.push(chunk);}return Buffer.concat(chunks);}
 const json=(res,value,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(value));};
-export async function createHost(root,{agentFactory,cursorFactory,context=null,token=randomBytes(32).toString('hex'),ensureWorkspace=ensureKilnWorkspace}={}){
+export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,context=null,token=randomBytes(32).toString('hex'),ensureWorkspace=ensureKilnWorkspace}={}){
   const store=await WorldStore.open(root),clients=new Set();let proposal=null,observation=null,closing=false,closePromise=null,historyActive=false,agentStarting=false,storeWork=0;
   const serial=store.serial.bind(store);store.serial=work=>{storeWork++;return serial(work).finally(()=>storeWork--);};
   const scoped=value=>{if(!context||!value||typeof value!=='object')return value;const result={...value};if(result.world)result.context=context;if(result.assets)result.assets=Object.fromEntries(Object.entries(result.assets).map(([id,asset])=>[id,{...asset,url:`${asset.url}?worldId=${context.worldId}&epoch=${context.epoch}`} ]));if(result.proposal)result.proposal=scoped(result.proposal);return result;};
@@ -32,11 +33,12 @@ export async function createHost(root,{agentFactory,cursorFactory,context=null,t
     proposal={id:randomUUID(),baseRevision:change.baseRevision,summary:String(change.summary||'World change').slice(0,1000),world,assets};emit('proposal',proposal);return {proposalId:proposal.id,status:'awaiting user review',baseRevision:proposal.baseRevision};
   };
   const codexAgent=agentFactory?agentFactory(store,{propose,observe:()=>observation}):new CodexAgent(store,{propose,observe:()=>observation});
-  let cursor=null,agent=codexAgent;
+  let cursor=null,claude=null,agent=codexAgent;
   const cursorAgent=()=>cursor??=cursorFactory?cursorFactory(store,{propose,observe:()=>observation}):new CursorAgent(store,{propose,observe:()=>observation});
+  const claudeAgent=()=>claude??=claudeFactory?claudeFactory(store,{propose,observe:()=>observation}):new ClaudeAgent(store,{propose,observe:()=>observation});
   const selectAgent=requested=>{
-    if(!['codex','cursor'].includes(requested))throw new Error('Choose Codex or Cursor');
-    const next=requested==='cursor'?cursorAgent():codexAgent;
+    if(!['codex','cursor','claude'].includes(requested))throw new Error('Choose Codex, Cursor or Claude Code');
+    const next=requested==='cursor'?cursorAgent():requested==='claude'?claudeAgent():codexAgent;
     if(next!==agent){
       const current=agent.snapshot?.()||{};
       if(agent.connecting||current.turnId||current.requests?.length||['starting','connecting','working','inProgress'].includes(current.status))throw new Error('Finish or stop the current agent session before switching.');
@@ -113,7 +115,7 @@ export async function createHost(root,{agentFactory,cursorFactory,context=null,t
         if(agentStarting)throw new Error('An agent turn is already starting');
         agentStarting=true;
         try{
-          if(route.endsWith('/image')){if(agent.snapshot?.().provider==='cursor')throw new Error('Image generation stays on the Codex connection.');await ensureWorkspace(root);return send(res,await agent.generateImage(data));}
+          if(route.endsWith('/image')){if((agent.snapshot?.().provider||'codex')!=='codex')throw new Error('Image generation stays on the Codex connection.');await ensureWorkspace(root);return send(res,await agent.generateImage(data));}
           return send(res,await agent.startTurn({text:data.text,model:data.model,effort:data.effort,selection:data.selection,selectedRefs:data.selectedRefs}));
         }finally{agentStarting=false;}
       }
@@ -131,7 +133,7 @@ export async function createHost(root,{agentFactory,cursorFactory,context=null,t
     store.off('world',onWorld);store.off('diagnostic',onDiagnostic);agent.off('agent',onAgent);
     const responses=[...clients];clients.clear();
     for(const res of responses)if(!res.destroyed&&!res.writableEnded)res.end();
-    closePromise=(async()=>{try{await codexAgent.persistQueue;codexAgent.close?.();if(cursor){await cursor.persistQueue;cursor.close?.();}}finally{await store.close();}})();return closePromise;
+    closePromise=(async()=>{try{await codexAgent.persistQueue;codexAgent.close?.();if(cursor){await cursor.persistQueue;cursor.close?.();}if(claude){await claude.persistQueue;claude.close?.();}}finally{await store.close();}})();return closePromise;
   }};
 }
 
