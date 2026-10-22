@@ -1,22 +1,88 @@
 # Current prototype boundary
 
-Checked against Holodeck source on 2026-10-21. Inspect schemaVersion first.
+Checked against Holodeck source on 2026-10-22. Inspect schemaVersion first.
 Existing v1 worlds remain unchanged; newly scaffolded examples use v2.
+
+## Facts to know before authoring
+
+`world_read` returns the world in sections so no result exceeds an agent's tool
+output limit. With no arguments it returns the overview: revision, scene
+settings, objects grouped by asset with counts, scatter summaries and the bible.
+Pass `section` (`objects`, optionally with `asset`; `scatters`, `assets`, `files`,
+`references`, `capabilities`, `scene`, `bible`) and each page's `next` as
+`cursor` until it is null. A design script that needs the whole scene reads
+`world/world.json` in the world folder.
+
+The `capabilities` section returns each of these; the key is in brackets
+(`spatial.` keys are flattened, for example `spatial.foliage`).
+
+- **Placement rotation** (`placements`): `rotation` is `[x,y,z]` in radians,
+  applied in three.js Euler order XYZ. Kiln part rotation options are in
+  degrees, so convert with `degrees*PI/180`.
+- **Foliage wind** (`spatial.foliage`): `asset.foliage.nodes` binds exact glTF
+  node names, each a single node carrying a single-primitive lit mesh. Kiln's
+  `createPart(name)` names its mesh `Mesh_<name>`. Bind `Mesh_<name>`, or set
+  the returned mesh's `.name` to the binding name in the program before saving.
+  Wind also needs `TEXCOORD_0` with UV.y 0 at the attachment and 1 at the tip.
+  Check the exported node names before proposing.
+- **Terrain appearance** (`spatial.terrainAppearance`, `spatial.terrainRendering`):
+  four colours, two grass heights, `rockSlope` and `textureScale` set the base
+  blend. Its grain, patch contrast, wet band, roughness and seabed tint are
+  fixed. Kiln materials and GLBs cannot reach the terrain.
+- **Terrain layers** (`spatial.terrainLayers`): up to four
+  `appearance.layers` draw PNG maps over the base: albedo, normal and optional
+  roughness, all one square power-of-two size. Masks by height, slope, height
+  above water, distance to placements or scatters (`near`), and a painted
+  PNG. Textures a Kiln program saves arrive this way, as files under
+  `assets/imports`. Use a litter or soil layer with a `near` mask for ground
+  under a canopy.
+- **Scatter** (`spatial.scatter`): `scene.scatters` records expand with a seed
+  into placements inside a region polygon, with density, spacing, height,
+  slope and water limits, keep-outs and jitter. Use them for groves,
+  undergrowth, rocks and litter; list hero pieces as objects. Expanded
+  instances count against the same budgets, and `world_check` reports each
+  scatter's placed count.
+- **Environment types** (`environmentTypes`): `type` only picks the ground when
+  there is no terrain. `construct` is a gridded floor and `meadow` a soil plane.
+  With terrain, both render the same terrain, ocean and analytic sky.
+- **Water and sky** (`spatial.waterRendering`, `spatial.surf`, `spatial.sky`):
+  water colour, shallow colour and foam width are the base look. Optional
+  `water.surf` adds reef-break foam and beach swash over the terrain (visual
+  only). Optional `environment.sky` gives a zenith/horizon gradient (the
+  horizon defaults to `fogColor`), a sun disc and procedural clouds; without it
+  the analytic sky has no clouds. Placed objects under the water are tinted
+  automatically like the seabed at their depth; do not bake underwater tint
+  into GLB albedo.
+- **Proposal size** (`proposals`): the scene is always sent whole, capped at
+  4 MiB. Inline `sceneJson` travels in one tool call, so your own output limit
+  binds first. For more than a small change, write the complete scene to a JSON
+  file under `assets/source` and pass `sceneFile`. Measure the staged proposal
+  with `world_sample` and `world_check` using its `proposalId` before the user
+  applies it.
+- **Budget strategy** (`budgetStrategy`): the 64-asset cap usually binds first.
+  Use two or three shaped variants per family, and vary placements by yaw,
+  scale and lean. A scatter record does that variation for a whole family.
+- **Kiln skills**: Holodeck owns terrain, water and scene composition. If Kiln's
+  `kiln-compose-scene` skill is installed, do not use its terrain or scene
+  composition for a Holodeck world. Keep Kiln's progress log at
+  `assets/source/KILN_PROGRESS.md`, not at the world root.
 
 `world_check` supplies an advisory report with observation freshness and bounded
 spatial probes where supported. It does not block or accept edits. Optional
 routesJson contains up to eight {id,from:[x,y,z],to:[x,y,z]} routes. The terrain
 driver samples supported feet, slope and water; only the legacy ground-plane
 driver requires eye Y=1.72. `world_sample` reads up to64 accepted-world support
-points with terrain height/normal/slope, water height/depth and blockers. Findings
-describe samples and uncertainty, not a verdict on the intended world.
+points with terrain height/normal/slope, water height/depth and blockers. Pass a
+staged `proposalId` to `world_sample` or `world_check` to measure the proposal
+instead, before the user applies it. Findings describe samples and uncertainty,
+not a verdict on the intended world.
 
 ## Version 2 example worlds
 
 Read scene.runtime for enabled, versioned built-ins. Available modules are
 collision.boxes@1, camera.walk-orbit@1, interaction.hinge@1 and motion.spin@1.
 Optional terrain.heightfield@1, water.ocean@1 and inhabitant.maker@1 add terrain,
-ocean and first/third-person possession. Use `world_read.capabilities.spatial`
+ocean and first/third-person possession. Use the `world_read` capabilities section (`spatial.*`)
 for the live host's full strict fields, valid examples, defaults and limits. This
 response reaches existing workspaces even when their copied skills are older.
 Each optional module requires its matching scene.terrain, scene.water or
@@ -94,7 +160,7 @@ to4 directional waves with bounded amplitude, wavelength and speed. Terrain,
 water and sky remain present when the origin layer is hidden. Use world_sample
 before positioning roots, entries and waterline details; object Y remains an
 authored pivot and must include the asset's measured support offset. Sampling
-reads accepted content only. After applying a proposal, check the loaded revision,
+reads accepted content unless you pass the staged proposalId. After applying a proposal, check the loaded revision,
 walk intended slopes and shoreline transitions, switch camera views and inspect
 both WebGPU and forced WebGL2. Shader detail and foam do not supply physics.
 

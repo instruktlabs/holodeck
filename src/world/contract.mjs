@@ -1,6 +1,8 @@
 import {validateRuntimeScene} from './runtime.mjs';
 import {validateFoliage,validateFoliageBinding} from './foliage-contract.mjs';
 import {MAX_PLACEMENTS} from './asset-budget.mjs';
+import {expandScatters} from './scatter.mjs';
+import {validateSky} from './sky.mjs';
 export const MAX_ASSET_BYTES=32*1024*1024;
 // Describes current host delivery, not every feature an authoring tool can export.
 export const ASSET_DELIVERY_PROFILE=Object.freeze({
@@ -42,8 +44,9 @@ export function validateWorld(w){
     if(r.layout){exact(r.layout,['x','y','w','h'],'card layout');const {x,y,w,h}=r.layout;if(![x,y,w,h].every(Number.isFinite)||x<0||y<100||w<160||h<120||x+w>1200||y+h>720)fail('Invalid card layout');}
   }
   if(w.bible.referenceIds&&(!Array.isArray(w.bible.referenceIds)||w.bible.referenceIds.some(x=>!refIds.has(x))))fail('Pinned bible references must exist on the board');
-  const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water']:[])],'scene');
-  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar']:[])],'environment');
+  const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water','scatters']:[])],'scene');
+  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','sky']:[])],'environment');
+  if(s.environment.sky!==undefined)validateSky(s.environment.sky);
   if(!['construct','meadow','woodland'].includes(s.environment.type))fail('Unsupported environment capability');
   if(typeof s.environment.clearPath!=='boolean')fail('clearPath must be a boolean');
   for(const k of ['groundColor','fogColor','sunColor'])if(!/^#[0-9a-f]{6}$/i.test(s.environment[k]))fail(`Invalid ${k}`);
@@ -83,7 +86,8 @@ export function validateWorld(w){
     }
   }
   if(s.moodboard){exact(s.moodboard,['asset','position','rotation','page','title','theme',...(w.schemaVersion===2?['collider']:[])],'mood board');if(!ids.has(s.moodboard.asset))fail('Mood board frame is missing');vec(s.moodboard.position,'board position');vec(s.moodboard.rotation,'board rotation');if(!Number.isInteger(s.moodboard.page)||s.moodboard.page<0||s.moodboard.page>33)fail('Invalid board page');if(s.moodboard.title!==undefined)str(s.moodboard.title,120,'board title');if(s.moodboard.theme!==undefined&&!['linen','charcoal','clay'].includes(s.moodboard.theme))fail('Invalid board theme');}
-  if(w.schemaVersion===2){if(s.bridge!==null||s.environment.type==='woodland')fail('Version 2 uses authored world geometry instead of the legacy crossing');validateRuntimeScene(s);}
+  if(w.schemaVersion===2){if(s.bridge!==null||s.environment.type==='woodland')fail('Version 2 uses authored world geometry instead of the legacy crossing');validateRuntimeScene(s);
+    if(s.scatters?.length){const {stats}=expandScatters(s),total=s.objects.length+stats.reduce((n,x)=>n+x.placed,0);if(total>placementLimit)fail(`Scene exceeds ${placementLimit} placements: ${s.objects.length} authored plus scatters ${stats.map(x=>`${x.id} ${x.placed}`).join(', ')}`);}}
   return w;
 }
 

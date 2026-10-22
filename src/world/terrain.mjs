@@ -6,11 +6,14 @@
 // Plateau is a fraction of elliptical radius; beyond it the radial weight is
 // (1 - normalizedRadiusSquared)^falloff. The outer radius has zero influence.
 // Ocean: {type:'ocean',bounds,level,waves:[{direction:[dx,dz],amplitude,
-// wavelength,speed,phase?}],color?,shallowColor?,foamWidth?}.
+// wavelength,speed,phase?}],color?,shallowColor?,foamWidth?,surf?}; see surf.mjs.
 // Distances are metres, speed is metres/second, time seconds, angles radians.
 // Wave phase = (2*PI/wavelength)*(dot(direction,[x,z])-speed*time)+phase.
 // Shaders must use this equation and the same elapsed runtime clock. These
 // queries do not apply buoyancy, shoreline attenuation or visual-only detail.
+
+import {validateTerrainLayers} from './terrain-layers.mjs';
+import {validateSurf} from './surf.mjs';
 
 const assert=(condition,message)=>{if(!condition)throw new Error(message);};
 const record=(value,keys,label)=>assert(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(key=>keys.includes(key)),`Invalid ${label} fields`);
@@ -34,12 +37,13 @@ export function validateTerrain(terrain){
   finite(stamp.height,-1000,1000,'terrain stamp height');finite(stamp.plateau??0,0,.999,'terrain stamp plateau');finite(stamp.falloff??2,1,8,'terrain stamp falloff');
  }
  if(terrain.appearance!==undefined){
-  const a=terrain.appearance;record(a,['sandColor','wetSandColor','grassColor','rockColor','grassStart','grassEnd','rockSlope','textureScale'],'terrain appearance');
+  const a=terrain.appearance;record(a,['sandColor','wetSandColor','grassColor','rockColor','grassStart','grassEnd','rockSlope','textureScale','layers'],'terrain appearance');
   for(const key of ['sandColor','wetSandColor','grassColor','rockColor'])if(a[key]!==undefined)tint(a[key],key);
   for(const key of ['grassStart','grassEnd'])if(a[key]!==undefined)finite(a[key],-1000,1000,key);
   if(a.grassStart!==undefined&&a.grassEnd!==undefined)assert(a.grassStart<a.grassEnd,'Grass end must be above grass start');
   if(a.rockSlope!==undefined)finite(a.rockSlope,0,Math.PI/2,'rock slope');
   if(a.textureScale!==undefined){finite(a.textureScale,0,100,'texture scale');assert(a.textureScale>0,'Texture scale must be positive');}
+  if(a.layers!==undefined)validateTerrainLayers(a.layers);
  }
  return terrain;
 }
@@ -106,7 +110,7 @@ export function createTerrain(terrain){
 }
 
 export function validateWater(water){
- record(water,['type','bounds','level','waves','color','shallowColor','foamWidth'],'water');
+ record(water,['type','bounds','level','waves','color','shallowColor','foamWidth','surf'],'water');
  assert(water.type==='ocean','Unsupported water type');bounds(water.bounds,'water bounds');finite(water.level,-1000,1000,'water level');
  assert(Array.isArray(water.waves)&&water.waves.length<=4,'Water allows at most four waves');
  for(const wave of water.waves){
@@ -116,6 +120,7 @@ export function validateWater(water){
  }
  for(const key of ['color','shallowColor'])if(water[key]!==undefined)tint(water[key],key);
  if(water.foamWidth!==undefined)finite(water.foamWidth,.001,20,'foam width');
+ if(water.surf!==undefined)validateSurf(water.surf);
  return water;
 }
 

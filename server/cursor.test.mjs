@@ -63,6 +63,7 @@ test('Cursor prompts stream into the conversation and permission replies use ACP
   const working=await agent.startTurn({text:'Read my world',model:'plan'});
   assert.equal(working.status,'working');
   assert.equal(rpc.calls.some(c=>c.method==='session/set_mode'&&c.params.modeId==='plan'),true);
+  assert.match(rpc.prompt.prompt[0].text,/Kiln progress log at assets\/source\/KILN_PROGRESS\.md/);
   const card=agent.state.requests[0];
   assert.equal(card.provider,'cursor');assert.equal(card.kind,'permission');
   assert.equal(card.params.command,'node -e 0');assert.equal(card.params.reason,'List the world');

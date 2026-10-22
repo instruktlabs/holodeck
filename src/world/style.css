@@ -50,3 +50,5 @@
 .live-world .message-table th:first-child,.live-world .message-table td:first-child{min-width:64px;font-weight:600;overflow-wrap:normal}
 .zen-workspace .composer-area:has(.needs-you){z-index:13}
 @media(max-width:480px){.live-world .composer{flex-wrap:wrap;row-gap:4px}.live-world .composer textarea{flex:1 0 100%;order:-1}.zen-workspace .controls-hint{display:none}.zen-workspace .conversation{top:180px;bottom:150px}}
+/* Proposal review: minimal layout only; the interface design pass owns its look. */
+.proposal-review .proposal-summary{margin:8px 0;padding-left:18px;font-size:13px}.proposal-review .proposal-scroll{max-height:240px;overflow:auto;margin:8px 0}.proposal-review table{width:100%;border-collapse:collapse;font-size:12px}.proposal-review caption{text-align:left;font-weight:600;padding:4px 0}.proposal-review th,.proposal-review td{text-align:left;vertical-align:top;padding:2px 6px;border-top:1px solid #b5ae9c66}.proposal-review p{font-size:12px}

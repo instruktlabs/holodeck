@@ -14,9 +14,10 @@ import { MoodBoardEditor,referenceUrl } from './moodboard.jsx';
 import {CoveEffects} from './effects.jsx';
 import {WorldRuntime} from './runtime.mjs';
 import {RuntimeScene} from './runtime-scene.jsx';
-import {toggleSelectedRef,pruneSelectedRefs} from './selection.mjs';
+import {toggleSelectedRef,pruneSelectedRefs,selectableItem} from './selection.mjs';
 import {SelectionPanel} from './selection-panel.jsx';
 import {HistoryPanel} from './history-panel.jsx';
+import {ProposalReview} from './proposal-review.jsx';
 
 class Boundary extends React.Component{
   state={error:null};static getDerivedStateFromError(error){return {error};}
@@ -137,7 +138,7 @@ function WorldSession({host}){
   const select=useCallback((id,{additive=false}={})=>{
     if(inhabitRef.current)return;
     if(id==='moodboard'){leaveWorld();setPanel('references');return;}
-    if(!worldRef.current?.scene.objects.some(o=>o.id===id))return;
+    if(!selectableItem(worldRef.current?.scene,id))return;
     setSelected(id);setSelectedRefs(old=>additive&&old.length>=16&&!old.some(r=>r.id===id)?old:toggleSelectedRef(old,{id,part:null},{additive}));setSelectionOpen(true);setPanel(null);
   },[leaveWorld]);
   const interact=useCallback(id=>{
@@ -154,7 +155,7 @@ function WorldSession({host}){
   useEffect(()=>{const failure=()=>setPointerHint('Mouse lock unavailable here. Arrow keys or right-drag to look.');document.addEventListener('pointerlockerror',failure);return()=>document.removeEventListener('pointerlockerror',failure);},[]);
   useEffect(()=>{setRuntimeObservation(null);const timer=setInterval(()=>{if(!world||!canObserveWorld(probe,contextKey,world.revision))return;const recent=probe.frames.slice(-120).sort((a,b)=>a-b);setRuntimeObservation({backend:probe.backend,position:probe.position,activity:probe.runtime,actor:probe.actor,drawCalls:probe.drawCalls,triangles:probe.triangles,frameP95Ms:recent[Math.min(recent.length-1,Math.floor(recent.length*.95))]??null});},500);return()=>clearInterval(timer);},[contextKey,world?.revision]);
   useEffect(()=>{if(!runtimeNotice)return;const timer=setTimeout(()=>setRuntimeNotice(''),3500);return()=>clearTimeout(timer);},[runtimeNotice]);
-  useEffect(()=>{if(world){setSelectedRefs(old=>pruneSelectedRefs(world.scene,old));if(selected&&!world.scene.objects.some(o=>o.id===selected))setSelected(null);}},[world,selected]);
+  useEffect(()=>{if(world){setSelectedRefs(old=>pruneSelectedRefs(world.scene,old));if(selected&&!selectableItem(world.scene,selected))setSelected(null);}},[world,selected]);
   // The chosen model and effort survive reloads: this browser's last choice
   // first, then the session's saved values.
   const choiceProvider=useRef(null);
@@ -169,7 +170,7 @@ function WorldSession({host}){
   useEffect(()=>{if(agent.effort)setEffort(current=>current||agent.effort);},[agent.effort]);
   useEffect(()=>{if(agent.provider&&model)writeAgentChoice(agent.provider,{model,effort});},[agent.provider,model,effort]);
   const voice=useVoice(t=>{setText(t);focusInput();});
-  const selectedObject=world?.scene.objects.find(o=>o.id===selected),aimObject=world?.scene.objects.find(o=>o.id===aim),interaction=cameraMode==='walk'?runtime?.interaction(aim,probe.actorEye??probe.position):null;
+  const selectedObject=selectableItem(world?.scene,selected),aimObject=selectableItem(world?.scene,aim),interaction=cameraMode==='walk'?runtime?.interaction(aim,probe.actorEye??probe.position):null;
   const session=useMemo(()=>({world:world?.scene.environment.type==='woodland',clear:world?.scene.environment.clearPath,bridge:world?.scene.bridge,preview:null}),[world]);
   useEffect(()=>{probe.world=world;probe.loadedRevision=world?.revision;probe.assets=loaded.bundle?.payload.assets;probe.selected=selected;probe.cove=cove;probe.locked=locked;probe.session=session;},[world,loaded.bundle,selected,cove,locked,session]);
   useEffect(()=>{
@@ -206,7 +207,7 @@ function WorldSession({host}){
         {active&&<article className="agent-card glass"><span className="eyebrow">{agent.requests?.length?'WAITING FOR YOU':`WORKING · ${agent.activity||'THINKING'}`}</span><p>{agent.requests?.length?'Answer the request below to continue.':'Following the world bible and your references.'}</p></article>}
         {!active&&agent.status==='interrupted'&&<article className="agent-card glass"><span className="eyebrow">STOPPED</span><p>The last turn stopped before it finished. Send a message to continue; the session keeps its context.</p></article>}
         {agent.requests?.map(r=><PendingRequest key={r.id} request={r} run={run} writeDisabled={writeDisabled}/>)}
-        {proposal&&<article className="agent-card glass proposal-card"><span className="eyebrow">READY TO REVIEW</span><h2>A change to your world.</h2><p>{proposal.summary}</p><details><summary>Review scene and bible changes</summary><pre>{JSON.stringify({scene:proposal.world.scene,bible:proposal.world.bible,references:proposal.world.references},null,2)}</pre></details><div className="button-row"><button className="primary" disabled={writeDisabled||busy||proposal.baseRevision!==accepted?.revision} onClick={()=>run(()=>api('proposal/apply',{id:proposal.id}))}>Apply proposal</button><button disabled={writeDisabled} onClick={()=>run(()=>api('proposal/discard',{id:proposal.id}))}>Discard</button></div></article>}
+        {proposal&&<article className="agent-card glass proposal-card"><span className="eyebrow">READY TO REVIEW</span><h2>A change to your world.</h2><p>{proposal.summary}</p><ProposalReview accepted={accepted} proposal={proposal}/><div className="button-row"><button className="primary" disabled={writeDisabled||busy||proposal.baseRevision!==accepted?.revision} onClick={()=>run(()=>api('proposal/apply',{id:proposal.id}))}>Apply proposal</button><button disabled={writeDisabled} onClick={()=>run(()=>api('proposal/discard',{id:proposal.id}))}>Discard</button></div></article>}
         {error&&<article className="agent-card glass notice" role="alert">{error}<button className="text-button" onClick={()=>host.setError(null)}>Dismiss</button></article>}
       </div></section>}
       {selectionOpen&&selectedRefs.length>0&&!panel&&world&&<SelectionPanel world={world} refs={selectedRefs} setRefs={setSelectedRefs} focusInput={focusInput} onArrange={id=>{setSelected(id);openPanel('scene');}} onClose={()=>setSelectionOpen(false)}/>}

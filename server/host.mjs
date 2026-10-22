@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { WorldStore } from './world-store.mjs';
 import { CodexAgent } from './codex.mjs';
+import {createTextureStore,TEXTURE_CONTENT_TYPES} from './texture-store.mjs';
 import { CursorAgent } from './cursor.mjs';
 import { ClaudeAgent } from './claude.mjs';
 import { MAX_ASSET_BYTES } from '../src/world/contract.mjs';
@@ -12,10 +13,14 @@ import {listRevisions,restoreRevision,remixRevision} from './history.mjs';
 
 async function body(req,limit=1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw new Error('Request is too large');chunks.push(chunk);}return Buffer.concat(chunks);}
 const json=(res,value,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(value));};
-export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,context=null,token=randomBytes(32).toString('hex'),ensureWorkspace=ensureKilnWorkspace}={}){
-  const store=await WorldStore.open(root),clients=new Set();let proposal=null,observation=null,closing=false,closePromise=null,historyActive=false,agentStarting=false,storeWork=0;
+export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,context=null,token=randomBytes(32).toString('hex'),ensureWorkspace=ensureKilnWorkspace,sharedTextures=process.env.HOLODECK_SHARED_TEXTURES!=='0'}={}){
+  const store=await WorldStore.open(root),clients=new Set();
+  // GLBs are served with embedded images moved to /api/textures, so identical
+  // images download once. HOLODECK_SHARED_TEXTURES=0 serves the pinned bytes.
+  const textures=createTextureStore(hash=>readFile(path.join(store.root,'.holodeck/blobs',`${hash}.glb`)));let proposal=null,observation=null,closing=false,closePromise=null,historyActive=false,agentStarting=false,storeWork=0;
   const serial=store.serial.bind(store);store.serial=work=>{storeWork++;return serial(work).finally(()=>storeWork--);};
-  const scoped=value=>{if(!context||!value||typeof value!=='object')return value;const result={...value};if(result.world)result.context=context;if(result.assets)result.assets=Object.fromEntries(Object.entries(result.assets).map(([id,asset])=>[id,{...asset,url:`${asset.url}?worldId=${context.worldId}&epoch=${context.epoch}`} ]));if(result.proposal)result.proposal=scoped(result.proposal);return result;};
+  const scope=entries=>Object.fromEntries(Object.entries(entries).map(([id,asset])=>[id,{...asset,url:`${asset.url}?worldId=${context.worldId}&epoch=${context.epoch}`}]));
+  const scoped=value=>{if(!context||!value||typeof value!=='object')return value;const result={...value};if(result.world)result.context=context;if(result.assets)result.assets=scope(result.assets);if(result.textures)result.textures=scope(result.textures);if(result.proposal)result.proposal=scoped(result.proposal);return result;};
   const send=(res,value,status)=>json(res,scoped(value),status);
   const broadcast=message=>{
     if(closing)return;
@@ -28,14 +33,14 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
   const propose=async(change,isActive=()=>true)=>{
     if(change.baseRevision!==store.current.revision)throw new Error('World changed; read the current revision first');
     const world={...store.snapshot(),scene:change.scene??store.current.scene,bible:change.bible??store.current.bible,references:change.references??store.current.references??[]};
-    const assets=await store.prepare(world);
+    const {assets,textures:terrainTextures}=await store.prepareBundle(world);
     if(!isActive()||change.baseRevision!==store.current.revision)throw new Error('Proposal canceled or superseded');
-    proposal={id:randomUUID(),baseRevision:change.baseRevision,summary:String(change.summary||'World change').slice(0,1000),world,assets};emit('proposal',proposal);return {proposalId:proposal.id,status:'awaiting user review',baseRevision:proposal.baseRevision};
+    proposal={id:randomUUID(),baseRevision:change.baseRevision,summary:String(change.summary||'World change').slice(0,1000),world,assets,textures:terrainTextures};emit('proposal',proposal);return {proposalId:proposal.id,status:'awaiting user review',baseRevision:proposal.baseRevision};
   };
-  const codexAgent=agentFactory?agentFactory(store,{propose,observe:()=>observation}):new CodexAgent(store,{propose,observe:()=>observation});
+  const codexAgent=agentFactory?agentFactory(store,{propose,observe:()=>observation,staged:()=>proposal}):new CodexAgent(store,{propose,observe:()=>observation,staged:()=>proposal});
   let cursor=null,claude=null,agent=codexAgent;
-  const cursorAgent=()=>cursor??=cursorFactory?cursorFactory(store,{propose,observe:()=>observation}):new CursorAgent(store,{propose,observe:()=>observation});
-  const claudeAgent=()=>claude??=claudeFactory?claudeFactory(store,{propose,observe:()=>observation}):new ClaudeAgent(store,{propose,observe:()=>observation});
+  const cursorAgent=()=>cursor??=cursorFactory?cursorFactory(store,{propose,observe:()=>observation,staged:()=>proposal}):new CursorAgent(store,{propose,observe:()=>observation,staged:()=>proposal});
+  const claudeAgent=()=>claude??=claudeFactory?claudeFactory(store,{propose,observe:()=>observation,staged:()=>proposal}):new ClaudeAgent(store,{propose,observe:()=>observation,staged:()=>proposal});
   const selectAgent=requested=>{
     if(!['codex','cursor','claude'].includes(requested))throw new Error('Choose Codex, Cursor or Claude Code');
     const next=requested==='cursor'?cursorAgent():requested==='claude'?claudeAgent():codexAgent;
@@ -68,7 +73,18 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
       }
       if(route.startsWith('/api/assets/')&&req.method==='GET'){
         const hash=route.slice('/api/assets/'.length);if(!/^[a-f0-9]{64}\.glb$/.test(hash))return send(res,{error:'Invalid asset hash'},400);
-        const data=await readFile(path.join(store.root,'.holodeck/blobs',hash));res.writeHead(200,{'Content-Type':'model/gltf-binary','Cache-Control':'private, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'});return res.end(data);
+        const data=sharedTextures?await textures.glb(hash.slice(0,64)):await readFile(path.join(store.root,'.holodeck/blobs',hash));res.writeHead(200,{'Content-Type':'model/gltf-binary','Cache-Control':'private, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'});return res.end(data);
+      }
+      if(route.startsWith('/api/textures/')&&req.method==='GET'){
+        const name=route.slice('/api/textures/'.length);if(!/^[a-f0-9]{64}\.(png|jpg|webp)$/.test(name))return send(res,{error:'Invalid texture hash'},400);
+        // A browser may still hold a derived GLB from before a restart; derive
+        // the accepted and staged assets again to find its images.
+        let texture=textures.texture(name);
+        if(!texture){for(const asset of [...Object.values(store.hashes),...Object.values(proposal?.assets||{})])await textures.glb(asset.hash).catch(()=>{});texture=textures.texture(name);}
+        // Pinned terrain textures are stored as blobs under their own hash.
+        if(!texture&&name.endsWith('.png'))texture=await readFile(path.join(store.root,'.holodeck/blobs',name)).then(bytes=>({bytes}),()=>null);
+        if(!texture)return send(res,{error:'Unknown texture'},404);
+        res.writeHead(200,{'Content-Type':TEXTURE_CONTENT_TYPES[name.split('.')[1]],'Cache-Control':'private, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'});return res.end(texture.bytes);
       }
       if(route.startsWith('/api/references/')&&req.method==='GET'){
         const name=route.slice('/api/references/'.length);if(!/^[a-f0-9]{64}\.(png|md|txt|json|pdf|glb)$/.test(name))throw new Error('Invalid reference revision');
@@ -108,14 +124,14 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
         if(!Number.isSafeInteger(data.revision)||!Array.isArray(data.position)||data.position.length!==3||data.position.some(n=>!Number.isFinite(n)))throw new Error('Invalid observation');
         observation={...data,receivedAt:new Date().toISOString()};return send(res,{ok:true});
       }
-      if(route==='/api/agent/connect'){selectAgent(data.provider||agent.snapshot?.().provider||'codex');await ensureWorkspace(root);return send(res,await agent.connect());}
+      if(route==='/api/agent/connect'){const provider=data.provider||agent.snapshot?.().provider||'codex';selectAgent(provider);await ensureWorkspace(root,{provider});return send(res,await agent.connect());}
       if(route==='/api/agent/login')return send(res,await agent.login());
       if(route==='/api/agent/turn'||route==='/api/agent/image'){
         if(historyActive)throw new Error('Wait for the history operation to finish before starting an agent');
         if(agentStarting)throw new Error('An agent turn is already starting');
         agentStarting=true;
         try{
-          if(route.endsWith('/image')){if((agent.snapshot?.().provider||'codex')!=='codex')throw new Error('Image generation stays on the Codex connection.');await ensureWorkspace(root);return send(res,await agent.generateImage(data));}
+          if(route.endsWith('/image')){if((agent.snapshot?.().provider||'codex')!=='codex')throw new Error('Image generation stays on the Codex connection.');await ensureWorkspace(root,{provider:'codex'});return send(res,await agent.generateImage(data));}
           return send(res,await agent.startTurn({text:data.text,model:data.model,effort:data.effort,selection:data.selection,selectedRefs:data.selectedRefs}));
         }finally{agentStarting=false;}
       }

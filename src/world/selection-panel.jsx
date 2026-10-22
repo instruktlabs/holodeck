@@ -1,11 +1,14 @@
 import React from 'react';
-import {selectionParts} from './selection.mjs';
+import {selectionParts,selectableItem} from './selection.mjs';
 
 export function SelectionPanel({world,refs,setRefs,focusInput,onArrange,onClose}){
  return <section className="selection-panel glass" aria-label="Selected world references">
   <div className="card-meta"><span className="eyebrow">IN THIS CONVERSATION · {refs.length}</span><button className="icon-button" aria-label="Fold selection" onClick={onClose}>−</button></div>
   <p>Whole assets first. Narrow a part when it matters.</p>
-  <div className="selection-list">{refs.map(ref=>{const item=world.scene.objects.find(o=>o.id===ref.id);if(!item)return null;const parts=selectionParts(item);return <article key={ref.id}>
+  <div className="selection-list">{refs.map(ref=>{const item=selectableItem(world.scene,ref.id);if(!item)return null;const parts=selectionParts(item);
+   // A scatter record: its instances are derived, so it has no single placement to arrange.
+   if(item.variants)return <article key={ref.id}><div className="card-meta"><strong>{item.label||item.id}</strong><button className="icon-button" aria-label={`Remove reference ${ref.id}`} onClick={()=>setRefs(old=>old.filter(r=>r.id!==ref.id))}>×</button></div><small>Scatter · {item.variants.map(v=>v.asset).join(', ')} · seed {item.seed}</small></article>;
+   return <article key={ref.id}>
    <div className="card-meta"><strong>{item.label||item.id}</strong><button className="icon-button" aria-label={`Remove reference ${ref.id}`} onClick={()=>setRefs(old=>old.filter(r=>r.id!==ref.id))}>×</button></div>
    <small>{item.asset?'Kiln asset':item.shape?.type} · {item.behavior?.type||'static'}{item.collider?' · collision':''}</small>
    {parts.length>0&&<label>Scope<select aria-label={`Scope for ${ref.id}`} value={ref.part||''} onChange={e=>setRefs(old=>old.map(r=>r.id===ref.id?{...r,part:e.target.value||null}:r))}><option value="">Whole asset</option>{parts.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label>}

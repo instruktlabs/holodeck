@@ -34,6 +34,13 @@ test('remix copies only a selected scene and pinned dependencies into a new edit
  assert.equal(result.world.scene.assets.length,store.current.scene.assets.length);
  assert.equal((await readdir(destination)).includes('.holodeck'),false);
  assert.equal((await readdir(destination)).includes('.codex'),false);
+ // World guidance names every provider and the Kiln log location, never Codex alone.
+ for(const file of [path.join(destination,'AGENTS.md'),path.join(root,'AGENTS.md')]){
+  const guide=await readFile(file,'utf8');
+  assert.doesNotMatch(guide,/Connect local Codex|Configure a (local Kiln workspace|separate kiln_workspace)/);
+  assert.match(guide,/Codex and Claude Code connections also configure its kiln_workspace tools/);assert.match(guide,/assets\/source\/KILN_PROGRESS\.md/);
+ }
+ assert.match(await readFile(path.join(destination,'AGENTS.md'),'utf8'),/a Claude Code connection loads them as skills/);
  const reopened=await WorldStore.open(destination);t.after(()=>reopened.close());
  assert.equal(reopened.hashes.lamp.hash,store.hashes.lamp.hash);
  assert.equal(reopened.current.bible.title,store.current.bible.title);

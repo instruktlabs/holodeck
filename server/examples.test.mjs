@@ -28,6 +28,9 @@ test('default CLI init starts a fresh construct with the current cove and walk c
    assert.deepEqual(await readFile(path.join(root,asset.file)),await readFile(path.join(packageRoot,`public/assets/cove-modules/${module.id}.glb`)));
   }
   assert.deepEqual(w.scene.runtime.spawn,[1.25,1.72,2.35]);
+  const guide=await readFile(path.join(root,'AGENTS.md'),'utf8');
+  assert.doesNotMatch(guide,/Connect local Codex/);
+  for(const fact of [/a Claude Code connection loads them as skills/,/Codex and Claude Code connections also configure its kiln_workspace tools/,/assets\/source\/KILN_PROGRESS\.md/])assert.match(guide,fact);
   assert.deepEqual(w.scene.moodboard.position,[1.05,0,-2.45]);
   const runtime=new WorldRuntime(w.scene);
   assert.equal(runtime.blocked(w.scene.runtime.spawn[0],w.scene.runtime.spawn[2]),false);

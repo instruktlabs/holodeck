@@ -28,7 +28,9 @@ mouse capture. Right-drag is available without capture. The toolbar controls cov
 visibility, return to arrival and activity pause. Activity is local to the browser
 session and is never saved into the exported files.
 
-Exports contain the scene and only GLBs used by its origin and placements. The
+Exports contain the scene, only the GLBs used by its origin, placements and
+scatter variants, and its pinned terrain layer PNGs (renamed by hash under
+`assets/imports/terrain/`). The
 bible's title is replaced by a generic title; intent, rules, references and the
 mood board are excluded. Agent history, credentials, source files, workspace paths
 and installed authoring skills are not copied. Safe collection/asset/revision IDs

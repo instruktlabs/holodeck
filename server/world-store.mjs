@@ -6,7 +6,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_WORLD, MAX_ASSET_BYTES, validateWorld, validateGlb } from '../src/world/contract.mjs';
 import {MAX_PLACED_TRIANGLES,placedSourceTriangles} from '../src/world/asset-budget.mjs';
+import {terrainTextureFiles,checkTerrainTextures,pngInfo,renameTerrainTextures,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
 import { installStarter } from './starter.mjs';
+import { KILN_GUIDE } from './world-guide.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 export const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 // "references/files/tropical/02-eye-level.png" becomes "Eye level".
@@ -19,10 +21,10 @@ export async function atomicJson(file,value){
   try{await writeFile(tmp,JSON.stringify(value,null,2)+'\n');await rename(tmp,file);}finally{await unlink(tmp).catch(()=>{});}
 }
 export class WorldStore extends EventEmitter {
-  constructor(root){super();this.root=path.resolve(root);this.queue=Promise.resolve();this.hashes={};this.diagnostic=null;this.closed=false;}
+  constructor(root){super();this.root=path.resolve(root);this.queue=Promise.resolve();this.hashes={};this.textures={};this.diagnostic=null;this.closed=false;}
   static async open(root){const s=new WorldStore(root);await s.init();return s;}
   snapshot(){return structuredClone(this.current);}
-  payload(){return {world:this.snapshot(),assets:this.hashes,workspace:this.root,diagnostic:this.diagnostic};}
+  payload(){return {world:this.snapshot(),assets:this.hashes,textures:this.textures,workspace:this.root,diagnostic:this.diagnostic};}
   serial(work){const next=this.queue.then(work);this.queue=next.catch(()=>{});return next;}
   async init(){
     for(const dir of ['world','assets/imports','assets/source','references/files','reviews','.holodeck/history','.holodeck/blobs','.holodeck/session'])await mkdir(path.join(this.root,dir),{recursive:true});
@@ -38,29 +40,33 @@ export class WorldStore extends EventEmitter {
           const hash=cached.assets?.[asset.id]?.hash;if(!/^[a-f0-9]{64}$/.test(hash))throw new Error('Cached accepted asset receipt is invalid');
           const bytes=await readFile(await this.contained(`.holodeck/blobs/${hash}.glb`));validateGlb(bytes,{foliage:asset.foliage});if(digest(bytes)!==hash)throw new Error('Cached accepted asset is corrupt');
         }
+        for(const [file,texture] of Object.entries(cached.textures||{})){
+          if(!/^[a-f0-9]{64}$/.test(texture?.hash))throw new Error('Cached accepted terrain texture receipt is invalid');
+          const bytes=await readFile(await this.contained(`.holodeck/blobs/${texture.hash}.png`));pngInfo(bytes);if(digest(bytes)!==texture.hash)throw new Error(`Cached accepted terrain texture is corrupt: ${file}`);
+        }
       }
-      let w,hashes,offlineError;
+      let w,hashes,textures,offlineError;
       try{
         try{w=JSON.parse(await readFile(this.file,'utf8'));}catch(e){
           if(e.code!=='ENOENT'||cached)throw e;
           w=await installStarter(this.root);await atomicJson(this.file,w);
         }
-        hashes=await this.prepare(w);
+        ({assets:hashes,textures}=await this.prepareBundle(w));
       }catch(e){if(!cached)throw e;offlineError=e;}
       if(cached){
         // Reopening cannot rewrite the historical binding of an accepted revision.
         // Valid offline edits are a new commit; incomplete writes retain the cache.
-        this.current=cached.world;this.hashes=cached.assets;
+        this.current=cached.world;this.hashes=cached.assets;this.textures=cached.textures||{};
         if(offlineError)this.diagnostic=`${offlineError.message}; showing cached accepted revision`;
-        else if(JSON.stringify({...w,revision:cached.world.revision})!==JSON.stringify(cached.world)||JSON.stringify(hashes)!==JSON.stringify(cached.assets)){
+        else if(JSON.stringify({...w,revision:cached.world.revision})!==JSON.stringify(cached.world)||JSON.stringify(hashes)!==JSON.stringify(cached.assets)||JSON.stringify(textures)!==JSON.stringify(cached.textures||{})){
           const scene=structuredClone(w.scene);for(const asset of scene.assets)if(hashes[asset.id].hash!==cached.assets[asset.id]?.hash)delete asset.provenance;
           await this.apply({baseRevision:cached.world.revision,scene,bible:w.bible,references:w.references||[]});
         }else if(w.revision!==cached.world.revision)await atomicJson(this.file,cached.world);
       }else{
-        this.current=w;this.hashes=hashes;await atomicJson(this.accepted,w);await atomicJson(path.join(this.root,`.holodeck/history/${w.revision}.json`),w);await this.checkpoint(w,hashes);
+        this.current=w;this.hashes=hashes;this.textures=textures;await atomicJson(this.accepted,w);await atomicJson(path.join(this.root,`.holodeck/history/${w.revision}.json`),w);await this.checkpoint(w,hashes,textures);
       }
       this.lastRead=digest(await readFile(this.file).catch(e=>{if(e.code==='ENOENT')return Buffer.alloc(0);throw e;}));
-      await writeFile(path.join(this.root,'AGENTS.md'),`# Holodeck world workspace\n\nUse the Holodeck world_read and world_propose tools for scene and bible edits.\nworld/world.json is the coherent scene and bible document. Proposals carry its base revision.\nAssets must be self-contained GLBs in assets/imports. Never edit installed Holodeck or Kiln engine code.\nPreserve accepted bible rules, stable object IDs and pinned Kiln provenance.\nOnly construct, meadow, woodland, static GLB placements and box blockers are supported initially.\nUse world_observe for displayed revision and browser measurements. A saved revision is not proof of browser acceptance.\n`,{flag:'wx'}).catch(e=>{if(e.code!=='EEXIST')throw e;});
+      await writeFile(path.join(this.root,'AGENTS.md'),`# Holodeck world workspace\n\nUse the Holodeck world_read and world_propose tools for scene and bible edits.\nworld/world.json is the coherent scene and bible document. Proposals carry its base revision.\nAssets must be self-contained GLBs in assets/imports. Never edit installed Holodeck or Kiln engine code.\nPreserve accepted bible rules, stable object IDs and pinned Kiln provenance.\nOnly construct, meadow, woodland, static GLB placements and box blockers are supported initially.\nUse world_observe for displayed revision and browser measurements. A saved revision is not proof of browser acceptance.\n${KILN_GUIDE}\n`,{flag:'wx'}).catch(e=>{if(e.code!=='EEXIST')throw e;});
       this.watcher=watch(path.join(this.root,'world'),()=>{clearTimeout(this.timer);this.timer=setTimeout(()=>this.readExternal().catch(e=>{this.diagnostic=e.message;this.emit('diagnostic',e.message);}),300);});
       this.assetWatcher=watch(path.join(this.root,'assets/imports'),{recursive:true},()=>{clearTimeout(this.assetTimer);this.assetTimer=setTimeout(()=>this.refreshAssets().catch(e=>{this.diagnostic=e.message;this.emit('diagnostic',e.message);}),500);});
     }catch(e){await unlink(this.lockfile).catch(()=>{});throw e;}
@@ -69,8 +75,10 @@ export class WorldStore extends EventEmitter {
     const target=await realpath(path.resolve(this.root,file)),root=await realpath(this.root),rel=path.relative(root,target);
     if(rel.startsWith('..')||path.isAbsolute(rel))throw new Error('Asset resolves outside the world workspace');return target;
   }
-  async prepare(world){
-    validateWorld(world);const assets={};let total=0;
+  async prepare(world){return (await this.prepareBundle(world)).assets;}
+  // Pins every GLB and terrain texture by hash and checks the shared budgets.
+  async prepareBundle(world){
+    validateWorld(world);const assets={},textures={};let total=0;
     for(const reference of world.references||[]){if(reference.kind==='note')continue;const file=await this.contained(reference.file),info=await stat(file);if(info.size>12*1024*1024)throw new Error('Reference exceeds 12 MiB');const bytes=await readFile(file);if(digest(bytes)!==path.parse(reference.file).name)throw new Error('Pinned reference content changed; import a new revision');}
     for(const a of world.scene.assets){
       const file=await this.contained(a.file),info=await stat(file);if(!info.isFile()||info.size>MAX_ASSET_BYTES)throw new Error('Asset exceeds 32 MiB');
@@ -80,18 +88,26 @@ export class WorldStore extends EventEmitter {
       assets[a.id]={hash,url:`/api/assets/${hash}.glb`,...metrics};
     }
     if(placedSourceTriangles(world.scene,assets)>MAX_PLACED_TRIANGLES)throw new Error('Placed world exceeds two million source triangles');
-    return assets;
+    // Terrain textures count inside the 128 MiB world budget, at most 32 MiB of it.
+    for(const file of terrainTextureFiles(world.scene.terrain).keys()){
+      const target=await this.contained(file),info=await stat(target);if(!info.isFile()||info.size>TERRAIN_LAYER_LIMITS.textureBytes)throw new Error('Terrain textures exceed 32 MiB of PNG files');
+      const bytes=await readFile(target),{width,height}=pngInfo(bytes);total+=bytes.length;if(total>128*1024*1024)throw new Error('World exceeds 128 MiB of asset files');
+      const hash=digest(bytes);await writeFile(path.join(this.root,`.holodeck/blobs/${hash}.png`),bytes,{flag:'wx'}).catch(e=>{if(e.code!=='EEXIST')throw e;});
+      textures[file]={hash,url:`/api/textures/${hash}.png`,width,height,bytes:bytes.length};
+    }
+    checkTerrainTextures(world.scene.terrain,textures);
+    return {assets,textures};
   }
-  async checkpoint(world,assets){const bundle={world,assets};await atomicJson(path.join(this.root,`.holodeck/history/${world.revision}.bundle.json`),bundle);await atomicJson(path.join(this.root,'.holodeck/accepted-bundle.json'),bundle);}
+  async checkpoint(world,assets,textures={}){const bundle={world,assets,...(Object.keys(textures).length?{textures}:{})};await atomicJson(path.join(this.root,`.holodeck/history/${world.revision}.bundle.json`),bundle);await atomicJson(path.join(this.root,'.holodeck/accepted-bundle.json'),bundle);}
   commit(change){return this.serial(()=>this.apply(change));}
   async apply({baseRevision,scene,bible,references}){
     if(baseRevision!==this.current.revision)throw new Error('World changed; reload the latest revision before saving');
     const next={schemaVersion:this.current.schemaVersion,revision:this.current.revision+1,scene:scene??this.current.scene,bible:bible??this.current.bible,references:references??this.current.references??[]};
-    const assets=await this.prepare(next);
+    const {assets,textures}=await this.prepareBundle(next);
     await atomicJson(path.join(this.root,`.holodeck/history/${next.revision}.json`),next);
     await atomicJson(this.file,next);await atomicJson(this.accepted,next);
-    await this.checkpoint(next,assets);
-    this.lastRead=digest(await readFile(this.file));this.current=next;this.hashes=assets;this.diagnostic=null;
+    await this.checkpoint(next,assets,textures);
+    this.lastRead=digest(await readFile(this.file));this.current=next;this.hashes=assets;this.textures=textures;this.diagnostic=null;
     this.emit('world',this.payload());return this.payload();
   }
   readExternal(){return this.serial(async()=>{
@@ -100,8 +116,8 @@ export class WorldStore extends EventEmitter {
     return this.apply({baseRevision:value.revision,scene:value.scene,bible:value.bible,references:value.references});
   });}
   refreshAssets(){return this.serial(async()=>{
-    const hashes=await this.prepare(this.current);
-    if(JSON.stringify(hashes)!==JSON.stringify(this.hashes)){
+    const {assets:hashes,textures}=await this.prepareBundle(this.current);
+    if(JSON.stringify(hashes)!==JSON.stringify(this.hashes)||JSON.stringify(textures)!==JSON.stringify(this.textures)){
       const scene=structuredClone(this.current.scene);for(const asset of scene.assets)if(hashes[asset.id].hash!==this.hashes[asset.id]?.hash)delete asset.provenance;
       return this.apply({baseRevision:this.current.revision,scene});
     }
@@ -111,6 +127,11 @@ export class WorldStore extends EventEmitter {
     const prev=JSON.parse(await readFile(path.join(this.root,`.holodeck/history/${baseRevision-1}.json`),'utf8'));
     const receipt=await readFile(path.join(this.root,`.holodeck/history/${baseRevision-1}.bundle.json`),'utf8').then(JSON.parse).catch(()=>null);
     if(receipt)for(const asset of prev.scene.assets){const hash=receipt.assets[asset.id].hash;const bytes=await readFile(path.join(this.root,`.holodeck/blobs/${hash}.glb`));asset.file=`assets/imports/restored-${hash}.glb`;await writeFile(path.join(this.root,asset.file),bytes);}
+    if(receipt?.textures&&prev.scene.terrain){
+      await mkdir(path.join(this.root,'assets/imports/terrain'),{recursive:true});
+      for(const texture of Object.values(receipt.textures)){const bytes=await readFile(path.join(this.root,`.holodeck/blobs/${texture.hash}.png`));await writeFile(path.join(this.root,`assets/imports/terrain/restored-${texture.hash}.png`),bytes);}
+      prev.scene.terrain=renameTerrainTextures(prev.scene.terrain,file=>`assets/imports/terrain/restored-${receipt.textures[file].hash}.png`);
+    }
     return this.apply({baseRevision,scene:prev.scene,bible:prev.bible,references:prev.references||[]});
   });}
   async importAsset(bytes,name='asset.glb'){

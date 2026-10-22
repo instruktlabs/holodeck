@@ -6,6 +6,7 @@ import {atomicJson} from './world-store.mjs';
 import {validateWorld} from '../src/world/contract.mjs';
 import {resolveExample,listExamples} from './example-catalog.mjs';
 import {installExampleBundle} from './example-bundle.mjs';
+import {SKILLS_GUIDE,KILN_GUIDE} from './world-guide.mjs';
 export {listExamples};
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 export async function scaffold(root,example='construct',{examplesDirectory}={}){
@@ -24,6 +25,6 @@ export async function scaffold(root,example='construct',{examplesDirectory}={}){
  world.references=world.references.filter(r=>r.kind==='note');world.references[0].notes=template.intent;
  validateWorld(world);await atomicJson(path.join(root,'world/world.json'),world);
  await cp(path.join(packageRoot,'skills'),path.join(root,'.agents/skills'),{recursive:true});
- await writeFile(path.join(root,'AGENTS.md'),'# Holodeck world workspace\n\nUse the installed holodeck-author-world, holodeck-integrate-asset and holodeck-verify-world skills in .agents/skills.\nUse world_read and world_propose for edits; observe the displayed revision.\nThis is a schema v2 world. Read scene.runtime for enabled built-in capabilities.\nKeep saved authoring data separate from transient activity. Never edit installed packages.\nConnect local Codex configures kiln_workspace tools for this world. Author assets here using those tools, never in the Kiln engine or Holodeck source checkout.\n');
+ await writeFile(path.join(root,'AGENTS.md'),`# Holodeck world workspace\n\nUse the installed holodeck-author-world, holodeck-integrate-asset and holodeck-verify-world skills. ${SKILLS_GUIDE}\nUse world_read and world_propose for edits; observe the displayed revision.\nThis is a schema v2 world. Read scene.runtime for enabled built-in capabilities.\nKeep saved authoring data separate from transient activity. Never edit installed packages.\n${KILN_GUIDE}\n`);
  return world;
 }

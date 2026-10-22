@@ -4,7 +4,7 @@ import { EventEmitter } from 'node:events';
 import { mkdtemp, rm,readFile,mkdir,writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
-import { CodexAgent } from './codex.mjs';
+import { CodexAgent,commandGrant } from './codex.mjs';
 import {validateTerrain,validateWater} from '../src/world/terrain.mjs';
 import {validateRuntimeScene} from '../src/world/runtime.mjs';
 import {atomicJson} from './world-store.mjs';
@@ -53,21 +53,30 @@ test('a failed session save rejects that caller and later queued saves still per
 test('Codex adapter sends selected model, workspace sandbox and persists thread resume',async t=>{
   const {agent,rpc}=await fixture(t);await agent.connect();await agent.startTurn({text:'Read my world',model:'test-model',effort:'low'});
   assert.equal(agent.state.status,'working');const start=rpc.calls.find(c=>c.method==='thread/start');assert.equal(start.params.sandbox,'workspace-write');assert.equal(start.params.dynamicTools.length,8);
+  for(const fact of [/Kiln progress log at assets\/source\/KILN_PROGRESS\.md/,/export command in holodeck-integrate-asset/,/do not read Holodeck engine sources/])assert.match(start.params.developerInstructions,fact);
   const turn=rpc.calls.find(c=>c.method==='turn/start');assert.deepEqual(turn.params.sandboxPolicy.writableRoots,[agent.store.root]);assert.equal(turn.params.model,'test-model');
   agent.onNotification({method:'turn/completed',params:{threadId:'thread-1',turn:{id:'turn-1',status:'completed'}}});
   agent.resumed=false;await agent.startTurn({text:'Continue',model:'test-model'});assert.ok(rpc.calls.some(c=>c.method==='thread/resume'));
 });
+// Calls world_read through the Codex tool path and joins capabilities pages.
+async function readCapabilities(f,id){
+ const out={};let cursor,n=0;
+ do{await f.agent.onRequest({id:id*100+n,method:'item/tool/call',params:{threadId:'thread-1',turnId:'turn-1',tool:'world_read',arguments:{section:'capabilities',...(cursor?{cursor}:{})}}});
+  const reply=f.rpc.replies.find(r=>r.id===id*100+n).result;assert.equal(reply.success,true);const data=JSON.parse(reply.contentItems[0].text);n++;
+  for(const [key,value] of Object.entries(data.capabilities)){if(key.startsWith('spatial.'))(out.spatial??={})[key.slice(8)]=value;else out[key]=value;}
+  cursor=data.next;}while(cursor);
+ return out;
+}
 test('world_read supplies valid surface and possession records to previously scaffolded workspaces',async t=>{
  const f=await fixture(t),scene=JSON.parse(await readFile(new URL('../examples/courtyard.json',import.meta.url)));
  f.agent.store.current={revision:2,schemaVersion:2,scene};
  await f.agent.startTurn({text:'Read supported terrain',model:'test-model'});
- await f.agent.onRequest({id:101,method:'item/tool/call',params:{threadId:'thread-1',turnId:'turn-1',tool:'world_read',arguments:{}}});
- const reply=f.rpc.replies.find(r=>r.id===101).result;assert.equal(reply.success,true);
- const spatial=JSON.parse(reply.contentItems[0].text).capabilities.spatial;
+ const {spatial}=await readCapabilities(f,101);
  assert.ok(spatial.modules.includes('terrain.heightfield@1'));
  assert.equal(validateTerrain(spatial.examples.terrain),spatial.examples.terrain);
  assert.equal(validateWater(spatial.examples.water),spatial.examples.water);
- validateRuntimeScene({...scene,terrain:spatial.examples.terrain,water:spatial.examples.water,runtime:{...scene.runtime,modules:[...new Set([...scene.runtime.modules,...spatial.modules])],possession:spatial.examples.possession}});
+ const scatterAssets=spatial.examples.scatter.variants.map(v=>({id:v.asset,file:`assets/imports/${v.asset}.glb`}));
+ validateRuntimeScene({...scene,terrain:spatial.examples.terrain,water:spatial.examples.water,assets:[...(scene.assets||[]),...scatterAssets],scatters:[spatial.examples.scatter],runtime:{...scene.runtime,modules:[...new Set([...scene.runtime.modules,...spatial.modules])],possession:spatial.examples.possession}});
  validateRuntimeScene({...scene,objects:[{id:'patrol-probe',position:[-3,0,0],rotation:[0,0,0],scale:[1,1,1],collider:null,behavior:spatial.examples.patrol}],runtime:{...scene.runtime,modules:[...scene.runtime.modules,'motion.patrol@1']}});
  assert.match(spatial.patrol,/no pathfinding/);
  assert.match(spatial.gait,/exact unique GLB child/);
@@ -81,9 +90,7 @@ test('world_read exposes the same delivery profile for legacy and runtime worlds
   const f=await fixture(t);f.agent.store.current={revision:2,schemaVersion,scene:{}};
   const before=JSON.stringify(f.agent.store.current);
   await f.agent.startTurn({text:'Read asset delivery support',model:'test-model'});
-  await f.agent.onRequest({id:120+schemaVersion,method:'item/tool/call',params:{threadId:'thread-1',turnId:'turn-1',tool:'world_read',arguments:{}}});
-  const reply=f.rpc.replies.find(r=>r.id===120+schemaVersion).result;assert.equal(reply.success,true);
-  const delivery=JSON.parse(reply.contentItems[0].text).capabilities.assetDelivery;
+  const delivery=(await readCapabilities(f,120+schemaVersion)).assetDelivery;
   assert.ok(delivery);assert.deepEqual(delivery,contract.ASSET_DELIVERY_PROFILE);
   assert.equal(f.rpc.calls.find(c=>c.method==='thread/start').params.dynamicTools.length,8);
   assert.equal(JSON.stringify(f.agent.store.current),before);assert.equal(f.proposed,0);
@@ -147,6 +154,38 @@ test('image requests attach accepted references and results wait for board accep
   await agent.captureImage({threadId:'thread-1',turnId:'turn-1',item:{id:'image-1',type:'imageGeneration',status:'completed'}});assert.equal(agent.state.images.length,1);
   await agent.stop();await agent.captureImage({threadId:'thread-1',turnId:'turn-1',item:{id:'late',type:'imageGeneration',status:'completed'}});assert.equal(agent.state.images.length,1);
 });
+test('an exact command may be allowed for the Codex thread; other arguments and folders still ask',async t=>{
+  const f=await fixture(t,{sessionWriter:atomicJson}),root=f.agent.store.root;await f.agent.connect();await f.agent.startTurn({text:'Plan the grove',model:'test-model'});
+  const plan='python assets/source/plan_grove.py --seed 1',ask=(id,params)=>f.agent.onRequest({id,method:'item/commandExecution/requestApproval',params:{threadId:'thread-1',turnId:'turn-1',itemId:'i'+id,...params}});
+  await ask(1,{command:plan,cwd:root});
+  assert.deepEqual(f.agent.state.requests[0].params.options.map(o=>[o.optionId,o.label]),[['accept','Allow once'],['accept-command-session','Allow this exact command for the session'],['decline','Decline']]);
+  await ask(2,{command:plan,cwd:root});
+  f.agent.answer({id:'1',decision:'accept-command-session'});
+  assert.deepEqual(f.rpc.replies.map(r=>[r.id,r.result.decision]),[[1,'accept'],[2,'accept']],'a waiting card for the same command is answered too');
+  assert.equal(f.agent.state.requests.length,0);
+  await ask(3,{command:plan,cwd:root});assert.deepEqual(f.rpc.replies.at(-1),{id:3,result:{decision:'accept'}},'the repeat is allowed without a card');
+  await ask(4,{command:plan.replace('1','2'),cwd:root});await ask(5,{command:plan+' ',cwd:root});await ask(6,{command:plan,cwd:path.join(root,'assets')});
+  assert.deepEqual(f.agent.state.requests.map(r=>r.id),['4','5','6'],'other arguments and another folder ask');
+  await ask(7,{command:plan,cwd:path.dirname(root)});
+  assert.equal(f.agent.state.requests.at(-1).params.options,undefined,'a folder outside the world is allowed once at most');
+  assert.throws(()=>f.agent.answer({id:'7',decision:'accept-command-session'}),/Invalid approval decision/);
+  await f.agent.onRequest({id:8,method:'item/fileChange/requestApproval',params:{threadId:'thread-1',turnId:'turn-1',itemId:'i8'}});
+  assert.equal(f.agent.state.requests.at(-1).params.options,undefined,'file changes keep their own card');
+  for(const id of ['4','5','6','7','8'])f.agent.answer({id,decision:'decline'});
+  await f.agent.persistQueue;
+  // The grant returns with the same thread and ends with a new one.
+  const grant=commandGrant(root,{command:plan,cwd:root}),rpc=new FakeRpc(),again=new CodexAgent(f.agent.store,{rpcFactory:()=>rpc,observe:()=>null,propose:async()=>({ok:true})});
+  assert.deepEqual((await again.connect()).sessionCommands,[grant]);
+  const file=path.join(root,'.holodeck/session/codex.json'),saved=JSON.parse(await readFile(file,'utf8'));
+  await writeFile(file,JSON.stringify({...saved,sessionCommands:[grant,JSON.stringify([path.dirname(root),plan]),'not json']}));
+  const filtered=new CodexAgent(f.agent.store,{rpcFactory:()=>new FakeRpc(),observe:()=>null,propose:async()=>({ok:true})});
+  assert.deepEqual((await filtered.connect()).sessionCommands,[grant],'grants outside the world folder are dropped');
+  await writeFile(file,JSON.stringify({...saved,threadId:'an-older-thread'}));
+  const fresh=new CodexAgent(f.agent.store,{rpcFactory:()=>new FakeRpc(),observe:()=>null,propose:async()=>({ok:true})});
+  await fresh.connect();await fresh.startTurn({text:'Plan the grove',model:'test-model'});
+  assert.deepEqual(fresh.state.sessionCommands,[]);
+});
+
 test('canceled turns cannot stage late proposals; native approvals await explicit replies',async t=>{
   const f=await fixture(t);await f.agent.connect();await f.agent.startTurn({text:'Make a world',model:'test-model'});await f.agent.stop();
   await f.agent.onRequest({id:7,method:'item/tool/call',params:{threadId:'thread-1',turnId:'turn-1',tool:'world_propose',arguments:{baseRevision:2,sceneJson:'{}'}}});

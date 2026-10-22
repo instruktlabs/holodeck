@@ -25,6 +25,18 @@ Its files are a development format rather than a cross-version archival standard
 Deleting a workspace or its cached blobs can make revisions unavailable; normal
 workspace backup remains separate.
 
+Pinned GLBs stay byte-exact in `.holodeck/blobs`, in history and in exports.
+The local host serves the browser a derived form of each GLB: embedded
+images move to `/api/textures/<sha256>.<ext>`, so an image shared by many
+assets downloads once. The image bytes are unchanged, so rendering is the same.
+The derived form is rebuilt in memory and never written back.
+`HOLODECK_SHARED_TEXTURES=0` serves the pinned bytes instead.
+
+Terrain layer PNGs are pinned the same way, in the receipt's `textures` map
+keyed by their path. Restore and remix copy each pinned image to
+`assets/imports/terrain/snapshot-<sha256>.png` and point the layers at it;
+undo uses `restored-<sha256>.png`.
+
 ## Static experience boundary
 
 A static export is a playable snapshot of an accepted schema-v2 scene and its

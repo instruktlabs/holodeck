@@ -1,4 +1,5 @@
 import {WorldRuntime} from '../src/world/runtime.mjs';
+import {expandScatters} from '../src/world/scatter.mjs';
 import {createInhabitant,sampleInhabitantSupport,INHABITANT_LIMITS} from '../src/world/inhabitant.mjs';
 
 const vec=v=>Array.isArray(v)&&v.length===3&&v.every(n=>Number.isFinite(n)&&Math.abs(n)<=1000);
@@ -62,7 +63,7 @@ export function checkWorld(world,{observation=null,assets={},routes=[],now=Date.
  const info=observationInfo(world,observation,now),{status}=info;
  const current=status==='current';
  const clock=probeTime(time,observation,current);
- const result={protocol:'holodeck.coherence/1',advisory:true,worldRevision:world.revision,observation:info,inventory:{entities:world.scene.objects.length,assets:world.scene.assets.length,assetBytes:Object.values(assets).reduce((n,a)=>n+(a.bytes||0),0),modules:world.scene.runtime?.modules||[]},checks:[],metrics:current?{backend:observation.backend??null,frameP95Ms:observation.frameP95Ms??null,drawCalls:observation.drawCalls??null,triangles:observation.triangles??null}:null,limits:probeLimits('legacy-ground-plane'),next:[]};
+ const result={protocol:'holodeck.coherence/1',advisory:true,worldRevision:world.revision,observation:info,inventory:{entities:world.scene.objects.length,...(world.scene.scatters?.length?{scatters:expandScatters(world.scene).stats.map(({id,target,placed,removed})=>({id,target,placed,removed}))}:{}),assets:world.scene.assets.length,assetBytes:Object.values(assets).reduce((n,a)=>n+(a.bytes||0),0),modules:world.scene.runtime?.modules||[]},checks:[],metrics:current?{backend:observation.backend??null,frameP95Ms:observation.frameP95Ms??null,drawCalls:observation.drawCalls??null,triangles:observation.triangles??null}:null,limits:probeLimits('legacy-ground-plane'),next:[]};
  result.checks.push({id:'loaded-revision',status:current?'observed':'unknown',evidence:{accepted:world.revision,displayed:observation?.revision??null},message:current?'The browser recently reported this revision.':'Open or refresh the world and request a new observation before judging live behavior.'});
  if(current&&observation.loadError)result.checks.push({id:'loading',status:'attention',evidence:{error:String(observation.loadError).slice(0,1000)},message:'The browser reported a loading problem; inspect the retained world and candidate.'});
  if(current){

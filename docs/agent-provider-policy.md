@@ -68,7 +68,13 @@ independent proxy over private ChatGPT endpoints. The applicable
 account-sharing and safeguard/limit restrictions. Business/API agreements are
 separate. Holodeck currently queries the user's actual account/model availability,
 keeps the official process in the selected workspace and never silently changes
-to API billing.
+to API billing. Command approvals offer **Allow this exact command for the
+session**: Holodeck then answers `accept` for later requests with the same
+`cwd` (inside the world) and the same command string, for the rest of that
+Codex thread. The grants persist with the thread in
+`.holodeck/session/codex.json` and end when a new thread starts. Holodeck does
+not use Codex's own `acceptForSession` decision, so the match stays exact and
+testable here. File-change approvals keep Allow once and Decline.
 
 ### Anthropic Claude Code
 
@@ -125,12 +131,29 @@ process per turn:
   `bypassPermissions` and the skip-permission flags are never passed. Holodeck's
   own world tools are pre-allowed with `--allowedTools`; Kiln and native tools
   still prompt.
+- Session grants are narrow and persist with the Claude session in
+  `.holodeck/session/claude.json`. A card may offer **Allow this Kiln tool for
+  this session**, **Allow all Kiln workspace tools for this session** (the
+  `kiln_workspace` server only), **Allow edits in assets/source for this
+  session**, or, for Bash and PowerShell, **Allow this exact command for the
+  session**. A command grant names the tool, the world folder and the exact
+  command string (up to 8,000 characters); nothing is prefix-matched, and a
+  grant saved for another folder is dropped on reconnect. Measured on 2.1.300,
+  each shell call starts in the world folder (a `cd` does not carry over);
+  Holodeck also sets `CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1`. Reads, web
+  and other tools have no session grant, so a request to read engine sources or
+  `~/.claude` asks every time.
 - `--mcp-config` (a temporary file outside the world) plus `--strict-mcp-config`
   supply only the Holodeck bridge and the world's `kiln_workspace` server. The
   bridge is a stdio MCP server that forwards to the host over a local pipe with a
   per-connection token. `--setting-sources user` keeps the user's own settings and
   skips the world folder's project/local settings, so an untrusted world cannot
-  add hooks or MCP servers.
+  add hooks or MCP servers. Measured on Claude Code 2.1.300, it also skips the
+  world's `CLAUDE.md`, `AGENTS.md` and `.claude/skills`. Holodeck therefore
+  states the world guidance in `--append-system-prompt`, and copies only the
+  world's installed skill folders into a temporary `holodeck-world` plugin
+  outside the world, passed with `--plugin-dir`. No settings, hooks, commands or
+  MCP files come with it.
 - Auth: Holodeck never passes `--bare`. It removes `ANTHROPIC_*` variables,
   `CLAUDE_CODE_USE_*`/`*_SKIP_*_AUTH` provider switches, `AWS_BEARER_TOKEN_BEDROCK`
   and `CLAUDE_CODE_SIMPLE` from the child environment. Connect runs

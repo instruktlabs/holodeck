@@ -1,6 +1,7 @@
 import {createContext,useCallback,useContext,useEffect,useMemo,useRef,useState} from 'react';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {createWorldClient,worldContextKey,createSessionRecovery} from './world-client.mjs';
+import {loadTerrainTextures} from './terrain-textures.js';
 export const WorldClientContext=createContext(null);
 export function useWorldClient(){const context=useContext(WorldClientContext);return useMemo(()=>createWorldClient(context),[context?.worldId,context?.epoch]);}
 export const api=createWorldClient(null).api;
@@ -9,16 +10,23 @@ function disposeGLTF(gltf){
   const resources=new Set();gltf.scene.traverse(o=>{if(o.geometry)resources.add(o.geometry);for(const m of [].concat(o.material||[])){resources.add(m);for(const v of Object.values(m))if(v?.isTexture)resources.add(v);}});
   for(const r of resources)r.dispose();
 }
+// Hosts serve GLB images from /api/textures; those fetches carry the same
+// world context as the GLB URL's query.
+function loader(url){
+  const loader=new GLTFLoader(),query=new URL(url,location.href).searchParams,worldId=query.get('worldId'),epoch=query.get('epoch');
+  if(worldId&&epoch)loader.setRequestHeader({'X-Holodeck-World':worldId,'X-Holodeck-Epoch':epoch});
+  return loader;
+}
 function acquire(url){
-  let entry=cache.get(url);if(!entry){entry={refs:0,promise:new GLTFLoader().loadAsync(url)};cache.set(url,entry);entry.promise.then(g=>{entry.gltf=g;}).catch(()=>{});}entry.refs++;
+  let entry=cache.get(url);if(!entry){entry={refs:0,promise:loader(url).loadAsync(url)};cache.set(url,entry);entry.promise.then(g=>{entry.gltf=g;}).catch(()=>{});}entry.refs++;
   return {promise:entry.promise,release(){if(--entry.refs===0){cache.delete(url);entry.promise.then(disposeGLTF).catch(()=>{});}}};
 }
 export function useAssetBundle(payload){
   const [bundle,setBundle]=useState(null),[error,setError]=useState(null),sequence=useRef(0),[loading,setLoading]=useState(false);
   useEffect(()=>{
     if(!payload)return;const seq=++sequence.current,held=[];let adopted=false;setLoading(true);setError(null);
-    Promise.all(Object.entries(payload.assets).map(async([id,asset])=>{const h=acquire(asset.url);held.push(h);return [id,await h.promise];})).then(entries=>{
-      if(seq!==sequence.current)return;adopted=true;setBundle({payload,models:Object.fromEntries(entries),release:()=>held.forEach(h=>h.release())});setLoading(false);
+    Promise.all([Promise.all(Object.entries(payload.assets).map(async([id,asset])=>{const h=acquire(asset.url);held.push(h);return [id,await h.promise];})),loadTerrainTextures(payload.textures)]).then(([entries,textures])=>{
+      if(seq!==sequence.current)return;adopted=true;setBundle({payload,models:Object.fromEntries(entries),textures,release:()=>held.forEach(h=>h.release())});setLoading(false);
     }).catch(e=>{if(seq===sequence.current){setError(e.message);setLoading(false);}}).finally(()=>{if(!adopted)held.splice(0).forEach(h=>h.release());});
     return()=>{sequence.current++;};
   },[payload]);

@@ -2,6 +2,8 @@ import {createTerrain,validateTerrain,validateWater,sampleWater} from './terrain
 import {INHABITANT_LIMITS} from './inhabitant.mjs';
 import {validateGait} from './gait.mjs';
 import {validateFlock,createFlock,stepFlock} from './boids.mjs';
+import {validateScatters,placedObjects} from './scatter.mjs';
+import {validateTerrainLayerReferences} from './terrain-layers.mjs';
 
 // Authored data stays immutable. These built-ins own only transient runtime state.
 const hinge={requires:['collision.boxes@1'],init:()=>({angle:0,open:false}),tick:(s,b,dt)=>{const target=s.open?b.angle:0,d=target-s.angle;s.angle+=Math.sign(d)*Math.min(Math.abs(d),b.speed*dt);},act:s=>{s.open=!s.open;}};
@@ -39,6 +41,7 @@ export const MODULES=Object.freeze({
  'motion.boids@1':{requires:[],init:createFlock,tick:stepFlock,act:s=>{s.running=!s.running;}},
  'terrain.heightfield@1':{requires:[]},'water.ocean@1':{requires:[]},
  'inhabitant.maker@1':{requires:['camera.walk-orbit@1','collision.boxes@1']},
+ 'scatter.seeded@1':{requires:['terrain.heightfield@1']},
 });
 const behaviorModule={hinge:'interaction.hinge@1',spin:'motion.spin@1',patrol:'motion.patrol@1',flock:'motion.boids@1'};
 const assert=(ok,message)=>{if(!ok)throw new Error(message);};
@@ -57,12 +60,14 @@ export function validateRuntimeScene(scene){
  assert(r.version===1,'Unsupported runtime version');assert(Array.isArray(r.modules)&&r.modules.length<=16&&new Set(r.modules).size===r.modules.length,'Invalid module list');
  for(const name of r.modules){assert(Object.hasOwn(MODULES,name),`Unknown module ${name}`);for(const dep of MODULES[name].requires)assert(r.modules.includes(dep),`${name} requires ${dep}`);}
  for(const name of ['collision.boxes@1','camera.walk-orbit@1'])assert(r.modules.includes(name),`Runtime requires ${name}`);
- for(const [name,value,label] of [['terrain.heightfield@1',scene.terrain,'scene.terrain'],['water.ocean@1',scene.water,'scene.water'],['inhabitant.maker@1',r.possession,'runtime.possession']]){
+ for(const [name,value,label] of [['terrain.heightfield@1',scene.terrain,'scene.terrain'],['water.ocean@1',scene.water,'scene.water'],['inhabitant.maker@1',r.possession,'runtime.possession'],['scatter.seeded@1',scene.scatters,'scene.scatters']]){
   if(value!==undefined)assert(r.modules.includes(name),`${label} requires ${name}`);
   if(r.modules.includes(name))assert(value!==undefined,`${name} requires ${label}`);
  }
  if(scene.terrain!==undefined)validateTerrain(scene.terrain);
  if(scene.water!==undefined)validateWater(scene.water);
+ if(scene.scatters!==undefined)validateScatters(scene);
+ if(scene.terrain!==undefined)validateTerrainLayerReferences(scene);
  if(r.possession!==undefined){
   const p=r.possession;exact(p,['preset','camera','walkSpeed','runSpeed','swimSpeed','thirdPerson'],'possession');
   assert(p.preset==='maker','Unsupported inhabitant preset');assert(['first','third'].includes(p.camera),'Unsupported possession camera');
@@ -109,7 +114,8 @@ export class WorldRuntime{
   const t=scene.terrain,terrainSignature=t?JSON.stringify([t.type,t.bounds,t.segments,t.baseHeight,t.stamps]):null;
   const terrain=t?(terrainSignature===this.terrainSignature?this.terrain:createTerrain(t)):null;
   const states=new Map(),signatures=new Map();for(const o of scene.objects){if(!o.behavior)continue;const signature=JSON.stringify(o.behavior.type==='patrol'?[o.behavior,o.position]:o.behavior.type==='flock'?[o.behavior,terrainSignature]:o.behavior),module=MODULES[behaviorModule[o.behavior.type]];states.set(o.id,this.signatures.get(o.id)===signature?this.states.get(o.id):module.init(o,terrain));signatures.set(o.id,signature);}
-  this.scene=scene;this.states=states;this.signatures=signatures;this.terrain=terrain;this.terrainSignature=terrainSignature;
+  // Expanded scatter placements collide like authored ones; none carry behavior.
+  this.placed=placedObjects(scene,{terrain});this.scene=scene;this.states=states;this.signatures=signatures;this.terrain=terrain;this.terrainSignature=terrainSignature;
  }
  visible(o){return o.layer!=='origin'||this.originVisible;}
  position(o){return this.states.get(o.id)?.position||o.position;}
@@ -119,7 +125,7 @@ export class WorldRuntime{
   const delta=Math.atan2(Math.sin(s.angle-a),Math.cos(s.angle-a));
   return {...s,position:s.position.map((v,i)=>previous[i]+(v-previous[i])*t),angle:a+delta*t,distance:(s.previousDistance??s.distance)+(s.distance-(s.previousDistance??s.distance))*t};
  }
- yaw(o){return o.rotation[1]+(this.states.get(o.id)?.angle||0);}
+ yaw(o){return (o.yaw??o.rotation[1])+(this.states.get(o.id)?.angle||0);}
  interaction(id,position){
   const o=this.scene.objects.find(o=>o.id===id),result={id,label:null,action:null,available:false,reason:null,distance:null,state:null};
   if(!o)return {...result,reason:'missing'};
@@ -139,7 +145,7 @@ export class WorldRuntime{
  collisionAt(x,z,radius=.22,feetY=0,height=1.72,ignoreId=null){
   const b=this.scene.runtime.bounds;if(x-radius<b[0]||x+radius>b[1]||z-radius<b[2]||z+radius>b[3])return 'movement-bounds';
   const hit=(p,yaw,scale,box)=>{const dx=x-p[0],dz=z-p[2],c=Math.cos(yaw),s=Math.sin(yaw),lx=c*dx-s*dz,lz=s*dx+c*dz,off=box.offset||[0,0,0];return p[1]+(off[1]+box.size[1]/2)*scale[1]>feetY+.05&&p[1]+(off[1]-box.size[1]/2)*scale[1]<feetY+height&&Math.abs(lx-off[0]*scale[0])<=box.size[0]*scale[0]/2+radius&&Math.abs(lz-off[2]*scale[2])<=box.size[2]*scale[2]/2+radius;};
-  for(const o of this.scene.objects){if(o.id===ignoreId||!this.visible(o)||!o.collider)continue;for(const box of o.collider.type==='compound'?o.collider.boxes:[o.collider])if(hit(this.position(o),this.yaw(o),o.scale,box))return o.id;}
+  for(const o of this.placed){if(o.id===ignoreId||!this.visible(o)||!o.collider)continue;for(const box of o.collider.type==='compound'?o.collider.boxes:[o.collider])if(hit(this.position(o),this.yaw(o),o.scale,box))return o.id;}
   const board=this.scene.moodboard;if(this.originVisible&&board&&hit(board.position,board.rotation[1],[1,1,1],board.collider))return 'moodboard';
   return this.scene.runtime.blockers.find(b=>this.visible(b)&&hit(b.position,b.rotation[1],[1,1,1],b))?.id??null;
  }
