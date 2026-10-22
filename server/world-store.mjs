@@ -9,6 +9,11 @@ import {MAX_PLACED_TRIANGLES,placedSourceTriangles} from '../src/world/asset-bud
 import { installStarter } from './starter.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 export const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
+// "references/files/tropical/02-eye-level.png" becomes "Eye level".
+export function referenceTitle(file){
+  const stem=path.basename(file,path.extname(file)),words=stem.replace(/^\d+[-_. ]+/,'').replace(/[-_]+/g,' ').trim()||stem;
+  return (words.charAt(0).toUpperCase()+words.slice(1)).slice(0,160);
+}
 export async function atomicJson(file,value){
   await mkdir(path.dirname(file),{recursive:true});const tmp=`${file}.${randomUUID()}.tmp`;
   try{await writeFile(tmp,JSON.stringify(value,null,2)+'\n');await rename(tmp,file);}finally{await unlink(tmp).catch(()=>{});}
@@ -127,7 +132,7 @@ export class WorldStore extends EventEmitter {
   async linkReference(file){
     if(typeof file!=='string'||! /^(assets\/(source|imports)|references\/files)\/[-a-zA-Z0-9_./ ]+$/.test(file)||file.split('/').includes('..'))throw new Error('Choose a file inside assets/source, assets/imports or references/files');
     const target=await this.contained(file);if((await stat(target)).size>12*1024*1024)throw new Error('Reference exceeds 12 MiB');
-    const bytes=await readFile(target),ref=file.endsWith('.png')?await this.importReference(bytes,path.basename(file)):await this.importFile(bytes,path.basename(file));return {...ref,source:file};
+    const bytes=await readFile(target),ref=file.endsWith('.png')?await this.importReference(bytes,path.basename(file)):await this.importFile(bytes,path.basename(file));return {...ref,title:referenceTitle(file),source:file};
   }
   async readReference(id){
     const ref=this.current.references?.find(r=>r.id===id);if(!ref)throw new Error('Reference is not on the accepted board');
