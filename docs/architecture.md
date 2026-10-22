@@ -107,7 +107,10 @@ Private research is not a package input. See [distribution](distribution.md).
 Agent connections remain product-specific sessions. Codex uses the installed
 app-server with native login. Cursor uses the installed `agent acp` process
 with `cursor_login`, and its permission, question and plan requests use the
-same approval cards. Image generation stays on Codex. Adapters follow the
+same approval cards. Claude Code runs the installed CLI once per turn in print
+mode with its own subscription sign-in; a local MCP bridge supplies world tools
+and routes its permission prompts to the same cards. Image generation stays on
+Codex. Adapters follow the
 [provider policy research](agent-provider-policy.md), declare their billing and
 execution scope, and preserve provider approvals. Subscription credentials are not
 a universal model-routing substrate.

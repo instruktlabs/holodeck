@@ -26,6 +26,14 @@ world and authenticates with `cursor_login`. Permission, question and plan
 requests use the same approval cards. Login, billing and credentials stay inside
 Cursor. Image generation remains on Codex.
 
+The Claude Code adapter runs the user's installed, unmodified `claude` CLI once
+per turn in the selected world (`-p --output-format stream-json`), resuming the
+saved session. Holodeck checks `claude auth status` before connecting, removes
+API-key and provider variables from the child environment, never passes `--bare`,
+and never reads Claude credentials. World tools and permission prompts go through
+a local MCP bridge to the same approval cards. See the
+[provider policy](agent-provider-policy.md#anthropic-claude-code).
+
 The user-facing image request and output-to-board review path is implemented.
 Provider capability discovery and adapter tests passed. Actual native image
 generation has not been exercised end-to-end by this milestone's recorded tests.

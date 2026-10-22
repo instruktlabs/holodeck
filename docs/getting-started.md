@@ -14,7 +14,8 @@ There is no npm release.
 
 You need Git, Node.js and npm. Node 24.20.0 and npm 11.19.0 were used for this
 evaluation. `npm ci` installs dependencies once; launch does not download them.
-Agent authoring uses a local Codex CLI signed in with ChatGPT, or the Cursor CLI.
+Agent authoring uses a local Codex CLI signed in with ChatGPT, the Cursor CLI,
+or your own installed Claude Code CLI signed in with your Claude subscription.
 You can open and inspect a world before connecting an agent.
 
 ```sh
@@ -36,14 +37,20 @@ must already exist.
 
 You arrive in the preset cove in an otherwise empty construct.
 
-1. Click **Connect ↗**, then **Codex** or **Cursor**.
+1. Click **Connect ↗**, then **Codex**, **Cursor** or **Claude Code**.
 2. For Codex, choose a model from the returned list. Reasoning effort can stay
    at its model default. Codex must be signed in with ChatGPT before sending a
    message. For Cursor, choose Agent, Plan or Ask. Sign-in, billing and
-   credentials stay inside Cursor. Holodeck does not read them.
+   credentials stay inside Cursor. Holodeck does not read them. For Claude Code,
+   sign in first by running `claude` in a terminal. Connect checks
+   `claude auth status`, shows the sign-in method and plan, and refuses an API-key
+   sign-in so billing stays on your subscription. Holodeck offers no Claude login
+   and never reads Claude credentials. Choose a model alias, or keep the account
+   default.
 3. Describe what to build in the message box. Add intent and rules in the bible
    and references on the mood board as needed. Review proposed world changes and
-   Cursor permission, question or plan requests, then apply scene changes.
+   Cursor or Claude Code permission, question or plan requests, then apply scene
+   changes.
 
 For example: “Help me plan a small woodland retreat around this platform. Start
 with a short bible and a walkable blockout.” Image generation stays on the Codex
@@ -79,8 +86,8 @@ there.
 Each child world holds its scene, assets, references, installed workspace skills,
 history and local agent session state. Its directory is the agent's actual
 working directory and workspace-write root. It is an ordinary folder on this
-computer, not a Docker volume or cloud mount. Holodeck does not copy Codex
-credentials into it. Folder layout is storage underneath the browser workflow,
+computer, not a Docker volume or cloud mount. Holodeck does not copy Codex,
+Cursor or Claude credentials into it. Folder layout is storage underneath the browser workflow,
 not something you need to manage during normal authoring.
 
 Stop the terminal server with Ctrl+C. To return, run `launch` again from the
