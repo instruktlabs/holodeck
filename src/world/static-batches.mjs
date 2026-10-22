@@ -35,7 +35,8 @@ export function planStaticBatches(items,models,{cellSize=96}={}){
 }
 
 // A render-only derivative. Runtime placements and loader-owned buffers remain
-// unchanged; instanceTargets retains semantic identity for click and aim queries.
+// unchanged; instanceTargets retains semantic identity for click and aim queries
+// (a scatter instance answers with its scatter record ID).
 export function createStaticAssetBatch(source,items,{foliage,environment={}}={}){
  if(!compatibleModel(source))throw new Error('Asset is not compatible with static instancing');
  const clone=source.clone(true),binding=bindAssetFoliage(clone,foliage,environment),root=new THREE.Group(),meshes=[];
@@ -47,7 +48,7 @@ export function createStaticAssetBatch(source,items,{foliage,environment={}}={})
   for(let i=0;i<items.length;i++)for(let j=0;j<sourceCount;j++){
    const index=i*sourceCount+j;matrix.multiplyMatrices(transforms[i],part.matrixWorld);
    if(part.isInstancedMesh){part.getMatrixAt(j,inner);matrix.multiply(inner);}
-   mesh.setMatrixAt(index,matrix);targets.push(items[i].id);maxScale=Math.max(maxScale,matrix.getMaxScaleOnAxis());
+   mesh.setMatrixAt(index,matrix);targets.push(items[i].scatter??items[i].id);maxScale=Math.max(maxScale,matrix.getMaxScaleOnAxis());
    if(part.instanceColor){part.getColorAt(j,color);mesh.setColorAt(index,color);}
   }
   mesh.userData={instanceTargets:targets,sourcePart:part.name};mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;

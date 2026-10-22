@@ -1,0 +1,14 @@
+# Keep LF on every checkout so content-hash pins on world and asset JSON hold on Windows too.
+* text=auto eol=lf
+
+*.glb binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.wav binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+*.pdf binary

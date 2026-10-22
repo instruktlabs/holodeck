@@ -8,6 +8,7 @@ import {WorldRuntime} from '../world/runtime.mjs';
 import {validateWorld} from '../world/contract.mjs';
 import {CoveEffects} from '../world/effects.jsx';
 import {probe} from '../prototype/scene.jsx';
+import {loadTerrainTextures} from '../world/terrain-textures.js';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
 import {validateScenario,scenarioCamera} from './benchmark-protocol.mjs';
@@ -32,7 +33,9 @@ function useStaticBundle(){
     if(!byUrl.has(entry.url))byUrl.set(entry.url,loader.loadAsync(entry.url).then(model=>{loaded.add(model);if(stopped)disposeModels([model]);return model;}));
     return [asset.id,await byUrl.get(entry.url)];
    }));
-   if(!stopped)setResult({bundle:{payload,models:Object.fromEntries(entries)},error:null});
+   for(const [file,entry] of Object.entries(payload.textures||{}))if(!/^\.\/assets\/imports\/terrain\/[a-f0-9]{64}\.png$/.test(entry?.url)||entry.url!==`./${file}`)throw new Error('Invalid exported terrain texture path');
+   const textures=await loadTerrainTextures(payload.textures,{signal:controller.signal});
+   if(!stopped)setResult({bundle:{payload,models:Object.fromEntries(entries),textures},error:null});
   })().catch(error=>{if(!stopped)setResult({bundle:null,error:error.message});});
   return()=>{stopped=true;controller.abort();disposeModels(loaded);};
  },[]);return result;

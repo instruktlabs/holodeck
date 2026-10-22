@@ -2,54 +2,54 @@
   {
     "id": "structure",
     "name": "Cove / platform and curved seating shell",
-    "pattern": "Platform|CurvedBack|SeatPlinth|SeatTop",
+    "pattern": "Platform|CurvedBack|WallCap|SeatPlinth|SeatTop|BaseCourse",
     "pivot": [
       0,
       0,
       0
     ],
-    "programRef": "p_12d7817639d4",
+    "programRef": "p_98b414a7f72a",
     "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
-    "revisionId": "r_e96d8b9675f845d0b6cb20087815c302"
+    "revisionId": "r_2387ce274123402dbdafd818e6fb0043"
   },
   {
     "id": "canopy",
     "name": "Cove / linen canopy and timber supports",
-    "pattern": "CanopyMast|Lashing|LinenCanopy|ClimbingLeaf",
+    "pattern": "CanopyMast|Lashing|LinenCanopy|Climbing",
     "pivot": [
       0,
       0,
       0
     ],
-    "programRef": "p_0d38a7e0146d",
+    "programRef": "p_64578a136ffe",
     "assetId": "a_4f6ce20d78fd4aefa27b934c7a9224c2",
-    "revisionId": "r_cf893c2415774c149c65fdd180a69082"
+    "revisionId": "r_df0485467228414780cfa44c0f2e32ad"
   },
   {
     "id": "seating",
     "name": "Cove / fitted cushions and upright throws",
-    "pattern": "MossCushion|LinenPillow",
+    "pattern": "MossCushion|LinenPillow|ThrowBlanket|Notebook|LogBasket|SplitLogs",
     "pivot": [
       0,
       0,
       0
     ],
-    "programRef": "p_9e01ebb5d2e3",
+    "programRef": "p_13c1af2a4c81",
     "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
-    "revisionId": "r_2ab5c612ea064b98b7ac60c75514b4f2"
+    "revisionId": "r_6602fd828a5341eeaa0877fc58289960"
   },
   {
     "id": "hearth",
     "name": "Cove / creation table and ember core",
-    "pattern": "TableFoot|CreationTable|CoreBed|KilnSeedstone|KilnAmberSeam|KilnBranchSeam|CoreGarden|Bible|Tea",
+    "pattern": "TableFoot|CreationTable|CoreBed|KilnSeedstone|KilnAmberSeam|KilnBranchSeam|CoreGarden|Bible|Tea|SketchCards|Pencil",
     "pivot": [
       -1.12,
       0,
       0.08
     ],
-    "programRef": "p_1bbc32039453",
+    "programRef": "p_634bc516cceb",
     "assetId": "a_10ec25ce83e242e3a5f2c7d8ae0f8e2c",
-    "revisionId": "r_1094b1f7bfeb427a96460628a00e57a8"
+    "revisionId": "r_5ef43760979043d48f358fe2932147dc"
   },
   {
     "id": "planting",
@@ -60,9 +60,26 @@
       0,
       0
     ],
-    "programRef": "p_25d58eb37f8b",
+    "programRef": "p_d02dce052aee",
     "assetId": "a_83fa946f4c18476991c1e130c07dd5f9",
-    "revisionId": "r_0c51c3f449eb4f9397ba7bd9641b5a4b"
+    "revisionId": "r_cdb8552ccdde43f28d3995b2a5a30d25",
+    "foliage": {
+      "nodes": [
+        "FernFronds_A",
+        "FernFronds_B",
+        "FernFronds_C"
+      ],
+      "translucency": 0.22,
+      "wind": {
+        "amplitude": 0.035,
+        "frequency": 0.6,
+        "direction": [
+          0.8,
+          0.6
+        ],
+        "weight": "uv-y"
+      }
+    }
   },
   {
     "id": "rug",
@@ -73,22 +90,22 @@
       0,
       0.7
     ],
-    "programRef": "p_a42a7ba8194b",
+    "programRef": "p_af485f34b4aa",
     "assetId": "a_695ec90542974d739fb93ae8c9876e26",
-    "revisionId": "r_fd535a72cbfa4b2cb4b03ff1385b5dba"
+    "revisionId": "r_651bc2867976426996191865ea931163"
   },
   {
     "id": "lamp",
     "name": "Cove / low ember lamp",
-    "programRef": "p_747522f2a3f2",
+    "programRef": "p_0c031a0e910d",
     "assetId": "a_0e6e95f9c49d445fa83af41f12cabde1",
-    "revisionId": "r_cb8878bebeab484c8901829e94b175d1"
+    "revisionId": "r_3b14d66959f942c887c5550f60d6d8ce"
   },
   {
     "id": "moodboard",
     "name": "Cove / movable timber mood board",
-    "programRef": "p_c3379bb542f1",
+    "programRef": "p_316b0ab2c8f1",
     "assetId": "a_98506f22579948249e81029d5b605ab2",
-    "revisionId": "r_ae0d19de532347758f5c555ec8965da4"
+    "revisionId": "r_aedc5a07c6d34c1fb19f5cf959ce679c"
   }
 ]

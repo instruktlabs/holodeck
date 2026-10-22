@@ -1,5 +1,6 @@
 // Reviewable differences between the accepted world and a staged proposal.
 // Pure data for the review card: no DOM, no rendering, nothing applied.
+import {expandScatters} from './scatter.mjs';
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const byId=list=>new Map((list||[]).map(item=>[item.id,item]));
 const changedKeys=(a={},b={})=>[...new Set([...Object.keys(a||{}),...Object.keys(b||{})])].filter(key=>!same(a?.[key],b?.[key])).sort();
@@ -63,6 +64,15 @@ function diffPlacements(a,b){
   return {groups:list,totals:{added:count('added'),removed:count('removed'),moved:count('moved'),changed:count('changed'),before:(a||[]).length,after:(b||[]).length}};
 }
 
+// Scatter records with their expanded instance counts on each side.
+function diffScatters(a,b){
+  const placed=scene=>{try{return new Map(expandScatters(scene).stats.map(s=>[s.id,s.placed]));}catch{return new Map();}};
+  const {added,removed,changed}=diffList(a.scatters,b.scatters,(x,y)=>({id:y.id,fields:changedKeys(x,y)}));
+  if(!added.length&&!removed.length&&!changed.length)return {added:[],removed:[],changed:[]};
+  const before=placed(a),after=placed(b);
+  return {added:added.map(s=>({id:s.id,placed:after.get(s.id)??null})),removed:removed.map(s=>({id:s.id,placed:before.get(s.id)??null})),changed:changed.map(c=>({...c,before:before.get(c.id)??null,after:after.get(c.id)??null}))};
+}
+
 export function diffProposal(accepted,proposed){
   const sa=accepted?.scene||{},sb=proposed?.scene||{};
   const assets=diffList(sa.assets,sb.assets,(x,y)=>({id:y.id,fields:changedKeys(x,y)}));
@@ -73,6 +83,7 @@ export function diffProposal(accepted,proposed){
       settings:diffSettings(sa,sb),
       assets:{added:assets.added.map(a=>a.id),removed:assets.removed.map(a=>a.id),changed:assets.changed},
       placements:diffPlacements(sa.objects,sb.objects),
+      scatters:diffScatters(sa,sb),
     },
   };
 }
@@ -87,6 +98,8 @@ export function summarizeProposal(diff){
   if(parts.length){const touched=placements.groups.length;lines.push(`Placements: ${parts.join(', ')} across ${plural(touched,'asset group')} (${t.before} → ${t.after})`);}
   const assetParts=[assets.added.length&&`+${assets.added.length} (${sample(assets.added)})`,assets.removed.length&&`−${assets.removed.length} (${sample(assets.removed)})`,assets.changed.length&&`${assets.changed.length} changed (${sample(assets.changed.map(a=>a.id))})`].filter(Boolean);
   if(assetParts.length)lines.push(`Assets: ${assetParts.join(', ')}`);
+  const sc=diff.scene.scatters,count=n=>n===null?'?':n,scatterParts=[...sc.added.map(s=>`+${s.id} (${count(s.placed)})`),...sc.removed.map(s=>`−${s.id} (${count(s.placed)})`),...sc.changed.map(s=>`${s.id} ${s.fields.join(', ')} (${count(s.before)} → ${count(s.after)})`)];
+  if(scatterParts.length)lines.push(`Scatters: ${scatterParts.join('; ')}`);
   for(const s of settings){
     if(s.field==='terrain'){
       const bits=[s.appearance?.length&&`appearance (${s.appearance.join(', ')})`,s.stamps&&`stamps +${s.stamps.added} −${s.stamps.removed} ~${s.stamps.changed}`,...s.keys.filter(k=>k!=='appearance'&&k!=='stamps')].filter(Boolean);
