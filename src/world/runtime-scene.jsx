@@ -54,7 +54,10 @@ function useUnderwaterModels(models,placed,scene,runtime){
 function Driver({runtime}){useFrame((_,dt)=>runtime.step(dt),-2);return null;}
 function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson}){
  const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
- const actor=useRef(null),free=useRef(null);
+ const actor=useRef(null),free=useRef(null),skipFrame=useRef(false);
+ // A hidden page is throttled or paused; the first interval after it returns spans
+ // the whole absence. Neither is a frame anyone saw, so neither is recorded.
+ useEffect(()=>{const changed=()=>{skipFrame.current=true;};document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[]);
  const config=runtime.scene.runtime;
  const cameraConfig=JSON.stringify([config.spawn,config.look,config.overview,config.target,config.possession]);
  const landscapeBounds=[runtime.scene.terrain?.bounds,runtime.scene.water?.bounds].filter(Boolean),landscapeBoundsKey=JSON.stringify(landscapeBounds);
@@ -162,7 +165,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const outOfBounds=!!a&&(runtime.terrain?.sample(a.position[0],a.position[2]).inBounds===false||a.position[0]-a.radius<b[0]||a.position[0]+a.radius>b[1]||a.position[2]-a.radius<b[2]||a.position[2]+a.radius>b[3]);
   probe.actor=a?{position:[...a.position],eyePosition:[a.position[0],a.position[1]+a.eyeHeight,a.position[2]],mode:a.mode,camera:person,possessed:mode==='walk',grounded:a.grounded,verticalVelocity:a.verticalVelocity,speed:a.speed,supportHeight:a.supportHeight,waterDepth:a.waterDepth,outOfBounds}:null;
   const look=mode==='free'?free.current:walk.current;
-  probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();probe.ready=true;
+  probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();probe.ready=true;
  },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} firstPerson={mode==='walk'&&person==='first'}/>:null;
 }
 function Sun({runtime,environment,cameraMode}){

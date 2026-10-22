@@ -6,9 +6,9 @@ function savedAt(value){
   return Number.isNaN(date.getTime())?'Save time unavailable':date.toLocaleString();
 }
 
-export function HistoryPanel({world,run,busy,active,writeDisabled}){
+export function HistoryPanel({world,run,busy,active,writeDisabled,initiallyOpen=false}){
   const {api}=useWorldClient();
-  const [open,setOpen]=useState(false),[revisions,setRevisions]=useState([]),[selected,setSelected]=useState('');
+  const [open,setOpen]=useState(initiallyOpen),[revisions,setRevisions]=useState([]),[selected,setSelected]=useState('');
   const [loading,setLoading]=useState(false),[error,setError]=useState(''),[refresh,setRefresh]=useState(0);
   const [name,setName]=useState(''),[working,setWorking]=useState(''),[result,setResult]=useState(null),pending=useRef(false);
   useEffect(()=>{
@@ -35,7 +35,7 @@ export function HistoryPanel({world,run,busy,active,writeDisabled}){
       finally{pending.current=false;setWorking('');}
     });
   }
-  return <details className="world-history" onToggle={event=>setOpen(event.currentTarget.open)}>
+  return <details className="world-history" open={open} onToggle={event=>setOpen(event.currentTarget.open)}>
     <summary>World history</summary>
     <p>Browse saved revisions. Restoring creates a new revision and keeps later history available.</p>
     <div className="button-row"><button type="button" disabled={writeDisabled||loading||!!working} onClick={()=>setRefresh(value=>value+1)}>{loading?'Loading history…':'Refresh history'}</button></div>
