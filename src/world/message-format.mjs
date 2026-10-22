@@ -32,3 +32,12 @@ export function messageBlocks(source=''){
   }
   return blocks;
 }
+
+// Long user messages fold to their first lines in the conversation; the full text
+// stays one click away and is never altered.
+export function foldMessage(text='',{lines=4,chars=320}={}){
+  const source=String(text),rows=source.split('\n');
+  if(rows.length<=lines&&source.length<=chars)return {text:source,folded:false};
+  let short=rows.slice(0,lines).join('\n');if(short.length>chars)short=short.slice(0,chars).replace(/\s+\S*$/,'');
+  return {text:`${short.trimEnd()}…`,folded:true};
+}

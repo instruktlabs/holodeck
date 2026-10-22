@@ -7,6 +7,10 @@ const asRef=ref=>({id:ref.id,part:ref.part??null});
 export function selectionParts(item){
   return item?.shape?.type==='tree'?[{id:'trunk',label:'Trunk'},{id:'canopy',label:'Canopy'}]:[];
 }
+// A placement, or a scatter record (its expanded instances select the record).
+export function selectableItem(scene,id){
+  return scene?.objects?.find(o=>o.id===id)??scene?.scatters?.find(s=>s.id===id)??null;
+}
 export function validateSelectedRefs(scene,refs){
   if(!Array.isArray(refs)||refs.length>MAX_SELECTED_REFS)throw new Error(`Choose up to ${MAX_SELECTED_REFS} selected references`);
   const seen=new Set();
@@ -14,7 +18,7 @@ export function validateSelectedRefs(scene,refs){
     if(!ref||typeof ref!=='object'||Array.isArray(ref)||Object.keys(ref).some(key=>!['id','part'].includes(key))||!validId(ref.id))throw new Error('Invalid selected reference fields');
     if(seen.has(ref.id))throw new Error('Duplicate selected entity; choose one scope for each asset');
     seen.add(ref.id);
-    const item=scene?.objects?.find(o=>o.id===ref.id);
+    const item=selectableItem(scene,ref.id);
     if(!item)throw new Error(`Selected object ${ref.id} no longer exists; refresh your references`);
     if(ref.part!=null&&!selectionParts(item).some(p=>p.id===ref.part))throw new Error(`Unsupported selected part for ${ref.id}`);
     return asRef(ref);
@@ -35,7 +39,7 @@ export function toggleSelectedRef(refs,target,{additive=false}={}){
 export function pruneSelectedRefs(scene,refs){
   const result=[],seen=new Set();
   for(const ref of Array.isArray(refs)?refs:[]){
-    const item=scene?.objects?.find(o=>o.id===ref?.id);
+    const item=selectableItem(scene,ref?.id);
     if(!item||seen.has(ref.id))continue;
     seen.add(ref.id);
     result.push({id:ref.id,part:selectionParts(item).some(p=>p.id===ref.part)?ref.part:null});
