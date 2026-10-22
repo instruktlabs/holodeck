@@ -90,7 +90,7 @@ export class CodexAgent extends EventEmitter {
     super();this.store=store;this.propose=propose;this.observe=observe;this.rpcFactory=rpcFactory;this.state={connected:false,account:null,models:[],threadId:null,turnId:null,status:'disconnected',messages:[],requests:[],images:[],capabilities:{imageGeneration:false}};this.pending=new Map();
     this.sessionFile=path.join(store.root,'.holodeck/session/codex.json');this.sessionWriter=sessionWriter;this.persistQueue=Promise.resolve();this.canceled=new Set();
   }
-  snapshot(){return structuredClone(this.state);}
+  snapshot(){return {...structuredClone(this.state),provider:'codex'};}
   update(patch={}){Object.assign(this.state,patch);this.emit('agent',this.snapshot());}
   async persist(){
     // Completion notifications and new turns can save concurrently. Capture

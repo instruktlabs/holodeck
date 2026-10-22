@@ -21,6 +21,11 @@ That is observed local integration, not a guarantee about every account or futur
 distribution/onboarding route. Native writes use a world workspace sandbox;
 inherited connectors are not a complete isolation boundary.
 
+The Cursor adapter spawns the installed `agent acp` process in the selected
+world and authenticates with `cursor_login`. Permission, question and plan
+requests use the same approval cards. Login, billing and credentials stay inside
+Cursor. Image generation remains on Codex.
+
 The user-facing image request and output-to-board review path is implemented.
 Provider capability discovery and adapter tests passed. Actual native image
 generation has not been exercised end-to-end by this milestone's recorded tests.

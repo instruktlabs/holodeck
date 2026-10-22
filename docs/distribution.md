@@ -22,11 +22,18 @@ the requirement, implement it for Holodeck and demonstrate it with an independen
 fixture. Check actual licenses and attribution before reusing public third-party
 code or assets.
 
-The CLI has init, check, dev and export. Vite builds the static player and runs the
+The CLI has launch, init, check, dev and export. Vite builds the static player and runs the
 local authoring host. Speech runtime files come from installed dependencies.
 Scaffolded worlds live outside the package. Static exports contain a playable
 accepted scene and its pinned assets; local agents, authoring prose, reference
 files and editable workspaces are excluded. See [static export](static-export.md).
+
+The public scene shelf is a separate static site in `site/`. `site/scenes.json`
+lists each world by id, title, summary, preview and path. Tidemark is the first
+entry, exported into `site/worlds/tidemark/`. The shelf plays those scenes and
+points visitors to the clone and launch commands. It does not connect an agent,
+accept uploads, or publish the npm package. Contribution and direct publishing
+from the local app come later, on top of this catalog.
 
 Curated editable examples use the versioned [example world bundle](example-world-bundles.md)
 format: accepted scene data, exact pinned GLBs and an optional real runtime preview.
@@ -42,6 +49,7 @@ for source refinement, without automatic JavaScript execution or raw workspace c
 
 The public identity is Holodeck powered by Kiln, with repository
 `instruktlabs/holodeck` and private package identity `@instruktlabs/holodeck`.
-GitHub publication does not publish an npm package or deploy a hosted site.
+GitHub publication does not publish an npm package. The authoring app stays on
+the local machine. Deploying the scene shelf is separate from the Kiln site.
 See the [integration boundary](integration-boundary.md) and
 [local world library](world-library.md).

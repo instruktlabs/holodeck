@@ -1,0 +1,9 @@
+[
+  {
+    "id": "tidemark",
+    "title": "Tidemark Island",
+    "summary": "A quiet tropical island with open beaches, layered jungle, a thatched shelter, and gently moving wildlife.",
+    "preview": "images/tidemark-overlook.png",
+    "path": "worlds/tidemark/"
+  }
+]

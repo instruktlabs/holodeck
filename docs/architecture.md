@@ -104,8 +104,10 @@ review and performance evidence are distinct results.
 Public skills contain general principles and independently written requirements.
 Private research is not a package input. See [distribution](distribution.md).
 
-Agent connections remain product-specific sessions. The implemented Codex path
-uses the installed app-server with native login. Future adapters must follow the
+Agent connections remain product-specific sessions. Codex uses the installed
+app-server with native login. Cursor uses the installed `agent acp` process
+with `cursor_login`, and its permission, question and plan requests use the
+same approval cards. Image generation stays on Codex. Adapters follow the
 [provider policy research](agent-provider-policy.md), declare their billing and
 execution scope, and preserve provider approvals. Subscription credentials are not
 a universal model-routing substrate.

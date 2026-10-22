@@ -1,0 +1,364 @@
+{
+  "format": "holodeck-static-v1",
+  "revision": 0,
+  "scope": "scene-only",
+  "assets": [
+    {
+      "id": "structure",
+      "sha256": "4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4",
+      "file": "assets/imports/4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4.glb",
+      "provenance": {
+        "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
+        "revisionId": "r_e96d8b9675f845d0b6cb20087815c302",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "canopy",
+      "sha256": "8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec",
+      "file": "assets/imports/8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec.glb",
+      "provenance": {
+        "assetId": "a_4f6ce20d78fd4aefa27b934c7a9224c2",
+        "revisionId": "r_cf893c2415774c149c65fdd180a69082",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "seating",
+      "sha256": "de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0",
+      "file": "assets/imports/de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0.glb",
+      "provenance": {
+        "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
+        "revisionId": "r_2ab5c612ea064b98b7ac60c75514b4f2",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "hearth",
+      "sha256": "d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4",
+      "file": "assets/imports/d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4.glb",
+      "provenance": {
+        "assetId": "a_10ec25ce83e242e3a5f2c7d8ae0f8e2c",
+        "revisionId": "r_1094b1f7bfeb427a96460628a00e57a8",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "planting",
+      "sha256": "3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28",
+      "file": "assets/imports/3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28.glb",
+      "provenance": {
+        "assetId": "a_83fa946f4c18476991c1e130c07dd5f9",
+        "revisionId": "r_0c51c3f449eb4f9397ba7bd9641b5a4b",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "rug",
+      "sha256": "8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1",
+      "file": "assets/imports/8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1.glb",
+      "provenance": {
+        "assetId": "a_695ec90542974d739fb93ae8c9876e26",
+        "revisionId": "r_fd535a72cbfa4b2cb4b03ff1385b5dba",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "lamp",
+      "sha256": "3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c",
+      "file": "assets/imports/3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c.glb",
+      "provenance": {
+        "assetId": "a_0e6e95f9c49d445fa83af41f12cabde1",
+        "revisionId": "r_cb8878bebeab484c8901829e94b175d1",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-palm",
+      "sha256": "06eb939f28106c33c9a804fc396c74aa80090b7dbc5a290fd7e733d8646a5586",
+      "file": "assets/imports/06eb939f28106c33c9a804fc396c74aa80090b7dbc5a290fd7e733d8646a5586.glb",
+      "provenance": {
+        "assetId": "a_47bf3c6270a945d5838c563b7d45f2ab",
+        "revisionId": "r_9301a174823a4f109e19e37547295f61",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-shrub",
+      "sha256": "a8de02df07e9eda172ceeb30b5a7764c8d7dffb49056619d52c58d6564d4965f",
+      "file": "assets/imports/a8de02df07e9eda172ceeb30b5a7764c8d7dffb49056619d52c58d6564d4965f.glb",
+      "provenance": {
+        "assetId": "a_363f7ef738d84824b4390ea82a175296",
+        "revisionId": "r_4803f98bf0ce470c8932418294232ef7",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-grass",
+      "sha256": "3c4e14de82253733dde8cdb0be4e78e240523ea19154e905c80fadff32cfc57f",
+      "file": "assets/imports/3c4e14de82253733dde8cdb0be4e78e240523ea19154e905c80fadff32cfc57f.glb",
+      "provenance": {
+        "assetId": "a_e9e113ec77e74c29b8f836234048f2ab",
+        "revisionId": "r_0fbd508d69a94af591440fffccd7a091",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-shore",
+      "sha256": "f30abc5985480aba8c193cfd5791be79bfe89b248c14f16d3cc27d939549c8cd",
+      "file": "assets/imports/f30abc5985480aba8c193cfd5791be79bfe89b248c14f16d3cc27d939549c8cd.glb",
+      "provenance": {
+        "assetId": "a_42669950b51341d48c422252580df01e",
+        "revisionId": "r_1ed20bc9bbd440e0a7d61fdd3bfa6520",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-hut-frame",
+      "sha256": "4e8e56f77fbb7f34ed4301c1fac43828ba26dba3a0303627d68e3b06f6453291",
+      "file": "assets/imports/4e8e56f77fbb7f34ed4301c1fac43828ba26dba3a0303627d68e3b06f6453291.glb",
+      "provenance": {
+        "assetId": "a_840fcef6a6bc431990858e299fdf53e7",
+        "revisionId": "r_17b3c37ecbd540d9adeffb29ebc1bc81",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-hut-roof",
+      "sha256": "ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf",
+      "file": "assets/imports/ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf.glb",
+      "provenance": {
+        "assetId": "a_b6de83703b59493bbbbc3d800132fd81",
+        "revisionId": "r_a534f55c922e48b19818dfc995437c5c",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-hut-furnishings",
+      "sha256": "09504a0e9d729dbfd629dcd36ff7e3656d1e7880898aa508b56fa8219847726b",
+      "file": "assets/imports/09504a0e9d729dbfd629dcd36ff7e3656d1e7880898aa508b56fa8219847726b.glb",
+      "provenance": {
+        "assetId": "a_97d6373813054d2b809c14ced99745ad",
+        "revisionId": "r_8ca5cf4a3b4b4a5583462eeb16338936",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-resident",
+      "sha256": "07ef366785d37de58670a8bf8a8aeab3094dfc6f3dab09fe5eb76fc5ee627952",
+      "file": "assets/imports/07ef366785d37de58670a8bf8a8aeab3094dfc6f3dab09fe5eb76fc5ee627952.glb",
+      "provenance": {
+        "assetId": "a_d8af3cee43454ee98083d9c670b1f4c5",
+        "revisionId": "r_7fd4e42104b14771a9108574848de5fd",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-bird",
+      "sha256": "e7ada7acce37b4dbdcf95ceea76a11dfb11091f446936b1a5bec2fa7d247b060",
+      "file": "assets/imports/e7ada7acce37b4dbdcf95ceea76a11dfb11091f446936b1a5bec2fa7d247b060.glb",
+      "provenance": {
+        "assetId": "a_3f02072d969a437697d2d50ce7e5d5dd",
+        "revisionId": "r_f5696d892ce7485dafa2bbfd07376b13",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "island-crab",
+      "sha256": "3a2ffbdbd1509fadac5386e45fbb604bbdca1da0255db49221d8b240b08f5204",
+      "file": "assets/imports/3a2ffbdbd1509fadac5386e45fbb604bbdca1da0255db49221d8b240b08f5204.glb",
+      "provenance": {
+        "assetId": "a_16416237252e4c47bbc864d54ad5ce26",
+        "revisionId": "r_1ead8326320c4a988a065b74c5daebd2",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "jungle-sapling",
+      "sha256": "fadf9b9eff37c2791c7c73c98a132d98195da42bc39f33a9514e1e8ddbbe8381",
+      "file": "assets/imports/fadf9b9eff37c2791c7c73c98a132d98195da42bc39f33a9514e1e8ddbbe8381.glb",
+      "provenance": {
+        "assetId": "a_821da5e8b05940ecbf181c0db3eb28e0",
+        "revisionId": "r_28393641e10c49cd9787130e56d0cfd8",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "jungle-fern",
+      "sha256": "80de23da824d0864cdc1325dfde18022db4f0d0b3be1f98f78e5304af8bc6f77",
+      "file": "assets/imports/80de23da824d0864cdc1325dfde18022db4f0d0b3be1f98f78e5304af8bc6f77.glb",
+      "provenance": {
+        "assetId": "a_00c3a49306e7441ea2826a6a4c526460",
+        "revisionId": "r_ca0d0037051040c8b5e5ca1143d92ebd",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "jungle-understory",
+      "sha256": "f106b90124a2245dc537d9b12d58b570ec0c8657880dff13c27d79b70357fcc4",
+      "file": "assets/imports/f106b90124a2245dc537d9b12d58b570ec0c8657880dff13c27d79b70357fcc4.glb",
+      "provenance": {
+        "assetId": "a_a358f3a030604c879cc7495a1d84aeb8",
+        "revisionId": "r_8435d0bc3b5a4cf590ecc61e37062613",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "jungle-groundcover",
+      "sha256": "f17a2c2ecf6ffe03b18cd7965780fe45aadb0d32dc42c24879a997d616417611",
+      "file": "assets/imports/f17a2c2ecf6ffe03b18cd7965780fe45aadb0d32dc42c24879a997d616417611.glb",
+      "provenance": {
+        "assetId": "a_02d5323d2c2846bc9408ae4837d9d728",
+        "revisionId": "r_66e544c6b8bf4c7f873421dd8b639195",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "coastal-flybird",
+      "sha256": "e8db14c772b6d5e01cbadd775f09b5c15d29f14d42b73507263cf87fc8b00c5d",
+      "file": "assets/imports/e8db14c772b6d5e01cbadd775f09b5c15d29f14d42b73507263cf87fc8b00c5d.glb",
+      "provenance": {
+        "assetId": "a_d2a8786f58ec46d2ba9dd936030f9396",
+        "revisionId": "r_d9dddb69593c4e8fb4cc69d542bc614a",
+        "collection": "project"
+      }
+    }
+  ],
+  "files": [
+    {
+      "file": "assets/imports/06eb939f28106c33c9a804fc396c74aa80090b7dbc5a290fd7e733d8646a5586.glb",
+      "bytes": 996120,
+      "sha256": "06eb939f28106c33c9a804fc396c74aa80090b7dbc5a290fd7e733d8646a5586"
+    },
+    {
+      "file": "assets/imports/07ef366785d37de58670a8bf8a8aeab3094dfc6f3dab09fe5eb76fc5ee627952.glb",
+      "bytes": 55416,
+      "sha256": "07ef366785d37de58670a8bf8a8aeab3094dfc6f3dab09fe5eb76fc5ee627952"
+    },
+    {
+      "file": "assets/imports/09504a0e9d729dbfd629dcd36ff7e3656d1e7880898aa508b56fa8219847726b.glb",
+      "bytes": 69144,
+      "sha256": "09504a0e9d729dbfd629dcd36ff7e3656d1e7880898aa508b56fa8219847726b"
+    },
+    {
+      "file": "assets/imports/3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28.glb",
+      "bytes": 436248,
+      "sha256": "3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28"
+    },
+    {
+      "file": "assets/imports/3a2ffbdbd1509fadac5386e45fbb604bbdca1da0255db49221d8b240b08f5204.glb",
+      "bytes": 32276,
+      "sha256": "3a2ffbdbd1509fadac5386e45fbb604bbdca1da0255db49221d8b240b08f5204"
+    },
+    {
+      "file": "assets/imports/3c4e14de82253733dde8cdb0be4e78e240523ea19154e905c80fadff32cfc57f.glb",
+      "bytes": 40056,
+      "sha256": "3c4e14de82253733dde8cdb0be4e78e240523ea19154e905c80fadff32cfc57f"
+    },
+    {
+      "file": "assets/imports/3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c.glb",
+      "bytes": 34576,
+      "sha256": "3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c"
+    },
+    {
+      "file": "assets/imports/4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4.glb",
+      "bytes": 741484,
+      "sha256": "4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4"
+    },
+    {
+      "file": "assets/imports/4e8e56f77fbb7f34ed4301c1fac43828ba26dba3a0303627d68e3b06f6453291.glb",
+      "bytes": 83700,
+      "sha256": "4e8e56f77fbb7f34ed4301c1fac43828ba26dba3a0303627d68e3b06f6453291"
+    },
+    {
+      "file": "assets/imports/80de23da824d0864cdc1325dfde18022db4f0d0b3be1f98f78e5304af8bc6f77.glb",
+      "bytes": 60784,
+      "sha256": "80de23da824d0864cdc1325dfde18022db4f0d0b3be1f98f78e5304af8bc6f77"
+    },
+    {
+      "file": "assets/imports/8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1.glb",
+      "bytes": 18760,
+      "sha256": "8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1"
+    },
+    {
+      "file": "assets/imports/8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec.glb",
+      "bytes": 91072,
+      "sha256": "8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec"
+    },
+    {
+      "file": "assets/imports/a8de02df07e9eda172ceeb30b5a7764c8d7dffb49056619d52c58d6564d4965f.glb",
+      "bytes": 94364,
+      "sha256": "a8de02df07e9eda172ceeb30b5a7764c8d7dffb49056619d52c58d6564d4965f"
+    },
+    {
+      "file": "assets/imports/d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4.glb",
+      "bytes": 228096,
+      "sha256": "d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4"
+    },
+    {
+      "file": "assets/imports/de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0.glb",
+      "bytes": 7752,
+      "sha256": "de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0"
+    },
+    {
+      "file": "assets/imports/e7ada7acce37b4dbdcf95ceea76a11dfb11091f446936b1a5bec2fa7d247b060.glb",
+      "bytes": 28444,
+      "sha256": "e7ada7acce37b4dbdcf95ceea76a11dfb11091f446936b1a5bec2fa7d247b060"
+    },
+    {
+      "file": "assets/imports/e8db14c772b6d5e01cbadd775f09b5c15d29f14d42b73507263cf87fc8b00c5d.glb",
+      "bytes": 22560,
+      "sha256": "e8db14c772b6d5e01cbadd775f09b5c15d29f14d42b73507263cf87fc8b00c5d"
+    },
+    {
+      "file": "assets/imports/ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf.glb",
+      "bytes": 376528,
+      "sha256": "ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf"
+    },
+    {
+      "file": "assets/imports/f106b90124a2245dc537d9b12d58b570ec0c8657880dff13c27d79b70357fcc4.glb",
+      "bytes": 31564,
+      "sha256": "f106b90124a2245dc537d9b12d58b570ec0c8657880dff13c27d79b70357fcc4"
+    },
+    {
+      "file": "assets/imports/f17a2c2ecf6ffe03b18cd7965780fe45aadb0d32dc42c24879a997d616417611.glb",
+      "bytes": 12292,
+      "sha256": "f17a2c2ecf6ffe03b18cd7965780fe45aadb0d32dc42c24879a997d616417611"
+    },
+    {
+      "file": "assets/imports/f30abc5985480aba8c193cfd5791be79bfe89b248c14f16d3cc27d939549c8cd.glb",
+      "bytes": 66276,
+      "sha256": "f30abc5985480aba8c193cfd5791be79bfe89b248c14f16d3cc27d939549c8cd"
+    },
+    {
+      "file": "assets/imports/fadf9b9eff37c2791c7c73c98a132d98195da42bc39f33a9514e1e8ddbbe8381.glb",
+      "bytes": 37484,
+      "sha256": "fadf9b9eff37c2791c7c73c98a132d98195da42bc39f33a9514e1e8ddbbe8381"
+    },
+    {
+      "file": "assets/index-Bbv49iK7.js",
+      "bytes": 1981141,
+      "sha256": "47f44803e4bbba57319be4492ab7611a1c09537b5b49f22f115f3da9c345ad44"
+    },
+    {
+      "file": "assets/index-UL6wqC2O.css",
+      "bytes": 2922,
+      "sha256": "26f2e1d221c32e9855b5a0528e6c553167b7be9b63b4e88bdb7834e5e5e718a2"
+    },
+    {
+      "file": "index.html",
+      "bytes": 400,
+      "sha256": "c11fe2f6b9ba57a70fb01abfeb5ea5236a712e72aef83a024f1856f1fc774d4f"
+    },
+    {
+      "file": "README.txt",
+      "bytes": 1086,
+      "sha256": "5e2c6eae412148bc8c409344b4f567c56d4c5cd2574491c5bf4a0de3cbcc97ba"
+    },
+    {
+      "file": "scene.json",
+      "bytes": 348009,
+      "sha256": "2289f27df601ff0dde5613966bf71c707b560daefb9f043749a8df142b197569"
+    }
+  ]
+}

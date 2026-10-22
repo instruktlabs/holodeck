@@ -1,0 +1,19 @@
+:root{color:#393c32;background:#f3eee3;font:18px/1.55 Georgia, "Iowan Old Style", Palatino, serif}
+body{margin:0}
+a{color:#3f4a32}
+.top,.intro,section,footer{max-width:1080px;margin:0 auto;padding:24px}
+.top{display:flex;justify-content:space-between;gap:24px;align-items:baseline}
+.mark{letter-spacing:.18em;text-transform:lowercase;font-size:14px}
+h1{font-size:clamp(40px,6vw,72px);line-height:1.05;font-weight:normal;margin:0 0 16px}
+h2{font-weight:normal;font-size:32px}
+.play{display:inline-block;background:#464b38;color:#fffcef;text-decoration:none;padding:12px 18px;border-radius:999px}
+.pictures{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1080px}
+figure{margin:0}
+img{width:100%;height:auto;display:block;background:#e7e1d4}
+figcaption{font:13px/1.4 ui-sans-serif,sans-serif;margin-top:8px}
+.scenes{display:grid;gap:16px}
+.scene{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:center;text-decoration:none;color:inherit;border-top:1px solid #d5cebb;padding-top:16px}
+.scene img{width:180px;height:112px;object-fit:cover}
+.scene p{font:15px/1.45 ui-sans-serif,sans-serif}
+pre{background:#fffcef;padding:16px;overflow:auto;font:14px/1.5 ui-monospace,monospace}
+@media(max-width:720px){.top{display:block}.pictures,.scene{grid-template-columns:1fr}.scene img{width:100%;height:auto}}

@@ -8,22 +8,22 @@ Holodeck is an early, actively changing prototype. It is available from source; 
 
 ![Tidemark Island](examples/tidemark/preview.png)
 
-![The cove mood board, with the palm study and the island it describes](examples/tidemark/cove-mood-board.png)
+![The cove mood board, with the palm study and the island it describes](site/images/cove-mood-board.png)
 
 ## Start locally
 
-You need Git, Node.js and npm. Agent authoring currently uses an installed Codex CLI signed in with ChatGPT.
+You need Git, Node.js and npm. `npm ci` is the install step; launch does not download dependencies. Agent authoring uses an installed Codex CLI signed in with ChatGPT, or the Cursor CLI.
 
 ```sh
 git clone https://github.com/instruktlabs/holodeck.git
 cd holodeck
 npm ci
-mkdir ../my-worlds
-node bin/holodeck.mjs init ../my-worlds/first-world
-node bin/holodeck.mjs dev ../my-worlds/first-world --port 4190
+node bin/holodeck.mjs launch
 ```
 
-Skip mkdir if the parent folder exists; init creates a new child folder. Open **http://127.0.0.1:4190/prototype.html**, choose **Connect → Connect local Codex**, select a model, and describe what to build. Connect also configures Kiln tools in that world's workspace.
+With no directory, launch uses `cove` inside `holodeck-worlds` next to your current directory, outside this checkout. A new folder receives the construct cove. An existing Holodeck world is reopened, and a folder that is not a world is left unchanged. The command starts the local server and opens `prototype.html`.
+
+To choose the folder yourself: `node bin/holodeck.mjs launch ../my-worlds/first-world`. Then choose **Connect → Codex or Cursor**, select a model or Cursor mode, and describe what to build. Connect also configures Kiln tools in that world's workspace.
 
 The world-name menu lets you create and switch worlds or start from **Tidemark Island**, an editable example with beaches, terrain, ocean, jungle and wildlife. Each world has its own scene, references and revision history. Your worlds live outside the source checkout, in a parent folder you choose.
 
@@ -42,9 +42,9 @@ See [getting started](docs/getting-started.md) for the full flow. The current ch
 
 **React and React Three Fiber** drive the interface and 3D scene. Three.js renders through WebGPU with a WebGL2 fallback. The editor panels use React HTML/CSS over the viewport; the physical in-world mood board uses a canvas texture. Procedural character posing uses pmndrs math. Voice input uses local Whisper transcription through Transformers.js; model files download on first use.
 
-A local Node host stores worlds and connects to the installed Codex app-server. The agent works in the selected world's folder with Holodeck skills and world tools. **Kiln 1.3.1** supplies asset authoring and export; Holodeck owns scene composition, interaction, terrain, water, cameras and runtime activity. Kiln's root SDK stays on the Node side.
+A local Node host stores worlds and connects to the installed Codex app-server or the Cursor CLI through ACP. Codex works in the selected world's folder with Holodeck skills and world tools. Cursor uses the same folder, its own sign-in, and Holodeck's permission, question and plan cards. Image generation stays on Codex. **Kiln 1.3.1** supplies asset authoring and export; Holodeck owns scene composition, interaction, terrain, water, cameras and runtime activity. Kiln's root SDK stays on the Node side.
 
-Compatible static placements use instancing and spatial chunks. Runtime behavior comes from declared built-in capabilities. The current prototype has no general physics plugin system, distance LOD, XR interface or additional agent providers.
+Compatible static placements use instancing and spatial chunks. Runtime behavior comes from declared built-in capabilities. The current prototype has no general physics plugin system, distance LOD or XR interface. Local agent connections are Codex and Cursor.
 
 ## Guides
 

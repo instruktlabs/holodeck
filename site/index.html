@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Holodeck · Scene shelf</title>
+  <meta name="description" content="Play Holodeck worlds in the browser, then clone the project to build your own.">
+  <link rel="stylesheet" href="shelf.css">
+</head>
+<body>
+  <header class="top">
+    <p class="mark">holodeck</p>
+    <p>A local workspace for making worlds with your coding agent, powered by Kiln.</p>
+  </header>
+  <main>
+    <section class="intro">
+      <h1>Worlds you can walk into.</h1>
+      <p>Holodeck is an early source prototype. This shelf plays exported scenes. There is no agent connection here and no upload form. Clone the project to build a world on your own machine.</p>
+      <p><a class="play" id="first-world" href="worlds/tidemark/">Enter Tidemark Island</a></p>
+    </section>
+    <section class="pictures" aria-label="Tidemark pictures">
+      <figure>
+        <img src="images/tidemark-overlook.png" alt="Tidemark Island from above, with beaches, jungle, and the surrounding water.">
+        <figcaption>Tidemark overlook</figcaption>
+      </figure>
+      <figure>
+        <img src="images/cove-mood-board.png" alt="The cove mood board titled The world we are imagining, with a palm study and the island visible behind it.">
+        <figcaption>The cove mood board, with the palm study</figcaption>
+      </figure>
+      <figure>
+        <img src="images/looking-out.png" alt="A view from the cove seats, looking over the low wall toward the palms.">
+        <figcaption>Looking out from the cove</figcaption>
+      </figure>
+      <figure>
+        <img src="images/palm-grove.png" alt="A palm grove on Tidemark, with trunks, fronds, and sand between the trees.">
+        <figcaption>The palm grove</figcaption>
+      </figure>
+    </section>
+    <section>
+      <h2>Scenes</h2>
+      <div id="scenes" class="scenes"></div>
+      <noscript><p><a href="worlds/tidemark/">Tidemark Island</a></p></noscript>
+    </section>
+    <section>
+      <h2>Make your own</h2>
+      <p><code>npm ci</code> installs dependencies once. Launch does not download them. It creates a cove beside the checkout when that folder is new, starts the local server, and opens the world.</p>
+      <pre><code>git clone https://github.com/instruktlabs/holodeck.git
+cd holodeck
+npm ci
+node bin/holodeck.mjs launch</code></pre>
+      <p>The source is <a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a>. Code is MIT. The bundled examples and these pictures are CC0. Your own worlds are not automatically CC0.</p>
+    </section>
+  </main>
+  <script type="module" src="shelf.js"></script>
+</body>
+</html>

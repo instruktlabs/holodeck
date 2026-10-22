@@ -12,38 +12,42 @@ There is no npm release.
 
 ## Start your first world
 
-You need Git, Node.js and npm, plus a local Codex CLI signed in with ChatGPT for
-agent authoring. Node 24.20.0 and npm 11.19.0 were used for this evaluation.
-You can open and inspect a world before connecting the agent.
+You need Git, Node.js and npm. Node 24.20.0 and npm 11.19.0 were used for this
+evaluation. `npm ci` installs dependencies once; launch does not download them.
+Agent authoring uses a local Codex CLI signed in with ChatGPT, or the Cursor CLI.
+You can open and inspect a world before connecting an agent.
 
 ```sh
 git clone https://github.com/instruktlabs/holodeck.git
 cd holodeck
 npm ci
-mkdir ../my-worlds
-node bin/holodeck.mjs init ../my-worlds/first-world
-node bin/holodeck.mjs dev ../my-worlds/first-world --port 4190
+node bin/holodeck.mjs launch
 ```
 
-If your chosen parent directory already exists, skip `mkdir`. The first-world
-directory must be new: init creates it and refuses to overwrite an existing
-path. Its parent must exist first.
+Launch creates `../holodeck-worlds/cove` when that folder is new, using the
+construct scaffold, then starts the dev server and opens `prototype.html`.
+Run it again to reopen that world. If the folder exists and is not a Holodeck
+world, launch stops without changing it. Pass a directory to use another folder:
+`node bin/holodeck.mjs launch ../my-worlds/first-world`.
 
-Keep that terminal running and open
-`http://127.0.0.1:4190/prototype.html`. You arrive in the preset cove in an
-otherwise empty construct. This is the current first-run flow; there is no
-one-command setup-and-launch wizard yet.
+`init` remains available when you want to create a world without starting the
+server. It still refuses to overwrite an existing path, and the parent directory
+must already exist.
 
-1. Click **Connect ↗**, then **Connect local Codex**.
-2. Choose a model from the returned list. Reasoning effort can stay at its
-   model default. Codex must be signed in with ChatGPT before sending a message.
+You arrive in the preset cove in an otherwise empty construct.
+
+1. Click **Connect ↗**, then **Codex** or **Cursor**.
+2. For Codex, choose a model from the returned list. Reasoning effort can stay
+   at its model default. Codex must be signed in with ChatGPT before sending a
+   message. For Cursor, choose Agent, Plan or Ask. Sign-in, billing and
+   credentials stay inside Cursor. Holodeck does not read them.
 3. Describe what to build in the message box. Add intent and rules in the bible
-   and references on the mood board as needed. Review the agent's proposed world
-   changes, then apply them to enter the accepted scene.
+   and references on the mood board as needed. Review proposed world changes and
+   Cursor permission, question or plan requests, then apply scene changes.
 
 For example: “Help me plan a small woodland retreat around this platform. Start
-with a short bible and a walkable blockout.” Agent turns use your local Codex
-connection; the model list and availability come from that installed app-server.
+with a short bible and a walkable blockout.” Image generation stays on the Codex
+connection.
 
 Connect automatically configures a Kiln authoring workspace inside this world
 when one is missing. You do not need to clone or author inside the Kiln engine
@@ -66,10 +70,11 @@ draft recovery details.
 
 ## Where your work lives
 
-The checkout contains Holodeck's tools. `my-worlds` is just the parent folder
-you chose for saved worlds; `holodeck-worlds` is not a required name or namespace.
-By default, the picker discovers worlds directly inside the parent of the world
-passed to `dev`. Keep worlds you want in one picker as siblings there.
+The checkout contains Holodeck's tools. `holodeck-worlds` is the parent folder
+launch uses beside the current directory; it is not a required namespace if you
+pass another path. The picker discovers worlds directly inside the parent of the
+world passed to `launch` or `dev`. Keep worlds you want in one picker as siblings
+there.
 
 Each child world holds its scene, assets, references, installed workspace skills,
 history and local agent session state. Its directory is the agent's actual
@@ -78,7 +83,7 @@ computer, not a Docker volume or cloud mount. Holodeck does not copy Codex
 credentials into it. Folder layout is storage underneath the browser workflow,
 not something you need to manage during normal authoring.
 
-Stop the terminal server with Ctrl+C. To return, run the same `dev` command
-from the checkout. Restarting opens the world named in that command, not your
-last picker selection. Scene revisions persist; camera position and running
-activity are not saved play-state checkpoints.
+Stop the terminal server with Ctrl+C. To return, run `launch` again from the
+checkout, or `dev` with an explicit world folder. Restarting opens the world
+named in that command, not your last picker selection. Scene revisions persist;
+camera position and running activity are not saved play-state checkpoints.

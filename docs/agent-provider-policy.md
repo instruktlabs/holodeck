@@ -3,7 +3,9 @@
 Research checked 2026-10-21. This is an engineering decision record, not a provider
 endorsement or a finding that every possible deployment is permitted. A provider's
 current agreement, account plan and organization policy still govern its use.
-Only the local Codex adapter is implemented. No proxy was installed or adopted.
+Only the local Codex and Cursor adapters are implemented. Cursor spawns the
+installed `agent acp` process in the selected world and authenticates with
+`cursor_login`. Image generation stays on Codex. No proxy was installed or adopted.
 
 ## Decision
 
@@ -216,8 +218,10 @@ plan using the documented request pools. SDK login does not discover desktop-app
 credentials. Headless SDK runs have no interactive approval flow and local
 sandboxing is off by default; that route needs explicit execution-policy work.
 The [service terms](https://cursor.com/terms-of-service) still apply, including
-restrictions on selling or renting service access. Native ACP is the closer
-candidate for Holodeck's interactive session model.
+restrictions on selling or renting service access. Native ACP is the route
+Holodeck uses. The local adapter shows permission, question and plan requests
+in the existing approval cards, keeps one session at a time, and does not read
+Cursor credential files or use the SDK.
 
 Qwen Code's [current quickstart](https://qwenlm.github.io/qwen-code-docs/en/users/quickstart/)
 says Qwen OAuth was discontinued on April 15, 2026 and describes current API-key

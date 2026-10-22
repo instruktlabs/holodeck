@@ -18,6 +18,8 @@
 .zen-workspace .world-tools{top:90px;bottom:auto;left:20px;max-width:calc(100% - 40px);padding:4px;border-radius:20px;gap:2px;flex-wrap:wrap}
 .zen-workspace .world-tools button{font-size:12px;padding:10px 16px;gap:8px;border-color:transparent;background:transparent}
 .zen-workspace .world-tools button.active{background:#dcd7c3}
+.provider-choice button[aria-pressed=true]{background:#464b38;color:#fffcef}
+.agent-card fieldset{border:0;margin:12px 0;padding:0}.agent-card legend{font-size:13px;margin-bottom:8px}
 .zen-workspace .top-actions button{font-size:12px;gap:8px}.zen-workspace .enter-world{background:#464b38;color:#fffcef}
 .view-tools{position:absolute;right:20px;top:90px;display:flex;gap:6px}.view-tools button{font-size:11px;padding:10px}
 .zen-workspace .drawer{left:20px;top:150px;bottom:150px;width:min(360px,calc(100% - 40px));z-index:6}
