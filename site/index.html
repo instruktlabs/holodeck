@@ -3,54 +3,120 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Holodeck · Scene shelf</title>
-  <meta name="description" content="Play Holodeck worlds in the browser, then clone the project to build your own.">
+  <title>Holodeck · Worlds you can walk into</title>
+  <meta name="description" content="Holodeck is a local workspace where you and your coding agent build 3D worlds, then walk them in the browser. Play exported scenes here, then clone the project to build your own.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap">
   <link rel="stylesheet" href="shelf.css">
 </head>
 <body>
   <header class="top">
-    <p class="mark">holodeck</p>
-    <p>A local workspace for making worlds with your coding agent, powered by Kiln.</p>
+    <a class="brand" href="./"><span class="mark" aria-hidden="true"></span>holodeck<span class="by">powered by Kiln</span></a>
+    <nav><a href="#loop">How it works</a><a href="#scenes">Scenes</a><a class="gh" href="https://github.com/instruktlabs/holodeck">GitHub</a></nav>
   </header>
+
   <main>
-    <section class="intro">
-      <h1>Worlds you can walk into.</h1>
-      <p>Holodeck is an early source prototype. This shelf plays exported scenes. There is no agent connection here and no upload form. Clone the project to build a world on your own machine.</p>
-      <p><a class="play" id="first-world" href="worlds/tidemark/">Enter Tidemark Island</a></p>
+    <section class="hero">
+      <!-- Hero capture: replace images/hero.jpg with a Crescent Cove capture when that world is ready. -->
+      <img class="hero-image" src="images/hero.jpg" alt="An island from above: a sandy crescent of palms, a thatched shelter and turquoise shallows.">
+      <div class="hero-copy">
+        <div>
+          <p class="eyebrow">Early source prototype</p>
+          <h1>Describe a place.<br><em>Then walk into it.</em></h1>
+        </div>
+        <div>
+          <p class="lede">Holodeck is a local workspace where you and your coding agent build 3D worlds together, then explore them on foot, right in the browser.</p>
+          <p class="ctas"><a class="button primary" id="first-world" href="worlds/tidemark/">Enter Tidemark Island</a><a class="button glass" href="#build">Build your own</a></p>
+          <p class="capture">Tidemark Island, rendered live in the browser.</p>
+        </div>
+      </div>
     </section>
-    <section class="pictures" aria-label="Tidemark pictures">
-      <figure>
-        <img src="images/tidemark-overlook.png" alt="Tidemark Island from above, with beaches, jungle, and the surrounding water.">
-        <figcaption>Tidemark overlook</figcaption>
+
+    <section class="wrap workspace">
+      <p class="kicker">The workspace</p>
+      <h2>A workshop for worlds.</h2>
+      <p class="sub">Write what a place should feel like, pin a few references, and let your coding agent build it with Kiln assets. Then step inside and judge it on foot.</p>
+      <figure class="shot">
+        <div class="chrome"><i></i><i></i><i></i><span>127.0.0.1 · holodeck · Tidemark Island</span></div>
+        <img src="images/workspace.jpg" alt="The Holodeck workspace over Tidemark Island, with World, Bible, Mood board, Activity and Agent tabs and a prompt bar.">
       </figure>
-      <figure>
-        <img src="images/cove-mood-board.png" alt="The cove mood board titled The world we are imagining, with a palm study and the island visible behind it.">
-        <figcaption>The cove mood board, with the palm study</figcaption>
-      </figure>
-      <figure>
-        <img src="images/looking-out.png" alt="A view from the cove seats, looking over the low wall toward the palms.">
-        <figcaption>Looking out from the cove</figcaption>
-      </figure>
-      <figure>
-        <img src="images/palm-grove.png" alt="A palm grove on Tidemark, with trunks, fronds, and sand between the trees.">
-        <figcaption>The palm grove</figcaption>
-      </figure>
+      <p class="caption">The real workspace, running locally.</p>
     </section>
-    <section>
-      <h2>Scenes</h2>
+
+    <section class="wrap loop" id="loop">
+      <div class="section-head">
+        <div><p class="kicker">How it works</p><h2>One loop, five surfaces.</h2></div>
+        <div>
+          <p>You set the intent, your agent does the building, and you judge the result by walking it. Each accepted change leaves a saved revision.</p>
+          <ol class="ring"><li>Bible</li><li>Mood board</li><li>Agent</li><li>Kiln assets</li><li>World</li></ol>
+        </div>
+      </div>
+
+      <article class="step">
+        <div class="copy"><p class="num">01</p><h3><small>Bible</small>The rules of this place.</h3>
+          <p>A short design document you and your agent both edit: what the world is for, how it should look, and the rules it must keep.</p>
+          <ul class="facts"><li>World name, visual direction and rules</li><li>Your agent must respect accepted rules</li></ul></div>
+        <figure class="frame"><img src="images/bible-panel.jpg" alt="The Bible panel for Tidemark Island."><figcaption>Bible panel</figcaption></figure>
+      </article>
+
+      <article class="step">
+        <div class="copy"><p class="num">02</p><h3><small>Mood board</small>A feeling to build toward.</h3>
+          <p>Pin images, notes and reference files, including what to avoid. The board also stands inside the world, so you can hold the place up against it.</p>
+          <ul class="facts"><li>Images, notes, MD, PDF and GLB references</li><li>Pin a card to the bible for your agent</li></ul></div>
+        <figure class="frame"><img src="images/cove-mood-board.png" alt="The cove mood board standing in the world, with a palm study."><figcaption>The cove's board, in the world</figcaption></figure>
+      </article>
+
+      <article class="step">
+        <div class="copy"><p class="num">03</p><h3><small>Agent</small>Your coding agent, on your machine.</h3>
+          <p>Connect Codex, Cursor or Claude Code. It works from the bible and board, and proposes scene, bible and board changes for you to review.</p>
+          <ul class="facts"><li>Uses your own signed-in plan</li><li>Holodeck never reads or copies its credentials</li></ul></div>
+        <figure class="frame"><img src="images/agent-panel.jpg" alt="The Agent panel with Codex, Cursor and Claude Code options."><figcaption>Agent panel</figcaption></figure>
+      </article>
+
+      <article class="step">
+        <div class="copy"><p class="num">04</p><h3><small>Kiln assets</small>Real models, pinned.</h3>
+          <p>Assets come from a separate Kiln workspace as GLBs. Holodeck validates and hot-loads them, then pins each one so a world never shifts under you.</p>
+          <ul class="facts"><li>Tidemark pins 23 assets by content hash</li><li>Each with a recorded Kiln revision</li></ul></div>
+        <figure class="frame"><img src="images/palm-grove.png" alt="Palms and ferns in Tidemark's grove."><figcaption>Palms and ferns in the grove</figcaption></figure>
+      </article>
+
+      <article class="step">
+        <div class="copy"><p class="num">05</p><h3><small>World</small>Walk it, then keep it.</h3>
+          <p>Enter in first person to see whether the place works. Every accepted change becomes a revision you can return to, and any revision exports as a static scene like the ones on this page.</p>
+          <ul class="facts"><li>WebGPU, with a WebGL2 fallback</li><li>World history and static export</li></ul></div>
+        <figure class="frame"><img src="images/looking-out.png" alt="Looking out from the cove seats toward the palms."><figcaption>Looking out from the cove</figcaption></figure>
+      </article>
+
+      <div class="status">
+        <div class="panel"><h4>What you can do today</h4><ul><li>Walk exported scenes here in the browser</li><li>Clone the project and build worlds locally with your agent</li><li>Start from the cove or an example world</li></ul></div>
+        <div class="panel"><h4>Not here yet</h4><ul><li>No agent connection on this site</li><li>No uploads or accounts</li><li>No npm package; clone from GitHub</li></ul></div>
+      </div>
+    </section>
+
+    <section class="wrap scenes-section" id="scenes">
+      <div class="section-head"><div><p class="kicker">Scenes</p><h2>Step into one now.</h2></div><div><p>Exported worlds play directly in your browser. Nothing to install.</p></div></div>
       <div id="scenes" class="scenes"></div>
       <noscript><p><a href="worlds/tidemark/">Tidemark Island</a></p></noscript>
     </section>
-    <section>
-      <h2>Make your own</h2>
-      <p><code>npm ci</code> installs dependencies once. Launch does not download them. It creates a cove beside the checkout when that folder is new, starts the local server, and opens the world.</p>
-      <pre><code>git clone https://github.com/instruktlabs/holodeck.git
-cd holodeck
-npm ci
-node bin/holodeck.mjs launch</code></pre>
-      <p>The source is <a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a>. Code is MIT. The bundled examples and these pictures are CC0. Your own worlds are not automatically CC0.</p>
+
+    <section class="wrap build" id="build">
+      <div class="build-grid">
+        <div><p class="kicker">Build</p><h2>Make your own world.</h2>
+          <p class="sub">Holodeck runs on your machine. Launch creates a cove beside the checkout when that folder is new, starts the local server and opens the world.</p></div>
+        <div>
+          <ol class="install">
+            <li><code>git clone https://github.com/instruktlabs/holodeck.git</code></li>
+            <li><code>cd holodeck</code></li>
+            <li><code>npm ci</code><small>Installs dependencies once. Launch does not download them.</small></li>
+            <li><code>node bin/holodeck.mjs launch</code><small>Then choose Connect → Codex, Cursor or Claude Code.</small></li>
+          </ol>
+          <p class="license">The source is <a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a>. Code is MIT. The bundled example worlds are CC0. Your own worlds are not automatically CC0.</p>
+        </div>
+      </div>
     </section>
   </main>
+  <footer><div class="wrap"><span>holodeck · powered by Kiln</span><a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a></div></footer>
   <script type="module" src="shelf.js"></script>
 </body>
 </html>
