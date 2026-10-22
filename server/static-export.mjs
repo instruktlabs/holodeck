@@ -37,11 +37,58 @@ async function fileInventory(root,relative=''){
  return result.sort((a,b)=>a.file.localeCompare(b.file));
 }
 
+// Page metadata is explicit public text supplied at export time; the world's own
+// bible and references never reach the page head.
+const MAX_PAGE_IMAGE_BYTES=8*1024*1024;
+const escapeHtml=value=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function pageText(value,max,label){
+ if(typeof value!=='string'||!value.trim()||value.length>max||/[\u0000-\u001f]/.test(value))throw new Error(`Invalid page ${label}`);
+ if(/(?:^|[\s"'=(])(?:[a-z]:[\\/]|\\\\|file:\/\/)|\/(?:home|Users)\//i.test(value))throw new Error(`Page ${label} contains a local path; provide public metadata`);
+ return value.trim();
+}
+function imageInfo(bytes){
+ if(bytes.length>=24&&bytes.subarray(0,8).toString('hex')==='89504e470d0a1a0a')return {type:'png',width:bytes.readUInt32BE(16),height:bytes.readUInt32BE(20)};
+ if(bytes.length>4&&bytes[0]===0xff&&bytes[1]===0xd8){
+  // Walk JPEG segments to the first start-of-frame marker for its dimensions.
+  for(let i=2;i+9<bytes.length;){if(bytes[i]!==0xff){i++;continue;}const marker=bytes[i+1],size=bytes.readUInt16BE(i+2);if(marker>=0xc0&&marker<=0xcf&&![0xc4,0xc8,0xcc].includes(marker))return {type:'jpg',width:bytes.readUInt16BE(i+7),height:bytes.readUInt16BE(i+5)};i+=2+size;}
+ }
+ throw new Error('Page image must be a PNG or JPEG');
+}
+async function pageMetadata(page){
+ if(page==null)return null;
+ if(typeof page!=='object'||Object.keys(page).some(key=>!['title','description','url','image','imageAlt','license'].includes(key)))throw new Error('Invalid page metadata fields');
+ const result={title:pageText(page.title,100,'title'),description:pageText(page.description,300,'description')};
+ for(const key of ['url','license'])if(page[key]!==undefined){
+  let url;try{url=new URL(page[key]);}catch{throw new Error(`Page ${key} must be an absolute https URL`);}
+  if(url.protocol!=='https:'||url.username||url.password||url.hash)throw new Error(`Page ${key} must be an absolute https URL`);
+  if(key==='url'&&!url.pathname.endsWith('/'))throw new Error('Page url must end with / so relative scene files resolve');result[key]=url.href;
+ }
+ if(page.image!==undefined){
+  if(typeof page.image!=='string'||!page.image)throw new Error('Choose a local page image file');const info=await lstat(page.image);
+  if(!info.isFile()||info.size>MAX_PAGE_IMAGE_BYTES)throw new Error('Page image must be a bounded regular file');
+  const bytes=await readFile(page.image),size=imageInfo(bytes);if(![size.width,size.height].every(n=>Number.isInteger(n)&&n>=1&&n<=4096))throw new Error('Page image dimensions exceed 4096 pixels');
+  result.image={bytes,file:`preview.${size.type}`,width:size.width,height:size.height,alt:pageText(page.imageAlt??result.title,300,'image alt')};
+ }else if(page.imageAlt!==undefined)throw new Error('Page image alt needs a page image');
+ return result;
+}
+export function pageHead(page){
+ const meta=(attribute,name,content)=>`<meta ${attribute}="${name}" content="${escapeHtml(String(content))}">`;
+ const image=page.image&&page.url?new URL(page.image.file,page.url).href:null,lines=[`<title>${escapeHtml(page.title)}</title>`,meta('name','description',page.description)];
+ if(page.url)lines.push(`<link rel="canonical" href="${escapeHtml(page.url)}">`,meta('property','og:type','website'),meta('property','og:title',page.title),meta('property','og:description',page.description),meta('property','og:url',page.url));
+ if(image)lines.push(meta('property','og:image',image),meta('property','og:image:width',page.image.width),meta('property','og:image:height',page.image.height),meta('property','og:image:alt',page.image.alt));
+ if(page.url)lines.push(meta('name','twitter:card',image?'summary_large_image':'summary'),meta('name','twitter:title',page.title),meta('name','twitter:description',page.description),...(image?[meta('name','twitter:image',image),meta('name','twitter:image:alt',page.image.alt)]:[]));
+ if(page.url){
+  const data={'@context':'https://schema.org','@type':'CreativeWork',name:page.title,description:page.description,url:page.url,...(image?{image}:{}),...(page.license?{license:page.license}:{})};
+  lines.push(`<script type="application/ld+json">${JSON.stringify(data).replace(/</g,'\\u003c')}</script>`);
+ }
+ return lines.join('');
+}
+
 // A static artifact is an explicit scene-only projection of an accepted receipt.
 // It never opens a WorldStore, loads host plugins or copies a workspace/public dir.
-export async function exportStaticWorld(root,{out,revision}={}){
+export async function exportStaticWorld(root,{out,revision,page}={}){
  if(typeof out!=='string'||!out.trim())throw new Error('Choose a new export directory with --out');
- const output=path.resolve(out);await absent(output);
+ const output=path.resolve(out);await absent(output);const metadata=await pageMetadata(page);
  if(revision==null)try{await lstat(path.join(root,'.holodeck/accepted-bundle.json'));}catch(error){if(error.code==='ENOENT')throw new Error('Open this world with holodeck dev first to create an accepted snapshot.');throw error;}
  let receipt;
  try{receipt=await readRevisionBundle(root,revision);}catch(error){
@@ -73,6 +120,11 @@ export async function exportStaticWorld(root,{out,revision}={}){
   resolve:{alias:[{find:path.join(packageRoot,'src/world/moodboard.jsx').replaceAll('\\','/'),replacement:path.join(packageRoot,'src/viewer/excluded-board.jsx')}]},
   plugins:[{name:'scene-only-viewer',enforce:'pre',resolveId(source,importer){if(importer&&/\/(world\/runtime-scene|prototype\/scene)\.jsx$/.test(importer.replaceAll('\\','/'))&&source.endsWith('/moodboard.jsx'))return path.join(packageRoot,'src/viewer/excluded-board.jsx');}}],
   build:{outDir:output,emptyOutDir:false,sourcemap:false,target:'es2022',minify:true,assetsDir:'assets',chunkSizeWarningLimit:2500}});
+ if(metadata){
+  const index=path.join(output,'index.html'),html=await readFile(index,'utf8');if(!html.includes('<title>Holodeck world</title>'))throw new Error('Viewer page has no title to replace');
+  await writeFile(index,html.replace('<title>Holodeck world</title>',()=>pageHead(metadata)));
+  if(metadata.image)await writeFile(path.join(output,metadata.image.file),metadata.image.bytes,{flag:'wx'});
+ }
  await mkdir(path.join(output,'assets/imports'),{recursive:true});
  for(const [hash,bytes] of blobs)await writeFile(path.join(output,`assets/imports/${hash}.glb`),bytes,{flag:'wx'});
  if(textureBlobs.size)await mkdir(path.join(output,'assets/imports/terrain'));

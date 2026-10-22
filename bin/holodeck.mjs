@@ -7,7 +7,7 @@ import {defaultLaunchDirectory,openPrototype,parseLaunchArgs,prepareLaunchDirect
 import {validateWorld,validateGlb} from '../src/world/contract.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 const [command,folder,...args]=process.argv.slice(2);
-const usage='Usage: holodeck launch [directory] [--port 4186]; holodeck init <new-folder> [--example <id> | --bundle <local-directory>]; holodeck dev <folder> [--port 4186]; holodeck check <folder>; holodeck export <folder> --out <new-directory> [--revision N]';
+const usage='Usage: holodeck launch [directory] [--port 4186]; holodeck init <new-folder> [--example <id> | --bundle <local-directory>]; holodeck dev <folder> [--port 4186]; holodeck check <folder>; holodeck export <folder> --out <new-directory> [--revision N] [--title T --description D [--url https://…/] [--image preview.jpg] [--image-alt A] [--license https://…]]';
 async function serve(root,port){
  await readFile(path.join(root,'world/world.json'));process.env.HOLODECK_WORKSPACE=root;
  await import('../scripts/prepare-runtime.mjs');
@@ -31,9 +31,11 @@ try{
   if(args[0]==='--bundle'){const {installExampleBundle}=await import('../server/example-bundle.mjs');const world=await installExampleBundle(path.resolve(args[1]),root);console.log(`Created ${world.bible.title} world at ${root}`);}
   else {const example=args[1]??'construct';await scaffold(root,example);console.log(`Created ${example} world at ${root}`);}
  }else if(command==='export'){
-  const options={};for(let i=0;i<args.length;i+=2){const name=args[i],value=args[i+1];if(!['--out','--revision'].includes(name)||!value||value.startsWith('--')||Object.hasOwn(options,name))throw new Error('Use --out <new-directory> and optional --revision <non-negative integer>');options[name]=value;}
+  const pageFlags={'--title':'title','--description':'description','--url':'url','--image':'image','--image-alt':'imageAlt','--license':'license'};
+  const options={};for(let i=0;i<args.length;i+=2){const name=args[i],value=args[i+1];if(!['--out','--revision',...Object.keys(pageFlags)].includes(name)||!value||value.startsWith('--')||Object.hasOwn(options,name))throw new Error('Use --out <new-directory>, optional --revision <non-negative integer> and optional page metadata (--title, --description, --url, --image, --image-alt, --license)');options[name]=value;}
+  const page=Object.fromEntries(Object.entries(pageFlags).filter(([flag])=>options[flag]!==undefined).map(([flag,key])=>[key,key==='image'?path.resolve(options[flag]):options[flag]]));
   const revision=options['--revision']===undefined?undefined:Number(options['--revision']);if(revision!==undefined&&(!/^\d+$/.test(options['--revision'])||!Number.isSafeInteger(revision)))throw new Error('Choose a non-negative integer revision');
-  const {exportStaticWorld}=await import('../server/static-export.mjs');const result=await exportStaticWorld(root,{out:options['--out'],revision});
+  const {exportStaticWorld}=await import('../server/static-export.mjs');const result=await exportStaticWorld(root,{out:options['--out'],revision,...(Object.keys(page).length?{page}:{})});
   console.log(`Exported revision ${result.revision}: ${result.files} files, ${result.assets} pinned assets at ${result.path}. Upload the entire directory to a static host.`);
  }else if(command==='check'){
   const world=JSON.parse(await readFile(path.join(root,'world/world.json'),'utf8'));validateWorld(world);

@@ -69,3 +69,42 @@ test('static export preserves an explicitly validated foliage binding',async t=>
  asset.foliage={nodes:[node.name],translucency:.18};for(const item of receipt.world.scene.objects)if(item.asset===asset.id)item.materialStyle='kiln';await writeFile(path.join(root,'.holodeck/accepted-bundle.json'),JSON.stringify(receipt));
  const result=await exportStaticWorld(root,{out:path.join(parent,'foliage')}),output=JSON.parse(await readFile(path.join(result.path,'scene.json'),'utf8'));assert.deepEqual(output.world.scene.assets.find(a=>a.id==='lamp').foliage,asset.foliage);
 });
+test('static export writes explicit page metadata, a social card and JSON-LD into the scene page',async t=>{
+ const {root,parent}=await fixture(t),out=path.join(parent,'page'),image=path.join(parent,'card.jpg');
+ // A JPEG header is enough for the dimension walk: SOI, then SOF0 with height 630 and width 1200.
+ await writeFile(image,Buffer.from([0xff,0xd8,0xff,0xc0,0x00,0x11,0x08,0x02,0x76,0x04,0xb0,0x03,0x01,0x22,0x00,0x02,0x11,0x01,0x03,0x11,0x01,0xff,0xd9]));
+ await exportStaticWorld(root,{out,page:{title:'Garden <walk> & "rest"',description:'A walled garden.',url:'https://example.com/worlds/garden/',image,imageAlt:'The garden gate',license:'https://creativecommons.org/publicdomain/zero/1.0/'}});
+ const html=await readFile(path.join(out,'index.html'),'utf8'),manifest=JSON.parse(await readFile(path.join(out,'manifest.json'),'utf8'));
+ assert.match(html,/<title>Garden &lt;walk&gt; &amp; &quot;rest&quot;<\/title>/);assert.doesNotMatch(html,/Holodeck world/);
+ assert.match(html,/<link rel="canonical" href="https:\/\/example\.com\/worlds\/garden\/">/);
+ assert.match(html,/<meta property="og:image" content="https:\/\/example\.com\/worlds\/garden\/preview\.jpg">/);
+ assert.match(html,/<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">/);
+ assert.match(html,/<meta name="twitter:card" content="summary_large_image">/);
+ const data=JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
+ assert.deepEqual(data,{'@context':'https://schema.org','@type':'CreativeWork',name:'Garden <walk> & "rest"',description:'A walled garden.',url:'https://example.com/worlds/garden/',image:'https://example.com/worlds/garden/preview.jpg',license:'https://creativecommons.org/publicdomain/zero/1.0/'});
+ assert.doesNotMatch(html.match(/<script type="application\/ld\+json">.*?<\/script>/)[0].slice(35,-9),/</);
+ assert.deepEqual(await readFile(path.join(out,'preview.jpg')),await readFile(image));
+ assert.ok(manifest.files.some(entry=>entry.file==='preview.jpg'));assert.ok(manifest.files.some(entry=>entry.file==='index.html'&&entry.sha256===digest(Buffer.from(html))));
+});
+test('static export page metadata without a URL keeps only the title and description',async t=>{
+ const {root,parent}=await fixture(t),out=path.join(parent,'plain');
+ await exportStaticWorld(root,{out,page:{title:'Garden',description:'A walled garden.'}});
+ const html=await readFile(path.join(out,'index.html'),'utf8');
+ assert.match(html,/<title>Garden<\/title><meta name="description" content="A walled garden\.">/);assert.doesNotMatch(html,/canonical|og:|twitter:|ld\+json/);
+});
+test('static export refuses unsafe page metadata before creating output',async t=>{
+ const {root,parent}=await fixture(t),out=path.join(parent,'refused');
+ const cases=[
+  [{title:'Garden',description:String.raw`Built in C:\Users\me\worlds`},/local path/],
+  [{title:'Garden',description:'Built in /home/me/worlds'},/local path/],
+  [{title:'Garden',description:'A garden.',url:'http://example.com/garden/'},/https URL/],
+  [{title:'Garden',description:'A garden.',url:'https://example.com/garden'},/end with \//],
+  [{title:'Garden',description:'A garden.',imageAlt:'gate'},/needs a page image/],
+  [{title:'',description:'A garden.'},/page title/],
+  [{title:'Garden',description:'A garden.',author:'me'},/fields/],
+ ];
+ for(const [page,error] of cases)await assert.rejects(exportStaticWorld(root,{out,page}),error);
+ const text=path.join(parent,'card.txt');await writeFile(text,'not an image');
+ await assert.rejects(exportStaticWorld(root,{out,page:{title:'Garden',description:'A garden.',image:text}}),/PNG or JPEG/);
+ await assert.rejects(stat(out),{code:'ENOENT'});
+});
