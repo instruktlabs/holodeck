@@ -1,22 +1,24 @@
 {
   "engine": "@instruktlabs/kiln@1.3.1",
-  "programRef": "p_c3379bb542f1",
+  "programRef": "p_316b0ab2c8f1",
   "collection": "project",
   "assetId": "a_98506f22579948249e81029d5b605ab2",
-  "revisionId": "r_ae0d19de532347758f5c555ec8965da4",
+  "revisionId": "r_aedc5a07c6d34c1fb19f5cf959ce679c",
+  "parentRevisionId": "r_ae0d19de532347758f5c555ec8965da4",
   "files": {
     "asset.glb": {
-      "sha256": "sha256:d8705827571824ca392790a714c12443ff9433fab77d8192e89be53f0ea7f378",
-      "bytes": 17852
+      "sha256": "sha256:0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
     },
     "source.kiln.js": {
-      "sha256": "sha256:c3379bb542f1026a79afa640bd97f5340be70fa8a9d0f936818db66d51121f39",
-      "bytes": 1322
+      "sha256": "sha256:316b0ab2c8f1361f8c7be09c0a74f89cb6654ca5a348ac9463b7f5e258d4406b",
+      "bytes": 13218
     },
     "preview.png": {
-      "sha256": "sha256:ff959c49a20487dd77ea52db5c0272f2d98ab9bbfe4657eb459f981afd377d3e",
-      "bytes": 36580
+      "sha256": "sha256:97741c6f58c4493a4a2e4a06a681ede10cdcff3efa196aa6775092c27a48e8ac",
+      "bytes": 249180
     }
   },
-  "scope": "Prototype module; runtime and architecture checked separately"
+  "scope": "Prototype module; runtime and architecture checked separately",
+  "review": "Kiln GPU material-faithful sheet plus browser WebGPU/WebGL2 views"
 }

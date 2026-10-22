@@ -27,6 +27,9 @@ test('default CLI init starts a fresh construct with the current cove and walk c
    assert.deepEqual(asset.provenance,{assetId:module.assetId,revisionId:module.revisionId,collection:'project'});
    assert.deepEqual(await readFile(path.join(root,asset.file)),await readFile(path.join(packageRoot,`public/assets/cove-modules/${module.id}.glb`)));
   }
+  // Rim ferns bind the uv-y wind contract, so they keep authored materials instead of cove derivation.
+  assert.deepEqual(w.scene.assets.find(a=>a.id==='planting').foliage.nodes,['FernFronds_A','FernFronds_B','FernFronds_C']);
+  assert.equal(w.scene.objects.find(o=>o.asset==='planting').materialStyle,undefined);
   assert.deepEqual(w.scene.runtime.spawn,[1.25,1.72,2.35]);
   assert.deepEqual(w.scene.moodboard.position,[1.05,0,-2.45]);
   const runtime=new WorldRuntime(w.scene);

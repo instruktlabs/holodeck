@@ -1,26 +1,24 @@
 {
   "engine": "@instruktlabs/kiln@1.3.1",
-  "programRef": "p_9e01ebb5d2e3",
+  "programRef": "p_13c1af2a4c81",
   "collection": "project",
   "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
-  "revisionId": "r_2ab5c612ea064b98b7ac60c75514b4f2",
+  "revisionId": "r_6602fd828a5341eeaa0877fc58289960",
+  "parentRevisionId": "r_8fa9d8c031bb4c1bb6ecbdba1c9fa067",
   "files": {
     "asset.glb": {
-      "sha256": "sha256:de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0",
-      "bytes": 7752
+      "sha256": "sha256:39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
+      "bytes": 890148
     },
     "source.kiln.js": {
-      "sha256": "sha256:9e01ebb5d2e3f659cbd1120c917c68409a91668082cb0c01cf1a2435fbd5951a",
-      "bytes": 8705
-    },
-    "preview.png": {
-      "sha256": "sha256:4a18d0e5e4c6ecf5ed2351c6b0d79bf58e4df3992b8d2bc77ed514c2327202db",
-      "bytes": 20575
+      "sha256": "sha256:13c1af2a4c81bfcb38196f8420d9f3e312fdb6e99b84e5a6fb0c4ccbde9e49b4",
+      "bytes": 17701
     }
   },
   "derivedFrom": {
     "assetId": "a_398fac8bc29e4717a276476ed963e001",
     "revisionId": "r_62e28c9e86fe47e7859d08c4379328e5"
   },
-  "scope": "Prototype module; runtime and architecture checked separately"
+  "scope": "Prototype module; runtime and architecture checked separately",
+  "review": "Kiln CPU geometry sheet (GPU render service unavailable for this revision) plus browser WebGPU/WebGL2 views"
 }

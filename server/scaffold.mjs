@@ -16,7 +16,7 @@ export async function scaffold(root,example='construct',{examplesDirectory}={}){
  // Refuse existing paths rather than merge over user-owned work.
  await mkdir(root);
  for(const dir of ['world','assets/imports','assets/source','references/files'])await mkdir(path.join(root,dir),{recursive:true});
- const world=await installStarter(root);world.schemaVersion=2;
+ const world=await installStarter(root,{schemaVersion:2});world.schemaVersion=2;
  world.bible={title:template.title,intent:template.intent,rules:template.rules};
  world.scene={...world.scene,environment:template.environment,runtime:template.runtime,objects:[...world.scene.objects,...template.objects]};
  world.scene.moodboard.collider={size:[.85,2.55,2.665],offset:[0,1.275,0]};
