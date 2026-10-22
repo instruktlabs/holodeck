@@ -5,7 +5,7 @@ import {mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
-import {ClaudeAgent,claudeCommand,claudeEnv} from './claude.mjs';
+import {ClaudeAgent,claudeCommand,claudeEnv,sessionGrant} from './claude.mjs';
 import {createHost} from './host.mjs';
 
 // A stand-in for the installed CLI. It records what it was given, answers
@@ -53,6 +53,14 @@ if(scenario==='permission'||scenario==='hold-permission'){
   const decision=await client.request('tools/call',{name:flag('--permission-prompt-tool').split('__')[2],arguments:{tool_name:'Bash',input:{command:'node -e 0'},tool_use_id:'toolu_1'}});
   record({kind:'mcp',init:init.result,tools:listed.result.tools.map(t=>t.name),read:JSON.parse(read.result.content[0].text).world?.revision,decision:JSON.parse(decision.result.content[0].text)});
   client.close();say('msg-2','Decided');finish();
+}
+if(scenario==='kiln-permission'){
+  const client=mcp(),tool=flag('--permission-prompt-tool').split('__')[2];
+  await client.request('initialize',{protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'fake-claude',version:'0'}});
+  const ask=async input=>JSON.parse((await client.request('tools/call',{name:tool,arguments:{tool_name:'mcp__kiln_workspace__kiln_render',input}})).result.content[0].text);
+  const first=await ask({program:'a'}),second=await ask({program:'b'});
+  record({kind:'kiln',first,second});
+  client.close();finish();
 }
 `;
 
@@ -160,6 +168,36 @@ test('permission prompts reach the Holodeck approval card and return allow or de
     assert.equal(mcp.read,7,'world tools answer through the bridge');
     assert.deepEqual(mcp.decision,expected);
   }
+});
+
+test('a Kiln tool allowed for the session skips later prompts and survives reconnect',async t=>{
+  const {agent,make,calls}=await fixture(t,{scenario:'kiln-permission'});
+  await agent.connect();await agent.startTurn({text:'Author a palm',model:'default'});
+  const card=await requested(agent);
+  assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-session','reject-once']);
+  agent.answer({id:card.id,decision:'allow-session'});
+  const done=await settled(agent);
+  assert.equal(done.status,'completed');
+  const kiln=(await calls()).find(c=>c.kind==='kiln');
+  assert.deepEqual(kiln.first,{behavior:'allow',updatedInput:{program:'a'}});
+  assert.deepEqual(kiln.second,{behavior:'allow',updatedInput:{program:'b'}},'the second call is allowed without a card');
+  assert.deepEqual(done.sessionTools,['mcp__kiln_workspace__kiln_render']);
+  assert.equal(done.resolvedModel,'claude-test','the init event records the resolved model');
+  await agent.persistQueue;agent.close();
+  const reopened=make();t.after(()=>reopened.close());
+  const state=await reopened.connect();
+  assert.deepEqual(state.sessionTools,['mcp__kiln_workspace__kiln_render']);assert.equal(state.resolvedModel,'claude-test');
+});
+
+test('edit grants cover only files inside the world assets/source folder',()=>{
+  const root=path.resolve(os.tmpdir(),'world');
+  assert.equal(sessionGrant('Write',{file_path:path.join(root,'assets/source/terrain/a.py')},root),'edit:assets/source');
+  assert.equal(sessionGrant('Edit',{file_path:'assets/source/palm.kiln.js'},root),'edit:assets/source','relative paths resolve against the world');
+  assert.equal(sessionGrant('Edit',{file_path:path.join(root,'assets/source/../../outside.txt')},root),null);
+  assert.equal(sessionGrant('Write',{file_path:path.join(root,'world/world.json')},root),null);
+  assert.equal(sessionGrant('Write',{file_path:path.join(root,'assets/source')},root),null,'the folder itself is not a file');
+  assert.equal(sessionGrant('Bash',{command:'echo hi > assets/source/a.txt'},root),null,'shell always asks');
+  assert.equal(sessionGrant('mcp__kiln_workspace__kiln_render',{},root),'mcp__kiln_workspace__kiln_render');
 });
 
 test('stop sends SIGINT first and denies a pending approval',async t=>{

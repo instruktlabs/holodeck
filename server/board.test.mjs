@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {DEFAULT_WORLD,validateWorld} from '../src/world/contract.mjs';
-import {WorldStore} from './world-store.mjs';
+import {WorldStore,referenceTitle} from './world-store.mjs';
 import {mkdtemp,writeFile,rm} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -16,6 +16,8 @@ test('file pointers are versioned, readable on demand, and bounded to the world'
   const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-board-')),store=await WorldStore.open(root);t.after(async()=>{await store.close();await rm(root,{recursive:true,force:true});});
   await writeFile(path.join(root,'assets/source/direction.md'),'# Direction\nSoft light. Clear paths.');
   const card=await store.linkReference('assets/source/direction.md');await store.commit({baseRevision:0,references:[card]});
+  assert.equal(card.title,'Direction','linked files get a readable title, not the raw filename');
+  assert.equal(referenceTitle('references/files/tropical/02-eye-level.png'),'Eye level');assert.equal(referenceTitle('assets/source/123.md'),'123');
   assert.match((await store.readReference(card.id)).text,/Soft light/);
   await writeFile(path.join(root,'assets/source/direction.md'),'# Direction\nCool dusk.');
   assert.match((await store.readReference(card.id)).text,/Soft light/);

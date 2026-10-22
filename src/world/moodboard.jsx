@@ -2,7 +2,7 @@ import React,{useEffect,useMemo,useRef,useState} from 'react';
 import * as THREE from 'three/webgpu';
 import {useWorldClient} from './client.js';
 import {useEditorDraft} from './world-drafts.jsx';
-import {BOARD_WIDTH,BOARD_HEIGHT,BOARD_THEMES,referenceKind,cardLayout,boardPage,boardStyle} from './board.mjs';
+import {BOARD_WIDTH,BOARD_HEIGHT,BOARD_THEMES,BOARD_PAGES,referenceKind,cardLayout,boardPage,boardStyle,placeCards} from './board.mjs';
 import {ImageStudio} from './image-studio.jsx';
 export const referenceUrl=(r,scopedUrl=value=>value)=>scopedUrl(`/api/references/${r.file.split('/').at(-1)}`);
 async function upload(route,body,name,worldFetch){const response=await worldFetch(`${route}?name=${encodeURIComponent(name)}`,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body});const value=await response.json();if(!response.ok)throw new Error(value.error);return value;}
@@ -27,13 +27,13 @@ export function MoodBoardEditor({world,run,agent,model,effort,drafts,draftFocus,
   const refs=draft.references,board=draft.scene.moodboard,style=boardStyle(board),colors=BOARD_THEMES[style.theme],page=board?.page||0,ref=refs.find(r=>r.id===selected),pins=draft.bible.referenceIds||[];
   const update=(id,patch)=>edit(d=>({...d,references:d.references.map(r=>r.id===id?{...r,...patch}:r)}));
   const updateBoard=patch=>edit(d=>({...d,scene:{...d.scene,moodboard:{...d.scene.moodboard,...patch}}}));
-  function add(items){edit(d=>({...d,references:[...d.references,...items.filter(r=>!d.references.some(x=>x.id===r.id)).map((r,i)=>({...r,group:group==='All'?'Inspiration':group,status:'exploring',page,layout:{x:40+(i%3)*30,y:125+(i%3)*30,w:350,h:310}}))]}));if(items.length)setSelected(items.at(-1).id);}
+  function add(items){let landed=page;edit(d=>{const fresh=items.filter(r=>!d.references.some(x=>x.id===r.id)),slots=placeCards(d.references,fresh.length,page);landed=slots.at(-1)?.page??page;return {...d,references:[...d.references,...fresh.map((r,i)=>({...r,group:group==='All'?'Inspiration':group,status:'exploring',...slots[i]}))]};});if(landed!==page)updateBoard({page:landed});if(items.length)setSelected(items.at(-1).id);}
   function remove(){edit(d=>({...d,references:d.references.filter(r=>r.id!==selected),bible:{...d.bible,referenceIds:(d.bible.referenceIds||[]).filter(id=>id!==selected)}}));setSelected(null);}
   function pin(){edit(d=>({...d,bible:{...d.bible,referenceIds:pins.includes(selected)?pins.filter(id=>id!==selected):[...pins,selected]}}));}
   function startDrag(e,r){if(e.button!==0)return;e.preventDefault();setSelected(r.id);e.currentTarget.setPointerCapture(e.pointerId);drag.current={id:r.id,x:e.clientX,y:e.clientY,layout:r.layout};}
   function moveDrag(e){const d=drag.current;if(!d)return;const l=d.layout;update(d.id,{layout:{...l,x:Math.max(0,Math.min(BOARD_WIDTH-l.w,l.x+(e.clientX-d.x)/scale)),y:Math.max(100,Math.min(BOARD_HEIGHT-l.h,l.y+(e.clientY-d.y)/scale))}});}
   const visible=refs.filter(r=>r.page===page&&(group==='All'||(r.group||'Inspiration')===group));
-  return <div className="board-workspace">
+  return <div className="board-workspace" onKeyDown={e=>{if(e.key==='Escape'&&selected&&!['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)){e.preventDefault();e.stopPropagation();setSelected(null);}}}>
     <div className="board-toolbar"><button onClick={()=>add([{id:`note-${crypto.randomUUID().slice(0,8)}`,kind:'note',title:'An idea to explore',notes:'What should this world feel like?'}])}>+ Note</button>
       <button onClick={()=>setStudio(v=>!v)} aria-pressed={studio}>Generate image</button>
       <label className="board-upload">+ Images<input disabled={writeDisabled} multiple type="file" aria-label="Add board images" accept="image/png,image/jpeg,image/webp" onChange={e=>{const files=[...e.target.files];e.target.value='';run(async()=>{const items=[];for(const file of files)items.push(await uploadReference(file,worldFetch));add(items);});}}/></label>
@@ -44,8 +44,8 @@ export function MoodBoardEditor({world,run,agent,model,effort,drafts,draftFocus,
     {studio&&<ImageStudio {...{agent,model,effort,world,dirty,run,drafts,writeDisabled}} onAdd={add}/>}
     {dirty&&base!==world.revision&&<p className="notice">A newer world revision exists. Your draft is kept here; reload the saved board before applying edits.</p>}
     <div className="board-edit-layout"><div>
-      <div className="board-viewport" ref={surface} style={{height:BOARD_HEIGHT*scale}}><div className="board-surface" style={{width:BOARD_WIDTH,height:BOARD_HEIGHT,transform:`scale(${scale})`,background:colors.background,color:colors.ink}}>
-        <div className="board-heading"><h3>{style.title}</h3><span>{page+1} / 34 · {visible.length} ideas · drag cards to arrange</span></div>
+      <div className="board-viewport" ref={surface} style={{height:BOARD_HEIGHT*scale}}><div className="board-surface" onPointerDown={e=>{if(e.target===e.currentTarget)setSelected(null);}} style={{width:BOARD_WIDTH,height:BOARD_HEIGHT,transform:`scale(${scale})`,background:colors.background,color:colors.ink}}>
+        <div className="board-heading"><h3>{style.title}</h3><span>Sheet {page+1} · {visible.length} ideas · drag cards to arrange</span></div>
         {visible.map(r=><article key={r.id} tabIndex={0} aria-label={`Board card: ${r.title}`} onFocus={()=>setSelected(r.id)} onPointerDown={e=>startDrag(e,r)} onPointerMove={moveDrag} onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}} className={`board-tile ${selected===r.id?'selected':''}`} style={{left:r.layout.x,top:r.layout.y,width:r.layout.w,height:r.layout.h,background:colors.card,color:colors.ink}}>
           <span className="board-category">{r.group||'Inspiration'} · {pins.includes(r.id)?'● Bible':r.status||'exploring'}</span>
           {referenceKind(r)==='image'?<img draggable="false" src={referenceUrl(r,scopedUrl)} alt={r.title}/>:referenceKind(r)==='file'?<div className="board-file-symbol">↗ <span>{r.file.split('.').at(-1).toUpperCase()} REFERENCE</span></div>:null}
@@ -53,7 +53,7 @@ export function MoodBoardEditor({world,run,agent,model,effort,drafts,draftFocus,
         </article>)}
         {!visible.length&&<div className="board-empty">A little space for your next idea.<small>Add an image, a note, or a reference file.</small></div>}
       </div></div>
-      <div className="board-footer"><button disabled={page===0} onClick={()=>updateBoard({page:page-1})}>←</button><span>Sheet {page+1}</span><button disabled={page===33} onClick={()=>updateBoard({page:page+1})}>→</button><small>{dirty?'Unsaved board draft':`Saved · revision ${base}`} · {refs.length} cards</small><button onClick={reset}>Discard board draft</button></div>
+      <div className="board-footer"><button disabled={page===0} onClick={()=>updateBoard({page:page-1})}>←</button><span>Sheet {page+1}</span><button disabled={page===BOARD_PAGES-1} onClick={()=>updateBoard({page:page+1})}>→</button><small>{dirty?'Unsaved board draft':`Saved · revision ${base}`} · {refs.length} cards</small><button onClick={reset}>Discard board draft</button></div>
       <p className="board-help">Arrange ideas here, then save to the screen in your cove. The agent reads this same board and opens the original reference when needed.</p>
     </div><section className="board-inspector" aria-label="Board inspector">
       {ref?<><span className="eyebrow">{referenceKind(ref)} · {ref.id}</span><label>Title<input aria-label="Card title" value={ref.title} maxLength={160} onChange={e=>update(ref.id,{title:e.target.value})}/></label><label>Why this matters<textarea aria-label="Card notes" rows={5} value={ref.notes} maxLength={2000} onChange={e=>update(ref.id,{notes:e.target.value})}/></label>
