@@ -10,11 +10,17 @@ for(const scene of scenes){
   image.src=scene.preview;
   image.alt='';
   const copy=document.createElement('div');
+  copy.className='scene-copy';
+  const text=document.createElement('div');
   const title=document.createElement('h3');
   title.textContent=scene.title;
   const summary=document.createElement('p');
   summary.textContent=scene.summary;
-  copy.append(title,summary);
+  text.append(title,summary);
+  const enter=document.createElement('span');
+  enter.className='enter';
+  enter.textContent='Enter the scene ↗';
+  copy.append(text,enter);
   link.append(image,copy);
   root.append(link);
 }
