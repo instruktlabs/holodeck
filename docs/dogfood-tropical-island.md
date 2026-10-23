@@ -84,6 +84,7 @@ friction, **Low** is polish.
 | H38 | Request cards | Every Claude Code request for a built-in tool is titled **Run a command? · shell**, including Read and Glob. Kiln tools get **Allow this? · permission**. | Low | Title the card by tool: "Read a file?", "Search files?", "Run a command?". |
 | H39 | Request cards | A Glob card shows only the folder, not the pattern. In turn 8 the agent asked to glob `*` across the user's whole projects folder, outside the world; the card showed just the folder, so the pattern had to be looked up in the transcript before rejecting it. | Medium | Show the pattern (and for Grep the pattern and path) on the card, and flag paths outside the world. |
 | H40 | Agent permissions | Each distinct argument list for the same world script needs its own approval. Turn 8 ran `turn8.py` four times (`verify export tint surf`, `verify`, `scene samples`, and so on), so **Allow this exact command for the session** never applied. | Low | Offer a session grant for one script under `assets/source` with any arguments, bound to the script's content hash so an edit asks again. |
+| H42 | Static export | `holodeck export` refuses a world that was created with `init` but never opened: "Open this world with holodeck dev first to create an accepted snapshot." Scripted exports of a fresh example (for the shelf, or on the hub) need a browser open first. | Low | Let `init` write the accepted snapshot, or let `export` create it from the validated world. |
 
 ## Kiln findings
 
@@ -108,29 +109,29 @@ minimal reproduction in a Kiln workspace before it becomes a Kiln change.
 
 ### Upstream status
 
-Checked against the Kiln development checkout (instruktlabs/kiln, main at
-1.3.1 with an empty "Unreleased" changelog). Nothing after 1.3.1 addresses
-these findings.
+First checked against Kiln main at 1.3.1, then updated on 2026-10-22 after
+the Kiln fix cycle for these findings. Merged fixes are on Kiln `main` and ship
+in 1.4.0; Holodeck still pins Kiln 1.3.1.
 
 | # | Status |
 | --- | --- |
 | K1 | Probably by design. Over MCP, `kiln_export` returns descriptors and writes no files, and a parity test asserts the read-only hint. Only CLI export writes. Drop it unless MCP export gains a file destination. |
-| K2 | Filed as instruktlabs/kiln#206. The operations presentation already splits status and reprobe, but both report `readOnlyHint: false`. |
-| K3 | Documented gap: the library ships five presets (brick, wood grain, brushed metal, woven fabric, coarse soil). Filed as instruktlabs/kiln#210. |
+| K2 | Fixed on Kiln main: read-only `kiln_renderer_status` (instruktlabs/kiln#206, PR #222). |
+| K3 | Fixed on Kiln main: natural presets for coastal and tropical materials (instruktlabs/kiln#210, PR #228); a second set (#221) is in review. |
 | K4 | Documented in the workspace `AGENTS.md` and the authoring skill (`viewFidelity.materialFaithful`; the GPU service starts on demand). |
-| K5 | Filed as instruktlabs/kiln#207. The roadmap's "MCP render file destination: Unadopted" covers render output; export needs the same decision. |
-| K6 | Mostly exists: `arrayLinear`, `arrayRadial`, `repeatInstances`, `pipeAlongPath`, `curveToMesh`, `foliageCardGeo`. The agent did not find them, so this is a discoverability gap in Discovery and the skills. A UV-preserving repeat-along-curve merge would be new. Filed as instruktlabs/kiln#211. |
+| K5 | In progress: opt-in `kiln_export_to` bounded to a host root (instruktlabs/kiln#207), not yet merged. |
+| K6 | Fixed on Kiln main: repeat leaflets along a curve and surface foliage helpers (instruktlabs/kiln#211, PR #224). |
 | K7 | Documented in the Kiln authoring and QA skills (`createPart` names meshes `Mesh_<name>`). The gap is Holodeck's foliage contract text, which does not mention it. |
-| K8 | Filed as instruktlabs/kiln#208. Host requirements are a closed schema and the QA rule list is fixed. |
+| K8 | In progress: host validation profile checked by QA (instruktlabs/kiln#208), not yet merged. |
 | K9 | Mostly documented: custom camera cells and `markOpenShell` exist; overlap on open shells is a stated measurement limit. |
-| K10 | Filed as instruktlabs/kiln#209. |
-| K11 | Filed as instruktlabs/kiln#205. Confirmed in source: V3 record creation rejects `derive` with "V3 normal derivation is unsupported"; only V2 supports it. |
-| K12 | Vertex colours and custom attributes: open issue instruktlabs/kiln#195, with dogfood evidence added as a comment. The octave and work budgets are documented. |
-| K13 | Dogfood evidence added to instruktlabs/kiln#198. Tool errors already name the field path; the bare "Invalid input" comes from material-schema refines that discard the canonicalizer's message. |
+| K10 | Fixed on Kiln main: material merge advice in the QA report (instruktlabs/kiln#209, PR #227). |
+| K11 | Fixed on Kiln main: V3 normal-from-height derivation (instruktlabs/kiln#205, PR #225). |
+| K12 | Fixed on Kiln main: authored vertex colours and attributes (instruktlabs/kiln#195, PR #226). |
+| K13 | Fixed on Kiln main: validation errors name the rule (instruktlabs/kiln#198, PR #214). |
 
 Also filed from Holodeck findings:
-- instruktlabs/kiln#212: configurable `KILN_PROGRESS.md` location (H26).
-- instruktlabs/kiln#213: opt-in shared runtime textures (H31).
+- instruktlabs/kiln#212: configurable `KILN_PROGRESS.md` location (H26), fixed on Kiln main (PR #223).
+- instruktlabs/kiln#213: opt-in shared runtime textures (H31), in review as PR #235.
 
 ## Agent context gaps
 
