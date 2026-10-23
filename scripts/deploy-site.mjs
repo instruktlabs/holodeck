@@ -1,8 +1,9 @@
 // Upload the reviewed, committed site/ folder to Cloudflare Pages after release
 // authorization. It mirrors Kiln's site/scripts/deploy.mjs: offline checks, an
 // exact Wrangler pin, and a recheck right before upload. It builds nothing and
-// never logs in, uploads assets elsewhere or changes DNS.
-// Usage: node scripts/deploy-site.mjs --project-name NAME [--branch production] [--wrangler EXECUTABLE] [--dry-run]
+// never logs in, uploads assets elsewhere or changes DNS. Holodeck's Pages project
+// is `holodeck`, whose production branch is `main`.
+// Usage: node scripts/deploy-site.mjs --project-name NAME [--branch main] [--wrangler EXECUTABLE] [--dry-run]
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {lstat,readFile,readdir,realpath} from 'node:fs/promises';
@@ -72,8 +73,19 @@ export async function resolveNpmCli({execPath=process.execPath,env=process.env,p
  fail('Cannot find npm-cli.js. Install Node and npm, or pass --wrangler with the exact pinned executable.');
 }
 
+// A branch that is not the project's production branch only makes a preview, so the
+// upload names the branch of the project's current production deployment (read-only).
+export function productionBranch(listing){
+ let rows;try{rows=JSON.parse(listing);}catch{fail('Wrangler did not return the production deployments as JSON.');}
+ if(!Array.isArray(rows))fail('Wrangler did not return a deployment list.');
+ const branches=[...new Set(rows.filter(row=>row?.Environment==='Production').map(row=>row.Branch))];
+ if(!branches.length)fail('The project has no production deployment to confirm its production branch. Make the first one deliberately in Cloudflare.');
+ if(branches.length>1||typeof branches[0]!=='string')fail(`Production deployments name more than one branch: ${branches.join(', ')}.`);
+ return branches[0];
+}
+
 // The full preflight runs in a dry run too. Only an authorized non-dry run prepares Wrangler and uploads.
-export async function deploy({root=ROOT,projectName,branch='production',wrangler,dryRun=false,npmCli,run=execute,log=console.log}={}){
+export async function deploy({root=ROOT,projectName,branch='main',wrangler,dryRun=false,npmCli,run=execute,log=console.log}={}){
  if(typeof projectName!=='string'||!/^[a-z0-9][a-z0-9-]{0,57}$/.test(projectName))fail('Choose the Cloudflare Pages project with --project-name.');
  if(typeof branch!=='string'||!/^[a-z0-9][a-z0-9._/-]{0,99}$/i.test(branch))fail('Invalid Pages branch.');
  if(wrangler&&/\.(?:cmd|bat)$/i.test(wrangler))fail('Use the default pinned npm invocation instead of a Wrangler .cmd or .bat wrapper.');
@@ -83,6 +95,8 @@ export async function deploy({root=ROOT,projectName,branch='production',wrangler
  const command=wrangler?{file:wrangler,prefix:[]}:{file:process.execPath,prefix:[npmCli??await resolveNpmCli(),'exec','--yes',`--package=wrangler@${WRANGLER_VERSION}`,'--','wrangler']};
  const version=String(await run(command.file,[...command.prefix,'--version'],{cwd:initial.root})).match(/^\s*(?:wrangler\s+)?(\d+\.\d+\.\d+(?:[-+][\w.-]+)?)\s*$/m)?.[1];
  if(version!==WRANGLER_VERSION)fail(`Deployment requires Wrangler ${WRANGLER_VERSION}; the executable did not report that exact version.`);
+ const live=productionBranch(String(await run(command.file,[...command.prefix,'pages','deployment','list','--project-name',projectName,'--environment','production','--json'],{cwd:initial.root})));
+ if(live!==branch)fail(`${projectName}'s production branch is ${live}, not ${branch}; this upload would only make a preview. Pass --branch ${live}.`);
  // Preparing Wrangler can take a while; recheck every byte and the Git state right before upload.
  const checked=await preflight({root:initial.root,run});
  if(checked.head!==initial.head||checked.sha256!==initial.sha256)fail('The site or HEAD changed while preparing Wrangler. Review it again.');

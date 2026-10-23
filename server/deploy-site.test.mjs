@@ -4,7 +4,7 @@ import {mkdtemp,mkdir,writeFile,rm,symlink,readdir} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {renderSite,SITE_URL} from '../scripts/render-site.mjs';
-import {deploy,preflight,parseArgs,WRANGLER_VERSION} from '../scripts/deploy-site.mjs';
+import {deploy,preflight,parseArgs,productionBranch,WRANGLER_VERSION} from '../scripts/deploy-site.mjs';
 
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a63sAAAAASUVORK5CYII=','base64');
 const HEAD='a'.repeat(40);
@@ -19,11 +19,12 @@ async function fixture(t){
  await writeFile(path.join(site,'index.html'),'<!-- scenes:start --><!-- scenes:end --><!-- jsonld:start --><!-- jsonld:end -->');
  for(const [name,text] of Object.entries(await renderSite(site)))await writeFile(path.join(site,name),text);
  const listed=async()=>(await readdir(site,{recursive:true,withFileTypes:true})).filter(e=>e.isFile()).map(e=>path.relative(root,path.join(e.parentPath??e.path,e.name)).replaceAll('\\','/'));
- const state={status:'',tracked:await listed(),version:WRANGLER_VERSION,calls:[],onVersion:null};
+ const state={status:'',tracked:await listed(),version:WRANGLER_VERSION,calls:[],onVersion:null,production:[{Id:'d1',Environment:'Production',Branch:'main',Source:'abc1234'}]};
  const run=async(file,args)=>{
   state.calls.push([file,...args]);
   if(file==='git'){const op=args[2];if(op==='rev-parse')return HEAD;if(op==='status')return state.status;if(op==='ls-files')return state.tracked.join('\0');}
   if(args.includes('--version')){await state.onVersion?.();return `wrangler ${state.version}\n`;}
+  if(args.includes('deployment')&&args.includes('list'))return JSON.stringify(state.production);
   if(args.includes('pages'))return '';
   throw new Error(`unexpected ${file} ${args.join(' ')}`);
  };
@@ -34,25 +35,37 @@ test('a dry run checks the committed site and never prepares Wrangler',async t=>
  const {root,state,run}=await fixture(t),lines=[];
  const result=await deploy({root,projectName:'holodeck-site',dryRun:true,run,log:line=>lines.push(line)});
  assert.equal(result.deployed,false);assert.equal(result.preflight.head,HEAD);assert.equal(result.preflight.files,state.tracked.length);
- assert.match(lines[0],/holodeck-site\/production/);assert.match(lines[1],/Dry run/);
+ assert.match(lines[0],/holodeck-site\/main/);assert.match(lines[1],/Dry run/);
  assert.equal(state.calls.some(c=>c.includes('--version')||c.includes('pages')),false);
 });
 
 test('a deploy pins Wrangler, rechecks the site and uploads only site/ at HEAD',async t=>{
  const {root,site,state,run}=await fixture(t);
  await deploy({root,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}});
- const upload=state.calls.find(c=>c.includes('pages'));
- assert.deepEqual(upload,['wrangler','pages','deploy',site,'--project-name','holodeck-site','--branch','production','--commit-hash',HEAD,'--commit-dirty=false']);
+ assert.deepEqual(state.calls.find(c=>c.includes('list')),['wrangler','pages','deployment','list','--project-name','holodeck-site','--environment','production','--json'],'the production branch is read, never changed');
+ const upload=state.calls.find(c=>c.includes('deploy'));
+ assert.deepEqual(upload,['wrangler','pages','deploy',site,'--project-name','holodeck-site','--branch','main','--commit-hash',HEAD,'--commit-dirty=false']);
  assert.equal(state.calls.filter(c=>c[0]==='git'&&c[3]==='status').length,2,'preflight runs again after Wrangler is ready');
  state.version='4.146.0';
  await assert.rejects(deploy({root,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/requires Wrangler 4\.147\.0/);
+});
+
+test('an upload that would only make a preview is refused before it starts',async t=>{
+ const {root,state,run}=await fixture(t);
+ await assert.rejects(deploy({root,projectName:'holodeck-site',branch:'production',wrangler:'wrangler',run,log:()=>{}}),/production branch is main, not production; this upload would only make a preview/);
+ state.production=[];
+ await assert.rejects(deploy({root,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/no production deployment/);
+ assert.equal(state.calls.some(c=>c.includes('deploy')&&!c.includes('deployment')),false,'nothing was uploaded');
+ assert.equal(productionBranch(JSON.stringify([{Environment:'Preview',Branch:'x'},{Environment:'Production',Branch:'main'},{Environment:'Production',Branch:'main'}])),'main');
+ assert.throws(()=>productionBranch(JSON.stringify([{Environment:'Production',Branch:'main'},{Environment:'Production',Branch:'production'}])),/more than one branch/);
+ assert.throws(()=>productionBranch('not json'),/as JSON/);
 });
 
 test('a site that changes while Wrangler is prepared is not uploaded',async t=>{
  const {root,site,state,run}=await fixture(t);
  state.onVersion=()=>writeFile(path.join(site,'images/cove.png'),Buffer.concat([PNG,Buffer.from('x')]));
  await assert.rejects(deploy({root,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/changed while preparing/);
- assert.equal(state.calls.some(c=>c.includes('pages')),false);
+ assert.equal(state.calls.some(c=>c.includes('pages')&&c.includes('deploy')),false);
 });
 
 test('the preflight refuses dirty, uncommitted, stale, unfinished and Worker inputs',async t=>{

@@ -51,8 +51,8 @@ Deploying is a separate, manual step for the maintainer, after release
 authorization. It mirrors Kiln's site deploy:
 
 ```powershell
-./scripts/deploy-site.ps1 -ProjectName <pages-project> -DryRun
-./scripts/deploy-site.ps1 -ProjectName <pages-project>
+./scripts/deploy-site.ps1 -ProjectName holodeck -DryRun
+./scripts/deploy-site.ps1 -ProjectName holodeck
 ```
 
 `scripts/deploy-site.mjs` uploads the committed `site/` folder as it is and
@@ -64,8 +64,11 @@ builds nothing. It refuses to run when:
 - a symlink, a Worker or Functions input is present.
 
 It runs Wrangler 4.147.0 by exact version and checks again just before it
-uploads. A dry run performs every check without preparing Wrangler. `-Branch`
-defaults to `production` and must name the Pages project's production branch.
+uploads. A dry run performs every check without preparing Wrangler. The
+`holodeck` Pages project serves `holodeck.kilnstudio.tools`, and its production
+branch is `main`, the `-Branch` default. Before uploading, the script reads the
+project's production deployments (read-only) and refuses a branch that differs,
+since that upload would only make a preview.
 
 Curated editable examples use the versioned [example world bundle](example-world-bundles.md)
 format: accepted scene data, exact pinned GLBs and an optional real runtime preview.

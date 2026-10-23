@@ -8,7 +8,7 @@
 [CmdletBinding()]
 param(
   [Parameter(Mandatory = $true)][string]$ProjectName,
-  [string]$Branch = 'production',
+  [string]$Branch = 'main',
   [string]$Wrangler,
   [switch]$DryRun
 )
