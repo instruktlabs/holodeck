@@ -1,0 +1,9 @@
+{
+  "name": "holodeck-site-deploy",
+  "private": true,
+  "description": "The exact Wrangler the site workflow deploys with. Install only with npm ci --prefix deploy.",
+  "license": "MIT",
+  "dependencies": {
+    "wrangler": "4.147.0"
+  }
+}

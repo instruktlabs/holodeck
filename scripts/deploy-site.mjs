@@ -1,15 +1,21 @@
-// Upload the reviewed, committed site/ folder to Cloudflare Pages after release
-// authorization. It mirrors Kiln's site/scripts/deploy.mjs: offline checks, an
-// exact Wrangler pin, and a recheck right before upload. It builds nothing and
-// never logs in, uploads assets elsewhere or changes DNS. Holodeck's Pages project
-// is `holodeck`, whose production branch is `main`.
-// Usage: node scripts/deploy-site.mjs --project-name NAME [--branch main] [--wrangler EXECUTABLE] [--dry-run]
+// Upload a site built by scripts/build-site.mjs from a clean, committed checkout
+// to Cloudflare Pages. The site workflow runs it: the build job checks and hashes
+// the folder, and the deploy jobs upload exactly that folder, production only
+// after approval in GitHub. Run by hand without --site-dir, it builds into a
+// fresh temporary folder first. It mirrors Kiln's site/scripts/deploy.mjs:
+// offline checks, an exact Wrangler pin, and a recheck right before upload. It
+// never logs in, uploads assets elsewhere or changes DNS. Holodeck's Pages
+// project is `holodeck`, whose production branch is `main`.
+// Usage: node scripts/deploy-site.mjs --project-name NAME [--site-dir DIR] [--branch main | --preview --branch NAME]
+//        [--expect-sha256 HASH] [--github-output FILE] [--wrangler EXECUTABLE] [--dry-run]
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {lstat,readFile,readdir,realpath} from 'node:fs/promises';
+import {appendFile,lstat,mkdtemp,readFile,readdir,realpath,rm} from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {renderSite} from './render-site.mjs';
+import {buildSite,verifySite} from './build-site.mjs';
 
 export const WRANGLER_VERSION='4.147.0';
 const ROOT=fileURLToPath(new URL('../',import.meta.url));
@@ -21,7 +27,7 @@ export function execute(file,args,{cwd,inherit=false}={},exec=execFileSync){
  return exec(file,args,{cwd,shell:false,encoding:'utf8',maxBuffer:64*1024*1024,stdio:inherit?['ignore','inherit','inherit']:['ignore','pipe','pipe']})??'';
 }
 
-// Every entry under site/, with symlinks and special files refused.
+// Every file in a site folder, with symlinks and special files refused.
 async function siteFiles(site){
  const files=new Map();
  async function walk(target,name){
@@ -36,30 +42,41 @@ async function siteFiles(site){
  await walk(site,'');return files;
 }
 
-// The deployed bytes are exactly the committed site/ folder at a clean HEAD, with
-// a current shelf, complete scene exports and no Worker or Functions inputs.
-export async function preflight({root=ROOT,run=execute}={}){
+// The deployed bytes are a site built from a clean HEAD: the committed shelf in
+// site/ (current, without its cards) plus complete scene exports under worlds/,
+// with no Worker or Functions inputs.
+export async function preflight({root=ROOT,siteDir,run=execute}={}){
  root=path.resolve(root);const site=path.join(root,'site');
- for(const [directory,name] of [[root,'functions'],[site,'functions'],[site,'_worker.js'],[site,'_routes.json']]){
+ if(typeof siteDir!=='string'||!siteDir)fail('Choose the built site folder.');const built=path.resolve(siteDir);
+ for(const [directory,name] of [[root,'functions'],[site,'functions'],[site,'_worker.js'],[site,'_routes.json'],[built,'functions'],[built,'_worker.js'],[built,'_routes.json']]){
   try{await lstat(path.join(directory,name));}catch(error){if(error.code==='ENOENT')continue;throw error;}
-  fail(`Static deployment refuses ${path.relative(root,path.join(directory,name)).replaceAll('\\','/')}. Worker and Functions inputs need a separately reviewed workflow.`);
+  fail(`Static deployment refuses ${directory===built?`${name} in the built site`:path.relative(root,path.join(directory,name)).replaceAll('\\','/')}. Worker and Functions inputs need a separately reviewed workflow.`);
  }
- const files=await siteFiles(site);
- if(!files.has('index.html'))fail('Missing site/index.html.');
+ const sources=await siteFiles(site),files=await siteFiles(built);
+ if(!files.has('index.html'))fail('The built site has no index.html.');
  for(const name of files.keys())if(/(^|\/)(EXPORT|EXAMPLE|INSTALL|REMIX)-INCOMPLETE\.txt$/.test(name))fail(`An unfinished export is in the site: ${name}`);
  const rendered=await renderSite(site);
  for(const [name,text] of Object.entries(rendered))if((await readFile(path.join(site,name),'utf8').catch(()=>null))!==text)fail(`site/${name} is stale. Run npm run render:site, review and commit.`);
+ for(const name of sources.keys()){
+  if(name.startsWith('cards/'))continue;
+  const file=files.get(name);if(!file)fail(`The built site lacks site/${name}.`);
+  if(digest(await readFile(file.path))!==digest(await readFile(sources.get(name).path)))fail(`The built site's ${name} differs from site/${name}.`);
+ }
+ const scenes=await verifySite(built,site);
+ for(const name of files.keys()){
+  if(name.startsWith('worlds/')?!scenes.some(scene=>name.startsWith(scene.path)):!sources.has(name)||name.startsWith('cards/'))fail(`The built site has ${name}, which is neither in site/ nor in a catalog scene.`);
+ }
  // No pathspec on status: a change anywhere in the checkout invalidates the reviewed commit.
  const git=async(...args)=>String(await run('git',['-C',root,...args],{cwd:root})).trim();
  const head=await git('rev-parse','--verify','HEAD');if(!/^[0-9a-f]{40,64}$/.test(head))fail('Cannot resolve the checkout HEAD.');
  if(await git('status','--porcelain','--untracked-files=all'))fail('The checkout has uncommitted or untracked changes. Commit and review before deployment.');
- // Ignored files never show in status, so the tracked list must match the folder exactly.
+ // Ignored files never show in status, so the tracked list must match site/ exactly.
  const tracked=new Set((await git('ls-files','-z','--','site')).split('\0').filter(Boolean).map(name=>name.replace(/^site\//,'')));
- for(const name of files.keys())if(!tracked.has(name))fail(`site/${name} is not committed.`);
- for(const name of tracked)if(!files.has(name))fail(`site/${name} is committed but missing.`);
+ for(const name of sources.keys())if(!tracked.has(name))fail(`site/${name} is not committed.`);
+ for(const name of tracked)if(!sources.has(name))fail(`site/${name} is committed but missing.`);
  const listing=[...files].sort(([a],[b])=>a<b?-1:1);let bytes=0;const hash=createHash('sha256');
- for(const [name,file] of listing){const content=await readFile(file.path);if(content.length!==file.bytes)fail(`site/${name} changed during preflight.`);bytes+=content.length;hash.update(`${name}\0${digest(content)}\n`);}
- return {root,site,head,files:files.size,bytes,sha256:hash.digest('hex')};
+ for(const [name,file] of listing){const content=await readFile(file.path);if(content.length!==file.bytes)fail(`${name} changed during preflight.`);bytes+=content.length;hash.update(`${name}\0${digest(content)}\n`);}
+ return {root,site:built,head,files:files.size,bytes,sha256:hash.digest('hex')};
 }
 
 // Node runs npm's JavaScript directly, including on Windows: no .cmd shell or interpolation.
@@ -73,8 +90,18 @@ export async function resolveNpmCli({execPath=process.execPath,env=process.env,p
  fail('Cannot find npm-cli.js. Install Node and npm, or pass --wrangler with the exact pinned executable.');
 }
 
-// A branch that is not the project's production branch only makes a preview, so the
-// upload names the branch of the project's current production deployment (read-only).
+// The locked deploy/ package (npm ci --prefix deploy) is preferred: its lockfile
+// pins Wrangler's dependencies too. Without it, npm fetches the exact version.
+async function wranglerCommand({root,wrangler,npmCli}){
+ if(wrangler)return {file:wrangler,prefix:[]};
+ const bin=path.join(root,'deploy/node_modules/wrangler/bin/wrangler.js');
+ try{if((await lstat(bin)).isFile())return {file:process.execPath,prefix:[bin]};}catch(error){if(error.code!=='ENOENT')throw error;}
+ return {file:process.execPath,prefix:[npmCli??await resolveNpmCli(),'exec','--yes',`--package=wrangler@${WRANGLER_VERSION}`,'--','wrangler']};
+}
+
+// A branch that is not the project's production branch only makes a preview. A
+// production upload names the branch of the project's current production
+// deployment (read-only); a preview upload must name any other branch.
 export function productionBranch(listing){
  let rows;try{rows=JSON.parse(listing);}catch{fail('Wrangler did not return the production deployments as JSON.');}
  if(!Array.isArray(rows))fail('Wrangler did not return a deployment list.');
@@ -84,42 +111,55 @@ export function productionBranch(listing){
  return branches[0];
 }
 
-// The full preflight runs in a dry run too. Only an authorized non-dry run prepares Wrangler and uploads.
-export async function deploy({root=ROOT,projectName,branch='main',wrangler,dryRun=false,npmCli,run=execute,log=console.log}={}){
+// The full preflight runs in a dry run too. Only a non-dry run prepares Wrangler and uploads.
+export async function deploy({root=ROOT,projectName,branch='main',preview=false,siteDir,expectSha256,githubOutput,wrangler,dryRun=false,npmCli,env=process.env,run=execute,build=buildSite,log=console.log}={}){
  if(typeof projectName!=='string'||!/^[a-z0-9][a-z0-9-]{0,57}$/.test(projectName))fail('Choose the Cloudflare Pages project with --project-name.');
  if(typeof branch!=='string'||!/^[a-z0-9][a-z0-9._/-]{0,99}$/i.test(branch))fail('Invalid Pages branch.');
+ if(expectSha256!==undefined&&!/^[0-9a-f]{64}$/.test(expectSha256))fail('--expect-sha256 must be a SHA-256 hex digest.');
  if(wrangler&&/\.(?:cmd|bat)$/i.test(wrangler))fail('Use the default pinned npm invocation instead of a Wrangler .cmd or .bat wrapper.');
- const initial=await preflight({root,run});
- log(`Verified ${initial.files} site files (${initial.bytes} bytes, sha256 ${initial.sha256}) at commit ${initial.head}; ${projectName}/${branch}.`);
- if(dryRun){log(`Dry run: no upload, package preparation or login. Deployment uses Wrangler ${WRANGLER_VERSION}.`);return {deployed:false,preflight:initial};}
- const command=wrangler?{file:wrangler,prefix:[]}:{file:process.execPath,prefix:[npmCli??await resolveNpmCli(),'exec','--yes',`--package=wrangler@${WRANGLER_VERSION}`,'--','wrangler']};
- const version=String(await run(command.file,[...command.prefix,'--version'],{cwd:initial.root})).match(/^\s*(?:wrangler\s+)?(\d+\.\d+\.\d+(?:[-+][\w.-]+)?)\s*$/m)?.[1];
- if(version!==WRANGLER_VERSION)fail(`Deployment requires Wrangler ${WRANGLER_VERSION}; the executable did not report that exact version.`);
- const live=productionBranch(String(await run(command.file,[...command.prefix,'pages','deployment','list','--project-name',projectName,'--environment','production','--json'],{cwd:initial.root})));
- if(live!==branch)fail(`${projectName}'s production branch is ${live}, not ${branch}; this upload would only make a preview. Pass --branch ${live}.`);
- // Preparing Wrangler can take a while; recheck every byte and the Git state right before upload.
- const checked=await preflight({root:initial.root,run});
- if(checked.head!==initial.head||checked.sha256!==initial.sha256)fail('The site or HEAD changed while preparing Wrangler. Review it again.');
- await run(command.file,[...command.prefix,'pages','deploy',checked.site,'--project-name',projectName,'--branch',branch,'--commit-hash',checked.head,'--commit-dirty=false'],{cwd:checked.root,inherit:true});
- return {deployed:true,preflight:checked};
+ root=path.resolve(root);let work;
+ try{
+  if(!siteDir){work=await mkdtemp(path.join(os.tmpdir(),'holodeck-deploy-'));siteDir=path.join(work,'site');await build({root,out:siteDir,log});}
+  const initial=await preflight({root,siteDir,run});
+  log(`Verified ${initial.files} site files (${initial.bytes} bytes, sha256 ${initial.sha256}) at commit ${initial.head}; ${projectName}/${branch}${preview?' (preview)':''}.`);
+  // A deploy job uploads only the folder its build job checked.
+  if(expectSha256&&initial.sha256!==expectSha256)fail(`The site folder's sha256 is ${initial.sha256}, not the built ${expectSha256}.`);
+  if(githubOutput)await appendFile(githubOutput,`sha256=${initial.sha256}\nfiles=${initial.files}\nbytes=${initial.bytes}\nhead=${initial.head}\n`);
+  if(dryRun){log(`Dry run: no upload, package preparation or login. Deployment uses Wrangler ${WRANGLER_VERSION}.`);return {deployed:false,preflight:initial};}
+  // In CI, Wrangler would otherwise fall back to an interactive login.
+  if(env.CI&&!env.CLOUDFLARE_API_TOKEN)fail('CLOUDFLARE_API_TOKEN is not set. Add it as a secret of the deploy environment.');
+  const command=await wranglerCommand({root,wrangler,npmCli});
+  const version=String(await run(command.file,[...command.prefix,'--version'],{cwd:initial.root})).match(/^\s*(?:wrangler\s+)?(\d+\.\d+\.\d+(?:[-+][\w.-]+)?)\s*$/m)?.[1];
+  if(version!==WRANGLER_VERSION)fail(`Deployment requires Wrangler ${WRANGLER_VERSION}; the executable did not report that exact version.`);
+  const live=productionBranch(String(await run(command.file,[...command.prefix,'pages','deployment','list','--project-name',projectName,'--environment','production','--json'],{cwd:initial.root})));
+  if(preview&&live===branch)fail(`${branch} is ${projectName}'s production branch; a preview must use another branch.`);
+  if(!preview&&live!==branch)fail(`${projectName}'s production branch is ${live}, not ${branch}; this upload would only make a preview. Pass --branch ${live}.`);
+  // Preparing Wrangler can take a while; recheck every byte and the Git state right before upload.
+  const checked=await preflight({root:initial.root,siteDir,run});
+  if(checked.head!==initial.head||checked.sha256!==initial.sha256)fail('The site or HEAD changed while preparing Wrangler. Review it again.');
+  await run(command.file,[...command.prefix,'pages','deploy',checked.site,'--project-name',projectName,'--branch',branch,'--commit-hash',checked.head,'--commit-dirty=false'],{cwd:checked.root,inherit:true});
+  return {deployed:true,preflight:checked};
+ }finally{if(work)await rm(work,{recursive:true,force:true});}
 }
 
 export function parseArgs(args){
- const options={},values={'--project-name':'projectName','--branch':'branch','--wrangler':'wrangler','--root':'root'};
+ const options={},values={'--project-name':'projectName','--branch':'branch','--site-dir':'siteDir','--expect-sha256':'expectSha256','--github-output':'githubOutput','--wrangler':'wrangler','--root':'root'};
  for(let i=0;i<args.length;i++){
   const arg=args[i];
   if(arg==='--dry-run')options.dryRun=true;
+  else if(arg==='--preview')options.preview=true;
   else if(arg==='--help')options.help=true;
   else if(Object.hasOwn(values,arg)){const value=args[++i];if(!value||value.startsWith('--'))fail(`Missing value for ${arg}.`);options[values[arg]]=value;}
   else fail(`Unknown deployment option: ${arg}`);
  }
+ if(options.preview&&!options.branch)fail('A preview needs its own --branch.');
  return options;
 }
 
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  try{
   const options=parseArgs(process.argv.slice(2));
-  if(options.help)console.log(`Usage: node scripts/deploy-site.mjs --project-name NAME [--branch production] [--wrangler EXECUTABLE] [--dry-run]\nRun only after release authorization. A dry run performs the offline checks; deployment uses Wrangler ${WRANGLER_VERSION}.`);
+  if(options.help)console.log(`Usage: node scripts/deploy-site.mjs --project-name NAME [--site-dir DIR] [--branch main | --preview --branch NAME] [--expect-sha256 HASH] [--github-output FILE] [--wrangler EXECUTABLE] [--dry-run]\nThe site workflow runs this; by hand, only after release authorization. A dry run performs the offline checks; deployment uses Wrangler ${WRANGLER_VERSION}.`);
   else await deploy(options);
  }catch(error){console.error(`Deployment refused: ${error.message}`);process.exitCode=1;}
 }

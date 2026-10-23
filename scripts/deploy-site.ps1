@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-  Upload the committed site/ folder to Cloudflare Pages after release authorization.
+  Emergency manual deploy: build the site from this clean checkout and upload it to Cloudflare Pages after release authorization.
 .DESCRIPTION
-  Node owns every check and the exact Wrangler pin; see scripts/deploy-site.mjs.
+  The site workflow is the normal path (docs/distribution.md). Node owns the build, every check and the exact Wrangler pin; see scripts/deploy-site.mjs.
   -DryRun performs the complete offline preflight without preparing Wrangler or uploading.
 #>
 [CmdletBinding()]

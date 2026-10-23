@@ -37,8 +37,11 @@ export async function renderSite(site){
  if(!Array.isArray(scenes)||!scenes.length)fail('Scene catalog needs at least one scene');const ids=new Set();
  const cards=[],items=[];
  for(const [index,scene] of scenes.entries()){
-  if(Object.keys(scene).some(key=>!['id','kicker','title','summary','shots','path','gallery'].includes(key)))fail('Unexpected scene catalog field');
+  if(Object.keys(scene).some(key=>!['id','example','kicker','title','summary','shots','path','gallery'].includes(key)))fail('Unexpected scene catalog field');
   if(!/^[a-z][a-z0-9-]{0,63}$/.test(scene.id)||ids.has(scene.id))fail('Scene ids must be unique slugs');ids.add(scene.id);
+  // The deployed scene is exported from this bundled example by scripts/build-site.mjs, with site/cards/<id>.jpg as its card.
+  if(typeof scene.example!=='string'||!/^[a-z][a-z0-9-]{0,63}$/.test(scene.example))fail(`Scene ${scene.id} needs the example it is built from`);
+  const card=imageSize(await file(site,`cards/${scene.id}.jpg`,'Scene card'));if(card.width!==1200||card.height!==630)fail(`Scene ${scene.id} card must be 1200×630`);
   for(const key of ['title','summary'])if(typeof scene[key]!=='string'||!scene[key].trim())fail(`Scene ${scene.id} needs a ${key}`);
   if(scene.kicker!==undefined&&(typeof scene.kicker!=='string'||!scene.kicker.trim()))fail(`Scene ${scene.id} kicker must be text`);
   // Feature + 3: the first shot is the large one, the other three sit beneath it.
@@ -46,11 +49,7 @@ export async function renderSite(site){
   for(const shot of scene.shots)if(Object.keys(shot).join()!=='src,alt'||typeof shot.src!=='string'||typeof shot.alt!=='string'||!shot.alt.trim())fail(`Scene ${scene.id} shots need a src and alt`);
   if(scene.path!==`worlds/${scene.id}/`)fail(`Scene ${scene.id} must live at worlds/${scene.id}/`);
   if(scene.gallery!==undefined&&!/^https:\/\/kilnstudio\.tools\//.test(scene.gallery))fail(`Scene ${scene.id} gallery must be a kilnstudio.tools page`);
-  // Each export must already carry its own canonical page and social card.
-  const url=new URL(scene.path,SITE_URL).href,page=(await file(site,`${scene.path}index.html`,'Scene export')).toString('utf8');
-  if(!page.includes(`<link rel="canonical" href="${url}">`))fail(`Scene ${scene.id} export lacks its canonical link; export it with --url ${url}`);
-  await file(site,`${scene.path}preview.jpg`,'Scene card');
-  const shots=[];
+  const url=new URL(scene.path,SITE_URL).href,shots=[];
   for(const [i,shot] of scene.shots.entries()){
    const size=imageSize(await file(site,shot.src,'Scene shot'));
    shots.push(`

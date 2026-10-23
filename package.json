@@ -44,6 +44,7 @@
     "test:runtime": "node --test src/world/*.test.mjs",
     "check:distribution": "node scripts/check-distribution.mjs",
     "render:site": "node scripts/render-site.mjs",
+    "build:site": "node scripts/build-site.mjs",
     "probe:world": "node scripts/world-probe.mjs"
   },
   "dependencies": {

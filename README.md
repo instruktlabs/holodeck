@@ -67,7 +67,7 @@ npm run build
 npm run check:distribution
 ```
 
-The public scene shelf in `site/` is static. After changing `site/scenes.json` or an export under `site/worlds/`, run `npm run render:site`; `npm run test:world` fails while the rendered shelf is stale. See [distribution](docs/distribution.md).
+The public scene shelf in `site/` is static. After changing `site/scenes.json`, run `npm run render:site`; `npm run test:world` fails while the rendered shelf is stale. `npm run build:site -- --out <folder>` builds the deployable site, exporting each scene from its bundled example; CI builds and deploys it. See [distribution](docs/distribution.md).
 
 Live agent inference is manual and separate from ordinary tests. Use `node bin/holodeck.mjs dev <world>` to serve a selected world.
 

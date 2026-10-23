@@ -1,12 +1,18 @@
-import {test} from 'node:test';
+import {test,before,after} from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile,readdir,stat} from 'node:fs/promises';
+import {mkdtemp,readFile,readdir,rm,stat} from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {renderSite,imageSize,SITE_URL} from '../scripts/render-site.mjs';
+import {buildSite} from '../scripts/build-site.mjs';
 
 const site=fileURLToPath(new URL('../site/',import.meta.url));
+// The deployable site, built once from the bundled examples as CI builds it.
+let work,built;
+before(async()=>{work=await mkdtemp(path.join(os.tmpdir(),'holodeck-site-test-'));built=path.join(work,'site');await buildSite({out:built,log:()=>{}});});
+after(()=>work&&rm(work,{recursive:true,force:true}));
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const exists=file=>stat(file).then(info=>info.isFile(),()=>false);
 const attr=(tag,name)=>tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
@@ -28,7 +34,7 @@ test('the shelf page is self-contained, with sized lazy images and resolvable lo
  for(const [,kind,value] of html.matchAll(/\s(src|href|srcset|imagesrcset)="([^"]+)"/g)){
   for(const ref of kind.endsWith('srcset')?value.split(',').map(part=>part.trim().split(/\s+/)[0]):[value]){
    if(/^https:\/\//.test(ref)||ref.startsWith('#'))continue;
-   assert.ok(await exists(path.join(site,ref.endsWith('/')?`${ref}index.html`:ref)),`Missing local target ${ref}`);
+   assert.ok(await exists(path.join(built,ref.endsWith('/')?`${ref}index.html`:ref)),`Missing local target ${ref}`);
   }
  }
  for(const tag of html.match(/<(script|link)\b[^>]*>/g))for(const name of ['src','href'])if(/^https?:/.test(attr(tag,name)||''))assert.ok(/rel="canonical"/.test(tag),`External resource ${tag}`);
@@ -61,11 +67,13 @@ test('the shelf head carries a canonical URL, a social card and structured data 
  assert.equal((await readFile(path.join(site,'robots.txt'),'utf8')).includes(`Sitemap: ${SITE_URL}sitemap.xml`),true);
 });
 
-test('each scene export has its own head tags, card and an intact hash manifest',async()=>{
+test('each scene, exported from its bundled example, has its own head tags, card and an intact hash manifest',async()=>{
  const scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
- assert.deepEqual((await readdir(path.join(site,'worlds'))).sort(),scenes.map(scene=>scene.id).sort());
+ assert.deepEqual((await readdir(path.join(built,'worlds'))).sort(),scenes.map(scene=>scene.id).sort());
+ await assert.rejects(readdir(path.join(built,'cards')),{code:'ENOENT'},'the cards are build inputs, not site pages');
  for(const scene of scenes){
-  const root=path.join(site,scene.path),html=await readFile(path.join(root,'index.html'),'utf8'),url=new URL(scene.path,SITE_URL).href;
+  assert.deepEqual(await readFile(path.join(built,scene.path,'preview.jpg')),await readFile(path.join(site,'cards',`${scene.id}.jpg`)));
+  const root=path.join(built,scene.path),html=await readFile(path.join(root,'index.html'),'utf8'),url=new URL(scene.path,SITE_URL).href;
   assert.doesNotMatch(html,/<title>Holodeck world<\/title>/);assert.match(html,/<meta name="description" content="[^"]{40,}">/);
   assert.ok(html.includes(`<link rel="canonical" href="${url}">`));assert.ok(html.includes(`<meta property="og:image" content="${url}preview.jpg">`));
   assert.deepEqual(imageSize(await readFile(path.join(root,'preview.jpg'))),{width:1200,height:630});
