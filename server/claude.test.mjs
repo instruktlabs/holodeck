@@ -5,7 +5,7 @@ import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
-import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,sessionGrant,INSTRUCTIONS} from './claude.mjs';
+import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,scriptGrant,scriptRun,sessionGrant,INSTRUCTIONS} from './claude.mjs';
 import {createHost} from './host.mjs';
 
 // A stand-in for the installed CLI. It records what it was given, answers
@@ -259,6 +259,43 @@ test('an exact shell command may be allowed for the session; other arguments, to
   await writeFile(file,JSON.stringify(saved));
   const reopened=make();t.after(()=>reopened.close());
   assert.deepEqual((await reopened.connect()).sessionTools,[sessionGrant('Bash',{command:plan},root)]);
+});
+
+test('a turn script may be allowed for the session with any arguments until code in assets/source changes',async t=>{
+  const run=args=>`uv run assets/source/turn/turn.py ${args} 2>&1 | Select-Object -Last 10`;
+  const asks=[['PowerShell',{command:run('verify')}],['PowerShell',{command:run('scene samples')}]];
+  const {agent,root,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await mkdir(path.join(root,'assets/source/turn'),{recursive:true});
+  await writeFile(path.join(root,'assets/source/turn/turn.py'),'print("turn")\n');await writeFile(path.join(root,'assets/source/helper.py'),'X = 1\n');
+  await agent.connect();await agent.startTurn({text:'Run the turn script',model:'default'});
+  const card=await new Promise(resolve=>{const check=s=>{if(s.requests[0]){agent.off('agent',check);resolve(s.requests[0]);}};agent.on('agent',check);check(agent.snapshot());});
+  assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-script','allow-session','reject-once']);
+  assert.equal(card.params.options[1].label,'Allow turn.py with any arguments until code changes');
+  agent.answer({id:card.id,decision:'allow-script'});
+  let done=await settled(agent);
+  const last=async()=>(await calls()).filter(c=>c.kind==='asks').at(-1).results;
+  assert.deepEqual(await last(),['allow','allow'],'other arguments run without a card');
+  assert.equal(done.sessionTools.length,1);assert.match(done.sessionTools[0],/^script:/);
+  // Script outputs do not reset the grant; an edit to any code file under assets/source does.
+  await writeFile(path.join(root,'assets/source/turn/report.json'),'{}');await writeFile(path.join(root,'assets/source/turn/view.png'),'png');
+  assert.equal(await scriptGrant('PowerShell',{command:run('verify')},root),done.sessionTools[0]);
+  await writeFile(path.join(root,'assets/source/helper.py'),'X = 2\n');
+  await agent.startTurn({text:'Run it again',model:'default'});
+  const {results}=await answerCards(agent,async()=>[{kind:'asks',results:await last()}],['allow-once','reject-once']);
+  assert.deepEqual(results,['allow','deny'],'both runs ask again after a code edit');
+});
+
+test('only a plain run of one script inside assets/source qualifies for a script grant',()=>{
+  const root=path.resolve('world');
+  const script=command=>scriptRun('PowerShell',command,root)?.script??null;
+  assert.equal(script('uv run assets/source/turn11/turn11.py verify clump sites 2>&1 | Select-Object -Last 40'),'assets/source/turn11/turn11.py');
+  assert.equal(script('uv run assets\\source\\turn10b\\turn10b.py compare 2>&1 | Select-Object -Last 10'),'assets/source/turn10b/turn10b.py');
+  assert.equal(script('node assets/source/plan.mjs --seed 3 | tail -n 20'),'assets/source/plan.mjs');
+  assert.equal(script('python ./assets/source/a.py'),'assets/source/a.py');
+  for(const command of ['uv run assets/source/a.py; Remove-Item world -Recurse','uv run assets/source/a.py > world/world.json','uv run assets/source/a.py $(whoami)',
+   'uv run assets/source/a.py "quoted arg"','uv run assets/source/../../outside.py','uv run assets/imports/a.py','uv run --with requests assets/source/a.py',
+   'uv run assets/source/a.py | Out-File x.txt','uv run assets/source/a.py && echo done','pwsh assets/source/a.ps1'])assert.equal(script(command),null,command);
+  assert.equal(scriptRun('Read',{file_path:'assets/source/a.py'},root),null,'only shell tools');
 });
 
 test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{
