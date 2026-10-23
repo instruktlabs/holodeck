@@ -56,7 +56,7 @@ test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
 
 test('long-lived caching covers only content-hashed scene files, and every page gets the security headers',async()=>{
  const rules=(await readFile(path.join(site,'_headers'),'utf8')).split(/\n(?=\S)/).filter(block=>block.startsWith('/')).map(block=>{const [route,...lines]=block.trim().split('\n');return {route,headers:Object.fromEntries(lines.map(line=>line.trim().split(/:\s*/,2)))};});
- assert.deepEqual(rules.map(rule=>rule.route),['/*','/worlds/*/assets/*']);
+ assert.deepEqual(rules.map(rule=>rule.route),['/*','/worlds/:world/assets/*']);
  for(const name of ['X-Content-Type-Options','Referrer-Policy','Content-Security-Policy','X-Frame-Options','Permissions-Policy'])assert.ok(rules[0].headers[name],name);
  assert.doesNotMatch(rules[0].headers['Content-Security-Policy'],/script-src|default-src/,'no script policy that could break the viewer');
  assert.match(rules[1].headers['Cache-Control'],/immutable/);

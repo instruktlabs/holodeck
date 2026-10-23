@@ -67,7 +67,7 @@ production branch is `main`:
   uploads the folder as an artifact.
 - **preview**, for PRs from branches of this repository only, never forks. It
   uploads that artifact to the Pages branch `pr-<number>`
-  (`https://pr-<number>.holodeck.pages.dev`) in the `site-preview` environment.
+  (`https://pr-<number>.holodeck-5mm.pages.dev`) in the `site-preview` environment.
 - **production**, on a push to `main` or a manual run on `main`. It runs in
   the `site-production` environment, whose required reviewer approves each
   deploy in GitHub.
@@ -102,7 +102,7 @@ the project.
 `site/_headers` sets the Pages response headers: `nosniff`, a strict referrer
 policy, no framing, and a Permissions-Policy without camera, microphone,
 location, payment or USB on every page. Viewer bundles, GLBs and terrain
-textures under `/worlds/*/assets/` are named by content hash and cached as
+textures under `/worlds/<scene>/assets/` are named by content hash and cached as
 immutable. There is deliberately no script Content-Security-Policy, which
 could break the WebGPU viewer. `server/site.test.mjs` checks that every file the immutable rule
 covers has a hashed name.

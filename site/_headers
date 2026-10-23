@@ -9,6 +9,6 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
 
 # Scene viewer bundles, GLBs and terrain textures are named by their content hash,
-# so they never change in place.
-/worlds/*/assets/*
+# so they never change in place. Pages allows one splat per rule, so the scene is a placeholder.
+/worlds/:world/assets/*
   Cache-Control: public, max-age=31536000, immutable
