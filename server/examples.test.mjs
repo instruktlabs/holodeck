@@ -49,6 +49,17 @@ test('default CLI init starts a fresh construct with the current cove and walk c
   await store.close();store=null;store=await WorldStore.open(root);assert.equal(store.current.schemaVersion,2);
  }finally{await store?.close();assert.ok(path.resolve(parent).startsWith(path.resolve(os.tmpdir())+path.sep+'holodeck-example-'));await rm(parent,{recursive:true,force:true});}
 });
+test('a world made with CLI init exports without being opened in a browser first',async()=>{
+ const parent=await mkdtemp(path.join(os.tmpdir(),'holodeck-example-')),root=path.join(parent,'world'),out=path.join(parent,'site'),cli=path.join(packageRoot,'bin/holodeck.mjs');
+ try{
+  execFileSync(process.execPath,[cli,'init',root,'--example','courtyard'],{encoding:'utf8'});
+  assert.equal(JSON.parse(await readFile(path.join(root,'.holodeck/accepted-bundle.json'),'utf8')).world.revision,0);
+  await assert.rejects(readFile(path.join(root,'.holodeck/host.lock')),{code:'ENOENT'},'init leaves no host lock behind');
+  const output=execFileSync(process.execPath,[cli,'export',root,'--out',out],{encoding:'utf8'});
+  assert.match(output,/Exported revision 0:/);
+  assert.equal(JSON.parse(await readFile(path.join(out,'scene.json'),'utf8')).world.revision,0);
+ }finally{assert.ok(path.resolve(parent).startsWith(path.resolve(os.tmpdir())+path.sep+'holodeck-example-'));await rm(parent,{recursive:true,force:true});}
+});
 test('construct is also an explicit scaffold choice; unknown examples leave no workspace',async()=>{
  const parent=await mkdtemp(path.join(os.tmpdir(),'holodeck-example-'));
  try{
