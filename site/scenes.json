@@ -10,7 +10,8 @@
       {"src": "images/scenes/crescent-cove-lagoon-low.webp", "alt": "Low over the lagoon toward the palm-lined beach and the rocky headland."},
       {"src": "images/scenes/crescent-cove-summit.webp", "alt": "From the headland summit over the lagoon's shallows and coral heads."}
     ],
-    "path": "worlds/crescent-cove/"
+    "path": "worlds/crescent-cove/",
+    "gallery": "https://kilnstudio.tools/packs/holodeck/crescent-cove/"
   },
   {
     "id": "courtyard",
