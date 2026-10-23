@@ -5,6 +5,7 @@ import {probe} from '../prototype/scene.jsx';
 import {Icon} from './icons.jsx';
 import {groupPlacements,locatePlacement} from './placement-groups.mjs';
 import {MAX_PLACEMENTS,MAX_PLACED_TRIANGLES,placedSourceTriangles} from './asset-budget.mjs';
+import {expandScatters} from './scatter.mjs';
 
 function PlacementEditor({world,item,run,drafts,removed=false,writeDisabled,onFocusItem}){
   const {api}=useWorldClient();
@@ -40,6 +41,8 @@ export function WorldEditor({world,run,selected,setSelected,runtime,drafts,draft
   useEffect(()=>{if(draftFocus?.id==='scene')setDocOpen(true);},[draftFocus]);
   const placed=world.scene.objects.find(o=>o.id===editing),orphan=drafts.getSnapshot()[`placement/${editing}`],placement=placed??(orphan?.dirty?orphan.value:null);
   const triangles=useMemo(()=>{try{return placedSourceTriangles(world.scene,assets||{});}catch{return null;}},[world.scene,assets]);
+  // Scatter instances count toward the placement limit, as in the contract.
+  const placedCount=useMemo(()=>{try{return world.scene.objects.length+(world.scene.scatters?.length?expandScatters(world.scene).stats.reduce((n,x)=>n+x.placed,0):0);}catch{return world.scene.objects.length;}},[world.scene]);
   const savedSource=useMemo(()=>JSON.stringify(world.scene,null,2),[world.scene]);
   const {draft:source,base,dirty,change:setSource,saved:markSaved,reset}=useEditorDraft(drafts,'scene',savedSource,world.revision,{label:'scene document',panel:'scene'});
   async function preset(type){await api('world',{baseRevision:world.revision,scene:{...world.scene,environment:{...world.scene.environment,type},bridge:type==='woodland'?world.scene.bridge:null}});}
@@ -52,7 +55,7 @@ export function WorldEditor({world,run,selected,setSelected,runtime,drafts,draft
   }
   const toggle=key=>setOpen(o=>({...o,[key]:!o[key]}));
   return <div className="hd-world-editor">
-    <div className="hd-meters"><Meter label="Assets" used={world.scene.assets.length} max={64}/><Meter label="Placed" used={world.scene.objects.length} max={MAX_PLACEMENTS}/>{triangles!==null&&<Meter label="Triangles" used={triangles} max={MAX_PLACED_TRIANGLES} format={millions}/>}</div>
+    <div className="hd-meters"><Meter label="Assets" used={world.scene.assets.length} max={64}/><Meter label="Placed" used={placedCount} max={MAX_PLACEMENTS}/>{triangles!==null&&<Meter label="Triangles" used={triangles} max={MAX_PLACED_TRIANGLES} format={millions}/>}</div>
     <div className="hd-row hd-filter">
       <label className="hd-search"><Icon name="search" size={16}/><input aria-label="Filter placements" value={filter} onChange={e=>setFilter(e.target.value)} placeholder={`Filter ${world.scene.objects.length} placements`}/></label>
       {filter&&<span className="hd-meta">{outline.matched} match</span>}
