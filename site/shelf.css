@@ -1,7 +1,7 @@
 /* Fonts are bundled beside the page (SIL OFL 1.1; see fonts/*-OFL.txt and THIRD_PARTY_NOTICES.md). */
-@font-face{font-family:"Instrument Serif";src:url(fonts/InstrumentSerif-Regular.ttf) format("truetype");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Instrument Serif";src:url(fonts/InstrumentSerif-Italic.ttf) format("truetype");font-weight:400;font-style:italic;font-display:swap}
-@font-face{font-family:Inter;src:url(fonts/Inter.ttf) format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Instrument Serif";src:url(fonts/InstrumentSerif-Regular.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2190-21FF,U+2212,U+2215;font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Instrument Serif";src:url(fonts/InstrumentSerif-Italic.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2190-21FF,U+2212,U+2215;font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:Inter;src:url(fonts/Inter.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2190-21FF,U+2212,U+2215;font-weight:100 900;font-style:normal;font-display:swap}
 /* Tokens shared with the app's one-dock interface (src/world/style.css). */
 :root{--paper:#f4f0e6;--paper-2:#e9e4d6;--card:#fbf8f0;--ink:#2f3329;--ink-soft:#575b4c;--ink-faint:#686c5c;--line:rgba(60,62,48,.14);--line-2:rgba(60,62,48,.24);--olive:#464b38;--on-olive:#fffcef;--signal:#a8741c;--signal-soft:#f3e3c2;--live:#5f7d4a;--night:#1a1f16;--cream:#f6f2e9;--glass:rgba(246,242,233,.14);--glass-line:rgba(255,255,255,.22);--r-control:10px;--r-card:12px;--r-surface:18px;--serif:"Instrument Serif",Georgia,"Iowan Old Style",serif;--sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,"SF Mono",Consolas,monospace}
 *{box-sizing:border-box}
@@ -85,7 +85,11 @@ h1 em{color:#ffe9c7}
 .scene-copy{padding:clamp(28px,4vw,48px);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
 .scene h3{font:400 clamp(36px,4vw,56px)/1 var(--serif);margin:0 0 14px}
 .scene p{color:rgba(255,252,239,.78);margin:0}
-.enter{align-self:flex-start;background:var(--on-olive);color:var(--olive);padding:11px 18px;border-radius:var(--r-control);font-weight:500}
+.scene h3 a{color:inherit;text-decoration:none}
+.scene h3 a:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.scene .scene-links{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;color:inherit}
+.enter{align-self:flex-start;background:var(--on-olive);color:var(--olive);padding:11px 18px;border-radius:var(--r-control);font-weight:500;text-decoration:none}
+.gallery{color:var(--on-olive);font-size:14px;text-underline-offset:4px}
 
 /* build */
 .build{padding-top:clamp(88px,12vw,150px);padding-bottom:clamp(88px,12vw,150px)}

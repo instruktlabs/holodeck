@@ -5,19 +5,103 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Holodeck · Worlds you can walk into</title>
   <meta name="description" content="Holodeck is a local workspace where you and your coding agent build 3D worlds, then walk them in the browser. Play exported scenes here, then clone the project to build your own.">
-  <link rel="preload" href="fonts/InstrumentSerif-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="canonical" href="https://holodeck.kilnstudio.tools/">
+  <meta name="theme-color" content="#464b38">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Holodeck">
+  <meta property="og:title" content="Holodeck · Worlds you can walk into">
+  <meta property="og:description" content="A local workspace where you and your coding agent build 3D worlds, then walk them in the browser. Play exported scenes here.">
+  <meta property="og:url" content="https://holodeck.kilnstudio.tools/">
+  <meta property="og:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Holodeck · Worlds you can walk into">
+  <meta name="twitter:description" content="A local workspace where you and your coding agent build 3D worlds, then walk them in the browser. Play exported scenes here.">
+  <meta name="twitter:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
+  <meta name="twitter:image:alt" content="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows.">
+  <link rel="preload" href="fonts/InstrumentSerif-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" as="image" href="images/hero.webp" imagesrcset="images/hero-960.webp 960w, images/hero.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="stylesheet" href="shelf.css">
+  <!-- jsonld:start --><script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://holodeck.kilnstudio.tools/#website",
+   "name": "Holodeck",
+   "url": "https://holodeck.kilnstudio.tools/"
+  },
+  {
+   "@type": "SoftwareSourceCode",
+   "@id": "https://holodeck.kilnstudio.tools/#software",
+   "name": "Holodeck",
+   "description": "A local workspace where you and your coding agent build 3D worlds with Kiln assets, then walk them in the browser.",
+   "url": "https://holodeck.kilnstudio.tools/",
+   "codeRepository": "https://github.com/instruktlabs/holodeck",
+   "programmingLanguage": "JavaScript",
+   "license": "https://opensource.org/license/mit"
+  },
+  {
+   "@type": "ItemList",
+   "@id": "https://holodeck.kilnstudio.tools/#scenes",
+   "name": "Holodeck scenes",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "The Quiet Courtyard",
+      "description": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
+      "url": "https://holodeck.kilnstudio.tools/worlds/courtyard/",
+      "image": "https://holodeck.kilnstudio.tools/worlds/courtyard/preview.jpg",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "The Cove",
+      "description": "The workspace every new world starts from: a curved stone seat under a linen canopy, with a hearth, ferns and lamps.",
+      "url": "https://holodeck.kilnstudio.tools/worlds/cove/",
+      "image": "https://holodeck.kilnstudio.tools/worlds/cove/preview.jpg",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "Tidemark Island",
+      "description": "A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.",
+      "url": "https://holodeck.kilnstudio.tools/worlds/tidemark/",
+      "image": "https://holodeck.kilnstudio.tools/worlds/tidemark/preview.jpg",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    }
+   ]
+  }
+ ]
+}</script><!-- jsonld:end -->
 </head>
 <body>
   <header class="top">
     <a class="brand" href="./"><span class="mark" aria-hidden="true"></span>holodeck<span class="by">powered by Kiln</span></a>
-    <nav><a href="#loop">How it works</a><a href="#scenes">Scenes</a><a class="gh" href="https://github.com/instruktlabs/holodeck">GitHub</a></nav>
+    <nav><a href="#loop">How it works</a><a href="#scenes">Scenes</a><a href="https://kilnstudio.tools/">Kiln</a><a class="gh" href="https://github.com/instruktlabs/holodeck">GitHub</a></nav>
   </header>
 
   <main>
     <section class="hero">
-      <!-- Hero capture: replace images/hero.jpg with a Crescent Cove capture when that world is ready. -->
-      <img class="hero-image" src="images/hero.jpg" alt="An island from above: a sandy crescent of palms, a thatched shelter and turquoise shallows.">
+      <!-- Hero capture: replace images/hero.webp and hero-960.webp with a Crescent Cove capture when that world is ready. -->
+      <img class="hero-image" src="images/hero.webp" srcset="images/hero-960.webp 960w, images/hero.webp 1920w" sizes="100vw" width="1920" height="1200" fetchpriority="high" alt="An island from above: a sandy crescent of palms, a thatched shelter and turquoise shallows.">
       <div class="hero-copy">
         <div>
           <p class="eyebrow">Early source prototype</p>
@@ -38,7 +122,7 @@
       <!-- Workspace, bible and agent captures show Tidemark for now; replace them with Crescent Cove captures when that world is finished. -->
       <figure class="shot">
         <div class="chrome"><i></i><i></i><i></i><span>127.0.0.1 · holodeck · Tidemark Island</span></div>
-        <img src="images/workspace.jpg" alt="The Holodeck workspace over Tidemark Island: the world fills the screen, with view controls at the top and one dock at the bottom holding the message box, agent status and Conversation, Bible, Mood board, World, Observe, History and Agent tabs.">
+        <img src="images/workspace.webp" width="1600" height="1000" loading="lazy" decoding="async" alt="The Holodeck workspace over Tidemark Island: the world fills the screen, with view controls at the top and one dock at the bottom holding the message box, agent status and Conversation, Bible, Mood board, World, Observe, History and Agent tabs.">
       </figure>
       <p class="caption">The real workspace, running locally.</p>
     </section>
@@ -56,35 +140,35 @@
         <div class="copy"><p class="num">01</p><h3><small>Bible</small>The rules of this place.</h3>
           <p>A short design document you and your agent both edit: what the world is for, how it should look, and the rules it must keep.</p>
           <ul class="facts"><li>World name, visual direction and rules</li><li>Your agent must respect accepted rules</li></ul></div>
-        <figure class="frame"><img src="images/bible-panel.jpg" alt="The World bible sheet for Tidemark Island, open above the dock."><figcaption>World bible</figcaption></figure>
+        <figure class="frame"><img src="images/bible-panel.webp" width="1200" height="871" loading="lazy" decoding="async" alt="The World bible sheet for Tidemark Island, open above the dock."><figcaption>World bible</figcaption></figure>
       </article>
 
       <article class="step">
         <div class="copy"><p class="num">02</p><h3><small>Mood board</small>A feeling to build toward.</h3>
           <p>Pin images, notes and reference files, including what to avoid. The board also stands inside the world, so you can hold the place up against it.</p>
           <ul class="facts"><li>Images, notes, MD, PDF and GLB references</li><li>Pin a card to the bible for your agent</li></ul></div>
-        <figure class="frame"><img src="images/cove-mood-board.png" alt="The cove mood board standing in the world, with a palm study."><figcaption>The cove's board, in the world</figcaption></figure>
+        <figure class="frame"><img src="images/cove-mood-board.webp" width="1200" height="675" loading="lazy" decoding="async" alt="The cove mood board standing in the world, with a palm study."><figcaption>The cove's board, in the world</figcaption></figure>
       </article>
 
       <article class="step">
         <div class="copy"><p class="num">03</p><h3><small>Agent</small>Your coding agent, on your machine.</h3>
           <p>Connect Codex, Cursor or Claude Code. It works from the bible and board, and proposes scene, bible and board changes for you to review.</p>
           <ul class="facts"><li>Uses your own signed-in plan</li><li>Holodeck never reads or copies its credentials</li></ul></div>
-        <figure class="frame"><img src="images/agent-panel.jpg" alt="The Agent connection sheet with Codex, Cursor and Claude Code options."><figcaption>Agent connection</figcaption></figure>
+        <figure class="frame"><img src="images/agent-panel.webp" width="1200" height="541" loading="lazy" decoding="async" alt="The Agent connection sheet with Codex, Cursor and Claude Code options."><figcaption>Agent connection</figcaption></figure>
       </article>
 
       <article class="step">
         <div class="copy"><p class="num">04</p><h3><small>Kiln assets</small>Real models, pinned.</h3>
           <p>Assets come from a separate Kiln workspace as GLBs. Holodeck validates and hot-loads them, then pins each one so a world never shifts under you.</p>
           <ul class="facts"><li>Tidemark pins 23 assets by content hash</li><li>Each with a recorded Kiln revision</li></ul></div>
-        <figure class="frame"><img src="images/palm-grove.png" alt="Palms and ferns in Tidemark's grove."><figcaption>Palms and ferns in the grove</figcaption></figure>
+        <figure class="frame"><img src="images/palm-grove.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Palms and ferns in Tidemark's grove."><figcaption>Palms and ferns in the grove</figcaption></figure>
       </article>
 
       <article class="step">
         <div class="copy"><p class="num">05</p><h3><small>World</small>Walk it, then keep it.</h3>
           <p>Enter in first person to see whether the place works. Every accepted change becomes a revision you can return to, and any revision exports as a static scene like the ones on this page.</p>
           <ul class="facts"><li>WebGPU, with a WebGL2 fallback</li><li>World history and static export</li></ul></div>
-        <figure class="frame"><img src="images/looking-out.png" alt="Looking out from the cove seats toward the palms."><figcaption>Looking out from the cove</figcaption></figure>
+        <figure class="frame"><img src="images/looking-out.webp" width="1200" height="675" loading="lazy" decoding="async" alt="Looking out from the cove seats toward the palms."><figcaption>Looking out from the cove</figcaption></figure>
       </article>
 
       <div class="status">
@@ -95,8 +179,29 @@
 
     <section class="wrap scenes-section" id="scenes">
       <div class="section-head"><div><p class="kicker">Scenes</p><h2>Step into one now.</h2></div><div><p>Exported worlds play directly in your browser. Nothing to install.</p></div></div>
-      <div id="scenes" class="scenes"></div>
-      <noscript><p><a href="worlds/tidemark/">Tidemark Island</a></p></noscript>
+      <div class="scenes"><!-- scenes:start -->
+        <article class="scene">
+          <img src="images/scene-courtyard.webp" width="1200" height="900" alt="The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate." loading="lazy" decoding="async">
+          <div class="scene-copy">
+            <div><h3><a href="worlds/courtyard/">The Quiet Courtyard</a></h3><p>A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove&#39;s shaded seats at its gate.</p></div>
+            <p class="scene-links"><a class="enter" href="worlds/courtyard/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/courtyard/">Its assets in the Kiln gallery</a></p>
+          </div>
+        </article>
+        <article class="scene">
+          <img src="images/scene-cove.webp" width="1200" height="900" alt="The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns." loading="lazy" decoding="async">
+          <div class="scene-copy">
+            <div><h3><a href="worlds/cove/">The Cove</a></h3><p>The workspace every new world starts from: a curved stone seat under a linen canopy, with a hearth, ferns and lamps.</p></div>
+            <p class="scene-links"><a class="enter" href="worlds/cove/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/cove/">Its assets in the Kiln gallery</a></p>
+          </div>
+        </article>
+        <article class="scene">
+          <img src="images/scene-tidemark.webp" width="1200" height="900" alt="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows." loading="lazy" decoding="async">
+          <div class="scene-copy">
+            <div><h3><a href="worlds/tidemark/">Tidemark Island</a></h3><p>A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.</p></div>
+            <p class="scene-links"><a class="enter" href="worlds/tidemark/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/tidemark/">Its assets in the Kiln gallery</a></p>
+          </div>
+        </article>
+        <!-- scenes:end --></div>
     </section>
 
     <section class="wrap build" id="build">
@@ -110,12 +215,11 @@
             <li><code>npm ci</code><small>Installs dependencies once. Launch does not download them.</small></li>
             <li><code>node bin/holodeck.mjs launch</code><small>Then choose Connect → Codex, Cursor or Claude Code.</small></li>
           </ol>
-          <p class="license">The source is <a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a>. Code is MIT. The bundled example worlds are CC0. Your own worlds are not automatically CC0.</p>
+          <p class="license">The source is <a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a>. Code is MIT. The bundled example worlds are CC0, and so are the scenes on this page. Your own worlds are not automatically CC0. The models come from <a href="https://kilnstudio.tools/">Kiln</a>; browse more in the <a href="https://kilnstudio.tools/gallery/">Kiln gallery</a>.</p>
         </div>
       </div>
     </section>
   </main>
-  <footer><div class="wrap"><span>holodeck · powered by Kiln</span><a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a></div></footer>
-  <script type="module" src="shelf.js"></script>
+  <footer><div class="wrap"><span>holodeck · powered by <a href="https://kilnstudio.tools/">Kiln</a></span><a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a></div></footer>
 </body>
 </html>
