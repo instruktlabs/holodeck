@@ -423,7 +423,9 @@ function AnalyticSky({environment}){
   // The addon models a much brighter sky than this renderer's unit-scale
   // lights (its example uses exposure .05). Calibrate sky radiance locally
   // instead of changing the exposure of terrain, assets and every other world.
-  s.material.colorNode=s.material.colorNode.rgb.mul(.045);
+  // Below the horizon, meet fully fogged water as the authored sky does (BELOW_HORIZON).
+  const below=smoothstep(0,BELOW_HORIZON,positionWorld.sub(cameraPosition).normalize().y.negate());
+  s.material.colorNode=mix(s.material.colorNode.rgb.mul(.045),color(environment.fogColor??'#d6e5ec'),below);
   // SkyMesh's optional cloud shader is unnecessary for the clear daylight rig.
   s.cloudCoverage.value=0;s.frustumCulled=false;s.renderOrder=-100;s.name='landscape-sky';
   return s;
