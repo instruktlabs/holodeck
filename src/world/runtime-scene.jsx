@@ -16,6 +16,7 @@ import {placedObjects} from './scatter.mjs';
 import {StaticAssetBatch} from './static-batches.jsx';
 import {FlockAsset} from './flock.jsx';
 import {SUN_SHADOW,configureSunShadow,shadowViewFocus} from './sun-shadow.mjs';
+import {compileGate} from './parallel-compile.js';
 
 function Shape({shape,id}){
  if(shape.type==='tree')return <group position={shape.offset}><Tree size={shape.size} color={shape.color} seed={id}/></group>;
@@ -110,6 +111,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('blur',clear);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',clear);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
   return()=>{clear();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('blur',clear);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',clear);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
  },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree]);
+ const settled=useRef(0);
  useFrame((_,dt)=>{
   let moving=false;
   if(actor.current)actor.current.camera=person;
@@ -165,7 +167,8 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const outOfBounds=!!a&&(runtime.terrain?.sample(a.position[0],a.position[2]).inBounds===false||a.position[0]-a.radius<b[0]||a.position[0]+a.radius>b[1]||a.position[2]-a.radius<b[2]||a.position[2]+a.radius>b[3]);
   probe.actor=a?{position:[...a.position],eyePosition:[a.position[0],a.position[1]+a.eyeHeight,a.position[2]],mode:a.mode,camera:person,possessed:mode==='walk',grounded:a.grounded,verticalVelocity:a.verticalVelocity,speed:a.speed,supportHeight:a.supportHeight,waterDepth:a.waterDepth,outOfBounds}:null;
   const look=mode==='free'?free.current:walk.current;
-  probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();probe.ready=true;
+  probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
+  const gate=compileGate(gl,settled.current);settled.current=gate.settled;probe.compiling=gate.compiling;probe.ready||=gate.ready;
  },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} firstPerson={mode==='walk'&&person==='first'}/>:null;
 }
 function Sun({runtime,environment,cameraMode}){
