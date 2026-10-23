@@ -35,9 +35,15 @@ world, launch stops without changing it. Pass a directory to use another folder:
 server. It still refuses to overwrite an existing path, and the parent directory
 must already exist.
 
-You arrive in the preset cove in an otherwise empty construct.
+You arrive in the preset cove in an otherwise empty construct. The world fills
+the screen. One dock at the bottom holds the agent's status, the message box and
+the section tabs: **Conversation**, **Bible**, **Mood board**, **World**,
+**Observe**, **History** and **Agent**. A tab opens its section in a sheet above
+the dock; **Tall** and **Half** change its height.
 
-1. Click **Connect ↗**, then **Codex**, **Cursor** or **Claude Code**.
+1. Choose **Connect** beside the message box. The **Agent** sheet opens. Pick
+   **Codex**, **Cursor** or **Claude Code**, then choose **Connect Codex**,
+   **Connect Cursor** or **Connect Claude Code**.
 2. For Codex, choose a model from the returned list. Reasoning effort can stay
    at its model default. Codex must be signed in with ChatGPT before sending a
    message. For Cursor, choose Agent, Plan or Ask. Sign-in, billing and
@@ -45,12 +51,21 @@ You arrive in the preset cove in an otherwise empty construct.
    sign in first by running `claude` in a terminal. Connect checks
    `claude auth status`, shows the sign-in method and plan, and refuses an API-key
    sign-in so billing stays on your subscription. Holodeck offers no Claude login
-   and never reads Claude credentials. Choose a model alias, or keep the account
-   default.
-3. Describe what to build in the message box. Add intent and rules in the bible
-   and references on the mood board as needed. Review proposed world changes and
-   Cursor or Claude Code permission, question or plan requests, then apply scene
-   changes.
+   and never reads Claude credentials. Choose a model alias or an exact model ID
+   (listed separately), or keep the account default.
+3. Describe what to build in the message box. The latest reply appears briefly
+   above the dock; **Conversation** holds the whole thread. Add intent and rules
+   under **Bible** and references under **Mood board** as needed. Permission,
+   question and plan requests wait in the dock one at a time.
+4. A proposal appears as a line in the dock with a count of its changes. Added
+   or moved placements show as ghosts in the world; **Preview** turns them off
+   and on. **Review** opens the differences. **Apply** saves a new revision,
+   which loads where you stand; **Discard** drops it.
+
+Click an object to refer to it in your next message; Shift-click adds more.
+**Enter world** lets you walk the result. While walking, Enter opens the message
+box without leaving the world; Enter sends and Esc returns to walking. Esc while
+walking, or **Return to making**, brings back the workspace.
 
 For example: “Help me plan a small woodland retreat around this platform. Start
 with a short bible and a walkable blockout.” Image generation stays on the Codex
@@ -63,9 +78,10 @@ to this world's `kiln_workspace` tools.
 
 ## More worlds from the browser
 
-Click the world-name button to open **Worlds**. Choose **New world**, enter a
-name, and select **Create & open** for another fresh cove. Or choose **Tidemark
-Island** under **Start from an example** for an independent editable scene copy.
+Click the world-name button at the top left to open **Worlds**. Choose **New
+world**, enter a name, and select **Create & open** for another fresh cove. Or
+choose **Tidemark Island** under **Start from an example** for an independent
+editable scene copy.
 The picker creates the folders for you. Connect the agent in the selected world
 when you want to author there.
 
@@ -94,3 +110,5 @@ Stop the terminal server with Ctrl+C. To return, run `launch` again from the
 checkout, or `dev` with an explicit world folder. Restarting opens the world
 named in that command, not your last picker selection. Scene revisions persist;
 camera position and running activity are not saved play-state checkpoints.
+This browser remembers the last agent connected in each world, so after a
+restart the dock offers **Reconnect** with that provider.

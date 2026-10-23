@@ -50,7 +50,9 @@ Agent connection retains the existing Kiln setup workflow.
 - Kinetic exhibit: independently Start / stop nearby mechanisms, pause/resume
   everything or Reset activity. Those actions do not modify saved layout.
 - All: WASD walking, mouse lock when supported, right-drag look as a fallback.
-  Escape returns to authoring; H hides all remaining HUD while inhabiting.
+  Enter opens the message box without leaving the world, and Escape from it
+  returns to walking. Escape while walking returns to authoring; H hides all
+  remaining HUD while inhabiting.
   Overlook provides right-drag orbit and wheel
   zoom. Hide/recall the cove. Scene, bible, board and undo use the shared host.
   No agent inference is needed to explore.

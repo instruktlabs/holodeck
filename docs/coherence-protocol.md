@@ -1,9 +1,12 @@
 # Advisory world checks
 
 `world_check` returns `holodeck.coherence/1`. The same read-only operation is
-available through Check world in the browser and POST /api/check in the local
-authenticated host. It is not part of validation, proposal acceptance or loading.
-Findings never block an edit and no whole-world quality score is emitted.
+available through **Check world** in the **Observe** sheet and POST /api/check in
+the local authenticated host. It is not part of validation, proposal acceptance
+or loading. Findings never block an edit and no whole-world quality score is
+emitted. An agent can pass the staged `proposalId` to check a proposal before
+the user applies it; that report starts from initial behavior state, has no
+browser observation, and names the proposal as its source.
 
 The report contains the accepted revision, displayed revision and observation age;
 inventory and enabled modules; measured renderer values when recently observed;
@@ -17,6 +20,10 @@ JSON array of up to eight `{id,from:[x,1.72,z],to:[x,1.72,z]}` records. The HTTP
 equivalent accepts `routes` directly. Each route has at most 65 samples; reported
 spacing makes gaps explicit. Hits include object/blocker IDs and world positions.
 The query uses a 0.22 metre walker radius at the fixed 1.72 metre eye height.
+In worlds with terrain or maker possession, routes instead follow supported feet
+with the shared slope, step and water rules; see
+[terrain and inhabitants](terrain-and-inhabitants.md). The inventory reports
+target, placed and removed counts for each scatter.
 
 Fresh matching browser activity poses inform moving blockers. Observations older
 than ten seconds or from a different revision are labeled and not used as current

@@ -126,7 +126,7 @@ process per turn:
   delivers both as process termination.
 - `--permission-mode manual` (the documented alias of `default`) with
   `--permission-prompt-tool mcp__holodeck__permission_prompt`. Permission prompts
-  appear as Holodeck approval cards (Allow once / Reject) and return
+  appear as Holodeck approval cards in the dock (Allow once / Reject) and return
   `{"behavior":"allow","updatedInput":...}` or `{"behavior":"deny","message":...}`.
   `bypassPermissions` and the skip-permission flags are never passed. Holodeck's
   own world tools are pre-allowed with `--allowedTools`; Kiln and native tools
@@ -163,8 +163,10 @@ process per turn:
   `claude` in a terminal. A turn whose `init` event reports an `apiKeySource`
   other than `none` is stopped. Holodeck offers no Claude login and never reads,
   copies or stores Claude credentials.
-- Models are `--model` aliases (account default, fable, opus, sonnet, haiku) with
-  optional `--effort`. Image generation stays on Codex.
+- Models are `--model` aliases (account default, fable, opus, sonnet, haiku) or
+  exact model IDs (`claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`,
+  `claude-haiku-5-5`), listed in separate groups and passed through unchanged,
+  with optional `--effort`. Image generation stays on Codex.
 
 This is our conditional engineering interpretation of the documented route, not
 Holodeck-specific legal clearance. It must not collect tokens, provide a separate
@@ -282,7 +284,7 @@ sandboxing is off by default; that route needs explicit execution-policy work.
 The [service terms](https://cursor.com/terms-of-service) still apply, including
 restrictions on selling or renting service access. Native ACP is the route
 Holodeck uses. The local adapter shows permission, question and plan requests
-in the existing approval cards, keeps one session at a time, and does not read
+in the same approval cards in the dock, keeps one session at a time, and does not read
 Cursor credential files or use the SDK.
 
 Qwen Code's [current quickstart](https://qwenlm.github.io/qwen-code-docs/en/users/quickstart/)

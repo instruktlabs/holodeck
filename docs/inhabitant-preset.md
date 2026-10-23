@@ -71,5 +71,5 @@ or the whole character without depending on a render draw number.
    obstruction, missing capabilities and observed runtime cost. Keep visual
    judgment and measured performance distinct from schema validity.
 
-The current box walker remains the current prototype controller until these
-capabilities have been implemented and demonstrated.
+At the time of this study the box walker was the prototype controller. It remains
+the controller for worlds without maker possession.

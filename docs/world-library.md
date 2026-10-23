@@ -24,12 +24,13 @@ starts empty. See [example contents and CLI commands](example-worlds.md).
 
 The picker lists what prevents a world change: unsaved editor drafts, an unsent
 message, an active agent turn or pending proposal, a load/import/save in progress,
-or a disconnected host. Save or discard drafts using their editors, send or clear
+or a disconnected host. Each blocker with a location has a **Review** link that
+opens the sheet or message box holding it. Save or discard drafts using their editors, send or clear
 the message, and finish or stop the agent turn. Apply or discard a proposal before
 continuing. Native agent approval requests and in-flight host work also block
 switching. The picker does not interrupt or discard work automatically.
 
-Browser drafts survive closing their editor panels within the same session. They
+Browser drafts survive closing their sheets within the same session. They
 are not a disk backup: save before refreshing, closing the tab or stopping the
 host. New/open/rename actions remain disabled while these blockers are present.
 

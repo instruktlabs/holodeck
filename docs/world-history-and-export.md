@@ -6,7 +6,7 @@ asset IDs to immutable GLB bytes. Replacing a mutable import does not change the
 bytes belonging to an older accepted revision. Transient player positions,
 activity phases and agent sessions are not simulation checkpoints.
 
-Open **World → World history** to browse snapshots. Restoring an older revision
+Open the **History** tab in the dock to browse snapshots. Restoring an older revision
 creates a new current revision: later snapshots remain available. Restore checks
 the current base revision and verifies the old asset hashes before applying it.
 Wait for an active agent turn to finish so its proposal is not silently displaced.

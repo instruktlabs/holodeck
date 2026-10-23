@@ -8,9 +8,11 @@ records ownership, the pinned dependency and the versioned asset delivery profil
 ## Presentation
 
 React owns the application state and editor components. React Three Fiber renders
-the Three.js world through WebGPU with a WebGL2 fallback. The bible, conversation,
-world picker and mood-board editor are React HTML/CSS panels over the viewport;
-this supports normal text editing, focus, scrolling and file inputs. The physical
+the Three.js world through WebGPU with a WebGL2 fallback. The world picker, the
+bottom dock and the sheets it opens (conversation, bible, mood board, world,
+observations, history, agent and proposal review) are React HTML/CSS over the
+viewport; this supports normal text editing, focus, scrolling and file inputs.
+Sheet visibility does not own selection, draft text or running activity. The physical
 mood board in the world uses a canvas texture. These are complementary parts of
 the same React application, not alternatives to R3F.
 
@@ -28,7 +30,9 @@ Existing schema v1 worlds remain supported without automatic migration. New
 examples use schema v2 and scene.runtime.version 1. Shape blockouts and pinned
 Kiln GLBs share the placement model. The capability registry covers camera and
 box collision, hinge and spin interactions, heightfields and ocean, maker
-possession, patrols, articulated gait and airborne boid flocks. Dependencies and
+possession, patrols, articulated gait, airborne boid flocks and seeded scatter.
+Terrain texture layers, surf and the gradient sky are optional fields of the
+terrain, water and environment records. Dependencies and
 bounded records are validated before accepting a revision. See
 [terrain and inhabitants](terrain-and-inhabitants.md),
 [gait](articulated-gait.md) and [flocks](flock-behavior.md).
@@ -66,7 +70,8 @@ not only outer jobs. Visibility and simulation relevance are different decisions
 
 ## Rendering and culling
 
-Compatible static imported placements share source geometry and materials. Large
+Compatible static imported placements, including expanded scatter instances,
+share source geometry and materials. Large
 asset/layer groups are partitioned into 96-metre X/Z cells; compact groups remain
 together. Three culls each resulting mesh against the main and shadow cameras,
 using actual source bounds plus foliage motion margins. Selection IDs and
@@ -96,7 +101,10 @@ loads candidate bundles before adoption and releases unused resources. GPU
 prewarming, general resource scheduling, external plugins, arbitrary physics, XR
 and simulation-state rollback remain future work. A module manifest is not a sandbox.
 
-User edits and agent proposals share revision checks. Bible prose and references
+User edits and agent proposals share revision checks. Before Apply, a pending
+proposal's added or moved placements (up to 120) draw as translucent ghosts that
+aiming and selection ignore; they are not loaded or saved. An adopted revision
+loads where the user stands. Bible prose and references
 express intent; unsupported rules do not execute. Observations identify the loaded
 revision, camera and activity state. Saved data, successful interactions, visual
 review and performance evidence are distinct results.
@@ -107,9 +115,9 @@ Private research is not a package input. See [distribution](distribution.md).
 Agent connections remain product-specific sessions. Codex uses the installed
 app-server with native login. Cursor uses the installed `agent acp` process
 with `cursor_login`, and its permission, question and plan requests use the
-same approval cards. Claude Code runs the installed CLI once per turn in print
-mode with its own subscription sign-in; a local MCP bridge supplies world tools
-and routes its permission prompts to the same cards. Image generation stays on
+same request cards in the dock. Claude Code runs the installed CLI once per turn
+in print mode with its own subscription sign-in; a local MCP bridge supplies world
+tools and routes its permission prompts to the same cards. Image generation stays on
 Codex. Adapters follow the
 [provider policy research](agent-provider-policy.md), declare their billing and
 execution scope, and preserve provider approvals. Subscription credentials are not

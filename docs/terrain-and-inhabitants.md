@@ -251,9 +251,11 @@ bounded in small steps, allows slopes up to 45 degrees and an upward step of 0.3
 and tests boxes at actual feet height. Water deeper than 0.08m starts wading at 70%
 of walk/run speed. Depth at least 1.25m enters swimming; depth at most 0.9m exits it.
 Swimming feet follow water height minus 1m, with height 1.35m and eye height 1.25m.
-The maker is an optional built-in procedural body. Arbitrary imported rigs, IK,
-ragdolls, jumping, moving-body push response and a general physics solver are not
-implemented by these records.
+Space jumps when grounded, with a 5.4m/s impulse and 18m/s² gravity. **V**
+switches first and third person. The maker is an optional built-in procedural
+body with a visual gait and basic foot IK. Arbitrary imported rigs, ragdolls,
+moving-body push response and a general physics solver are not implemented by
+these records.
 
 ## Bounded waypoint activity
 

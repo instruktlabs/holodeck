@@ -4,7 +4,7 @@ Open `/prototype.html?demo` for the original scripted interaction demo described
 below. It has actual first-person movement and fixed scene changes; no coding
 agent runs, no agent credentials are accessed, and conversation does not edit the
 repository. The normal `/prototype.html` route now opens persistent local world
-authoring with the optional native Codex connection. See
+authoring with an optional local Codex, Cursor or Claude Code connection. See
 [local agent and live world authoring](local-agent-world-authoring.md) and
 [the world library](world-library.md) for that current workflow.
 
