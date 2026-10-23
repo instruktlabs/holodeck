@@ -66,6 +66,7 @@ performance.
 | H9 and H25: the board panel clipped its toolbar, and the World panel listed every placement twice in one long scroll. | Interface pass (direction B, merge `ade4b53`). One bottom dock carries presence, a decision slot, the proposal line, the reference tray, the composer and the section tabs; each section opens in a bottom sheet at half or tall height. The board toolbar wraps and stays in view. The World sheet groups placements by family and asset (`src/world/placement-groups.mjs`) with a filter, budget meters and inline transform editing for the selection. | `src/world/placement-groups.test.mjs` (3 tests), including 504 placements collapsing to a handful of rows. Hub capture of the tall World sheet on a revision 6 copy: 5 groups and 541 px of scroll, against 29,734 px before. |
 | H11 and H12: a long user message pushed request cards below the fold, and buttons moved after a card resolved. | Interface pass (direction B, merge `ade4b53`). Long messages fold; requests wait one at a time in the decision slot, with stable buttons and a 400 ms arm delay. The coordinate-frame mismatch in H12 belongs to browser automation, not the interface. | Hub captures of the decision slot at desktop and phone sizes. These are **mock UI**: the agent state was injected into that browser only and no agent ran. |
 | H27 and H33: frame interval p95 read about 1 s while the page was hidden, and load time could not be measured with the pane hidden. | Interface pass (direction B, merge `ade4b53`). Frames while the page is hidden, and the first interval after it returns, are not recorded, and the panel says timing is paused. The probe records `firstFrameMs` from when a world opens, and observations carry it with the page's visibility. Hidden-pane painting itself is browser behaviour. | Hub runs, merged build against `main`, revision 6 copy, 10 runs: draws, triangles and p95 identical on both backends (1280×720: 244 draws, 2,494,312 triangles; 390×844: 211 draws, 2,144,269 triangles; p95 8.4 ms, refresh-paced). Ready times within about 200 ms; first frame about 3.0–3.25 s after activation. |
+| H41: the dock's section tabs had a transparent background, dark text and a white glow, so over deep water at the overlook they could not be read. | `src/world/style.css`: the tab row sits on the same glass as the presence bar, and the glow is gone. | Found in the revision 10 hub capture (overlook, both backends); checked in the browser over the overlook's water. |
 
 ## Holodeck findings
 
@@ -79,6 +80,10 @@ friction, **Low** is polish.
 | H7 | Conversation | Fixed above (single-line composer). | — | — |
 | H14 | Conversation | Fixed above (Markdown rendering). | — | — |
 | H18 | Agent instructions | With shell needing approval per call, the agent still listed folders through PowerShell. | Low | Fixed in the adapter instructions: inspect with Read, Glob and Grep; shell needs approval. |
+| H37 | Agent permissions | Claude Code asks before every Read of the world's own Holodeck skill references, which the host copies into a temporary plugin folder (`holodeck-claude-*/plugin/skills/...` under the system temp folder). In turn 8 the agent needed an approval to read `current-runtime.md`. | Low | Let Claude Code read the plugin folder without a prompt, for example by passing it as an allowed directory. |
+| H38 | Request cards | Every Claude Code request for a built-in tool is titled **Run a command? · shell**, including Read and Glob. Kiln tools get **Allow this? · permission**. | Low | Title the card by tool: "Read a file?", "Search files?", "Run a command?". |
+| H39 | Request cards | A Glob card shows only the folder, not the pattern. In turn 8 the agent asked to glob `*` across the user's whole projects folder, outside the world; the card showed just the folder, so the pattern had to be looked up in the transcript before rejecting it. | Medium | Show the pattern (and for Grep the pattern and path) on the card, and flag paths outside the world. |
+| H40 | Agent permissions | Each distinct argument list for the same world script needs its own approval. Turn 8 ran `turn8.py` four times (`verify export tint surf`, `verify`, `scene samples`, and so on), so **Allow this exact command for the session** never applied. | Low | Offer a session grant for one script under `assets/source` with any arguments, bound to the script's content hash so an edit asks again. |
 
 ## Kiln findings
 
@@ -444,6 +449,60 @@ until Kiln makes it configurable (instruktlabs/kiln#212).
    - **Load time:** ready times are higher than revision 8's (7.2 s and
      16.1 s). The time is not yet split between new assets and run-to-run
      variation.
+
+8. Clean-up on the upgraded engine: applied as revision 10.
+   - **Host:** the isolated host was refreshed from merged `main`, with the
+     one-dock interface, sectioned `world_read`, the automatic underwater tint,
+     surf, sky and walkable colliders. Claude Code reconnected to the same
+     session with its earlier grants; Opus at max effort.
+   - **Walkable jetty:** `walkable: true` on the three deck slabs, the platform
+     slab and the three stair treads; posts and rails still only block. Tread
+     tops were corrected by under 0.5 mm so each sits at its walking surface.
+     On the staged proposal, `world_check` routes from the sand onto the
+     platform, down the stair and back were clear, and 30 `world_sample`
+     points put the walker on the decks at −1.85 m with no gaps at module
+     joints, the treads 0.2875 m apart and the stair foot in 0.54 m of water.
+   - **Coral:** four Kiln child revisions without the baked tint (geometry,
+     UVs, normals and triangles identical; only the albedo changed), so the
+     engine's tint is no longer applied twice. The agent restored each saved
+     revision in Kiln, made one edit and saved a child.
+   - **Surf:** `breakDepth` 1.35, `intensity` 0.95, `whitewater` 12 m,
+     `runUp` 0.22, tuned against the published break rule on the agent's
+     terrain replica.
+   - **Sky:** zenith `#2d72c4` and light cumulus (coverage 0.3), drifting with
+     the palm wind; the horizon stays the fog colour.
+   - **Staging:** from `assets/source/turn8/scene-t8.json` (`sceneFile`,
+     147.8 KB). The staged scene matched that file exactly, and against
+     revision 9 it changed only the coral records, the seven walkable boxes,
+     `water.surf` and `environment.sky`: no new assets, placements or placed
+     triangles.
+   - **Engine lookups:** the agent grepped its progress log for engine paths
+     and asked to glob the user's whole projects folder for engine sources
+     (H39). The request was rejected, and the agent tuned surf and coral from
+     the published `world_read` capabilities instead, which were enough.
+   - **Approvals:** one Read of its own skill reference (H37), one Kiln
+     restore, and four runs of the turn script, each with different
+     arguments (H40).
+
+   Measured on the hub for revision 10, at the arrival view, 1280×720, on
+   merged `main` (`1e43bc1`):
+
+   | Backend | Draws | Triangles | Time to ready | Frame interval p95 |
+   | --- | ---: | ---: | ---: | ---: |
+   | WebGPU | 269 | 2,733,343 | 7.8 s | 8.4 ms |
+   | WebGL2 | 269 | 2,733,343 | 19.4 s | 8.4 ms |
+
+   The same build renders revision 9 at 269 draws and 2,731,147 triangles
+   (ready 7.5 s and 20.0 s, p95 8.4 ms). Revision 10 adds 2,196 triangles,
+   the authored sky dome, and no draws.
+   - **Arrival:** cumulus over the beach, and whitewater bands in the lagoon
+     and a swash line on the sand. The sky reads paler than revision 9's
+     analytic gradient, and the lagoon whitewater is heavier than the brief's
+     "gentle lagoon"; both are tuning for a later turn.
+   - **Overlook:** whitewater along the outer rim; the flat grey band at the
+     top of revision 9's frame is gone. The coral reads as darker seabed
+     patches.
+   - **Not yet seen:** a first-person walk along the jetty in the browser.
 
 ## Measurement
 
