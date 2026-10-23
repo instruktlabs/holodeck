@@ -44,8 +44,28 @@ from other hosts.
 
 The shelf plays those scenes and points visitors to the clone and launch
 commands. It does not connect an agent, accept uploads, or publish the npm
-package. Deploying it is a separate, manual step. Contribution and direct
-publishing from the local app come later, on top of this catalog.
+package. Contribution and direct publishing from the local app come later, on
+top of this catalog.
+
+Deploying is a separate, manual step for the maintainer, after release
+authorization. It mirrors Kiln's site deploy:
+
+```powershell
+./scripts/deploy-site.ps1 -ProjectName <pages-project> -DryRun
+./scripts/deploy-site.ps1 -ProjectName <pages-project>
+```
+
+`scripts/deploy-site.mjs` uploads the committed `site/` folder as it is and
+builds nothing. It refuses to run when:
+- the checkout is dirty or has untracked files;
+- any file in `site/` is not committed;
+- the shelf is stale;
+- an export is unfinished;
+- a symlink, a Worker or Functions input is present.
+
+It runs Wrangler 4.147.0 by exact version and checks again just before it
+uploads. A dry run performs every check without preparing Wrangler. `-Branch`
+defaults to `production` and must name the Pages project's production branch.
 
 Curated editable examples use the versioned [example world bundle](example-world-bundles.md)
 format: accepted scene data, exact pinned GLBs and an optional real runtime preview.
