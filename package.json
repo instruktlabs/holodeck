@@ -43,6 +43,7 @@
     "test:world": "node --test server/*.test.mjs",
     "test:runtime": "node --test src/world/*.test.mjs",
     "check:distribution": "node scripts/check-distribution.mjs",
+    "render:site": "node scripts/render-site.mjs",
     "probe:world": "node scripts/world-probe.mjs"
   },
   "dependencies": {

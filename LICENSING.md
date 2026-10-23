@@ -13,12 +13,17 @@ Matthew Kissinger applies [CC0 1.0 Universal](LICENSES/CC0-1.0.txt) to his copyr
 - Scene data, manifests, GLBs and previews under examples/, including Construct, Courtyard, Kinetic and Tidemark Island.
 - Models under public/assets/.
 - Images and non-code asset metadata under assets/cove/. Procedural JavaScript programs remain MIT.
+- Scene data (scene.json), manifests and GLBs in the static scene exports under site/worlds/: The Quiet Courtyard (site/worlds/courtyard/), the Cove (site/worlds/cove/) and Tidemark Island (site/worlds/tidemark/). The compiled viewer scripts and styles beside them are code under MIT. Their preview.jpg cards are not part of this dedication.
 - Concept images under design/ and public/design/.
 - The first-party reference SVG and synthesized speech fixtures under public/fixtures/.
 
 These assets may be reused, modified and redistributed, including commercially, without required attribution. CC0 applies only to rights the contributor holds. Trademark rights and third-party rights are not waived.
 
 This designation does not apply to users' own worlds, uploads, references or generated assets. Users choose their own terms and are responsible for rights in imported material. Copying a bundled CC0 asset into a world preserves that asset's CC0 status; it does not place the rest of the world under CC0.
+
+## Project site images
+
+Screenshots, scene previews, social cards and icons under site/ (site/images/, site/worlds/*/preview.jpg and the site icons) are not covered by the CC0 designation above.
 
 ## Third-party material
 

@@ -1,0 +1,900 @@
+{
+  "format": "holodeck-view-v1",
+  "world": {
+    "schemaVersion": 2,
+    "revision": 0,
+    "bible": {
+      "title": "Holodeck world",
+      "intent": "",
+      "rules": ""
+    },
+    "scene": {
+      "environment": {
+        "type": "construct",
+        "clearPath": true,
+        "groundColor": "#abb492",
+        "fogColor": "#eee2c9",
+        "sunColor": "#ffd6a0",
+        "sunIntensity": 3.3
+      },
+      "bridge": null,
+      "origin": "structure",
+      "assets": [
+        {
+          "id": "structure",
+          "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+          "provenance": {
+            "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
+            "revisionId": "r_2387ce274123402dbdafd818e6fb0043",
+            "collection": "project"
+          }
+        },
+        {
+          "id": "canopy",
+          "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+          "provenance": {
+            "assetId": "a_4f6ce20d78fd4aefa27b934c7a9224c2",
+            "revisionId": "r_df0485467228414780cfa44c0f2e32ad",
+            "collection": "project"
+          }
+        },
+        {
+          "id": "seating",
+          "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
+          "provenance": {
+            "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
+            "revisionId": "r_6602fd828a5341eeaa0877fc58289960",
+            "collection": "project"
+          }
+        },
+        {
+          "id": "hearth",
+          "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+          "provenance": {
+            "assetId": "a_10ec25ce83e242e3a5f2c7d8ae0f8e2c",
+            "revisionId": "r_5ef43760979043d48f358fe2932147dc",
+            "collection": "project"
+          }
+        },
+        {
+          "id": "planting",
+          "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+          "provenance": {
+            "assetId": "a_83fa946f4c18476991c1e130c07dd5f9",
+            "revisionId": "r_cdb8552ccdde43f28d3995b2a5a30d25",
+            "collection": "project"
+          },
+          "foliage": {
+            "nodes": [
+              "FernFronds_A",
+              "FernFronds_B",
+              "FernFronds_C"
+            ],
+            "translucency": 0.22,
+            "wind": {
+              "amplitude": 0.035,
+              "frequency": 0.6,
+              "direction": [
+                0.8,
+                0.6
+              ],
+              "weight": "uv-y"
+            }
+          }
+        },
+        {
+          "id": "rug",
+          "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+          "provenance": {
+            "assetId": "a_695ec90542974d739fb93ae8c9876e26",
+            "revisionId": "r_651bc2867976426996191865ea931163",
+            "collection": "project"
+          }
+        },
+        {
+          "id": "lamp",
+          "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+          "provenance": {
+            "assetId": "a_0e6e95f9c49d445fa83af41f12cabde1",
+            "revisionId": "r_3b14d66959f942c887c5550f60d6d8ce",
+            "collection": "project"
+          }
+        }
+      ],
+      "objects": [
+        {
+          "id": "cove-canopy",
+          "asset": "canopy",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "layer": "origin",
+          "materialStyle": "cove",
+          "collider": {
+            "type": "compound",
+            "boxes": [
+              {
+                "size": [
+                  0.2,
+                  3.25,
+                  0.2
+                ],
+                "offset": [
+                  -3.25,
+                  1.625,
+                  -1.7
+                ]
+              },
+              {
+                "size": [
+                  0.2,
+                  3.25,
+                  0.2
+                ],
+                "offset": [
+                  2.55,
+                  1.625,
+                  -1.7
+                ]
+              },
+              {
+                "size": [
+                  0.2,
+                  3.25,
+                  0.2
+                ],
+                "offset": [
+                  -3.25,
+                  1.625,
+                  2.55
+                ]
+              },
+              {
+                "size": [
+                  0.2,
+                  3.25,
+                  0.2
+                ],
+                "offset": [
+                  2.55,
+                  1.625,
+                  2.55
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "cove-seating",
+          "asset": "seating",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "layer": "origin",
+          "materialStyle": "cove",
+          "collider": null
+        },
+        {
+          "id": "cove-hearth",
+          "asset": "hearth",
+          "position": [
+            -1.12,
+            0,
+            0.08
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "layer": "origin",
+          "materialStyle": "cove",
+          "collider": {
+            "type": "box",
+            "size": [
+              2.38,
+              0.85,
+              2.38
+            ],
+            "offset": [
+              0,
+              0.425,
+              0
+            ]
+          },
+          "light": {
+            "color": "#ffba79",
+            "intensity": 1.3,
+            "distance": 3.5,
+            "offset": [
+              0,
+              1.45,
+              0
+            ]
+          }
+        },
+        {
+          "id": "cove-planting",
+          "asset": "planting",
+          "position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "layer": "origin",
+          "collider": null
+        },
+        {
+          "id": "cove-rug",
+          "asset": "rug",
+          "position": [
+            0.45,
+            0,
+            0.7
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "layer": "origin",
+          "materialStyle": "cove",
+          "collider": null
+        },
+        {
+          "id": "cove-lamp-left",
+          "asset": "lamp",
+          "position": [
+            -2.35,
+            0,
+            -1
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "layer": "origin",
+          "materialStyle": "cove",
+          "collider": {
+            "type": "box",
+            "size": [
+              0.56,
+              0.66,
+              0.56
+            ],
+            "offset": [
+              0,
+              0.33,
+              0
+            ]
+          },
+          "light": {
+            "color": "#ffba79",
+            "intensity": 3,
+            "distance": 3.5,
+            "offset": [
+              0,
+              0.36,
+              0
+            ]
+          }
+        },
+        {
+          "id": "cove-lamp-right",
+          "asset": "lamp",
+          "position": [
+            2.5,
+            0,
+            0.7
+          ],
+          "rotation": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "layer": "origin",
+          "materialStyle": "cove",
+          "collider": {
+            "type": "box",
+            "size": [
+              0.56,
+              0.66,
+              0.56
+            ],
+            "offset": [
+              0,
+              0.33,
+              0
+            ]
+          },
+          "light": {
+            "color": "#ffba79",
+            "intensity": 3,
+            "distance": 3.5,
+            "offset": [
+              0,
+              0.36,
+              0
+            ]
+          }
+        }
+      ],
+      "runtime": {
+        "version": 1,
+        "modules": [
+          "collision.boxes@1",
+          "camera.walk-orbit@1"
+        ],
+        "spawn": [
+          1.25,
+          1.72,
+          2.35
+        ],
+        "look": [
+          0.46,
+          -0.14
+        ],
+        "overview": [
+          10,
+          12,
+          14
+        ],
+        "target": [
+          0,
+          0,
+          0
+        ],
+        "bounds": [
+          -29,
+          29,
+          -41,
+          20
+        ],
+        "blockers": [
+          {
+            "id": "cove-shell-0",
+            "position": [
+              3.619535,
+              0.725,
+              0.636077
+            ],
+            "rotation": [
+              0,
+              -1.744755,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-1",
+            "position": [
+              3.486266,
+              0.725,
+              1.162571
+            ],
+            "rotation": [
+              0,
+              -1.892671,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-2",
+            "position": [
+              3.27686,
+              0.725,
+              1.663674
+            ],
+            "rotation": [
+              0,
+              -2.040588,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-3",
+            "position": [
+              2.995889,
+              0.725,
+              2.128444
+            ],
+            "rotation": [
+              0,
+              -2.188505,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-4",
+            "position": [
+              2.649489,
+              0.725,
+              2.54673
+            ],
+            "rotation": [
+              0,
+              -2.336421,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-5",
+            "position": [
+              2.245226,
+              0.725,
+              2.909396
+            ],
+            "rotation": [
+              0,
+              -2.484338,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-6",
+            "position": [
+              1.791928,
+              0.725,
+              3.208523
+            ],
+            "rotation": [
+              0,
+              -2.632255,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-7",
+            "position": [
+              1.299495,
+              0.725,
+              3.437577
+            ],
+            "rotation": [
+              0,
+              -2.780171,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-8",
+            "position": [
+              0.778682,
+              0.725,
+              3.591557
+            ],
+            "rotation": [
+              0,
+              -2.928088,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-9",
+            "position": [
+              0.240863,
+              0.725,
+              3.667098
+            ],
+            "rotation": [
+              0,
+              -3.076005,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-10",
+            "position": [
+              -0.302216,
+              0.725,
+              3.662552
+            ],
+            "rotation": [
+              0,
+              -3.223921,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-11",
+            "position": [
+              -0.838695,
+              0.725,
+              3.578018
+            ],
+            "rotation": [
+              0,
+              -3.371838,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-12",
+            "position": [
+              -1.356858,
+              0.725,
+              3.415342
+            ],
+            "rotation": [
+              0,
+              -3.519755,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-13",
+            "position": [
+              -1.845387,
+              0.725,
+              3.178077
+            ],
+            "rotation": [
+              0,
+              -3.667671,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-14",
+            "position": [
+              -2.293614,
+              0.725,
+              2.871404
+            ],
+            "rotation": [
+              0,
+              -3.815588,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-15",
+            "position": [
+              -2.69175,
+              0.725,
+              2.502021
+            ],
+            "rotation": [
+              0,
+              -3.963505,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-16",
+            "position": [
+              -3.031099,
+              0.725,
+              2.077995
+            ],
+            "rotation": [
+              0,
+              -4.111421,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-17",
+            "position": [
+              -3.304251,
+              0.725,
+              1.608587
+            ],
+            "rotation": [
+              0,
+              -4.259338,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-18",
+            "position": [
+              -3.505239,
+              0.725,
+              1.104048
+            ],
+            "rotation": [
+              0,
+              -4.407255,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-19",
+            "position": [
+              -3.629675,
+              0.725,
+              0.575398
+            ],
+            "rotation": [
+              0,
+              -4.555171,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-20",
+            "position": [
+              -3.674841,
+              0.725,
+              0.034181
+            ],
+            "rotation": [
+              0,
+              -4.703088,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-21",
+            "position": [
+              -3.63975,
+              0.725,
+              -0.507783
+            ],
+            "rotation": [
+              0,
+              -4.851005,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-22",
+            "position": [
+              -3.525169,
+              0.725,
+              -1.038657
+            ],
+            "rotation": [
+              0,
+              -4.998921,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          },
+          {
+            "id": "cove-shell-23",
+            "position": [
+              -3.3336,
+              0.725,
+              -1.546847
+            ],
+            "rotation": [
+              0,
+              -5.146838,
+              0
+            ],
+            "size": [
+              0.66,
+              1.45,
+              1.2
+            ],
+            "layer": "origin"
+          }
+        ]
+      }
+    },
+    "references": []
+  },
+  "assets": {
+    "structure": {
+      "hash": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "url": "./assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb"
+    },
+    "canopy": {
+      "hash": "0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0",
+      "url": "./assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb"
+    },
+    "seating": {
+      "hash": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
+      "url": "./assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb"
+    },
+    "hearth": {
+      "hash": "07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba",
+      "url": "./assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb"
+    },
+    "planting": {
+      "hash": "cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8",
+      "url": "./assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb"
+    },
+    "rug": {
+      "hash": "4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857",
+      "url": "./assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb"
+    },
+    "lamp": {
+      "hash": "c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808",
+      "url": "./assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb"
+    }
+  }
+}
