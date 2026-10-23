@@ -10,6 +10,8 @@ const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42
 // The same PNG with a 1200×630 header: the site checks card sizes, not pixels.
 const CARD=Buffer.from(PNG);CARD.writeUInt32BE(1200,16);CARD.writeUInt32BE(630,20);
 const HEAD='a'.repeat(40);
+// Tests set the environment themselves; a CI runner's own CI variable must not leak in.
+const go=options=>deploy({env:{},...options});
 const SHOTS=Array.from({length:4},(_,i)=>({src:'images/cove.png',alt:`Cove shot ${i+1}`}));
 const scenes=title=>JSON.stringify([{id:'cove',example:'construct',title,summary:'A small cove.',shots:SHOTS,path:'worlds/cove/'}]);
 
@@ -43,7 +45,7 @@ async function fixture(t){
 
 test('a dry run checks the built site, records its digest for CI, and never prepares Wrangler',async t=>{
  const {root,built,state,run}=await fixture(t),lines=[],output=path.join(root,'github-output');
- const result=await deploy({root,siteDir:built,projectName:'holodeck-site',dryRun:true,githubOutput:output,run,log:line=>lines.push(line)});
+ const result=await go({root,siteDir:built,projectName:'holodeck-site',dryRun:true,githubOutput:output,run,log:line=>lines.push(line)});
  assert.equal(result.deployed,false);assert.equal(result.preflight.head,HEAD);assert.equal(result.preflight.files,9);
  assert.match(lines[0],/holodeck-site\/main/);assert.match(lines[1],/Dry run/);
  assert.equal(state.calls.some(c=>c.includes('--version')||c.includes('pages')),false);
@@ -53,48 +55,48 @@ test('a dry run checks the built site, records its digest for CI, and never prep
 test('without a site folder, a deploy builds one into a temporary folder and removes it',async t=>{
  const {root,built,run}=await fixture(t);let out;
  const build=async options=>{out=options.out;await cp(built,out,{recursive:true});};
- const result=await deploy({root,projectName:'holodeck-site',dryRun:true,build,run,log:()=>{}});
+ const result=await go({root,projectName:'holodeck-site',dryRun:true,build,run,log:()=>{}});
  assert.equal(result.preflight.site,out);await assert.rejects(readdir(out),{code:'ENOENT'});
 });
 
 test('a deploy pins Wrangler, rechecks the site and uploads only the built folder at HEAD',async t=>{
  const {root,built,state,run}=await fixture(t);
- await deploy({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}});
+ await go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}});
  assert.deepEqual(state.calls.find(c=>c.includes('list')),['wrangler','pages','deployment','list','--project-name','holodeck-site','--environment','production','--json'],'the production branch is read, never changed');
  const upload=state.calls.find(c=>c.includes('deploy'));
  assert.deepEqual(upload,['wrangler','pages','deploy',built,'--project-name','holodeck-site','--branch','main','--commit-hash',HEAD,'--commit-dirty=false']);
  assert.equal(state.calls.filter(c=>c[0]==='git'&&c[3]==='status').length,2,'preflight runs again after Wrangler is ready');
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CI:'true'},run,log:()=>{}}),/CLOUDFLARE_API_TOKEN is not set/);
- await deploy({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CI:'true',CLOUDFLARE_API_TOKEN:'test-value'},run,log:()=>{}});
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CI:'true'},run,log:()=>{}}),/CLOUDFLARE_API_TOKEN is not set/);
+ await go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CI:'true',CLOUDFLARE_API_TOKEN:'test-value'},run,log:()=>{}});
  state.version='4.146.0';
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/requires Wrangler 4\.147\.0/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/requires Wrangler 4\.147\.0/);
 });
 
 test('the locked deploy package supplies Wrangler when it is installed',async t=>{
  const {root,built,state,run}=await fixture(t),bin=path.join(root,'deploy/node_modules/wrangler/bin/wrangler.js');
  await mkdir(path.dirname(bin),{recursive:true});await writeFile(bin,'');
- await deploy({root,siteDir:built,projectName:'holodeck-site',run,log:()=>{}});
+ await go({root,siteDir:built,projectName:'holodeck-site',run,log:()=>{}});
  assert.deepEqual(state.calls.find(c=>c.includes('--version')),[process.execPath,bin,'--version']);
  assert.deepEqual(state.calls.find(c=>c.includes('deploy')).slice(0,3),[process.execPath,bin,'pages']);
 });
 
 test('a deploy job uploads only the folder its build job hashed',async t=>{
- const {root,built,state,run}=await fixture(t),{preflight:{sha256}}=await deploy({root,siteDir:built,projectName:'holodeck-site',dryRun:true,run,log:()=>{}});
- await deploy({root,siteDir:built,projectName:'holodeck-site',expectSha256:sha256,wrangler:'wrangler',run,log:()=>{}});
+ const {root,built,state,run}=await fixture(t),{preflight:{sha256}}=await go({root,siteDir:built,projectName:'holodeck-site',dryRun:true,run,log:()=>{}});
+ await go({root,siteDir:built,projectName:'holodeck-site',expectSha256:sha256,wrangler:'wrangler',run,log:()=>{}});
  await writeFile(path.join(built,'images/cove.png'),Buffer.concat([PNG,Buffer.from('x')]));
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',expectSha256:sha256,wrangler:'wrangler',run,log:()=>{}}),/differs from site\/images\/cove\.png/);
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',expectSha256:'b'.repeat(64),dryRun:true,run,log:()=>{}}),/differs from site/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',expectSha256:sha256,wrangler:'wrangler',run,log:()=>{}}),/differs from site\/images\/cove\.png/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',expectSha256:'b'.repeat(64),dryRun:true,run,log:()=>{}}),/differs from site/);
  assert.equal(state.calls.filter(c=>c.includes('pages')&&c.includes('deploy')).length,1);
 });
 
 test('a preview never uses the production branch, and a production upload never makes a preview',async t=>{
  const {root,built,state,run}=await fixture(t);
- await deploy({root,siteDir:built,projectName:'holodeck-site',preview:true,branch:'pr-12',wrangler:'wrangler',run,log:()=>{}});
+ await go({root,siteDir:built,projectName:'holodeck-site',preview:true,branch:'pr-12',wrangler:'wrangler',run,log:()=>{}});
  assert.deepEqual(state.calls.find(c=>c.includes('deploy')).slice(6,8),['--branch','pr-12']);
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',preview:true,branch:'main',wrangler:'wrangler',run,log:()=>{}}),/production branch; a preview must use another branch/);
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',branch:'production',wrangler:'wrangler',run,log:()=>{}}),/production branch is main, not production; this upload would only make a preview/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',preview:true,branch:'main',wrangler:'wrangler',run,log:()=>{}}),/production branch; a preview must use another branch/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',branch:'production',wrangler:'wrangler',run,log:()=>{}}),/production branch is main, not production; this upload would only make a preview/);
  state.production=[];
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/no production deployment/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/no production deployment/);
  assert.equal(state.calls.filter(c=>c.includes('deploy')&&!c.includes('deployment')).length,1,'only the preview was uploaded');
  assert.equal(productionBranch(JSON.stringify([{Environment:'Preview',Branch:'x'},{Environment:'Production',Branch:'main'},{Environment:'Production',Branch:'main'}])),'main');
  assert.throws(()=>productionBranch(JSON.stringify([{Environment:'Production',Branch:'main'},{Environment:'Production',Branch:'production'}])),/more than one branch/);
@@ -104,7 +106,7 @@ test('a preview never uses the production branch, and a production upload never 
 test('a site that changes while Wrangler is prepared is not uploaded',async t=>{
  const {root,built,state,run}=await fixture(t);
  state.onVersion=()=>writeFile(path.join(built,'worlds/cove/extra.txt'),'x');
- await assert.rejects(deploy({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/changed while preparing/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/changed while preparing/);
  assert.equal(state.calls.some(c=>c.includes('pages')&&c.includes('deploy')),false);
 });
 
@@ -130,10 +132,10 @@ test('the preflight refuses dirty, uncommitted, stale, unfinished, foreign and W
 });
 
 test('the project name is required and options are strict',async()=>{
- await assert.rejects(deploy({dryRun:true}),/--project-name/);
- await assert.rejects(deploy({projectName:'Holodeck Site',dryRun:true}),/--project-name/);
- await assert.rejects(deploy({projectName:'holodeck',wrangler:'wrangler.cmd'}),/\.cmd/);
- await assert.rejects(deploy({projectName:'holodeck',expectSha256:'abc'}),/SHA-256/);
+ await assert.rejects(go({dryRun:true}),/--project-name/);
+ await assert.rejects(go({projectName:'Holodeck Site',dryRun:true}),/--project-name/);
+ await assert.rejects(go({projectName:'holodeck',wrangler:'wrangler.cmd'}),/\.cmd/);
+ await assert.rejects(go({projectName:'holodeck',expectSha256:'abc'}),/SHA-256/);
  assert.deepEqual(parseArgs(['--project-name','holodeck','--dry-run']),{projectName:'holodeck',dryRun:true});
  assert.deepEqual(parseArgs(['--project-name','holodeck','--preview','--branch','pr-3','--site-dir','out']),{projectName:'holodeck',preview:true,branch:'pr-3',siteDir:'out'});
  assert.throws(()=>parseArgs(['--project-name','holodeck','--preview']),/own --branch/);
