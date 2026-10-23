@@ -1,29 +1,54 @@
 [
   {
+    "id": "crescent-cove",
+    "title": "Crescent Cove",
+    "summary": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
+    "shots": [
+      {"src": "images/scenes/crescent-cove-aerial-southwest.webp", "alt": "Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral."},
+      {"src": "images/scenes/crescent-cove-cove.webp", "alt": "The cove on Crescent Cove: a canopied stone seat on a grassy rise among palms, with the lagoon beyond."},
+      {"src": "images/scenes/crescent-cove-lagoon-low.webp", "alt": "Low over the lagoon toward the palm-lined beach and the rocky headland."},
+      {"src": "images/scenes/crescent-cove-summit.webp", "alt": "From the headland summit over the lagoon's shallows and coral heads."}
+    ],
+    "path": "worlds/crescent-cove/"
+  },
+  {
     "id": "courtyard",
     "title": "The Quiet Courtyard",
     "summary": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
-    "preview": "images/scene-courtyard.webp",
-    "previewAlt": "The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate.",
+    "shots": [
+      {"src": "images/scenes/courtyard-overview.webp", "alt": "The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate."},
+      {"src": "images/scenes/courtyard-cove.webp", "alt": "The cove at the courtyard gate: a canopied stone seat in front of the walled garden."},
+      {"src": "images/scenes/courtyard-fountain.webp", "alt": "The tiered stone fountain among cypresses and lamp posts."},
+      {"src": "images/scenes/courtyard-far-end.webp", "alt": "The courtyard from its far end, over cypress rows toward the fountain."}
+    ],
     "path": "worlds/courtyard/",
     "gallery": "https://kilnstudio.tools/packs/holodeck/courtyard/"
-  },
-  {
-    "id": "cove",
-    "title": "The Cove",
-    "summary": "The workspace every new world starts from: a curved stone seat under a linen canopy, with a hearth, ferns and lamps.",
-    "preview": "images/scene-cove.webp",
-    "previewAlt": "The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns.",
-    "path": "worlds/cove/",
-    "gallery": "https://kilnstudio.tools/packs/holodeck/cove/"
   },
   {
     "id": "tidemark",
     "title": "Tidemark Island",
     "summary": "A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.",
-    "preview": "images/scene-tidemark.webp",
-    "previewAlt": "Tidemark Island from above: a palm-dotted beach curving into turquoise shallows.",
+    "shots": [
+      {"src": "images/scenes/tidemark-overview.webp", "alt": "Tidemark Island from above: a palm-dotted beach curving into turquoise shallows."},
+      {"src": "images/scenes/tidemark-cove.webp", "alt": "The cove on Tidemark: a canopied stone seat on open sand, with palms behind."},
+      {"src": "images/scenes/tidemark-shore-a.webp", "alt": "Along Tidemark's shore, palms above a curve of sand and clear water."},
+      {"src": "images/scenes/tidemark-sea.webp", "alt": "Tidemark Island from the sea, a low line of sand and palms."}
+    ],
     "path": "worlds/tidemark/",
     "gallery": "https://kilnstudio.tools/packs/holodeck/tidemark/"
+  },
+  {
+    "id": "cove",
+    "kicker": "The maker space",
+    "title": "The Cove",
+    "summary": "Every world starts from the cove and keeps it at its origin: a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent build.",
+    "shots": [
+      {"src": "images/scenes/cove-side.webp", "alt": "The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns."},
+      {"src": "images/scenes/cove-arrival.webp", "alt": "Inside the cove, the hearth stone on its round table under the canopy."},
+      {"src": "images/scenes/cove-seat.webp", "alt": "The cove's curved seat with green cushions and a red throw."},
+      {"src": "images/scenes/cove-high.webp", "alt": "The cove from above: the canopy over the round floor and its inlaid rings."}
+    ],
+    "path": "worlds/cove/",
+    "gallery": "https://kilnstudio.tools/packs/holodeck/cove/"
   }
 ]

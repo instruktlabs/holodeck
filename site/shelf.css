@@ -81,8 +81,12 @@ h1 em{color:#ffe9c7}
 /* scenes */
 .scenes-section{padding-top:clamp(88px,12vw,150px)}
 .scenes{display:grid;gap:18px}
-.scene{display:grid;grid-template-columns:1.3fr 1fr;border-radius:var(--r-surface);overflow:hidden;background:var(--olive);color:var(--on-olive);text-decoration:none}
-.scene img{width:100%;height:100%;object-fit:cover;min-height:340px}
+.scene{display:grid;grid-template-columns:1.7fr 1fr;border-radius:var(--r-surface);overflow:hidden;background:var(--olive);color:var(--on-olive);text-decoration:none}
+/* Feature + 3: one large shot over three small ones */
+.scene-shots{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;align-content:start}
+.scene-shots img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover}
+.scene-shots .feature{grid-column:1/-1}
+.scene .kicker{color:rgba(255,252,239,.7)}
 .scene-copy{padding:clamp(28px,4vw,48px);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
 .scene h3{font:400 clamp(36px,4vw,56px)/1 var(--serif);margin:0 0 14px}
 .scene p{color:rgba(255,252,239,.78);margin:0}
@@ -112,6 +116,5 @@ footer a{text-decoration:none}
   .button{flex:1 1 auto}
   .section-head,.step,.step:nth-of-type(even),.status,.scene,.build-grid{grid-template-columns:1fr}
   .step:nth-of-type(even) .copy{order:0}
-  .scene img{min-height:220px}
   .shot{border-radius:12px}
 }

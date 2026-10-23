@@ -37,21 +37,31 @@ export async function renderSite(site){
  if(!Array.isArray(scenes)||!scenes.length)fail('Scene catalog needs at least one scene');const ids=new Set();
  const cards=[],items=[];
  for(const [index,scene] of scenes.entries()){
-  if(Object.keys(scene).some(key=>!['id','title','summary','preview','previewAlt','path','gallery'].includes(key)))fail('Unexpected scene catalog field');
+  if(Object.keys(scene).some(key=>!['id','kicker','title','summary','shots','path','gallery'].includes(key)))fail('Unexpected scene catalog field');
   if(!/^[a-z][a-z0-9-]{0,63}$/.test(scene.id)||ids.has(scene.id))fail('Scene ids must be unique slugs');ids.add(scene.id);
-  for(const key of ['title','summary','previewAlt'])if(typeof scene[key]!=='string'||!scene[key].trim())fail(`Scene ${scene.id} needs a ${key}`);
+  for(const key of ['title','summary'])if(typeof scene[key]!=='string'||!scene[key].trim())fail(`Scene ${scene.id} needs a ${key}`);
+  if(scene.kicker!==undefined&&(typeof scene.kicker!=='string'||!scene.kicker.trim()))fail(`Scene ${scene.id} kicker must be text`);
+  // Feature + 3: the first shot is the large one, the other three sit beneath it.
+  if(!Array.isArray(scene.shots)||scene.shots.length!==4)fail(`Scene ${scene.id} needs four shots`);
+  for(const shot of scene.shots)if(Object.keys(shot).join()!=='src,alt'||typeof shot.src!=='string'||typeof shot.alt!=='string'||!shot.alt.trim())fail(`Scene ${scene.id} shots need a src and alt`);
   if(scene.path!==`worlds/${scene.id}/`)fail(`Scene ${scene.id} must live at worlds/${scene.id}/`);
   if(scene.gallery!==undefined&&!/^https:\/\/kilnstudio\.tools\//.test(scene.gallery))fail(`Scene ${scene.id} gallery must be a kilnstudio.tools page`);
   // Each export must already carry its own canonical page and social card.
   const url=new URL(scene.path,SITE_URL).href,page=(await file(site,`${scene.path}index.html`,'Scene export')).toString('utf8');
   if(!page.includes(`<link rel="canonical" href="${url}">`))fail(`Scene ${scene.id} export lacks its canonical link; export it with --url ${url}`);
   await file(site,`${scene.path}preview.jpg`,'Scene card');
-  const size=imageSize(await file(site,scene.preview,'Scene preview'));
+  const shots=[];
+  for(const [i,shot] of scene.shots.entries()){
+   const size=imageSize(await file(site,shot.src,'Scene shot'));
+   shots.push(`
+            <img${i?'':' class="feature"'} src="${escapeHtml(shot.src)}" width="${size.width}" height="${size.height}" alt="${escapeHtml(shot.alt)}" loading="lazy" decoding="async">`);
+  }
   cards.push(`
         <article class="scene">
-          <img src="${escapeHtml(scene.preview)}" width="${size.width}" height="${size.height}" alt="${escapeHtml(scene.previewAlt)}" loading="lazy" decoding="async">
+          <div class="scene-shots">${shots.join('')}
+          </div>
           <div class="scene-copy">
-            <div><h3><a href="${scene.path}">${escapeHtml(scene.title)}</a></h3><p>${escapeHtml(scene.summary)}</p></div>
+            <div>${scene.kicker?`<p class="kicker">${escapeHtml(scene.kicker)}</p>`:''}<h3><a href="${scene.path}">${escapeHtml(scene.title)}</a></h3><p>${escapeHtml(scene.summary)}</p></div>
             <p class="scene-links"><a class="enter" href="${scene.path}">Enter the scene ↗</a>${scene.gallery?`<a class="gallery" href="${escapeHtml(scene.gallery)}">Its assets in the Kiln gallery</a>`:''}</p>
           </div>
         </article>`);

@@ -18,12 +18,12 @@
   <meta property="og:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows.">
+  <meta property="og:image:alt" content="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Holodeck · Worlds you can walk into">
   <meta name="twitter:description" content="A local workspace where you and your coding agent build 3D worlds, then walk them in the browser. Play exported scenes here.">
   <meta name="twitter:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
-  <meta name="twitter:image:alt" content="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows.">
+  <meta name="twitter:image:alt" content="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral.">
   <link rel="preload" href="fonts/InstrumentSerif-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" href="images/hero.webp" imagesrcset="images/hero-960.webp 960w, images/hero.webp 1920w" imagesizes="100vw" fetchpriority="high">
   <link rel="stylesheet" href="shelf.css">
@@ -56,10 +56,10 @@
      "position": 1,
      "item": {
       "@type": "CreativeWork",
-      "name": "The Quiet Courtyard",
-      "description": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
-      "url": "https://holodeck.kilnstudio.tools/worlds/courtyard/",
-      "image": "https://holodeck.kilnstudio.tools/worlds/courtyard/preview.jpg",
+      "name": "Crescent Cove",
+      "description": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
+      "url": "https://holodeck.kilnstudio.tools/worlds/crescent-cove/",
+      "image": "https://holodeck.kilnstudio.tools/worlds/crescent-cove/preview.jpg",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/"
      }
     },
@@ -68,10 +68,10 @@
      "position": 2,
      "item": {
       "@type": "CreativeWork",
-      "name": "The Cove",
-      "description": "The workspace every new world starts from: a curved stone seat under a linen canopy, with a hearth, ferns and lamps.",
-      "url": "https://holodeck.kilnstudio.tools/worlds/cove/",
-      "image": "https://holodeck.kilnstudio.tools/worlds/cove/preview.jpg",
+      "name": "The Quiet Courtyard",
+      "description": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
+      "url": "https://holodeck.kilnstudio.tools/worlds/courtyard/",
+      "image": "https://holodeck.kilnstudio.tools/worlds/courtyard/preview.jpg",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/"
      }
     },
@@ -84,6 +84,18 @@
       "description": "A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.",
       "url": "https://holodeck.kilnstudio.tools/worlds/tidemark/",
       "image": "https://holodeck.kilnstudio.tools/worlds/tidemark/preview.jpg",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "The Cove",
+      "description": "Every world starts from the cove and keeps it at its origin: a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent build.",
+      "url": "https://holodeck.kilnstudio.tools/worlds/cove/",
+      "image": "https://holodeck.kilnstudio.tools/worlds/cove/preview.jpg",
       "license": "https://creativecommons.org/publicdomain/zero/1.0/"
      }
     }
@@ -100,8 +112,7 @@
 
   <main>
     <section class="hero">
-      <!-- Hero capture: replace images/hero.webp and hero-960.webp with a Crescent Cove capture when that world is ready. -->
-      <img class="hero-image" src="images/hero.webp" srcset="images/hero-960.webp 960w, images/hero.webp 1920w" sizes="100vw" width="1920" height="1200" fetchpriority="high" alt="An island from above: a sandy crescent of palms, a thatched shelter and turquoise shallows.">
+      <img class="hero-image" src="images/hero.webp" srcset="images/hero-960.webp 960w, images/hero.webp 1920w" sizes="100vw" width="1920" height="1080" fetchpriority="high" alt="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral.">
       <div class="hero-copy">
         <div>
           <p class="eyebrow">Early source prototype</p>
@@ -109,8 +120,8 @@
         </div>
         <div>
           <p class="lede">Holodeck is a local workspace where you and your coding agent build 3D worlds together, then explore them on foot, right in the browser.</p>
-          <p class="ctas"><a class="button primary" id="first-world" href="worlds/tidemark/">Enter Tidemark Island</a><a class="button glass" href="#build">Build your own</a></p>
-          <p class="capture">Tidemark Island, rendered live in the browser.</p>
+          <p class="ctas"><a class="button primary" id="first-world" href="worlds/crescent-cove/">Enter Crescent Cove</a><a class="button glass" href="#build">Build your own</a></p>
+          <p class="capture">Crescent Cove, rendered live in the browser.</p>
         </div>
       </div>
     </section>
@@ -181,24 +192,51 @@
       <div class="section-head"><div><p class="kicker">Scenes</p><h2>Step into one now.</h2></div><div><p>Exported worlds play directly in your browser. Nothing to install.</p></div></div>
       <div class="scenes"><!-- scenes:start -->
         <article class="scene">
-          <img src="images/scene-courtyard.webp" width="1200" height="900" alt="The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate." loading="lazy" decoding="async">
+          <div class="scene-shots">
+            <img class="feature" src="images/scenes/crescent-cove-aerial-southwest.webp" width="1280" height="720" alt="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral." loading="lazy" decoding="async">
+            <img src="images/scenes/crescent-cove-cove.webp" width="640" height="360" alt="The cove on Crescent Cove: a canopied stone seat on a grassy rise among palms, with the lagoon beyond." loading="lazy" decoding="async">
+            <img src="images/scenes/crescent-cove-lagoon-low.webp" width="640" height="360" alt="Low over the lagoon toward the palm-lined beach and the rocky headland." loading="lazy" decoding="async">
+            <img src="images/scenes/crescent-cove-summit.webp" width="640" height="360" alt="From the headland summit over the lagoon&#39;s shallows and coral heads." loading="lazy" decoding="async">
+          </div>
+          <div class="scene-copy">
+            <div><h3><a href="worlds/crescent-cove/">Crescent Cove</a></h3><p>A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.</p></div>
+            <p class="scene-links"><a class="enter" href="worlds/crescent-cove/">Enter the scene ↗</a></p>
+          </div>
+        </article>
+        <article class="scene">
+          <div class="scene-shots">
+            <img class="feature" src="images/scenes/courtyard-overview.webp" width="1280" height="720" alt="The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate." loading="lazy" decoding="async">
+            <img src="images/scenes/courtyard-cove.webp" width="640" height="360" alt="The cove at the courtyard gate: a canopied stone seat in front of the walled garden." loading="lazy" decoding="async">
+            <img src="images/scenes/courtyard-fountain.webp" width="640" height="360" alt="The tiered stone fountain among cypresses and lamp posts." loading="lazy" decoding="async">
+            <img src="images/scenes/courtyard-far-end.webp" width="640" height="360" alt="The courtyard from its far end, over cypress rows toward the fountain." loading="lazy" decoding="async">
+          </div>
           <div class="scene-copy">
             <div><h3><a href="worlds/courtyard/">The Quiet Courtyard</a></h3><p>A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove&#39;s shaded seats at its gate.</p></div>
             <p class="scene-links"><a class="enter" href="worlds/courtyard/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/courtyard/">Its assets in the Kiln gallery</a></p>
           </div>
         </article>
         <article class="scene">
-          <img src="images/scene-cove.webp" width="1200" height="900" alt="The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns." loading="lazy" decoding="async">
-          <div class="scene-copy">
-            <div><h3><a href="worlds/cove/">The Cove</a></h3><p>The workspace every new world starts from: a curved stone seat under a linen canopy, with a hearth, ferns and lamps.</p></div>
-            <p class="scene-links"><a class="enter" href="worlds/cove/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/cove/">Its assets in the Kiln gallery</a></p>
+          <div class="scene-shots">
+            <img class="feature" src="images/scenes/tidemark-overview.webp" width="1280" height="720" alt="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows." loading="lazy" decoding="async">
+            <img src="images/scenes/tidemark-cove.webp" width="640" height="360" alt="The cove on Tidemark: a canopied stone seat on open sand, with palms behind." loading="lazy" decoding="async">
+            <img src="images/scenes/tidemark-shore-a.webp" width="640" height="360" alt="Along Tidemark&#39;s shore, palms above a curve of sand and clear water." loading="lazy" decoding="async">
+            <img src="images/scenes/tidemark-sea.webp" width="640" height="360" alt="Tidemark Island from the sea, a low line of sand and palms." loading="lazy" decoding="async">
           </div>
-        </article>
-        <article class="scene">
-          <img src="images/scene-tidemark.webp" width="1200" height="900" alt="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows." loading="lazy" decoding="async">
           <div class="scene-copy">
             <div><h3><a href="worlds/tidemark/">Tidemark Island</a></h3><p>A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.</p></div>
             <p class="scene-links"><a class="enter" href="worlds/tidemark/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/tidemark/">Its assets in the Kiln gallery</a></p>
+          </div>
+        </article>
+        <article class="scene">
+          <div class="scene-shots">
+            <img class="feature" src="images/scenes/cove-side.webp" width="1280" height="720" alt="The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns." loading="lazy" decoding="async">
+            <img src="images/scenes/cove-arrival.webp" width="640" height="360" alt="Inside the cove, the hearth stone on its round table under the canopy." loading="lazy" decoding="async">
+            <img src="images/scenes/cove-seat.webp" width="640" height="360" alt="The cove&#39;s curved seat with green cushions and a red throw." loading="lazy" decoding="async">
+            <img src="images/scenes/cove-high.webp" width="640" height="360" alt="The cove from above: the canopy over the round floor and its inlaid rings." loading="lazy" decoding="async">
+          </div>
+          <div class="scene-copy">
+            <div><p class="kicker">The maker space</p><h3><a href="worlds/cove/">The Cove</a></h3><p>Every world starts from the cove and keeps it at its origin: a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent build.</p></div>
+            <p class="scene-links"><a class="enter" href="worlds/cove/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/cove/">Its assets in the Kiln gallery</a></p>
           </div>
         </article>
         <!-- scenes:end --></div>

@@ -36,6 +36,18 @@ test('the shelf page is self-contained, with sized lazy images and resolvable lo
  for(const [,font] of css.matchAll(/url\((fonts\/[^)]+)\)/g)){assert.match(font,/\.woff2$/);assert.ok(await exists(path.join(site,font)));}
 });
 
+test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
+ const html=await readFile(path.join(site,'index.html'),'utf8'),scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
+ const cards=[...html.matchAll(/<article class="scene">([\s\S]*?)<\/article>/g)].map(m=>m[1]);
+ assert.equal(cards.length,scenes.length);
+ for(const [i,scene] of scenes.entries()){
+  const images=cards[i].match(/<img\b[^>]*>/g);
+  assert.deepEqual(images.map(tag=>attr(tag,'src')),scene.shots.map(shot=>shot.src));
+  assert.deepEqual(images.map(tag=>attr(tag,'class')??''),['feature','','','']);
+ }
+ assert.equal(attr(html.match(/<a [^>]*id="first-world"[^>]*>/)[0],'href'),scenes[0].path,'the hero leads into the first scene');
+});
+
 test('the shelf head carries a canonical URL, a social card and structured data for each scene',async()=>{
  const html=await readFile(path.join(site,'index.html'),'utf8'),scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
  assert.match(html,new RegExp(`<link rel="canonical" href="${SITE_URL}">`));

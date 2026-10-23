@@ -8,12 +8,13 @@ import {deploy,preflight,parseArgs,productionBranch,WRANGLER_VERSION} from '../s
 
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a63sAAAAASUVORK5CYII=','base64');
 const HEAD='a'.repeat(40);
+const SHOTS=Array.from({length:4},(_,i)=>({src:'images/cove.png',alt:`Cove shot ${i+1}`}));
 
 // A one-scene site, rendered current, with git and Wrangler replaced by a recorder.
 async function fixture(t){
  const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-deploy-')),site=path.join(root,'site');t.after(()=>rm(root,{recursive:true,force:true}));
  await mkdir(path.join(site,'worlds/cove'),{recursive:true});await mkdir(path.join(site,'images'));
- await writeFile(path.join(site,'scenes.json'),JSON.stringify([{id:'cove',title:'The Cove',summary:'A small cove.',preview:'images/cove.png',previewAlt:'The cove',path:'worlds/cove/'}]));
+ await writeFile(path.join(site,'scenes.json'),JSON.stringify([{id:'cove',title:'The Cove',summary:'A small cove.',shots:SHOTS,path:'worlds/cove/'}]));
  await writeFile(path.join(site,'worlds/cove/index.html'),`<link rel="canonical" href="${SITE_URL}worlds/cove/">`);
  await writeFile(path.join(site,'worlds/cove/preview.jpg'),PNG);await writeFile(path.join(site,'images/cove.png'),PNG);
  await writeFile(path.join(site,'index.html'),'<!-- scenes:start --><!-- scenes:end --><!-- jsonld:start --><!-- jsonld:end -->');
@@ -73,7 +74,7 @@ test('the preflight refuses dirty, uncommitted, stale, unfinished and Worker inp
  state.status=' M site/index.html';await assert.rejects(preflight({root,run}),/uncommitted or untracked/);state.status='';
  await writeFile(path.join(site,'notes.txt'),'ignored local file');await assert.rejects(preflight({root,run}),/site\/notes\.txt is not committed/);await rm(path.join(site,'notes.txt'));
  state.tracked.push('site/gone.txt');await assert.rejects(preflight({root,run}),/committed but missing/);state.tracked.pop();
- await writeFile(path.join(site,'scenes.json'),JSON.stringify([{id:'cove',title:'Renamed',summary:'A small cove.',preview:'images/cove.png',previewAlt:'The cove',path:'worlds/cove/'}]));
+ await writeFile(path.join(site,'scenes.json'),JSON.stringify([{id:'cove',title:'Renamed',summary:'A small cove.',shots:SHOTS,path:'worlds/cove/'}]));
  await assert.rejects(preflight({root,run}),/stale/);
  const fresh=await fixture(t);
  await writeFile(path.join(fresh.site,'worlds/cove/EXPORT-INCOMPLETE.txt'),'x');fresh.state.tracked.push('site/worlds/cove/EXPORT-INCOMPLETE.txt');
