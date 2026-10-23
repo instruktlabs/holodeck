@@ -95,7 +95,7 @@ test('static export page metadata without a URL keeps only the title and descrip
 test('static export refuses unsafe page metadata before creating output',async t=>{
  const {root,parent}=await fixture(t),out=path.join(parent,'refused');
  const cases=[
-  [{title:'Garden',description:String.raw`Built in C:\Users\me\worlds`},/local path/],
+  [{title:'Garden',description:String.raw`Built in D:\worlds\garden`},/local path/],
   [{title:'Garden',description:'Built in /home/me/worlds'},/local path/],
   [{title:'Garden',description:'A garden.',url:'http://example.com/garden/'},/https URL/],
   [{title:'Garden',description:'A garden.',url:'https://example.com/garden'},/end with \//],
