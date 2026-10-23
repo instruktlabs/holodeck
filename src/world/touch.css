@@ -1,0 +1,13 @@
+/* Touch controls, shared by the authoring app and the static viewer. The layer
+   lets touches through to the scene; only its buttons take them. */
+.touch-layer{position:absolute;inset:0;z-index:14;pointer-events:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.touch-stick{position:absolute;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:2px solid rgba(255,254,243,.6);background:rgba(26,31,22,.24);pointer-events:none}
+.touch-stick span{position:absolute;left:30px;top:30px;width:48px;height:48px;border-radius:50%;background:rgba(255,254,243,.88);box-shadow:0 2px 10px rgba(26,31,22,.3)}
+.touch-stick.is-hint{left:max(84px,20vw);top:auto;bottom:calc(var(--touch-bottom) + 6px);margin:0 0 0 -56px;opacity:.4}
+.touch-actions{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:calc(var(--touch-bottom) + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:flex-end;gap:10px;max-width:min(240px,50vw)}
+.touch-actions>*{pointer-events:auto}
+.touch-pair{display:flex;gap:10px}
+.touch-layer .touch-button{display:inline-flex;align-items:center;justify-content:center;min-width:56px;min-height:48px;margin:0;padding:10px 18px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(26,31,22,.66);color:#fffef3;font:600 15px/1.2 Inter,system-ui,sans-serif;text-align:center;white-space:normal;box-shadow:0 4px 18px rgba(26,31,22,.25);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);touch-action:none;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.touch-layer .touch-button.round{width:64px;height:64px;padding:0}
+.touch-layer .touch-button:active,.touch-layer .touch-button.is-held,.touch-layer .touch-button[aria-pressed=true]{background:rgba(255,254,243,.94);color:#2f3329}
+.touch-layer .touch-button.quiet{min-height:40px;padding:8px 14px;font-size:13px;font-weight:500;background:rgba(26,31,22,.48)}

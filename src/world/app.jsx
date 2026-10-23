@@ -26,6 +26,8 @@ import {WorldEditor} from './world-editor.jsx';
 import {BibleEditor,AgentSettings,ObservePanel} from './panels.jsx';
 import {Ghosts,ghostPlacements} from './ghosts.jsx';
 import {agentPresence,readLastAgent,writeLastAgent} from './presence.mjs';
+import {createTouchInput} from './touch-input.mjs';
+import {TouchControls,useTouchMode} from './touch.jsx';
 
 class Boundary extends React.Component{
   state={error:null};static getDerivedStateFromError(error){return {error};}
@@ -56,6 +58,10 @@ function WorldSession({host}){
   const [hudHidden,setHudHidden]=useState(false),toggleHud=useCallback(()=>setHudHidden(v=>!v),[]);
   const [preview,setPreview]=useState(true),[hotNotice,setHotNotice]=useState(''),[pageHidden,setPageHidden]=useState(()=>typeof document!=='undefined'&&document.hidden),[now,setNow]=useState(()=>Date.now());
   const toggleFree=useCallback(()=>{setCameraMode(m=>m==='free'?'walk':'free');document.activeElement?.blur();},[]);
+  // Touch: a shared stick and pad for the controller, a View menu on phones, and
+  // "Add more" standing in for Shift when tapping references.
+  const touch=useMemo(createTouchInput,[]),touchMode=useTouchMode(),[viewMenu,setViewMenu]=useState(false),[addMore,setAddMore]=useState(false),addMoreRef=useRef(false);addMoreRef.current=addMore;
+  useEffect(()=>{if(!viewMenu)return;const outside=e=>{if(!e.target.closest?.('.hd-view'))setViewMenu(false);};window.addEventListener('pointerdown',outside,true);return()=>window.removeEventListener('pointerdown',outside,true);},[viewMenu]);
   const world=loaded.bundle?.payload.world,accepted=host.payload?.world,worldId=host.payload?.context?.worldId;worldRef.current=world;inhabitRef.current=inhabiting;
   const runtime=useMemo(()=>{if(world?.schemaVersion!==2)return null;if(runtimeRef.current)runtimeRef.current.reconcile(world.scene);else runtimeRef.current=new WorldRuntime(world.scene);return runtimeRef.current;},[world]);
   if(runtime){runtime.originVisible=cove;runtime.paused=paused;}
@@ -70,7 +76,7 @@ function WorldSession({host}){
     document.exitPointerLock?.();requestAnimationFrame(()=>input.current?.focus());
   },[]);
   const select=useCallback((id,{additive=false}={})=>{
-    if(inhabitRef.current)return;
+    if(inhabitRef.current)return;additive||=addMoreRef.current;
     if(id==='moodboard'){setPanel('references');setTall(true);return;}
     if(!selectableItem(worldRef.current?.scene,id))return;
     setSelected(id);setSelectedRefs(old=>additive&&old.length>=16&&!old.some(r=>r.id===id)?old:toggleSelectedRef(old,{id,part:null},{additive}));setSelectionOpen(true);
@@ -94,6 +100,7 @@ function WorldSession({host}){
   useEffect(()=>{setRuntimeObservation(null);const timer=setInterval(()=>{if(!world||!canObserveWorld(probe,contextKey,world.revision))return;const recent=probe.frames.slice(-120).sort((a,b)=>a-b);setRuntimeObservation({backend:probe.backend,position:probe.position,activity:probe.runtime,actor:probe.actor,drawCalls:probe.drawCalls,triangles:probe.triangles,frameP95Ms:recent[Math.min(recent.length-1,Math.floor(recent.length*.95))]??null});},500);return()=>clearInterval(timer);},[contextKey,world?.revision]);
   useEffect(()=>{if(!runtimeNotice)return;const timer=setTimeout(()=>setRuntimeNotice(''),3500);return()=>clearTimeout(timer);},[runtimeNotice]);
   useEffect(()=>{if(world){setSelectedRefs(old=>pruneSelectedRefs(world.scene,old));if(selected&&!selectableItem(world.scene,selected))setSelected(null);}},[world,selected]);
+  useEffect(()=>{if(!selectedRefs.length)setAddMore(false);},[selectedRefs.length]);
   // A new revision loads where you stand; say what arrived instead of moving you.
   const lastWorld=useRef(null);
   useEffect(()=>{
@@ -136,7 +143,7 @@ function WorldSession({host}){
   const writeDisabled=!host.online||!!host.pendingSession;
   const run=async task=>{if(host.pendingSession){host.setError('Another tab changed worlds. Your local drafts remain here; copy or discard them before reconnecting.');return;}if(!host.online){host.setError('Reconnect to the local host before saving changes. Your drafts are preserved.');return;}setBusy(true);host.setError(null);try{return await task();}catch(e){host.setError(e.message);}finally{setBusy(false);}};
   function openPanel(name){const next=panel===name?null:name;setPanel(next);if(next)setTall(TALL.has(next));setSelectionOpen(false);if(next)setGlanceOpen(false);}
-  function enterWorld(){setPanel(null);setCameraMode('walk');setInhabiting(true);setHudHidden(false);setGlanceOpen(false);setSelectionOpen(false);document.activeElement?.blur();requestLook();}
+  function enterWorld(){setPanel(null);setCameraMode('walk');setInhabiting(true);setHudHidden(false);setGlanceOpen(false);setSelectionOpen(false);document.activeElement?.blur();if(!touchMode)requestLook();}
   const send=()=>{const message=text;if(inhabitRef.current)resumeWalk(true);return run(async()=>{await api('agent/turn',{text:message,model,effort:effort||null,selectedRefs});setText(current=>current===message?'':current);if(!inhabitRef.current&&panel!=='conversation')setGlanceOpen(true);});};
   useDraftUnloadGuard(drafts.dirty.length>0||!!text.trim());
   const hasDrafts=drafts.dirty.length>0||!!text.trim();
@@ -149,12 +156,15 @@ function WorldSession({host}){
   useEffect(()=>{if(!active){startedAt.current=null;return;}startedAt.current??=Date.now();const timer=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer);},[active]);
   const presence=agentPresence(agent,{remembered});
   const forcedGL=new URLSearchParams(location.search).get('backend')==='webgl';
-  const aimText=interaction?.action?(interaction.available?`E · ${interaction.label}`:`${aimObject?.label||aim} · move closer`):!inhabiting&&aimObject?`${aimObject.label||aim} · F to reference`:'';
+  const aimText=interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:`${aimObject?.label||aim} · move closer`):!inhabiting&&aimObject?`${aimObject.label||aim} · ${touchMode?'tap it to reference':'F to reference'}`:'';
   const resolveBlocker=blocker=>{if(blocker.location==='conversation')openPanel('conversation');else if(blocker.location==='message')focusInput();else{setDraftFocus({...blocker,serial:performance.now()});if(blocker.item)setSelected(blocker.item);setPanel(blocker.location);setTall(TALL.has(blocker.location));}};
   const canSend=!writeDisabled&&!!text.trim()&&!!model&&!active&&!busy;
   const placeholder=inhabiting?'Say something to your agent · Esc returns to walking':agent.connected?'Describe, ask, or change something…':'A thought for your world…';
-  const walkHint=cameraMode==='free'?'WASD fly · Q down / E up · Shift faster · G return · Enter to talk · H hide':runtime?.scene.runtime.possession?'WASD move · Space jump · Shift run · V view · G free camera · E interact · Enter to talk · H hide':'WASD move · E interact · G free camera · Enter to talk · H hide';
+  const walkHint=touchMode?(cameraMode==='free'?'Left thumb flies · drag to look · Up and Down rise and sink':'Left thumb moves, push to the edge to run · drag to look · Talk opens the composer'):cameraMode==='free'?'WASD fly · Q down / E up · Shift faster · G return · Enter to talk · H hide':runtime?.scene.runtime.possession?'WASD move · Space jump · Shift run · V view · G free camera · E interact · Enter to talk · H hide':'WASD move · E interact · G free camera · Enter to talk · H hide';
   const sheetOpen=!inhabiting&&panel&&accepted;
+  // On phones each camera cluster folds into one View button; on wider screens the toggle is hidden.
+  const closeViewMenu=e=>{if(e.target.closest('button'))setViewMenu(false);};
+  const viewGroup=(group,hud=false)=><div className={`hd-view ${viewMenu?'open':''}`}><button className={`b sm hd-view-toggle ${hud?'hud':''}`} aria-expanded={viewMenu} aria-controls="hd-view-menu" onClick={()=>setViewMenu(v=>!v)}>View<Icon name={viewMenu?'up':'down'} size={14}/></button>{group}</div>;
 
   const dock=<section className={`hd-dock ${inhabiting?'is-compact':''}`} aria-label="Agent dock">
     {!inhabiting&&glanceOpen&&!panel&&<Glance agent={agent} onOpen={()=>openPanel('conversation')} onClose={()=>setGlanceOpen(false)}/>}
@@ -162,37 +172,41 @@ function WorldSession({host}){
     {proposal&&accepted&&<ProposalLine proposal={proposal} accepted={accepted} preview={preview} setPreview={setPreview} ghosted={ghost.items.length} onReview={()=>{if(inhabiting)leaveWorld();setPanel('review');setTall(true);}} onApply={()=>run(()=>api('proposal/apply',{id:proposal.id}))} onDiscard={()=>run(()=>api('proposal/discard',{id:proposal.id}))} disabled={writeDisabled} busy={busy}/>}
     {proposal&&preview&&ghost.total>ghost.items.length&&<span className="hd-meta hd-dock-note">Previewing {ghost.items.length} of {ghost.total} proposed placements.</span>}
     {!inhabiting&&selectionOpen&&selectedRefs.length>0&&world&&<SelectionPanel world={world} refs={selectedRefs} setRefs={setSelectedRefs} focusInput={focusInput} onArrange={id=>{setSelected(id);setPanel('scene');setTall(true);setSelectionOpen(false);}} onClose={()=>setSelectionOpen(false)}/>}
-    {!inhabiting&&<ReferenceTray refs={selectedRefs} world={world} setRefs={setSelectedRefs} onOpen={()=>setSelectionOpen(v=>!v)}/>}
+    {!inhabiting&&<ReferenceTray refs={selectedRefs} world={world} setRefs={setSelectedRefs} onOpen={()=>setSelectionOpen(v=>!v)} addMore={touchMode?addMore:undefined} setAddMore={setAddMore}/>}
     {(!inhabiting||composing||text.trim())&&<Composer inputRef={input} text={text} setText={setText} onSend={send} placeholder={placeholder} voice={voice} agent={agent} active={active} canSend={canSend} writeDisabled={writeDisabled}
       onEscape={inhabiting?()=>resumeWalk(false):()=>input.current?.blur()} onFocus={()=>{if(inhabitRef.current){composingRef.current=true;setComposing(true);}document.exitPointerLock?.();}} onBlur={()=>{if(inhabitRef.current)endCompose();}}
       onConnect={()=>openPanel('agent')} onStop={()=>run(()=>api('agent/stop',{}))}/>}
     <Presence presence={presence} elapsed={active&&startedAt.current?clock(now-startedAt.current):null} notice={hotNotice||(inhabiting&&runtimeNotice)} onReconnect={()=>run(()=>api('agent/connect',{provider:remembered.provider}))} writeDisabled={writeDisabled}>
       {inhabiting?<span className="hd-meta hd-hide-narrow">{composing?'Enter sends · Esc returns to walking':walkHint}</span>
-        :<span className="hd-meta hd-hide-narrow">{voice.status||(cameraMode==='free'?'WASD fly · Q/E down, up · G return':'Click to select · Shift adds · Enter to talk')}</span>}
+        :<span className="hd-meta hd-hide-narrow">{voice.status||(touchMode?(cameraMode==='overview'?'Drag to orbit · pinch to zoom · tap to select':'Left thumb moves · drag to look · tap to select'):cameraMode==='free'?'WASD fly · Q/E down, up · G return':'Click to select · Shift adds · Enter to talk')}</span>}
     </Presence>
     {!inhabiting&&<Sections panel={panel} openPanel={openPanel} runtime={!!runtime}/>}
   </section>;
 
   return <main className={`live-world hd ${inhabiting?'is-inhabiting':''} ${inhabiting&&hudHidden?'hud-hidden':''} ${sheetOpen?'has-sheet':''}`}>
-    <div className="scene"><Boundary><Canvas shadows dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=1.12;r.info.autoReset=false;await r.init();enableParallelCompile(r);return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,interact,requestLook,toggleHud,toggleFree,person,setPerson}} leaveWorld={lockLost} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{preview&&ghost.items.length>0&&ghostBundle.bundle&&<Ghosts items={ghost.items} models={ghostBundle.bundle.models}/>}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects/></Suspense></Canvas></Boundary></div>
+    <div className="scene"><Boundary><Canvas shadows dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=1.12;r.info.autoReset=false;await r.init();enableParallelCompile(r);return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}} leaveWorld={lockLost} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{preview&&ghost.items.length>0&&ghostBundle.bundle&&<Ghosts items={ghost.items} models={ghostBundle.bundle.models}/>}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects/></Suspense></Canvas></Boundary></div>
     <div className={`reticle ${aimText?'has-target':''}`}/><div className="aim-label">{aimText}</div>
     {inhabiting?<header className="hd-top is-inhabiting">
       <button className="b hud" onClick={leaveWorld}><Icon name="close" size={15}/>Return to making <kbd>Esc</kbd></button>
-      <div className="hd-cluster hud" role="group" aria-label="Camera mode">
+      {viewGroup(<div id="hd-view-menu" className="hd-cluster hud" role="group" aria-label="Camera mode" onClick={closeViewMenu}>
         {runtime?.scene.runtime.possession&&['first','third'].map(view=><button key={view} className="b sm" aria-pressed={cameraMode==='walk'&&person===view} onClick={()=>{setCameraMode('walk');setPerson(view);document.activeElement?.blur();}}>{view==='first'?'First person':'Third person'}</button>)}
         <button className="b sm" aria-pressed={cameraMode==='free'} onClick={toggleFree}>{cameraMode==='free'?'Return to inhabitant':'Free camera'} <kbd>G</kbd></button>
-      </div>
+      </div>,true)}
     </header>:<header className="hd-top">
       <WorldPicker world={accepted} context={host.payload?.context} library={host.payload?.library} active={active} pendingProposal={!!proposal} busy={busy} loading={loaded.loading} online={host.online} drafts={drafts.dirty} message={text} onOpen={()=>setSelectionOpen(false)} onBusyChange={setBusy} request={api} onChanged={host.adoptSession} onResolve={resolveBlocker}/>
-      <div className="hd-cluster" role="group" aria-label="View">
+      {viewGroup(<div id="hd-view-menu" className="hd-cluster" role="group" aria-label="View" onClick={closeViewMenu}>
         <button className="b sm" aria-pressed={cameraMode==='overview'} onClick={()=>setCameraMode(m=>m==='overview'?'walk':'overview')}>{cameraMode==='overview'?'Ground view':'Overlook'}</button>
         {runtime&&<button className="b sm" aria-pressed={cameraMode==='free'} onClick={toggleFree}>Free camera <kbd>G</kbd></button>}
         <button className="b sm" onClick={()=>{setCameraMode('walk');setCove(true);setHomeTick(n=>n+1);}}>Arrival</button>
         <button className="b sm" aria-pressed={!cove} onClick={()=>setCove(v=>!v)}>{cove?'Hide cove':'Show cove'}</button>
-      </div>
+      </div>)}
       {runtime&&<button className="b pri hd-enter" onClick={enterWorld}>Enter world <Icon name="enter" size={15}/></button>}
     </header>}
-    {inhabiting&&!locked&&!composing&&<p className="hd-lock-hint">{pointerHint||'Click the world to lock your mouse · arrow keys or right-drag to look'}</p>}
+    {inhabiting&&!locked&&!composing&&(touchMode?<p className="hd-lock-hint is-touch">Left thumb moves · drag to look</p>:<p className="hd-lock-hint">{pointerHint||'Click the world to lock your mouse · arrow keys or right-drag to look'}</p>)}
+    <TouchControls touch={touch} active={touchMode&&!!runtime&&!sheetOpen} mode={cameraMode} possessed={!!runtime?.scene.runtime.possession} interaction={interaction} onInteract={()=>interact(aim)} bottom={inhabiting?(hudHidden?24:composing?150:96):240}>
+      {inhabiting&&!composing&&<button type="button" className="touch-button quiet" onClick={focusInput}>Talk</button>}
+      {inhabiting&&<button type="button" className="touch-button quiet" aria-pressed={hudHidden} onClick={toggleHud}>{hudHidden?'Show controls':'Clear view'}</button>}
+    </TouchControls>
     {host.pendingSession&&<section className="hd-card hd-session-notice" role="alert"><strong>Another tab changed worlds.</strong><p>Your unsaved drafts are preserved here. Copy anything you want to keep; this session can no longer save changes.</p><button className="b" onClick={()=>host.reconnect({discardDrafts:true})}>Discard local drafts &amp; open {host.pendingSession.world.bible.title}</button></section>}
     <div className="hd-stack">
       {sheetOpen&&<section className={`hd-sheet ${tall?'is-tall':''} ${panel==='references'?'is-board':''}`} aria-label={SHEETS[panel]}>

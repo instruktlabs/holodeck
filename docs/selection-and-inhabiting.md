@@ -44,3 +44,35 @@ a special surface, not an ordinary placed-entity conversation reference. The
 built-in maker preset supplies first/third-person possession. General hierarchy
 selection and arbitrary skinned-character import are separate proposals; see the
 inhabitant preset study.
+
+## Touch
+
+Touch drives the same controller and runtime as the keyboard and mouse, and never
+asks for mouse capture. `src/world/touch-input.mjs` turns fingers into the
+keyboard's axes:
+
+- **Left thumb.** A finger landing on the left of the scene in walk or free mode
+  becomes a floating stick. Its deflection walks or flies at proportional speed,
+  and the rim runs. A faint ring shows where it goes.
+- **Look.** Any other finger drags to look, alongside the stick.
+- **Overlook.** One finger orbits, and two fingers pinch to zoom.
+- **Tap.** A short, still tap operates what the reticle aims at while walking. In
+  authoring, a tap selects, as a click does.
+
+Buttons for keyboard-only actions appear only when they apply:
+
+| Button | Replaces |
+| --- | --- |
+| Interact | E, when the reticle finds something |
+| Jump | Space, while walking as the inhabitant |
+| Up and Down | E and Q, in the free camera |
+| Talk | Enter, which opens the message box while inhabiting |
+| Clear view | H; tap Show controls to bring the HUD back |
+| Add more | Shift: while it is on, each tap adds a reference instead of replacing them |
+
+On screens narrower than 700 px, each camera cluster folds into one View button
+with 44 px choices. On touchscreens, buttons and tabs grow, and fields use 16 px
+text so phones do not zoom on focus.
+
+Touch mode follows the last pointer: a touch switches the hints and buttons to
+touch, and moving a mouse switches them back.

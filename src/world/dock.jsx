@@ -96,10 +96,12 @@ export function Composer({inputRef,text,setText,onSend,onEscape,onFocus,onBlur,v
   </form>;
 }
 
-export function ReferenceTray({refs,world,setRefs,onOpen}){
+// On touch there is no Shift; "Add more" keeps each tap adding to the references.
+export function ReferenceTray({refs,world,setRefs,onOpen,addMore,setAddMore}){
   if(!refs.length)return null;
   return <div className="hd-refs"><button className="b sm q" onClick={onOpen}>{refs.length} {refs.length===1?'reference':'references'}</button>
     <span className="hd-chips">{refs.map(ref=><span key={ref.id} className="hd-chip sm">{selectableItem(world?.scene,ref.id)?.label||ref.id}{ref.part?` / ${ref.part}`:''}<button aria-label={`Remove selected ${ref.id}`} onClick={()=>setRefs(old=>old.filter(r=>r.id!==ref.id))}><Icon name="close" size={12}/></button></span>)}</span>
+    {addMore!==undefined&&<button className="b sm" aria-pressed={addMore} onClick={()=>setAddMore(v=>!v)}>Add more</button>}
     <button className="b sm q" aria-label="Clear all references" onClick={()=>setRefs([])}>Clear</button>
   </div>;
 }

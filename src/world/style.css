@@ -46,6 +46,8 @@
 .hd pre{font:11.5px/1.5 var(--hd-mono);white-space:pre-wrap;word-break:break-word;max-height:270px;overflow:auto;margin:0}
 .hd figure{margin:0}
 .hd table{border-collapse:collapse}
+/* The scene takes every touch: the browser must not scroll or zoom the page under a thumb. */
+.hd .scene canvas{touch-action:none}
 .hd .glass{background:var(--hd-glass);border:1px solid rgba(255,255,255,.6);box-shadow:var(--hd-shadow);backdrop-filter:blur(18px)}
 
 /* Text helpers */
@@ -92,8 +94,13 @@
 .hd button.hud:hover{background:rgba(26,31,22,.78)}
 .hd .hd-cluster.hud button{color:var(--hd-hud-ink)}
 .hd .hd-cluster.hud button[aria-pressed=true]{background:rgba(255,254,243,.92);color:var(--hd-ink)}
+.hd-lock-hint.is-touch{animation:hd-fade-out 5s forwards}
+@keyframes hd-fade-out{0%,75%{opacity:1}100%{opacity:0}}
 .hd-lock-hint{position:absolute;left:50%;top:calc(50% + 44px);transform:translateX(-50%);margin:0;padding:4px 10px;border-radius:999px;background:var(--hd-hud);color:var(--hd-hud-ink)!important;font-size:12px!important;pointer-events:none;z-index:9;white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis}
 .hd .aim-label{background:var(--hd-hud);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--hd-hud-ink);text-shadow:none;max-width:70%;text-align:center;pointer-events:none}.hd .aim-label:empty{display:none}
+/* View: one camera cluster on wide screens, a menu behind one button on phones. */
+.hd-view{position:relative;display:flex;margin-left:auto}
+.hd .hd-view-toggle{display:none}
 .hd-session-notice{position:absolute;z-index:19;top:72px;right:var(--hd-gutter);width:min(360px,calc(100vw - 32px))}
 .hd-session-notice p{font-size:12px;margin:6px 0 10px}
 
@@ -329,7 +336,7 @@
 .hd-dock.is-compact .hd-presence-label{color:var(--hd-hud-ink)}
 .hd-dock.is-compact .hd-presence .hd-meta{color:#d8d6c4}
 .hd-dock.is-compact .hd-presence.is-needs{background:rgba(120,82,18,.85)}
-.hd.hud-hidden>:not(.scene){display:none}
+.hd.hud-hidden>:not(.scene):not(.touch-layer){display:none}
 .hd.hud-hidden .hd-stack:has(.hd-decision){display:flex}
 
 /* Narrow: the sheet takes the width; long hints drop out. */
@@ -343,7 +350,13 @@
   .hd .hd-cluster button{padding:4px 7px;font-size:11.5px}
   .hd .hd-cluster kbd{display:none}
   .hd .hd-enter{padding:6px 10px}
-  .hd .hd-cluster{order:3;margin-left:0}
+  .hd .hd-view-toggle{display:inline-flex;min-height:36px;padding:6px 12px;font-size:13px;border-radius:10px;box-shadow:var(--hd-shadow-soft);background:var(--hd-glass-strong)}
+  .hd .hd-view-toggle.hud{background:var(--hd-hud);color:var(--hd-hud-ink);border-color:rgba(255,255,255,.18)}
+  .hd-view>.hd-cluster{display:none}
+  .hd-view.open>.hd-cluster{display:flex;position:absolute;top:calc(100% + 6px);right:0;flex-direction:column;align-items:stretch;min-width:210px;padding:6px;gap:4px;margin:0;z-index:25}
+  .hd .hd-view.open .hd-cluster button{min-height:44px;padding:8px 14px;font-size:14px;justify-content:flex-start}
+  .hd-refs{flex-wrap:wrap}
+  .hd-refs .hd-chips{flex-basis:100%;order:3}
   .hd-top:not(.is-inhabiting){flex-wrap:wrap}
   .hd-top:not(.is-inhabiting) .hd-enter{margin-left:auto}
   .hd.has-sheet .hd-stack{top:112px}
@@ -363,5 +376,17 @@
   .hd-compose-tools{margin-left:auto}
   .hd-vectors{grid-template-columns:repeat(3,minmax(0,1fr))}
   .hd-vectors>.hd-meta{grid-column:1/-1}
+}
+/* Touchscreens: larger targets, and 16px fields so phones do not zoom on focus. */
+@media (pointer:coarse){
+  .hd button{min-height:40px}
+  .hd .sm{min-height:36px}
+  .hd .i{width:40px;min-width:40px}.hd .i.sm{width:36px;min-width:36px}
+  .hd .hd-tab{min-height:36px;padding:6px 12px}
+  .hd .hd-compose .i{width:40px;min-width:40px;min-height:40px}
+  .hd .hd-compose textarea,.hd input:not([type=checkbox]):not([type=radio]):not([type=file]),.hd select,.hd textarea{font-size:16px}
+  .hd .hd-vectors input{font-size:16px!important}
+  .hd button,.hd .hd-tab{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  .hd kbd{display:none}
 }
 @media (prefers-reduced-motion:reduce){.hd *{animation:none!important;transition:none!important}}

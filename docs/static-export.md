@@ -29,6 +29,15 @@ mouse capture. Right-drag is available without capture. The toolbar controls cov
 visibility, return to arrival and activity pause. Activity is local to the browser
 session and is never saved into the exported files.
 
+On a touchscreen the player uses the same controller without mouse capture. A
+thumb on the left of the scene becomes a floating stick that walks or flies, and
+runs at its rim. Any other finger drags to look. On the overlook one finger
+orbits and two fingers pinch to zoom. Buttons appear only when they apply:
+Interact when the reticle finds something (a tap does the same), Jump while
+walking as the inhabitant, Up and Down in the free camera, and Clear view to hide
+the HUD. On screens narrower than 700 px the toolbar folds into one View button.
+See [selection and inhabiting](selection-and-inhabiting.md#touch).
+
 Exports contain the scene, only the GLBs used by its origin, placements and
 scatter variants, and its pinned terrain layer PNGs (renamed by hash under
 `assets/imports/terrain/`). The
