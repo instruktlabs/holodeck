@@ -138,14 +138,14 @@ until it is refreshed.
 | K7 | Documented in the Kiln authoring and QA skills (`createPart` names meshes `Mesh_<name>`). The gap is Holodeck's foliage contract text, which does not mention it. |
 | K8 | In progress: host validation profile checked by QA (instruktlabs/kiln#208), not yet merged. |
 | K9 | Mostly documented: custom camera cells and `markOpenShell` exist; overlap on open shells is a stated measurement limit. |
-| K10 | Fixed on Kiln main: material merge advice in the QA report (instruktlabs/kiln#209, PR #227). |
+| K10 | Fixed on Kiln main: material merge advice in the QA report (instruktlabs/kiln#209, PR #227). The measured turn 10 result (6 to 3 parts per palm, 293 to 232 arrival draws) is a comment on #209. |
 | K11 | Fixed on Kiln main: V3 normal-from-height derivation (instruktlabs/kiln#205, PR #225). |
 | K12 | Fixed on Kiln main: authored vertex colours and attributes (instruktlabs/kiln#195, PR #226). |
 | K13 | Fixed on Kiln main: validation errors name the rule (instruktlabs/kiln#198, PR #214). |
-| K14 | Not filed yet; found in turn 9. |
-| K15 | Not filed yet; found in turn 9. |
-| K16 | Not filed yet; found in turn 10. |
-| K17 | Not filed yet; found in turn 10. |
+| K14 | Filed as two issues: a decimation or lower-detail variant helper (instruktlabs/kiln#243) and seeded random in the sandbox (instruktlabs/kiln#244). |
+| K15 | Filed: geometry deltas against the parent revision on save (instruktlabs/kiln#245). |
+| K16 | Not filed: the 64-step cap is already documented in the surface docs, Discovery and the error. One `stamps` step places up to 256 copies, which suits seagrass blades; a docs tip pointing at it is planned. |
+| K17 | Filed for the generic part: export a material's maps as tiling textures with a planar preview (instruktlabs/kiln#246). The terrain-layer schema, masks and underwater tint stay in Holodeck. |
 
 Also filed from Holodeck findings:
 - instruktlabs/kiln#212: configurable `KILN_PROGRESS.md` location (H26), fixed on Kiln main (PR #223).
@@ -661,6 +661,67 @@ until Kiln makes it configurable (instruktlabs/kiln#212).
     - **Overlook:** litter reads as brown ground under the grove, plus a
       distinct brown band along the headland trail. From above, the seagrass
       reads as scattered specks rather than meadows.
+
+11. Seagrass meadows: applied as revision 14.
+    - **Brief:** turn the five thin seagrass patches into dense, irregular
+      meadows within the same draw budget, and lose the dark row the arrival
+      view showed along the waterline.
+    - **Placement:** the agent moved the seagrass from cell (−1, 0) to cell
+      (0, 0). From the summit, the old cell's open lagoon is 120–160 m away at
+      about 10° down, where the water's sky reflection washes the seabed out.
+      - Cell (0, 0) has a pocket at the foot of the summit cliff that the summit
+        sees 22–32 m away at 37–47° down. The beach crest hides it from the
+        arrival.
+      - Three meadows: `cliff` in that pocket (104.6 m², 211 clumps), `nook`
+        in its west arm (23.9 m², 40) and `lagoon` in the open lagoon
+        (94.9 m², 128).
+      - Each meadow is several scatters on nested, lobed outlines: a ragged
+        edge, mid, inner, a dense core and an off-centre heart. Density rises
+        from about 0.3 to 5–6.6 clumps per m².
+      - All the meadows sit in one 96 m cell, so they are still one batch.
+    - **Clump:** a Kiln child revision of the seagrass asset with broader,
+      longer blades. It is 300 triangles (was 304), one part, one material, and
+      about 30% larger on average.
+    - **Camera:** the agent first took the user's "overlook" to mean the
+      summit viewpoint and checked which camera earlier turns meant. The
+      hub's Overlook is the runtime overview orbit, so the agent's replica
+      coverage numbers (cores hiding 50–72% of the sand from the summit,
+      against 18–26%) are predictions for a view the hub does not capture.
+    - **Budget:** 49 assets, 983 placements and 1,974,699 placed triangles
+      (1,990,776 with the heaviest palm mix), against a 2,000,000 limit.
+    - **Staging:** from `assets/source/turn11/scene-t11.json`. The staged
+      scene matched that file exactly. Against revision 13 it changed only
+      the seagrass asset record and the scatters. Objects, bible, sky, surf
+      and runtime modules were unchanged. All 379 clumps placed, and the
+      trail, summit and spawn checks passed.
+    - **Approvals:** 23, mostly reruns of `turn11.py` with a new step or an
+      edited script, plus a Kiln export and an image crop. The H40 script
+      grant was not live on this host yet, which still runs the older build.
+
+    Measured on the hub for revision 14 with the `release-2` build, at the
+    arrival view, 1280×720, in two runs (`20261023-101404`,
+    `20261023-101712`). Each run starts with an empty driver shader cache
+    (cold), then repeats with the cache it filled (warm):
+
+    | Backend | Draws | Triangles | Ready, cold | Ready, warm | Frame interval p95 |
+    | --- | ---: | ---: | ---: | ---: | ---: |
+    | WebGPU | 229 | 3,416,897 | 10.9 s, 10.7 s | 7.1 s, 6.9 s | 8.4 ms |
+    | WebGL2 | 229 | 3,416,897 | 6.4 s, 6.6 s | 5.9 s, 6.7 s | 8.4 ms |
+
+    - **Draws:** the agent predicted 232 at arrival and 238 at the overlook.
+      A per-draw log measured 231 and 238.
+    - **Cold WebGPU:** revision 13 rerun on the same build and harness
+      (`20261023-101913`) took 10.5 s cold and 7.2 s warm on WebGPU, and 6.6 s
+      both ways on WebGL2, so the meadows add no start-up time. An earlier
+      7.0 s cold WebGPU figure for revision 13 came from the harness's first
+      run, which a mid-run sync disturbed.
+    - **Arrival:** the dark row along the waterline is gone. The lagoon
+      meadow is a faint smudge far out.
+    - **Overlook:** the cliff and lagoon meadows read as clustered patches
+      instead of scattered specks, but still as speckled tufts rather than
+      solid green. A seabed terrain layer masked to the meadows would add
+      colour underneath at no draw cost; the agent left it out because
+      terrain was not in the brief.
 
 ## Measurement
 
