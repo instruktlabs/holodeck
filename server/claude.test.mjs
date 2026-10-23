@@ -5,7 +5,7 @@ import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
-import {ClaudeAgent,claudeCommand,claudeEnv,sessionGrant,INSTRUCTIONS} from './claude.mjs';
+import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,scriptGrant,scriptRun,sessionGrant,INSTRUCTIONS} from './claude.mjs';
 import {createHost} from './host.mjs';
 
 // A stand-in for the installed CLI. It records what it was given, answers
@@ -55,11 +55,12 @@ if(scenario==='permission'||scenario==='hold-permission'){
   client.close();say('msg-2','Decided');finish();
 }
 // Asks the permission tool for each [tool_name,input] in FAKE_CLAUDE_ASKS, in order.
+// $PLUGIN in the list stands for the session plugin folder passed with --plugin-dir.
 if(scenario==='asks'){
   const client=mcp(),tool=flag('--permission-prompt-tool').split('__')[2];
   await client.request('initialize',{protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'fake-claude',version:'0'}});
   const results=[];
-  for(const [tool_name,input] of JSON.parse(process.env.FAKE_CLAUDE_ASKS))results.push(JSON.parse((await client.request('tools/call',{name:tool,arguments:{tool_name,input}})).result.content[0].text).behavior);
+  for(const [tool_name,input] of JSON.parse(process.env.FAKE_CLAUDE_ASKS.replaceAll('$PLUGIN',JSON.stringify(flag('--plugin-dir')||'').slice(1,-1))))results.push(JSON.parse((await client.request('tools/call',{name:tool,arguments:{tool_name,input}})).result.content[0].text).behavior);
   record({kind:'asks',results});
   client.close();finish();
 }
@@ -181,7 +182,7 @@ test('later turns and a reconnected agent resume the saved Claude session',async
   await agent.startTurn({text:'Second',model:'default'});await settled(agent);
   const second=(await calls()).filter(c=>c.kind==='turn')[1].argv;
   assert.equal(second[second.indexOf('--resume')+1],id);assert.equal(second.includes('--session-id'),false);
-  agent.close();
+  await agent.persistQueue;agent.close();
   const reopened=make();t.after(()=>reopened.close());
   const state=await reopened.connect();
   assert.equal(state.sessionId,id);assert.equal(state.messages.at(-1).text,'Hello from Claude');
@@ -197,6 +198,7 @@ test('permission prompts reach the Holodeck approval card and return allow or de
     const card=await requested(agent);
     assert.equal(card.provider,'claude');assert.equal(card.kind,'permission');
     assert.equal(card.params.command,'node -e 0');assert.match(card.params.reason,/Bash/);
+    assert.equal(card.params.title,'Run a command?');assert.equal(card.params.tool,'Bash');assert.equal(card.params.outside,false);
     assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-session','reject-once']);
     assert.equal(card.params.options[1].label,'Allow this exact command for the session');
     assert.throws(()=>agent.answer({id:card.id,decision:'allow-always'}),/Invalid approval decision/);
@@ -257,6 +259,77 @@ test('an exact shell command may be allowed for the session; other arguments, to
   await writeFile(file,JSON.stringify(saved));
   const reopened=make();t.after(()=>reopened.close());
   assert.deepEqual((await reopened.connect()).sessionTools,[sessionGrant('Bash',{command:plan},root)]);
+});
+
+test('a turn script may be allowed for the session with any arguments until code in assets/source changes',async t=>{
+  const run=args=>`uv run assets/source/turn/turn.py ${args} 2>&1 | Select-Object -Last 10`;
+  const asks=[['PowerShell',{command:run('verify')}],['PowerShell',{command:run('scene samples')}]];
+  const {agent,root,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await mkdir(path.join(root,'assets/source/turn'),{recursive:true});
+  await writeFile(path.join(root,'assets/source/turn/turn.py'),'print("turn")\n');await writeFile(path.join(root,'assets/source/helper.py'),'X = 1\n');
+  await agent.connect();await agent.startTurn({text:'Run the turn script',model:'default'});
+  const card=await new Promise(resolve=>{const check=s=>{if(s.requests[0]){agent.off('agent',check);resolve(s.requests[0]);}};agent.on('agent',check);check(agent.snapshot());});
+  assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-script','allow-session','reject-once']);
+  assert.equal(card.params.options[1].label,'Allow turn.py with any arguments until code changes');
+  agent.answer({id:card.id,decision:'allow-script'});
+  let done=await settled(agent);
+  const last=async()=>(await calls()).filter(c=>c.kind==='asks').at(-1).results;
+  assert.deepEqual(await last(),['allow','allow'],'other arguments run without a card');
+  assert.equal(done.sessionTools.length,1);assert.match(done.sessionTools[0],/^script:/);
+  // Script outputs do not reset the grant; an edit to any code file under assets/source does.
+  await writeFile(path.join(root,'assets/source/turn/report.json'),'{}');await writeFile(path.join(root,'assets/source/turn/view.png'),'png');
+  assert.equal(await scriptGrant('PowerShell',{command:run('verify')},root),done.sessionTools[0]);
+  await writeFile(path.join(root,'assets/source/helper.py'),'X = 2\n');
+  await agent.startTurn({text:'Run it again',model:'default'});
+  const {results}=await answerCards(agent,async()=>[{kind:'asks',results:await last()}],['allow-once','reject-once']);
+  assert.deepEqual(results,['allow','deny'],'both runs ask again after a code edit');
+});
+
+test('only a plain run of one script inside assets/source qualifies for a script grant',()=>{
+  const root=path.resolve('world');
+  const script=command=>scriptRun('PowerShell',command,root)?.script??null;
+  assert.equal(script('uv run assets/source/turn11/turn11.py verify clump sites 2>&1 | Select-Object -Last 40'),'assets/source/turn11/turn11.py');
+  assert.equal(script('uv run assets\\source\\turn10b\\turn10b.py compare 2>&1 | Select-Object -Last 10'),'assets/source/turn10b/turn10b.py');
+  assert.equal(script('node assets/source/plan.mjs --seed 3 | tail -n 20'),'assets/source/plan.mjs');
+  assert.equal(script('uv run assets/source/turn12/turn12.py bedmask 2>&1 | Select-Object -First 60'),'assets/source/turn12/turn12.py');
+  assert.equal(script('node assets/source/plan.mjs | head -n 5'),'assets/source/plan.mjs');
+  assert.equal(script('python ./assets/source/a.py'),'assets/source/a.py');
+  for(const command of ['uv run assets/source/a.py; Remove-Item world -Recurse','uv run assets/source/a.py > world/world.json','uv run assets/source/a.py $(whoami)',
+   'uv run assets/source/a.py "quoted arg"','uv run assets/source/../../outside.py','uv run assets/imports/a.py','uv run --with requests assets/source/a.py',
+   'uv run assets/source/a.py | Out-File x.txt','uv run assets/source/a.py && echo done','pwsh assets/source/a.ps1'])assert.equal(script(command),null,command);
+  assert.equal(scriptRun('Read',{file_path:'assets/source/a.py'},root),null,'only shell tools');
+});
+
+test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{
+  const root=path.resolve(os.tmpdir(),'world'),out=path.resolve(os.tmpdir(),'projects');
+  const card=(tool,input)=>{const c=permissionCard(tool,input,root);return [c.title,c.command,c.outside];};
+  assert.deepEqual(card('PowerShell',{command:'uv run a.py'}),['Run a command?','uv run a.py',false]);
+  assert.deepEqual(card('Read',{file_path:path.join(root,'world/world.json')}),['Read a file?',path.join(root,'world/world.json'),false]);
+  assert.deepEqual(card('Read',{file_path:path.join(out,'notes.md')}),['Read a file?',path.join(out,'notes.md'),true]);
+  assert.deepEqual(card('Edit',{file_path:'assets/source/a.py'}),['Edit a file?','assets/source/a.py',false]);
+  assert.deepEqual(card('Write',{file_path:path.join(out,'a.py')}),['Write a file?',path.join(out,'a.py'),true]);
+  // Turn 8's case: a Glob of * across the projects folder showed only the folder.
+  assert.deepEqual(card('Glob',{pattern:'*',path:out}),['Search for files?',`pattern: *\nfolder: ${out}`,true]);
+  assert.deepEqual(card('Glob',{pattern:'assets/**/*.glb'}),['Search for files?',`pattern: assets/**/*.glb\nfolder: ${root}`,false]);
+  assert.equal(card('Glob',{pattern:'../**/*.md'})[2],true,'a pattern that climbs out is outside');
+  assert.deepEqual(card('Grep',{pattern:'surf',path:'assets/source',glob:'*.py'}),['Search file contents?',`pattern: surf\nfolder: assets/source\nfiles: *.py`,false]);
+  assert.equal(card('Grep',{pattern:'surf',path:out})[2],true);
+  assert.deepEqual(card('WebFetch',{url:'https://example.test/'}),['Fetch a web page?','https://example.test/',true]);
+  assert.deepEqual(card('mcp__kiln_workspace__kiln_render',{program:'a'}),['Use a Kiln tool?','',false]);
+});
+
+test('reads of the session plugin need no card; edits there and climbing patterns still ask',async t=>{
+  const asks=[['Read',{file_path:'$PLUGIN/skills/holodeck-verify-world/references/render-cost.md'}],['Glob',{pattern:'**/*.md',path:'$PLUGIN/skills'}],['Grep',{pattern:'draws',path:'$PLUGIN'}],
+    ['Glob',{pattern:'../../**/*',path:'$PLUGIN/skills'}],['Edit',{file_path:'$PLUGIN/skills/holodeck-verify-world/SKILL.md'}],['Read',{file_path:'$PLUGIN/../mcp.json'}]];
+  const {agent,root,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await mkdir(path.join(root,'.agents/skills/holodeck-verify-world'),{recursive:true});
+  await writeFile(path.join(root,'.agents/skills/holodeck-verify-world/SKILL.md'),'---\nname: holodeck-verify-world\ndescription: verify\n---\n');
+  await agent.connect();await agent.startTurn({text:'Check render cost',model:'default'});
+  const {results}=await answerCards(agent,calls,['reject-once','reject-once','reject-once']);
+  assert.deepEqual(results,['allow','allow','allow','deny','deny','deny']);
+  const plugin=agent.plugin.directory;
+  assert.equal(pluginRead('Read',{file_path:path.join(plugin,'skills/x/SKILL.md')},null),false,'no plugin, no exception');
+  assert.equal(pluginRead('Read',{file_path:'skills/x/SKILL.md'},plugin),false,'a relative path resolves against the world, not the plugin');
 });
 
 test('all Kiln workspace tools may be allowed for the session at once, and that survives reconnect',async t=>{
@@ -350,4 +423,29 @@ test('the host offers Claude Code and keeps image generation on Codex',async t=>
   assert.equal(claude.connected,true);assert.equal(host.agent,claude);
   const refused=await post('agent/image',{prompt:'A cove'});
   assert.equal(refused.status,400);assert.match((await refused.json()).error,/Codex connection/);
+});
+
+test('connecting says when the world\'s Kiln workspace was upgraded',async t=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-kiln-notice-'));
+  const claude=Object.assign(new EventEmitter(),{snapshot(){return {provider:'claude',status:'ready',requests:[]};},async connect(){return this.snapshot();},close(){}});
+  let upgrade={status:'current',changed:['skills/kiln-author-asset/SKILL.md','.kiln/workspace.json']};
+  const host=await createHost(root,{claudeFactory:()=>claude,ensureWorkspace:async()=>upgrade});
+  const server=createServer((req,res)=>host.middleware(req,res,()=>{res.statusCode=404;res.end();}));
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  t.after(async()=>{await host.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await rm(root,{recursive:true,force:true});});
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const session=await fetch(`${base}/api/session`),cookie=session.headers.get('set-cookie').split(';')[0];
+  const events=await fetch(`${base}/api/events`,{headers:{cookie}}),reader=events.body.getReader(),decoder=new TextDecoder();let stream='';
+  const post=(route,data)=>fetch(`${base}/api/${route}`,{method:'POST',headers:{cookie,'Content-Type':'application/json'},body:JSON.stringify(data)});
+  assert.equal((await post('agent/connect',{provider:'claude'})).status,200);
+  while(!stream.includes('event: notice')){const {value,done}=await reader.read();if(done)break;stream+=decoder.decode(value);}
+  assert.match(stream,/event: notice\ndata: "Kiln workspace upgraded for the installed Kiln · 2 Kiln-managed files refreshed"/);
+  // A current workspace connects quietly: after one more upgrade, the stream holds exactly one new notice.
+  upgrade=null;stream='';
+  assert.equal((await post('agent/connect',{provider:'claude'})).status,200);
+  upgrade={status:'current',changed:['.kiln/workspace.json']};
+  assert.equal((await post('agent/connect',{provider:'claude'})).status,200);
+  while(!stream.includes('event: notice')){const {value,done}=await reader.read();if(done)break;stream+=decoder.decode(value);}
+  await reader.cancel();
+  assert.deepEqual(stream.match(/data: "Kiln workspace[^"]*"/g),['data: "Kiln workspace upgraded for the installed Kiln · 1 Kiln-managed file refreshed"']);
 });

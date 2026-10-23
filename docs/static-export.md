@@ -8,8 +8,9 @@ holodeck export ./my-world --out ./older-site --revision 4
 ```
 
 Without `--revision`, export uses the last accepted receipt, including its pinned
-asset bytes. It does not use a staged `world/world.json`. Open the workspace with
-`holodeck dev` first if it has never acquired an accepted snapshot. Existing output
+asset bytes. It does not use a staged `world/world.json`. `holodeck init` writes
+the first accepted snapshot, so a new world exports straight away. A workspace
+made another way needs one `holodeck dev` session before its first export. Existing output
 directories are refused. A failed build leaves an `EXPORT-INCOMPLETE.txt` marker;
 retry into a fresh directory.
 

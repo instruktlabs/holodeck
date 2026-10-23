@@ -6,7 +6,7 @@ Start in a cozy cove inside the grid construct. Connect your local agent, collec
 
 Holodeck is an early, actively changing prototype. It is available from source; there is no npm release.
 
-![Tidemark Island in the workspace, with the dock at the bottom of the screen](site/images/workspace.webp)
+![Crescent Cove in the workspace, with the dock at the bottom of the screen](site/images/workspace.webp)
 
 ![The starter cove inside the grid construct, with its mood board easel](docs/images/starter-cove.webp)
 
@@ -43,7 +43,7 @@ See [getting started](docs/getting-started.md) for the full flow. The current ch
 
 **React and React Three Fiber** drive the interface and 3D scene. Three.js renders through WebGPU with a WebGL2 fallback. The bottom dock and the sheets that open above it use React HTML/CSS over the viewport; the physical in-world mood board uses a canvas texture. Procedural character posing uses pmndrs math. Voice input uses local Whisper transcription through Transformers.js; model files download on first use.
 
-A local Node host stores worlds and connects to the installed Codex app-server, the Cursor CLI through ACP, or the installed Claude Code CLI in print mode. Codex works in the selected world's folder with Holodeck skills and world tools. Cursor uses the same folder, its own sign-in, and Holodeck's permission, question and plan cards. Claude Code runs once per turn with its own subscription sign-in; Holodeck strips API-key variables from its environment, reaches world tools through a local MCP bridge, and shows its permission prompts as approval cards. Image generation stays on Codex. **Kiln 1.3.1** supplies asset authoring and export; Holodeck owns scene composition, interaction, terrain, water, cameras and runtime activity. Kiln's root SDK stays on the Node side.
+A local Node host stores worlds and connects to the installed Codex app-server, the Cursor CLI through ACP, or the installed Claude Code CLI in print mode. Codex works in the selected world's folder with Holodeck skills and world tools. Cursor uses the same folder, its own sign-in, and Holodeck's permission, question and plan cards. Claude Code runs once per turn with its own subscription sign-in; Holodeck strips API-key variables from its environment, reaches world tools through a local MCP bridge, and shows its permission prompts as approval cards. Image generation stays on Codex. **Kiln 1.4.0** supplies asset authoring and export; Holodeck owns scene composition, interaction, terrain, water, cameras and runtime activity. Kiln's root SDK stays on the Node side.
 
 Compatible static placements use instancing and spatial chunks. Runtime behavior comes from declared built-in capabilities. The current prototype has no general physics plugin system, distance LOD or XR interface. Local agent connections are Codex, Cursor and Claude Code.
 
@@ -67,7 +67,7 @@ npm run build
 npm run check:distribution
 ```
 
-The public scene shelf in `site/` is static. After changing `site/scenes.json` or an export under `site/worlds/`, run `npm run render:site`; `npm run test:world` fails while the rendered shelf is stale. See [distribution](docs/distribution.md).
+The public scene shelf in `site/` is static. After changing `site/scenes.json`, run `npm run render:site`; `npm run test:world` fails while the rendered shelf is stale. `npm run build:site -- --out <folder>` builds the deployable site, exporting each scene from its bundled example; CI builds and deploys it. See [distribution](docs/distribution.md).
 
 Live agent inference is manual and separate from ordinary tests. Use `node bin/holodeck.mjs dev <world>` to serve a selected world.
 

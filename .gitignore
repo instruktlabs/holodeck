@@ -8,3 +8,5 @@ evidence/
 private/
 research-private/
 *.tgz
+# Scene exports are built from examples/ by scripts/build-site.mjs, never committed.
+site/worlds/

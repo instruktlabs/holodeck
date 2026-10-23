@@ -67,6 +67,17 @@ performance.
 | H11 and H12: a long user message pushed request cards below the fold, and buttons moved after a card resolved. | Interface pass (direction B, merge `ade4b53`). Long messages fold; requests wait one at a time in the decision slot, with stable buttons and a 400 ms arm delay. The coordinate-frame mismatch in H12 belongs to browser automation, not the interface. | Hub captures of the decision slot at desktop and phone sizes. These are **mock UI**: the agent state was injected into that browser only and no agent ran. |
 | H27 and H33: frame interval p95 read about 1 s while the page was hidden, and load time could not be measured with the pane hidden. | Interface pass (direction B, merge `ade4b53`). Frames while the page is hidden, and the first interval after it returns, are not recorded, and the panel says timing is paused. The probe records `firstFrameMs` from when a world opens, and observations carry it with the page's visibility. Hidden-pane painting itself is browser behaviour. | Hub runs, merged build against `main`, revision 6 copy, 10 runs: draws, triangles and p95 identical on both backends (1280×720: 244 draws, 2,494,312 triangles; 390×844: 211 draws, 2,144,269 triangles; p95 8.4 ms, refresh-paced). Ready times within about 200 ms; first frame about 3.0–3.25 s after activation. |
 | H41: the dock's section tabs had a transparent background, dark text and a white glow, so over deep water at the overlook they could not be read. | `src/world/style.css`: the tab row sits on the same glass as the presence bar, and the glow is gone. | Found in the revision 10 hub capture (overlook, both backends); checked in the browser over the overlook's water. |
+| H37: Claude Code asked before every Read of the world's own skill references, which live in the session plugin folder outside the world. | `pluginRead` in `server/claude.mjs` answers a Read, Glob or Grep inside the session plugin folder without a card. The path must be absolute, and a Glob pattern or Grep `glob` may not be absolute or contain `..`. Edits there, and reads anywhere else outside the world, still ask. | `server/claude.test.mjs`: three plugin reads run without a card; a climbing pattern, an edit of a plugin skill and `plugin/../mcp.json` each raise one. Not yet seen live; the island's host copy is synced after turn 9. |
+| H38 and H39: every Claude Code card was titled **Run a command? · shell**, and a Glob card showed only its folder. Turn 8's Glob of `*` across the projects folder could not be judged from the card. | `permissionCard` in `server/claude.mjs` titles each card by tool: **Read a file?**, **Search for files?**, **Search file contents?**, **Edit a file?**, **Write a file?**, **Fetch a web page?**, **Use a Kiln tool?** and **Run a command?**. A search shows its pattern beside its folder, plus the Grep file filter. A path outside the world, or a pattern that climbs out, adds an **Outside this world** chip (`src/world/dock.jsx`). The card's source reads the tool name, for example **Claude Code · Glob**. | `server/claude.test.mjs`: titles, pattern lines and the outside flag for each tool, including turn 8's case. Not yet seen live. |
+| H42: `holodeck export` refused a world made with `init` until it had been opened in a browser. | `bin/holodeck.mjs` opens the new world once after `init`, which validates it and writes the accepted snapshot. `export` stays a projection of an accepted receipt and never opens a store. | `server/examples.test.mjs`: `init --example courtyard` then `export` through the CLI writes revision 0 and leaves no host lock. |
+| Turn 9: the surf capability said the swell breaks "where depth first falls below breakDepth", so the agent modelled both a single break and repeated breaks to explain the lagoon's whitewater. | `capabilities.spatial.surf` in `server/world-tools.mjs` states the engine's rule (`src/world/surf.mjs`). The swell is capped at depth/breakDepth and recovers about 1/200 per metre over deep water. It breaks again wherever the water gets shallower than any point it has crossed, so a lagoon beach shallower than the rim flat breaks a second time. | `src/world/surf.test.mjs`: no break over the 4 m lagoon, a second break on the beach face, and whitewater restarting there. |
+| H40: each rerun of a turn script with new arguments needed its own card. Turn 10B asked 12 times, almost all for `turn10b.py` with a different step. | `scriptGrant` in `server/claude.mjs` offers **Allow <script> with any arguments until code changes**. It applies only to a plain run of one script under `assets/source`: `uv run`, `python` or `node`, word-only arguments, and at most `2>&1` and an output tail. The grant is bound to a hash of every code file under `assets/source`, because turn scripts load each other, so any code edit asks again. Script outputs (JSON, images) do not reset it. | `server/claude.test.mjs`: a second run with other arguments passes without a card, outputs keep the grant, an edit to another code file asks again for both runs, and chained, redirected, quoted, substituted or outside paths never qualify. Not yet seen live; the island's host copy is refreshed after turn 11. |
+| WebGL2 cold starts took 12–23 s on the hub. three r186 links each new program in the frame that first draws it and blocks on `LINK_STATUS`, so with a cold driver shader cache programs link one after another. | `src/world/parallel-compile.js` sends draw-time pipelines through three's own async compile path when `KHR_parallel_shader_compile` is present. Objects draw once their program links, and `compileGate` holds `ready` until three frames in a row have nothing compiling. WebGPU is unchanged. | `src/world/parallel-compile.test.mjs` (fake backend). Hub, cold driver cache: Tidemark 12.8–13.9 s → 5.0–5.8 s, Courtyard 11.4–12.1 → 4.2–5.0 s, Cove 3.8–4.1 → 2.7–3.1 s, the island 22.1–22.5 → 7.9–8.4 s. Revision 13 on `release-2`: WebGL2 ready in 6.3 s (warm), refresh-paced. |
+| The site deploy script defaulted to branch `production`, but the `holodeck` Pages project's production branch is `main`, so an upload would only have made a preview. | `scripts/deploy-site.mjs` defaults to `main`. Before uploading, it reads the project's production deployments (`wrangler pages deployment list --environment production --json`, read-only) and refuses a branch that differs. `site/404.html` gives missing paths a real 404. | `server/deploy-site.test.mjs`: the listing is read before upload, a non-production branch and a project with no production deployment are refused, and nothing is uploaded. |
+| Example bundles refused any scene with terrain layers, so a layered island could not ship as an example. | `server/example-bundle.mjs` copies each pinned layer map and paint mask to `assets/imports/terrain/<sha256>.png` and lists it under `textures` in `example.json`. The terrain is repointed at those names. Install rechecks hashes, dimensions and the terrain size rules, and requires the listed files to be exactly the ones the terrain names. | `server/terrain-textures.test.mjs`: a layered world bundles, installs and reopens with the same texture hashes. A changed PNG, a dropped receipt and an unlisted file are each refused. |
+| H46: after the host moved to Kiln 1.4.0, the island's Kiln workspace was out of date and every Kiln command failed, with no sign on connect. | `ensureKilnWorkspace` in `server/kiln-workspace.mjs` runs Kiln's `kiln-init --check` when an agent connects to an existing workspace and, when it reports `update-required`, runs `--upgrade` before the agent starts. Kiln replaces only files it manages and authors have not edited, and refuses conflicts without changing anything; that reason stops the connection. The host announces an upgrade in the presence line ("Kiln workspace upgraded for the installed Kiln · N Kiln-managed files refreshed"). A check that cannot run leaves the workspace as it was. | `server/kiln-workspace.test.mjs` (stale, refused and current workspaces), `server/claude.test.mjs` (the notice event). Real Kiln 1.4.0 on a scratch workspace with an older runtime version: upgraded in 0.85 s; a current workspace adds 0.18 s per connect. Browser check of the notice. |
+| Turn 12: runs piped to `Select-Object -First N` (or `head -n N`) did not qualify for the H40 script grant, so four reruns asked for a one-time approval. | `SCRIPT_RUN` in `server/claude.mjs` accepts `Select-Object -First` or `-Last` and `head` or `tail -n` after a script run; each only trims output. | `server/claude.test.mjs` (parsing). |
+| Hero renders from 55 m and higher showed a hard, peaked seam above the horizon: the far corner of the 2 km ocean square, fogged to `fogColor`, against the authored sky's bluer `horizonColor` below the horizon. Faint vertical streaks sat just above the horizon, where the cloud plane's elevation floor smears clouds. Ground views hide both. | The authored sky in `src/world/landscape.jsx` blends to `fogColor` just below the horizon (`BELOW_HORIZON` in `src/world/sky.mjs`), which matches fully fogged water. Clouds fade in only above the plane floor (`CLOUD_FLOOR`). | `src/world/sky.test.mjs` (`skyBase`, `cloudHorizonFade`). Hub, Crescent Cove revision 15 export from the southwest aerial: the seam's apex projected to pixel (991, 244) and is gone after the fix on WebGPU and forced WebGL2. |
 
 ## Holodeck findings
 
@@ -80,15 +91,17 @@ friction, **Low** is polish.
 | H7 | Conversation | Fixed above (single-line composer). | — | — |
 | H14 | Conversation | Fixed above (Markdown rendering). | — | — |
 | H18 | Agent instructions | With shell needing approval per call, the agent still listed folders through PowerShell. | Low | Fixed in the adapter instructions: inspect with Read, Glob and Grep; shell needs approval. |
-| H37 | Agent permissions | Claude Code asks before every Read of the world's own Holodeck skill references, which the host copies into a temporary plugin folder (`holodeck-claude-*/plugin/skills/...` under the system temp folder). In turn 8 the agent needed an approval to read `current-runtime.md`. | Low | Let Claude Code read the plugin folder without a prompt, for example by passing it as an allowed directory. |
-| H38 | Request cards | Every Claude Code request for a built-in tool is titled **Run a command? · shell**, including Read and Glob. Kiln tools get **Allow this? · permission**. | Low | Title the card by tool: "Read a file?", "Search files?", "Run a command?". |
-| H39 | Request cards | A Glob card shows only the folder, not the pattern. In turn 8 the agent asked to glob `*` across the user's whole projects folder, outside the world; the card showed just the folder, so the pattern had to be looked up in the transcript before rejecting it. | Medium | Show the pattern (and for Grep the pattern and path) on the card, and flag paths outside the world. |
-| H40 | Agent permissions | Each distinct argument list for the same world script needs its own approval. Turn 8 ran `turn8.py` four times (`verify export tint surf`, `verify`, `scene samples`, and so on), so **Allow this exact command for the session** never applied. | Low | Offer a session grant for one script under `assets/source` with any arguments, bound to the script's content hash so an edit asks again. |
-| H42 | Static export | `holodeck export` refuses a world that was created with `init` but never opened: "Open this world with holodeck dev first to create an accepted snapshot." Scripted exports of a fresh example (for the shelf, or on the hub) need a browser open first. | Low | Let `init` write the accepted snapshot, or let `export` create it from the validated world. |
+| H37–H39 | Agent permissions, request cards | Fixed above. | — | — |
+| H40 | Agent permissions | Fixed above. | — | — |
+| H42 | Static export | Fixed above. | — | — |
+| H43 | Scatter | Before apply, no tool reports where a staged scatter's instances land; only counts. In turn 9 the agent certified whole regions worst-case, so that every root the engine could accept passed its view checks. It said exact positions were "not verified". | Medium | Let `world_read` (or `world_sample` with `proposalId`) return a staged scatter's expanded instances: positions, variants and rotations. |
+| H44 | Sky | The `environment.sky` capability names `zenithColor`, `horizonColor` and a curve, but not the formula. In turn 9 the agent estimated the arrival sky colour by guessing a power-of-sine blend. | Low | State the gradient formula, or the colour at a few elevations, in the capability text. |
+| H45 | Rendering | On the draw-bound hub GPU, a light distance variant costs draws: each new asset is its own batch, per part and per pass. Turn 9's two far-palm assets added about 24 draws to save triangles that were not the limit. A group spanning over 96 m is also split into grid cells, and a cell holding one placement draws it alone (about 12 more). Revision 11 went from 269 to 307 draws and missed refresh. Turn 10 adds a batch-bounds effect: a cell's batch is culled as one unit, so placements added to the far side of a cell pull its near members into view. Revision 12's north-shore palms brought two grove batches behind the arrival camera into view and the shadow box, for 24 draws. 48 m cells measured worse (359 draws at arrival, 410 at the overlook). | Medium | Report draws per asset in `world_read` budgets, so agents weigh draws as well as triangles. Merge single-placement cells into a neighbouring batch. Split a cell's batch into spatial clusters when its members are far apart, rather than shrinking the grid. Longer term, distance LOD inside one asset rather than separate assets. |
+| H46 | Kiln | Fixed above. | — | — |
 
 ## Kiln findings
 
-Kiln stays pinned at 1.3.1. These are consumer observations. Each needs a
+Holodeck pins Kiln 1.4.0 from Release 2 on. These are consumer observations. Each needs a
 minimal reproduction in a Kiln workspace before it becomes a Kiln change.
 
 | # | Area | Finding | Suggested change |
@@ -106,12 +119,17 @@ minimal reproduction in a Kiln workspace before it becomes a Kiln change.
 | K11 | Materials | Turn 4: the library had no stone, sand, foliage or driftwood materials; the agent authored `cove-limestone` (dry and wet), `cove-sand` and `cove-driftwood`. The newer material format cannot generate normal maps from height, so limestone pits are painted rather than embossed. | Add a height-to-normal step in the material format. |
 | K12 | Geometry | The work budget rejected noise beyond about 10 octaves. Export has no vertex colours or second UV set, so wet lines and dark pocket interiors needed exact triangle cuts. | Document the budget; support vertex colour or a second UV set for masks. |
 | K13 | Errors | Errors were often a generic "Invalid input", and one helper caps its input at 200 characters. | Name the field and limit in validation errors. |
+| K14 | Geometry | Turn 9: no way to derive a lighter variant. For 8 rocks, the agent hand-wrote culling of buried faces and a coarser remesh. For two far palms, it replayed the random draws by hand to keep their crowns identical. | Add a decimation or level-of-detail step that keeps silhouettes, materials and part names, and a seeded variant that reuses a parent's random state. |
+| K15 | Revisions | A child save reports "changed" without saying how much: no triangle, bounds or silhouette delta. The agent measured those outside Kiln. In turn 10 a merge that left the fronds' geometry identical also only reported "changed". | Report triangle, bounds and silhouette deltas against the parent revision on save. |
+| K16 | Textures | Turn 10: a procedural texture allows at most 64 drawing steps, so the first seagrass build was rejected. | Document the cap in the texture schema, or raise it for small atlases. |
+| K17 | Terrain | Turn 10: Kiln materials cannot target a Holodeck terrain layer, and Kiln cannot preview terrain layers or the underwater tint. The agent generated the leaf-litter maps with a Python script. | Export a material as terrain layer maps (albedo, normal, roughness at a set repeat), with a planar-tile preview. |
 
 ### Upstream status
 
 First checked against Kiln main at 1.3.1, then updated on 2026-10-22 after
 the Kiln fix cycle for these findings. Merged fixes are on Kiln `main` and ship
-in 1.4.0; Holodeck still pins Kiln 1.3.1.
+in 1.4.0, which Holodeck pins from Release 2 on. The island host copy still runs 1.3.1
+until it is refreshed.
 
 | # | Status |
 | --- | --- |
@@ -124,10 +142,14 @@ in 1.4.0; Holodeck still pins Kiln 1.3.1.
 | K7 | Documented in the Kiln authoring and QA skills (`createPart` names meshes `Mesh_<name>`). The gap is Holodeck's foliage contract text, which does not mention it. |
 | K8 | In progress: host validation profile checked by QA (instruktlabs/kiln#208), not yet merged. |
 | K9 | Mostly documented: custom camera cells and `markOpenShell` exist; overlap on open shells is a stated measurement limit. |
-| K10 | Fixed on Kiln main: material merge advice in the QA report (instruktlabs/kiln#209, PR #227). |
+| K10 | Fixed on Kiln main: material merge advice in the QA report (instruktlabs/kiln#209, PR #227). The measured turn 10 result (6 to 3 parts per palm, 293 to 232 arrival draws) is a comment on #209. |
 | K11 | Fixed on Kiln main: V3 normal-from-height derivation (instruktlabs/kiln#205, PR #225). |
 | K12 | Fixed on Kiln main: authored vertex colours and attributes (instruktlabs/kiln#195, PR #226). |
 | K13 | Fixed on Kiln main: validation errors name the rule (instruktlabs/kiln#198, PR #214). |
+| K14 | Filed as two issues: a decimation or lower-detail variant helper (instruktlabs/kiln#243) and seeded random in the sandbox (instruktlabs/kiln#244). |
+| K15 | Filed: geometry deltas against the parent revision on save (instruktlabs/kiln#245). |
+| K16 | Not filed: the 64-step cap is already documented in the surface docs, Discovery and the error. One `stamps` step places up to 256 copies, which suits seagrass blades; a docs tip pointing at it is planned. |
+| K17 | Filed for the generic part: export a material's maps as tiling textures with a planar preview (instruktlabs/kiln#246). The terrain-layer schema, masks and underwater tint stay in Holodeck. |
 
 Also filed from Holodeck findings:
 - instruktlabs/kiln#212: configurable `KILN_PROGRESS.md` location (H26), fixed on Kiln main (PR #223).
@@ -504,6 +526,248 @@ until Kiln makes it configurable (instruktlabs/kiln#212).
      top of revision 9's frame is gone. The coral reads as darker seabed
      patches.
    - **Not yet seen:** a first-person walk along the jetty in the browser.
+
+9. Sky, lagoon, cheaper rocks and far palms: applied as revision 11.
+   - **Brief:** deepen the sky, calm the lagoon, cut the cliff triangles, and
+     add palms on the far shore.
+   - **Conflict:** the agent left the east horn across the bay bare. Palms there
+     would block the summit's protected view of the lagoon and reef (bible
+     rule 3), so it planted the headland ridge and north-east shore instead.
+   - **Sky:** zenith `#1e5eba` with `horizonColor` `#b0cfea`; fog and clouds
+     unchanged. The agent estimated the arrival colours by guessing the
+     gradient formula (H44).
+   - **Surf:** `breakDepth` 1.35 → 2.8, deeper than the 2.5 m lagoon basin, so
+     the lagoon no longer breaks a second time; `whitewater` 12 → 9 m,
+     `intensity` 0.9. The capability text described a single break, so the
+     agent modelled both readings. That text now states the engine's rule (see
+     Fixed). On the agent's terrain model, lagoon whitewater fell from 2,379 to
+     210 m².
+   - **Rocks:** eight Kiln child revisions with buried faces culled and a
+     coarser remesh. Placed rock triangles fell from 280,131 to 147,172, with
+     silhouettes within about 0.1–0.6 px from the beach and overlook. The
+     method was hand-written (K14), and Kiln reported changes without sizes
+     (K15).
+   - **Palms:** module `scatter.seeded@1` and three scatters. Five full palms
+     on the ridge behind the summit; ten within 16 m of the north trail; 21 of
+     24 light far variants (2,989 and 2,681 triangles) on the north-east
+     shore. The regions were certified worst-case against every protected ray
+     on a terrain replica, because no tool reports a staged scatter's
+     positions (H43).
+   - **Budget:** 50 assets, 603 placements, 1,729,626 placed triangles.
+   - **Staging:** from `assets/source/turn9/scene-t9.json`. The staged scene
+     matched that file exactly. Against revision 10 it changed only the eight
+     rock records, two new assets, the scatter module and records, `water.surf`
+     and `environment.sky`. All 567 objects, the bible and the board were
+     unchanged.
+   - **Approvals:** about 30, almost all reruns of the turn script with a new
+     step or an edited script (H40). Kiln renders and source exports ran
+     through the world's `kiln.mjs`.
+
+   Measured on the hub for revision 11, at the arrival view, 1280×720, on the
+   same build as revision 10, in two runs (`20261022-230509`, `20261022-230859`):
+
+   | Backend | Draws | Triangles | Time to ready | Frame interval p95 |
+   | --- | ---: | ---: | ---: | ---: |
+   | WebGPU | 307 | 2,951,468 | 9.0 s, 8.3 s | 8.4 ms, 16.6 ms |
+   | WebGL2 | 307 | 2,951,468 | 23.0 s, 9.3 s | 16.7 ms, 16.7 ms |
+
+   - **Regression:** revision 11 misses refresh on WebGL2 in both runs and on
+     WebGPU in one. It adds 38 draws; on this GPU the bottleneck is draws, not
+     triangles.
+   - **Where the draws come from:** counted with `planStaticBatches`, batches
+     went from 76 to 78 and individual placements from 21 to 22.
+     - The two light far-palm assets are new batches. Each has six parts, drawn
+       in the colour and shadow passes: about 24 draws.
+     - One ridge palm sits alone in its 96 m batching cell: about 12 draws.
+     - The far variants saved about 120,000 triangles that were not the limit.
+   - **Arrival:** a bluer sky and a much calmer lagoon.
+   - **Overlook:** the ridge palms stand in one line along the crest, like a
+     hedge.
+
+10. Draws back under budget, leaf litter and seagrass: applied as revisions
+    12 and 13.
+    - **Brief (10A):** bring revision 11 back to about 270 draws. Plant the
+      north shore with the existing palm-tall and palm-lean, fix the lone
+      ridge palm, and break up the ridge line.
+    - **10A, revision 12:**
+      - **Changes:**
+        - the far-palm assets are gone;
+        - the north-shore regions stop at x = 95, so no palm sits alone in a
+          cell;
+        - five explicit palms in two clusters below the crest replace the
+          ridge scatter.
+      - **Prediction:** batches matched revision 10's (76 batches, 21
+        individual), and the agent predicted about 271 draws.
+    - **10A measured** on the hub at arrival in two runs (`20261023-000745`,
+      `20261023-000942`): 293 draws and 3,303,197 triangles on both backends.
+      WebGPU p95 was 8.4 ms; WebGL2 p95 was 16.6 and 16.7 ms.
+    - **Why 293:** found by hub A/B variants and a per-draw log of one
+      arrival frame (H45).
+      - Revision 12's sky and water with revision 10's objects draw 269;
+        revision 12's objects with revision 10's sky and water draw 293.
+      - The 24 extra draws are the palm-tall and palm-lean batches in cell
+        (0, −1), in both passes. In revision 10 those cells held 5 and 3
+        grove palms behind the arrival camera and were culled. The
+        north-shore scatter added about 34 palms out to x ≈ 95, which
+        stretched the batches' bounds into the view and the shadow box.
+      - The overlook draws 276 either way.
+      - 48 m cells measured worse: 359 draws at arrival and 410 at the
+        overlook.
+      - Palms were 124 of the 293 draws. Each palm had six parts, four of
+        them frond groups that differ only in a tint.
+    - **Brief (10B):** merge each palm's four frond groups into one
+      primitive, with the tints as colour bands in the frond strip. Then add
+      seagrass and leaf litter: arrival at most about 250 draws, overlook no
+      higher than 276.
+    - **10B, revision 13:**
+      - **Palms:** palm-tall, palm-lean, palm-arch and palm-young are saved
+        Kiln child revisions with three parts: trunk, crown_husk and
+        `fronds`. TEXCOORD_0.x picks the group's band; TEXCOORD_0.y stays the
+        wind weight. Foliage nodes are `["fronds"]`.
+        - The agent compared the GLB data directly: positions, indices,
+          TEXCOORD_0.y, trunk and husk are identical, and triangle counts are
+          unchanged.
+        - GPU renders of the old and new palms differ by at most 6/255. This
+          is the material merge K10 asked Kiln to suggest; the assets had
+          not taken it until the brief did.
+      - **Leaf litter:** one terrain layer with generated 1,024 px albedo,
+        normal and roughness maps on a 4 m repeat. A painted mask covers
+        about 2,700 m² of grove floor and trail edges, and keeps the middle of
+        each walking route, the cove pad and the shelter clear. Kiln could
+        not author it (K17).
+      - **Seagrass:** one 304-triangle asset with one opaque primitive, in
+        five scatters of 230 clumps in total, 0.65–2.4 m deep. All five
+        patches sit in one 96 m cell, so they are one batch. The first
+        build hit Kiln's procedural-texture step cap (K16).
+      - **Budget:** 49 assets, 834 placements and 1,930,919 placed
+        triangles, against a 2,000,000 limit.
+      - **Staging:** from `assets/source/turn10b/scene-t10b.json`. The staged
+        scene matched that file exactly. Against revision 12 it changed only
+        the assets, the terrain and the scatters. Objects, sky, surf and
+        runtime modules were unchanged.
+      - **Approvals:** 12, all reruns of `turn10b.py` with a new step or an
+        edited script, plus Kiln renders and exports (H40).
+
+    Measured on the hub for revision 13, at the arrival view, 1280×720, in
+    two runs (`20261023-085424`, `20261023-085610`):
+
+    | Backend | Draws | Triangles | Time to ready | Frame interval p95 |
+    | --- | ---: | ---: | ---: | ---: |
+    | WebGPU | 232 | 3,443,037 | 8.4 s, 6.8 s | 8.4 ms, 8.4 ms |
+    | WebGL2 | 232 | 3,443,037 | 16.8 s, 7.9 s | 8.4 ms, 8.4 ms |
+
+    - **Draws:** the agent predicted 231 at arrival and about 200 at the
+      overlook. A per-draw log measured 232 at arrival and 238 at the
+      overlook. Both backends keep refresh again.
+    - **Arrival:** the palms look the same as in revision 12. From the
+      beach, the seagrass patches line up into one dark row along the
+      waterline.
+    - **Overlook:** litter reads as brown ground under the grove, plus a
+      distinct brown band along the headland trail. From above, the seagrass
+      reads as scattered specks rather than meadows.
+
+11. Seagrass meadows: applied as revision 14.
+    - **Brief:** turn the five thin seagrass patches into dense, irregular
+      meadows within the same draw budget, and lose the dark row the arrival
+      view showed along the waterline.
+    - **Placement:** the agent moved the seagrass from cell (−1, 0) to cell
+      (0, 0). From the summit, the old cell's open lagoon is 120–160 m away at
+      about 10° down, where the water's sky reflection washes the seabed out.
+      - Cell (0, 0) has a pocket at the foot of the summit cliff that the summit
+        sees 22–32 m away at 37–47° down. The beach crest hides it from the
+        arrival.
+      - Three meadows: `cliff` in that pocket (104.6 m², 211 clumps), `nook`
+        in its west arm (23.9 m², 40) and `lagoon` in the open lagoon
+        (94.9 m², 128).
+      - Each meadow is several scatters on nested, lobed outlines: a ragged
+        edge, mid, inner, a dense core and an off-centre heart. Density rises
+        from about 0.3 to 5–6.6 clumps per m².
+      - All the meadows sit in one 96 m cell, so they are still one batch.
+    - **Clump:** a Kiln child revision of the seagrass asset with broader,
+      longer blades. It is 300 triangles (was 304), one part, one material, and
+      about 30% larger on average.
+    - **Camera:** the agent first took the user's "overlook" to mean the
+      summit viewpoint and checked which camera earlier turns meant. The
+      hub's Overlook is the runtime overview orbit, so the agent's replica
+      coverage numbers (cores hiding 50–72% of the sand from the summit,
+      against 18–26%) are predictions for a view the hub does not capture.
+    - **Budget:** 49 assets, 983 placements and 1,974,699 placed triangles
+      (1,990,776 with the heaviest palm mix), against a 2,000,000 limit.
+    - **Staging:** from `assets/source/turn11/scene-t11.json`. The staged
+      scene matched that file exactly. Against revision 13 it changed only
+      the seagrass asset record and the scatters. Objects, bible, sky, surf
+      and runtime modules were unchanged. All 379 clumps placed, and the
+      trail, summit and spawn checks passed.
+    - **Approvals:** 23, mostly reruns of `turn11.py` with a new step or an
+      edited script, plus a Kiln export and an image crop. The H40 script
+      grant was not live on this host yet, which still runs the older build.
+
+    Measured on the hub for revision 14 with the `release-2` build, at the
+    arrival view, 1280×720, in two runs (`20261023-101404`,
+    `20261023-101712`). Each run starts with an empty driver shader cache
+    (cold), then repeats with the cache it filled (warm):
+
+    | Backend | Draws | Triangles | Ready, cold | Ready, warm | Frame interval p95 |
+    | --- | ---: | ---: | ---: | ---: | ---: |
+    | WebGPU | 229 | 3,416,897 | 10.9 s, 10.7 s | 7.1 s, 6.9 s | 8.4 ms |
+    | WebGL2 | 229 | 3,416,897 | 6.4 s, 6.6 s | 5.9 s, 6.7 s | 8.4 ms |
+
+    - **Draws:** the agent predicted 232 at arrival and 238 at the overlook.
+      A per-draw log measured 231 and 238.
+    - **Cold WebGPU:** revision 13 rerun on the same build and harness
+      (`20261023-101913`) took 10.5 s cold and 7.2 s warm on WebGPU, and 6.6 s
+      both ways on WebGL2, so the meadows add no start-up time. An earlier
+      7.0 s cold WebGPU figure for revision 13 came from the harness's first
+      run, which a mid-run sync disturbed.
+    - **Arrival:** the dark row along the waterline is gone. The lagoon
+      meadow is a faint smudge far out.
+    - **Overlook:** the cliff and lagoon meadows read as clustered patches
+      instead of scattered specks, but still as speckled tufts rather than
+      solid green. A seabed terrain layer masked to the meadows would add
+      colour underneath at no draw cost; the agent left it out because
+      terrain was not in the brief.
+
+12. Meadow bed and a softer trail: applied as revision 15.
+    - **Brief:** the last turn before the hero shot, with no new draws. Add a
+      terrain layer under the three meadows so they read as green shapes
+      rather than speckled tufts, and soften the brown litter band along the
+      headland trail. The brief named the hub's Overlook camera (the overview
+      orbit) so the agent would judge the right view this time.
+    - **Meadow bed:** a new `seagrass-bed` terrain layer with generated,
+      tileable 1,024 px maps and a painted mask built from the accepted meadow
+      outlines. The mask is deepest under the cores and hearts and lightest
+      in the edge ring, and fades out about 1.5 m past the ragged edge. A
+      water band keeps it off the beach.
+    - **Trail:** the leaf-litter layer points at a new mask file; revision
+      14's file is untouched. The script first rebuilt revision 14's mask
+      bit for bit with turn 10B's code, so only the trail term changed. It is
+      now broken patches: within 4 m of the trail outside the grove, the mean
+      mask fell from 0.42 to 0.11.
+    - **Staging:** from `assets/source/turn12/scene-t12.json`. The staged
+      scene matched that file exactly. Against revision 14 it changed only
+      `terrain.appearance.layers`; assets, objects, scatters, bible, sky,
+      surf and runtime modules were unchanged.
+    - **Approvals:** 8 cards. This was the first turn with the H40 script
+      grant live on the host. It was used 4 times, but 7 of the 8 cards
+      followed an edit to `turn12.py`, which correctly asks again. The other
+      gap: runs piped to `Select-Object -First N` did not qualify; that is
+      fixed below.
+
+    Measured on the hub for revision 15 with the `release-2` build, at the
+    arrival view, 1280×720 (`20261023-110445`):
+
+    | Backend | Draws | Triangles | Ready, cold | Ready, warm | Frame interval p95 |
+    | --- | ---: | ---: | ---: | ---: | ---: |
+    | WebGPU | 229 | 3,416,897 | 10.8 s | 6.3 s | 8.4 ms |
+    | WebGL2 | 229 | 3,416,897 | 6.5 s | 5.9 s | 8.4 ms |
+
+    - **Draws:** a per-draw log measured 231 at arrival and 238 at the
+      overlook, the same as revision 14. Terrain layers add no draws.
+    - **Overlook:** the trail's brown double band is gone and the grove
+      litter is unchanged. The cliff and lagoon meadows sit on soft, darker
+      beds under the tufts and read as shapes; under the water tint the bed
+      shows as a deeper teal rather than green.
+    - **Arrival:** unchanged apart from water motion.
 
 ## Measurement
 

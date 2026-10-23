@@ -2,8 +2,8 @@ import {EventEmitter} from 'node:events';
 import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import {existsSync} from 'node:fs';
-import {mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
-import {randomBytes,randomUUID} from 'node:crypto';
+import {mkdtemp,readFile,readdir,rm,stat,writeFile} from 'node:fs/promises';
+import {createHash,randomBytes,randomUUID} from 'node:crypto';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -35,9 +35,46 @@ const EDIT_TOOLS=new Set(['Write','Edit','MultiEdit','NotebookEdit']),SOURCE_GRA
 // carry over), and CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR keeps it so.
 const SHELL_TOOLS=new Set(['Bash','PowerShell']),MAX_GRANTED_COMMAND=8000;
 const shellGrant=(tool,command,root)=>'shell:'+JSON.stringify([tool,root,command]);
+// A turn script may also be allowed for the session with any plain arguments (H40):
+// one runner, one script under assets/source, words for arguments, and at most a
+// stderr merge and an output tail. The grant is bound to a hash of every code file
+// under assets/source, since turn scripts load each other; any code edit asks again,
+// while the JSON and images a script writes do not.
+const SCRIPT_RUN=/^(uv run|python3?|py|node) +((?:\.[\\/])?assets[\\/]source[\\/][\w.\-\\/]+\.(?:py|mjs|js))((?: +[\w.,=:@%+\-\\/]+)*)(?: +2>&1)?(?: *\| *(?:Select-Object -(?:First|Last) \d+|(?:head|tail) -n ?\d+))?\s*$/;
+const SOURCE_CODE=/\.(?:py|mjs|cjs|js|ts|ps1|sh)$/i,MAX_SOURCE_FILES=4000,MAX_SOURCE_BYTES=64*1024*1024;
+const scriptKey=(tool,root,script,hash)=>'script:'+JSON.stringify([tool,root,script,hash]);
+export function scriptRun(tool,command,root){
+  if(!SHELL_TOOLS.has(tool)||typeof command!=='string')return null;
+  const m=command.trim().match(SCRIPT_RUN);if(!m)return null;
+  // Agents write either separator; resolve both on every platform.
+  const source=path.join(root,'assets','source'),file=path.resolve(root,m[2].replaceAll('\\','/'));
+  if(!inside(source,file)||file===source)return null;
+  return {runner:m[1],script:path.relative(root,file).split(path.sep).join('/'),file};
+}
+export async function sourceCodeHash(root){
+  const source=path.join(root,'assets','source'),files=[];let bytes=0;
+  async function walk(dir){
+    for(const entry of await readdir(dir,{withFileTypes:true})){
+      if(entry.name==='__pycache__'||entry.name==='node_modules')continue;
+      const full=path.join(dir,entry.name);
+      if(entry.isDirectory())await walk(full);
+      else if(entry.isFile()&&SOURCE_CODE.test(entry.name)){files.push(full);if(files.length>MAX_SOURCE_FILES)throw new Error('Too many source files to bind a script grant');}
+    }
+  }
+  await walk(source);files.sort();
+  const hash=createHash('sha256');
+  for(const file of files){const content=await readFile(file);bytes+=content.length;if(bytes>MAX_SOURCE_BYTES)throw new Error('Source files too large to bind a script grant');hash.update(path.relative(source,file).split(path.sep).join('/')).update('\0').update(content).update('\0');}
+  return hash.digest('hex');
+}
+export async function scriptGrant(tool,input,root){
+  const run=scriptRun(tool,input?.command,root);if(!run)return null;
+  try{if(!(await stat(run.file)).isFile())return null;return scriptKey(tool,root,run.script,await sourceCodeHash(root));}catch{return null;}
+}
 function isGrant(grant,root){
   if(SESSION_GRANTABLE.test(grant)||grant===SOURCE_GRANT||grant===KILN_GRANT)return true;
-  if(typeof grant!=='string'||!grant.startsWith('shell:'))return false;
+  if(typeof grant!=='string')return false;
+  if(grant.startsWith('script:')){try{const [tool,folder,script,hash]=JSON.parse(grant.slice(7));return SHELL_TOOLS.has(tool)&&folder===root&&typeof script==='string'&&/^[a-f0-9]{64}$/.test(hash)&&grant===scriptKey(tool,root,script,hash);}catch{return false;}}
+  if(!grant.startsWith('shell:'))return false;
   try{const [tool,folder,command]=JSON.parse(grant.slice(6));return SHELL_TOOLS.has(tool)&&folder===root&&typeof command==='string'&&grant===shellGrant(tool,command,root);}catch{return false;}
 }
 export function sessionGrant(tool,input,root){
@@ -47,6 +84,33 @@ export function sessionGrant(tool,input,root){
   if(!EDIT_TOOLS.has(tool)||typeof file!=='string')return null;
   const rel=path.relative(path.join(root,'assets','source'),path.resolve(root,file));
   return rel&&!rel.startsWith('..')&&!path.isAbsolute(rel)?SOURCE_GRANT:null;
+}
+const inside=(dir,file)=>{const rel=path.relative(dir,file);return !rel.startsWith('..')&&!path.isAbsolute(rel);};
+const reaches=(root,p)=>typeof p==='string'&&p?!inside(root,path.resolve(root,p)):false;
+const climbs=pattern=>typeof pattern==='string'&&(path.isAbsolute(pattern)||/(^|[\\/])\.\.([\\/]|$)/.test(pattern));
+// A Read, Glob or Grep inside the session plugin, which holds Holodeck's own
+// copies of the world's installed skills, needs no card (H37). Nothing else is
+// allowed from there, and a pattern may not climb out of it.
+export function pluginRead(tool,input,plugin){
+  if(!plugin)return false;
+  const at=p=>typeof p==='string'&&p&&inside(plugin,path.resolve(plugin,p));
+  if(tool==='Read')return path.isAbsolute(input?.file_path??'')&&at(input.file_path);
+  if(tool==='Glob'||tool==='Grep')return path.isAbsolute(input?.path??'')&&at(input.path)&&!climbs(input.pattern)&&!climbs(input.glob);
+  return false;
+}
+// The card names the tool (H38) and shows its whole target: a search shows its
+// pattern beside its folder, and anything reaching outside the world says so (H39).
+export function permissionCard(tool,input={},root){
+  const lines=entries=>entries.filter(([,v])=>v!==undefined&&v!==null&&v!=='').map(([k,v])=>`${k}: ${v}`).join('\n');
+  if(SHELL_TOOLS.has(tool))return {title:'Run a command?',command:String(input.command??''),outside:false};
+  if(tool==='Read')return {title:'Read a file?',command:String(input.file_path??''),outside:reaches(root,input.file_path)};
+  if(EDIT_TOOLS.has(tool)){const file=input.file_path??input.notebook_path;return {title:tool==='Write'?'Write a file?':'Edit a file?',command:String(file??''),outside:reaches(root,file)};}
+  if(tool==='Glob')return {title:'Search for files?',command:lines([['pattern',input.pattern],['folder',input.path||root]]),outside:reaches(root,input.path)||climbs(input.pattern)};
+  if(tool==='Grep')return {title:'Search file contents?',command:lines([['pattern',input.pattern],['folder',input.path||root],['files',input.glob],['type',input.type]]),outside:reaches(root,input.path)||climbs(input.glob)};
+  if(tool==='WebFetch')return {title:'Fetch a web page?',command:String(input.url??''),outside:true};
+  if(tool==='WebSearch')return {title:'Search the web?',command:String(input.query??''),outside:true};
+  if(/^mcp__kiln_workspace__/.test(tool))return {title:'Use a Kiln tool?',command:'',outside:false};
+  return {title:'Allow this?',command:String(input.command??input.file_path??input.path??input.url??''),outside:false};
 }
 const SUBSCRIPTION_AUTH=new Set(['claude.ai']);
 // API-key and third-party provider routes. Removing them keeps a turn on the
@@ -146,17 +210,19 @@ export class ClaudeAgent extends EventEmitter{
       return {content:[{type:'text',text:JSON.stringify(data)},...(image?[{type:'image',mimeType:image[1],data:image[2]}]:[])]};
     }catch(e){return {content:[{type:'text',text:e.message}],isError:true};}
   }
-  requestPermission({tool_name:tool='a tool',input={}}){
+  async requestPermission({tool_name:tool='a tool',input={}}){
     const reply=decision=>({content:[{type:'text',text:JSON.stringify(decision)}]});
     if(!this.turn||this.stopRequested)return reply({behavior:'deny',message:'No active Holodeck turn.'});
-    const grant=sessionGrant(tool,input,this.store.root);
-    if(this.granted(grant))return reply({behavior:'allow',updatedInput:input});
-    const id=`claude-permission-${++this.requestSeq}`,target=typeof input.command==='string'?input.command:input.file_path||input.path||input.url||'';
+    const grant=sessionGrant(tool,input,this.store.root),script=await scriptGrant(tool,input,this.store.root);
+    if(!this.turn||this.stopRequested)return reply({behavior:'deny',message:'No active Holodeck turn.'});
+    if(this.granted(grant)||this.granted(script)||pluginRead(tool,input,this.plugin?.directory))return reply({behavior:'allow',updatedInput:input});
+    const id=`claude-permission-${++this.requestSeq}`,card=permissionCard(tool,input,this.store.root);
     const kiln=SESSION_GRANTABLE.test(tool),label=grant===SOURCE_GRANT?'Allow edits in assets/source for this session':grant?.startsWith('shell:')?'Allow this exact command for the session':kiln?'Allow this Kiln tool for this session':'Allow for this session';
-    const options=grant?[OPTIONS[0],{optionId:'allow-session',label},...(kiln?[{optionId:'allow-kiln-session',label:'Allow all Kiln workspace tools for this session'}]:[]),OPTIONS[1]]:OPTIONS;
-    const view={reason:`Claude Code wants to use ${tool}.`,command:String(target),cwd:this.store.root,changes:input,options};
+    const scriptOption=script?[{optionId:'allow-script',label:`Allow ${path.posix.basename(scriptRun(tool,input.command,this.store.root).script)} with any arguments until code changes`}]:[];
+    const options=grant?[OPTIONS[0],...scriptOption,{optionId:'allow-session',label},...(kiln?[{optionId:'allow-kiln-session',label:'Allow all Kiln workspace tools for this session'}]:[]),OPTIONS[1]]:OPTIONS;
+    const view={title:card.title,tool:tool.replace(/^mcp__\w+?__/,''),reason:`Claude Code wants to use ${tool}.`,command:card.command,outside:card.outside,cwd:this.store.root,changes:input,options};
     return new Promise(resolve=>{
-      this.pending.set(id,{id,grant,input,view,resolve:decision=>resolve(reply(decision))});this.publish();
+      this.pending.set(id,{id,grant,script,input,view,resolve:decision=>resolve(reply(decision))});this.publish();
     });
   }
   granted(grant){const tools=this.state.sessionTools||[];return !!grant&&(tools.includes(grant)||SESSION_GRANTABLE.test(grant)&&tools.includes(KILN_GRANT));}
@@ -167,9 +233,9 @@ export class ClaudeAgent extends EventEmitter{
     if(!req.view.options.some(o=>o.optionId===decision))throw new Error('Invalid approval decision');
     req.resolve(decision==='reject-once'?{behavior:'deny',message:'The user declined this operation in Holodeck.'}:{behavior:'allow',updatedInput:req.input});
     this.pending.delete(String(id));
-    if(decision==='allow-session'||decision==='allow-kiln-session'){
-      this.state.sessionTools=[...new Set([...(this.state.sessionTools||[]),decision==='allow-kiln-session'?KILN_GRANT:req.grant])];
-      for(const other of [...this.pending.values()])if(this.granted(other.grant)){other.resolve({behavior:'allow',updatedInput:other.input});this.pending.delete(other.id);}
+    if(decision==='allow-session'||decision==='allow-kiln-session'||decision==='allow-script'){
+      this.state.sessionTools=[...new Set([...(this.state.sessionTools||[]),decision==='allow-kiln-session'?KILN_GRANT:decision==='allow-script'?req.script:req.grant])];
+      for(const other of [...this.pending.values()])if(this.granted(other.grant)||this.granted(other.script)){other.resolve({behavior:'allow',updatedInput:other.input});this.pending.delete(other.id);}
       this.persist().catch(()=>{});
     }
     this.publish();return this.snapshot();

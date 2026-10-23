@@ -12,20 +12,35 @@ export async function ensureKilnWorkspace(root,{provider='codex'}={}){
   let manifest=null;
   try{manifest=JSON.parse(await readFile(path.join(root,'.kiln/workspace.json'),'utf8'));}catch(e){if(e.code!=='ENOENT')return;}
   if(manifest){
+    if(!Array.isArray(manifest.harnesses))return;
     // Add the connecting harness to an existing workspace. Kiln keeps the
     // earlier registrations; a failure leaves the workspace as it was.
-    if(!Array.isArray(manifest.harnesses)||manifest.harnesses.includes(harness))return;
-    await runInitializer(root,harness).catch(()=>{});return;
+    if(!manifest.harnesses.includes(harness))await runInitializer(root,['--adopt','--harness',harness]).catch(()=>{});
+    return upgradeIfStale(root);
   }
-  await runInitializer(root,harness);
+  await runInitializer(root,['--adopt','--harness',harness]);
 }
-function runInitializer(root,harness){
-  // Kiln 1.3.1 exports lib/index.js for ESM; resolve it without evaluating the
+// A Kiln upgrade on the host leaves the world's skills and launchers stale,
+// and Kiln's CLI then refuses every command. Upgrade before the agent starts
+// and return Kiln's report so the host can say so; Kiln refuses edited files
+// without changing anything, and that reason stops the connection. A check
+// that cannot run leaves the workspace as it was.
+async function upgradeIfStale(root){
+  let report;try{report=JSON.parse(await runInitializer(root,['--check'],{check:true}));}catch{return null;}
+  if(report?.status!=='update-required')return null;
+  let output;try{output=await runInitializer(root,['--upgrade']);}
+  catch(e){throw new Error(`This world's Kiln workspace is out of date for the installed Kiln and could not be upgraded. ${e.message}`);}
+  try{return JSON.parse(output);}catch{return {status:'current',changed:[]};}
+}
+function runInitializer(root,flags,{check=false}={}){
+  // Kiln exports lib/index.js for ESM (1.3.1 and 1.4.0); resolve it without evaluating the
   // engine. Normal package lookup supports both nested and hoisted installs.
   const initializer=fileURLToPath(new URL('../scripts/create-workspace.mjs',import.meta.resolve('@instruktlabs/kiln')));
   return new Promise((resolve,reject)=>{
-    const child=spawn(process.execPath,[initializer,root,'--adopt','--harness',harness],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});let output='';
-    child.stdout.on('data',d=>{output=(output+d).slice(-12000);});child.stderr.on('data',()=>{});child.on('error',reject);child.on('exit',code=>code===0?resolve():reject(new Error(`Kiln workspace setup failed. Run kiln-init --check for this world. ${output.slice(-1000)}`)));
+    const child=spawn(process.execPath,[initializer,root,...flags],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});let output='',errors='';
+    child.stdout.on('data',d=>{output=(output+d).slice(-200000);});child.stderr.on('data',d=>{errors=(errors+d).slice(-4000);});child.on('error',reject);
+    // --check exits 1 for a workspace that needs work, with its report on stdout.
+    child.on('exit',code=>code===0||check&&code===1&&output?resolve(output):reject(new Error(`Kiln workspace setup failed. Run kiln-init --check for this world. ${(errors||output).trim().slice(-1000)}`)));
   });
 }
 // Holodeck runs Claude Code with --setting-sources user, which loads no

@@ -7,7 +7,7 @@ import {createTerrain} from './terrain.mjs';
 import {rasterizeLayerMasks} from './terrain-layers.mjs';
 import {SEABED_SHALLOW_COLOR,WATER_DEEP_COLOR,WATER_TRANSMISSION} from './water-optics.mjs';
 import {buildSurfMap,resolveSurf} from './surf.mjs';
-import {resolveSky} from './sky.mjs';
+import {BELOW_HORIZON,CLOUD_FLOOR,resolveSky} from './sky.mjs';
 
 // Two bounded surface draws. Geometry, walking and shoreline shading all read
 // the same terrain lattice; only material detail is evaluated per fragment.
@@ -381,15 +381,17 @@ function makeSkyMaterial(sky,environment,clock){
  const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize(),sunColor=color(environment.sunColor??'#fff1d0');
  material.colorNode=Fn(()=>{
   const direction=positionWorld.sub(cameraPosition).normalize(),cosine=dot(direction,vec3(sun.x,sun.y,sun.z)).toVar();
-  const base=skyGradientNode(sky,direction.y);
+  // Below the horizon, meet fully fogged water (see BELOW_HORIZON in sky.mjs).
+  const base=mix(skyGradientNode(sky,direction.y),color(environment.fogColor??sky.horizonColor),smoothstep(0,BELOW_HORIZON,direction.y.negate()));
   const disc=smoothstep(.99975,.9999,cosine).mul(8),glow=cosine.max(0).pow(400).mul(.6).add(cosine.max(0).pow(24).mul(.12));
   const result=base.add(sunColor.mul(disc.add(glow).mul(sky.sunDisc))).toVar();
   if(sky.clouds){
-   const c=sky.clouds,plane=direction.xz.div(direction.y.mul(1-.9*c.height).max(.02)).mul(1000);
+   const c=sky.clouds,plane=direction.xz.div(direction.y.mul(1-.9*c.height).max(CLOUD_FLOOR)).mul(1000),fadeStart=CLOUD_FLOOR/(1-.9*c.height);
    const q=plane.add(vec2(clock.mul(c.drift[0]),clock.mul(c.drift[1])));
    const field=cloudFbm(q.div(1500*c.scale),clock.mul(.004)).mul(.7).add(.5).clamp(0,1);
    const region=cloudNoise(q.div(5000*c.scale)).mul(.37).add(.5),cover=region.sub(.5).mul(.6).add(c.coverage).clamp(0,1),threshold=cover.oneMinus();
-   const horizonFade=smoothstep(0,.03+.06*c.height,direction.y),mask=smoothstep(threshold,threshold.add(.3),field).mul(horizonFade);
+   // Fade in above the plane floor; under it the clouds smear into streaks (see cloudHorizonFade).
+   const horizonFade=smoothstep(fadeStart,fadeStart+.03+.06*c.height,direction.y),mask=smoothstep(threshold,threshold.add(.3),field).mul(horizonFade);
    const depth=field.sub(threshold).max(0),beer=exp(depth.mul(-4)),shade=mix(float(.45),float(1),beer.mul(beer.mul(beer).oneMinus()).mul(2.6).clamp(0,1));
    const silver=float(.51).div(float(1.49).sub(cosine.mul(1.4)).pow(1.5)).clamp(0,3),edge=mask.mul(mask.oneMinus()).mul(4);
    const lit=base.mul(.45).add(sunColor.mul(shade.mul(.78))).add(sunColor.mul(silver.mul(edge).mul(.12)));
@@ -421,7 +423,9 @@ function AnalyticSky({environment}){
   // The addon models a much brighter sky than this renderer's unit-scale
   // lights (its example uses exposure .05). Calibrate sky radiance locally
   // instead of changing the exposure of terrain, assets and every other world.
-  s.material.colorNode=s.material.colorNode.rgb.mul(.045);
+  // Below the horizon, meet fully fogged water as the authored sky does (BELOW_HORIZON).
+  const below=smoothstep(0,BELOW_HORIZON,positionWorld.sub(cameraPosition).normalize().y.negate());
+  s.material.colorNode=mix(s.material.colorNode.rgb.mul(.045),color(environment.fogColor??'#d6e5ec'),below);
   // SkyMesh's optional cloud shader is unnecessary for the clear daylight rig.
   s.cloudCoverage.value=0;s.frustumCulled=false;s.renderOrder=-100;s.name='landscape-sky';
   return s;

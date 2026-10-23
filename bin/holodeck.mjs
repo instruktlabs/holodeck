@@ -30,6 +30,9 @@ try{
   if(args.length&&!(args.length===2&&['--example','--bundle'].includes(args[0])&&args[1]&&!args[1].startsWith('--')))throw new Error('Use --example <id> or --bundle <local-directory>');
   if(args[0]==='--bundle'){const {installExampleBundle}=await import('../server/example-bundle.mjs');const world=await installExampleBundle(path.resolve(args[1]),root);console.log(`Created ${world.bible.title} world at ${root}`);}
   else {const example=args[1]??'construct';await scaffold(root,example);console.log(`Created ${example} world at ${root}`);}
+  // Opening the new world once validates it and writes the accepted snapshot,
+  // so a fresh world can be exported without a browser first (H42).
+  const {WorldStore}=await import('../server/world-store.mjs');await (await WorldStore.open(root)).close();
  }else if(command==='export'){
   const pageFlags={'--title':'title','--description':'description','--url':'url','--image':'image','--image-alt':'imageAlt','--license':'license'};
   const options={};for(let i=0;i<args.length;i+=2){const name=args[i],value=args[i+1];if(!['--out','--revision',...Object.keys(pageFlags)].includes(name)||!value||value.startsWith('--')||Object.hasOwn(options,name))throw new Error('Use --out <new-directory>, optional --revision <non-negative integer> and optional page metadata (--title, --description, --url, --image, --image-alt, --license)');options[name]=value;}

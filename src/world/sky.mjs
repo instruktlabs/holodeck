@@ -5,6 +5,13 @@ import {linearHex} from './water-optics.mjs';
 
 export const SKY_DEFAULTS={curve:.45,sunDisc:1};
 export const CLOUD_DEFAULTS={coverage:.35,density:.5,height:.5,scale:1,drift:[.6,.2]};
+// Below the horizon the dome turns to the fog colour over this much elevation:
+// a finite ocean seen from above ends in fully fogged water, which is fogColor,
+// so the dome past its edge must match it rather than the horizon colour.
+export const BELOW_HORIZON=.02;
+// The cloud plane divides by elevation, floored here; under the floor clouds
+// smear into vertical streaks, so they fade in only above it.
+export const CLOUD_FLOOR=.02;
 const SKY_KEYS=['zenithColor','horizonColor','curve','sunDisc','clouds'],CLOUD_KEYS=Object.keys(CLOUD_DEFAULTS);
 const HEX=/^#[0-9a-f]{6}$/i;
 const fail=message=>{throw new Error(message);};
@@ -38,4 +45,17 @@ export function resolveSky(environment){
 export function skyGradient(resolved,elevation){
   const t=Math.max(0,Math.min(1,elevation))**resolved.curve,h=linearHex(resolved.horizonColor),z=linearHex(resolved.zenithColor);
   return h.map((v,i)=>v+(z[i]-v)*t);
+}
+const smoothstep=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
+// The dome's colour before sun and clouds: the gradient above the horizon,
+// blending to the fog colour just below it. The shader matches this.
+export function skyBase(resolved,fogColor,elevation){
+  const g=skyGradient(resolved,elevation),f=linearHex(fogColor),k=smoothstep(0,BELOW_HORIZON,-elevation);
+  return g.map((v,i)=>v+(f[i]-v)*k);
+}
+// Cloud opacity factor by elevation: zero up to the plane floor (scaled by
+// cloud height as in the shader), then rising over the authored horizon band.
+export function cloudHorizonFade(height,elevation){
+  const start=CLOUD_FLOOR/(1-.9*height);
+  return smoothstep(start,start+.03+.06*height,elevation);
 }

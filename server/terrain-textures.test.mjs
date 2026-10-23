@@ -11,6 +11,8 @@ import {scaffold} from './scaffold.mjs';
 import {createHost} from './host.mjs';
 import {readRevisionBundle,restoreRevision,remixRevision} from './history.mjs';
 import {exportStaticWorld} from './static-export.mjs';
+import {createExampleBundle,readExampleBundle,installExampleBundle} from './example-bundle.mjs';
+import {WorldStore} from './world-store.mjs';
 
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const crcTable=Array.from({length:256},(_,n)=>{let c=n;for(let k=0;k<8;k++)c=c&1?0xedb88320^(c>>>1):c>>>1;return c>>>0;});
@@ -81,6 +83,25 @@ test('replacing a texture file creates a revision; history, undo, remix and expo
  assert.deepEqual(scene.textures[exported.maps.albedo],{hash:sha(before),url:`./assets/imports/terrain/${sha(before)}.png`,width:4,height:4});
  assert.deepEqual(await readFile(path.join(out,exported.maps.albedo)),before);
  assert.deepEqual((await readdir(path.join(out,'assets/imports/terrain'))).sort(),[before,png(4,4,128),png(3,5,255)].map(b=>`${sha(b)}.png`).sort());
+});
+
+test('example bundles carry terrain layer textures and install them pinned to the same bytes',async t=>{
+ const {parent,store}=await fixture(t),out=path.join(parent,'bundle'),albedo=png(4,4,200),paint=png(3,5,255);
+ const manifest=await createExampleBundle(store.root,{out,id:'layered',title:'Layered Shore',description:'A terrain layer fixture.'});
+ assert.deepEqual(manifest.textures.map(t=>t.file),[albedo,png(4,4,128),paint].map(b=>`assets/imports/terrain/${sha(b)}.png`).sort());
+ assert.deepEqual(manifest.textures.find(t=>t.sha256===sha(paint)),{file:`assets/imports/terrain/${sha(paint)}.png`,sha256:sha(paint),bytes:paint.length,width:3,height:5});
+ const bundle=await readExampleBundle(out),layer=bundle.world.scene.terrain.appearance.layers[0];
+ assert.equal(layer.maps.albedo,`assets/imports/terrain/${sha(albedo)}.png`);assert.equal(layer.mask.paint,`assets/imports/terrain/${sha(paint)}.png`);
+ const workspace=path.join(parent,'installed');await installExampleBundle(out,workspace);
+ const installed=await WorldStore.open(workspace);t.after(()=>installed.close());
+ assert.equal(installed.current.revision,0);assert.equal(installed.textures[layer.maps.albedo].hash,sha(albedo));assert.equal(installed.textures[layer.mask.paint].hash,sha(paint));
+ // A changed PNG, a missing receipt or an unlisted texture never installs.
+ await writeFile(path.join(out,layer.maps.albedo),png(4,4,90));await assert.rejects(readExampleBundle(out),/texture hash or size/);
+ await writeFile(path.join(out,layer.maps.albedo),albedo);
+ const file=path.join(out,'example.json'),saved=JSON.parse(await readFile(file,'utf8')),{integrity,...body}=saved;body.textures=body.textures.filter(t=>t.sha256!==sha(paint));
+ const canonical=v=>JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.fromEntries(Object.keys(x).sort().map(key=>[key,x[key]])):x);
+ await writeFile(file,JSON.stringify({...body,integrity:sha(canonical(body))}));await assert.rejects(readExampleBundle(out),/terrain textures do not match/);
+ await writeFile(file,JSON.stringify(saved));await writeFile(path.join(out,`assets/imports/terrain/${'0'.repeat(64)}.png`),albedo);await assert.rejects(readExampleBundle(out),/Unexpected bundle file/);
 });
 
 test('terrain textures are checked against their size rules and the 32 MiB terrain budget',async t=>{

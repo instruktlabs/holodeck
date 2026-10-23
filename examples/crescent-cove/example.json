@@ -1,0 +1,386 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "crescent-cove",
+  "title": "Crescent Cove",
+  "description": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
+  "sourceRevision": 15,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "inhabitant.maker@1",
+      "scatter.seeded@1",
+      "terrain.heightfield@1",
+      "water.ocean@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "9b04ef1cc2a85def679b056a8515860f81c42c9ad5552673b4a2e684bdd73639",
+    "bytes": 507189
+  },
+  "assets": [
+    {
+      "id": "canopy",
+      "file": "assets/imports/8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec.glb",
+      "sha256": "8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec",
+      "bytes": 91072
+    },
+    {
+      "id": "coral-brain-heads",
+      "file": "assets/imports/97bb07c674709584e67165a9089d875935d528124ef8340370127b3d7d7f9452.glb",
+      "sha256": "97bb07c674709584e67165a9089d875935d528124ef8340370127b3d7d7f9452",
+      "bytes": 88920
+    },
+    {
+      "id": "coral-rubble-patch",
+      "file": "assets/imports/136df8f3bdc6cb992fdacff94da7d9b90a6253098ccba68959d6bb8e77a7d8e4.glb",
+      "sha256": "136df8f3bdc6cb992fdacff94da7d9b90a6253098ccba68959d6bb8e77a7d8e4",
+      "bytes": 53908
+    },
+    {
+      "id": "coral-staghorn",
+      "file": "assets/imports/bca1d908d09e869d891cf8ebfcb02fdd7e59371b26c80c1374fab37bcd88e139.glb",
+      "sha256": "bca1d908d09e869d891cf8ebfcb02fdd7e59371b26c80c1374fab37bcd88e139",
+      "bytes": 95116
+    },
+    {
+      "id": "coral-table",
+      "file": "assets/imports/54e8a245375e18070b5554984a10e8bf91c3c65f2bdc2d68195b0024c663ed9a.glb",
+      "sha256": "54e8a245375e18070b5554984a10e8bf91c3c65f2bdc2d68195b0024c663ed9a",
+      "bytes": 79524
+    },
+    {
+      "id": "debris-coconuts",
+      "file": "assets/imports/5b0d7b5f77a506d844a54d8e5e10c21f9b2cd8978dc800417071e436b9f18d7e.glb",
+      "sha256": "5b0d7b5f77a506d844a54d8e5e10c21f9b2cd8978dc800417071e436b9f18d7e",
+      "bytes": 14688
+    },
+    {
+      "id": "debris-driftwood-log",
+      "file": "assets/imports/44d0ce02c3549f93cb272f4bad010905eabef06de6b822dba2ed0ef6b8dd3316.glb",
+      "sha256": "44d0ce02c3549f93cb272f4bad010905eabef06de6b822dba2ed0ef6b8dd3316",
+      "bytes": 179124
+    },
+    {
+      "id": "debris-driftwood-pile",
+      "file": "assets/imports/2d3599d232745b86570d4b9ec93f62adcc41e0cafb1cf2a94b393da1a256c318.glb",
+      "sha256": "2d3599d232745b86570d4b9ec93f62adcc41e0cafb1cf2a94b393da1a256c318",
+      "bytes": 185260
+    },
+    {
+      "id": "debris-fronds",
+      "file": "assets/imports/53a9a97341ac15b8f63897af0d77faca92300500d59aaeb4e02fc263e6d7d793.glb",
+      "sha256": "53a9a97341ac15b8f63897af0d77faca92300500d59aaeb4e02fc263e6d7d793",
+      "bytes": 42008
+    },
+    {
+      "id": "debris-shells",
+      "file": "assets/imports/deafe78c73b46bda31d451d7fde1cae92a89a20ccf81f9dc2791c7515568da33.glb",
+      "sha256": "deafe78c73b46bda31d451d7fde1cae92a89a20ccf81f9dc2791c7515568da33",
+      "bytes": 27664
+    },
+    {
+      "id": "hearth",
+      "file": "assets/imports/d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4.glb",
+      "sha256": "d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4",
+      "bytes": 228096
+    },
+    {
+      "id": "jetty-deck",
+      "file": "assets/imports/d0dbc1c46058ae479491f5b87ba6e6a55871b47f714b799734286b4c438b1a16.glb",
+      "sha256": "d0dbc1c46058ae479491f5b87ba6e6a55871b47f714b799734286b4c438b1a16",
+      "bytes": 186932
+    },
+    {
+      "id": "jetty-platform",
+      "file": "assets/imports/ed5c7094fe6ea21a8f8bc3dbffdecfbfd21d36e44cdd87d6b766a853e5e791fa.glb",
+      "sha256": "ed5c7094fe6ea21a8f8bc3dbffdecfbfd21d36e44cdd87d6b766a853e5e791fa",
+      "bytes": 258788
+    },
+    {
+      "id": "jetty-stair",
+      "file": "assets/imports/edda733df1c3c9db40d546b8f54b6fba98f8c6881b0d596c38b557a87aab078f.glb",
+      "sha256": "edda733df1c3c9db40d546b8f54b6fba98f8c6881b0d596c38b557a87aab078f",
+      "bytes": 146072
+    },
+    {
+      "id": "lamp",
+      "file": "assets/imports/3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c.glb",
+      "sha256": "3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c",
+      "bytes": 34576
+    },
+    {
+      "id": "moodboard",
+      "file": "assets/imports/d8705827571824ca392790a714c12443ff9433fab77d8192e89be53f0ea7f378.glb",
+      "sha256": "d8705827571824ca392790a714c12443ff9433fab77d8192e89be53f0ea7f378",
+      "bytes": 17852
+    },
+    {
+      "id": "palm-arch",
+      "file": "assets/imports/074f4c7de19610909c9a58b460966730c46971c9a9b21f21da5fe7e6e9cd67ef.glb",
+      "sha256": "074f4c7de19610909c9a58b460966730c46971c9a9b21f21da5fe7e6e9cd67ef",
+      "bytes": 345316
+    },
+    {
+      "id": "palm-lean",
+      "file": "assets/imports/4ea8a1dee1a71d4f81fb9f3b06a1837d3d9e156e1d7e5db29942553cec9b5c87.glb",
+      "sha256": "4ea8a1dee1a71d4f81fb9f3b06a1837d3d9e156e1d7e5db29942553cec9b5c87",
+      "bytes": 357500
+    },
+    {
+      "id": "palm-tall",
+      "file": "assets/imports/2a92fe3faa55784724b04c679db2ff10de6b9bc1f9d4213f1a902436280ee8ba.glb",
+      "sha256": "2a92fe3faa55784724b04c679db2ff10de6b9bc1f9d4213f1a902436280ee8ba",
+      "bytes": 407600
+    },
+    {
+      "id": "palm-young",
+      "file": "assets/imports/8fa6ae7ecfc12c7bed6fc5199206993faee3dab9757dfb3e8a9d42f6978e242f.glb",
+      "sha256": "8fa6ae7ecfc12c7bed6fc5199206993faee3dab9757dfb3e8a9d42f6978e242f",
+      "bytes": 188668
+    },
+    {
+      "id": "plant-alocasia",
+      "file": "assets/imports/941c3154e87fa3cbb734c81f26dbc8842a1da7e6dfffc2e4ef46f59c38cbae20.glb",
+      "sha256": "941c3154e87fa3cbb734c81f26dbc8842a1da7e6dfffc2e4ef46f59c38cbae20",
+      "bytes": 36168
+    },
+    {
+      "id": "plant-grass-patch",
+      "file": "assets/imports/a1d16ee6d18b2f0daeabeed17327a9b09587ffa59dc2b49033057e37d68a51cc.glb",
+      "sha256": "a1d16ee6d18b2f0daeabeed17327a9b09587ffa59dc2b49033057e37d68a51cc",
+      "bytes": 59204
+    },
+    {
+      "id": "plant-grass-tuft",
+      "file": "assets/imports/0853fa1e00dcdd90ddad50817a4fbde411826b3d04ae610c58bff3105a2d6e76.glb",
+      "sha256": "0853fa1e00dcdd90ddad50817a4fbde411826b3d04ae610c58bff3105a2d6e76",
+      "bytes": 23196
+    },
+    {
+      "id": "plant-hibiscus",
+      "file": "assets/imports/c93f023b18ff12636f9182ac5bee35e5769424f49797eeeef422590f1de7374b.glb",
+      "sha256": "c93f023b18ff12636f9182ac5bee35e5769424f49797eeeef422590f1de7374b",
+      "bytes": 78124
+    },
+    {
+      "id": "plant-naupaka",
+      "file": "assets/imports/9daf8176d50588fc9461f4ab15ccc2ef3d510738c9d995902aa7a31251328760.glb",
+      "sha256": "9daf8176d50588fc9461f4ab15ccc2ef3d510738c9d995902aa7a31251328760",
+      "bytes": 92536
+    },
+    {
+      "id": "plant-nest-fern",
+      "file": "assets/imports/dacf3d77ebd4d10d99c434a6f0da3f5a10ba7a1d39cb6d5643bcefec40a35ee0.glb",
+      "sha256": "dacf3d77ebd4d10d99c434a6f0da3f5a10ba7a1d39cb6d5643bcefec40a35ee0",
+      "bytes": 19920
+    },
+    {
+      "id": "plant-purslane",
+      "file": "assets/imports/825ae90e217deeef43790046941ef41bb092052bc955557e9bacee6c73e2cd15.glb",
+      "sha256": "825ae90e217deeef43790046941ef41bb092052bc955557e9bacee6c73e2cd15",
+      "bytes": 91732
+    },
+    {
+      "id": "plant-scrub",
+      "file": "assets/imports/ef488fa582b82214dc6e3cc9536dd2065b4ed926525ebeda5d70a259241d2993.glb",
+      "sha256": "ef488fa582b82214dc6e3cc9536dd2065b4ed926525ebeda5d70a259241d2993",
+      "bytes": 93084
+    },
+    {
+      "id": "plant-sword-fern",
+      "file": "assets/imports/837eeace7b5262a11ef073fd553c92545d56cde1dcd601ab30e3b90d10583294.glb",
+      "sha256": "837eeace7b5262a11ef073fd553c92545d56cde1dcd601ab30e3b90d10583294",
+      "bytes": 76432
+    },
+    {
+      "id": "plant-vine-fringe",
+      "file": "assets/imports/55e48795be54e2a7329b210f567db3e677c5769a23ba1d0e4a05e809ceef5c95.glb",
+      "sha256": "55e48795be54e2a7329b210f567db3e677c5769a23ba1d0e4a05e809ceef5c95",
+      "bytes": 78624
+    },
+    {
+      "id": "plant-vine-mat",
+      "file": "assets/imports/5f2d992969391d3258fada8bfc1d2e9e66954e9e7ce31980fb4dc2c1a92ba157.glb",
+      "sha256": "5f2d992969391d3258fada8bfc1d2e9e66954e9e7ce31980fb4dc2c1a92ba157",
+      "bytes": 86284
+    },
+    {
+      "id": "planting",
+      "file": "assets/imports/3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28.glb",
+      "sha256": "3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28",
+      "bytes": 436248
+    },
+    {
+      "id": "rock-beach-a",
+      "file": "assets/imports/1f5c32d360635173740d65716f9f537b437292a8a87df5e84991afe722c6940e.glb",
+      "sha256": "1f5c32d360635173740d65716f9f537b437292a8a87df5e84991afe722c6940e",
+      "bytes": 1500820
+    },
+    {
+      "id": "rock-beach-b",
+      "file": "assets/imports/38823b3641210f5dcf760dd62314685c9e5ef47c212d92797f56424a6872b3f2.glb",
+      "sha256": "38823b3641210f5dcf760dd62314685c9e5ef47c212d92797f56424a6872b3f2",
+      "bytes": 1505324
+    },
+    {
+      "id": "rock-boulder-a",
+      "file": "assets/imports/8ac753951c19c5c9a84cdab39c92ef5b82c6eb84628c89f744ca514cfe8592f2.glb",
+      "sha256": "8ac753951c19c5c9a84cdab39c92ef5b82c6eb84628c89f744ca514cfe8592f2",
+      "bytes": 1408504
+    },
+    {
+      "id": "rock-boulder-b",
+      "file": "assets/imports/6014998980c4ceda2224c7d7be19999afb2fe1f097eafb8160884f98dc55b721.glb",
+      "sha256": "6014998980c4ceda2224c7d7be19999afb2fe1f097eafb8160884f98dc55b721",
+      "bytes": 1399796
+    },
+    {
+      "id": "rock-boulder-c",
+      "file": "assets/imports/f700d5e35ad0449a9977feafc9448c5941bd5daa6caef74242c9b858d54b9b08.glb",
+      "sha256": "f700d5e35ad0449a9977feafc9448c5941bd5daa6caef74242c9b858d54b9b08",
+      "bytes": 1443492
+    },
+    {
+      "id": "rock-cliff-a",
+      "file": "assets/imports/77cd96c0c65debb1ad38ed18fa45bb264ed77bf84b90f94bb744b3d659a892df.glb",
+      "sha256": "77cd96c0c65debb1ad38ed18fa45bb264ed77bf84b90f94bb744b3d659a892df",
+      "bytes": 1699800
+    },
+    {
+      "id": "rock-cliff-b",
+      "file": "assets/imports/9dfb3268c53c38b9d30359855b31033c809e9bb76196a8af28f586349af08332.glb",
+      "sha256": "9dfb3268c53c38b9d30359855b31033c809e9bb76196a8af28f586349af08332",
+      "bytes": 1565464
+    },
+    {
+      "id": "rock-cliff-c",
+      "file": "assets/imports/8d007a78b26dfb3e778183422014e3331fa51c3ee0dd13b37e0ed2ab10d28eff.glb",
+      "sha256": "8d007a78b26dfb3e778183422014e3331fa51c3ee0dd13b37e0ed2ab10d28eff",
+      "bytes": 1570188
+    },
+    {
+      "id": "rock-outcrop-a",
+      "file": "assets/imports/bd1ee376ebdc968cef0b50f5376458a6a94424aec1c767e1b16b2d3a0ef4477f.glb",
+      "sha256": "bd1ee376ebdc968cef0b50f5376458a6a94424aec1c767e1b16b2d3a0ef4477f",
+      "bytes": 1620900
+    },
+    {
+      "id": "rock-outcrop-b",
+      "file": "assets/imports/bc1a7b9f57574afe7563a52860f6d1acb27f321d4577cb445384b7874fa1dc51.glb",
+      "sha256": "bc1a7b9f57574afe7563a52860f6d1acb27f321d4577cb445384b7874fa1dc51",
+      "bytes": 1540016
+    },
+    {
+      "id": "rock-reef-a",
+      "file": "assets/imports/1547f3866a8cc7069ff83c5a240fc1e36ed6862d6b2028d0a2df3119600f850c.glb",
+      "sha256": "1547f3866a8cc7069ff83c5a240fc1e36ed6862d6b2028d0a2df3119600f850c",
+      "bytes": 1446000
+    },
+    {
+      "id": "rock-reef-b",
+      "file": "assets/imports/a91191752ce46bfd0f468e1224cc892408b4a2b1fecb664d7811de0cbcc418ed.glb",
+      "sha256": "a91191752ce46bfd0f468e1224cc892408b4a2b1fecb664d7811de0cbcc418ed",
+      "bytes": 724212
+    },
+    {
+      "id": "rug",
+      "file": "assets/imports/8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1.glb",
+      "sha256": "8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1",
+      "bytes": 18760
+    },
+    {
+      "id": "seagrass",
+      "file": "assets/imports/b35d2a2c6db3d358acb38e2b79fa370e16aef52f48406f008bb6bb6c026cacb4.glb",
+      "sha256": "b35d2a2c6db3d358acb38e2b79fa370e16aef52f48406f008bb6bb6c026cacb4",
+      "bytes": 16592
+    },
+    {
+      "id": "seating",
+      "file": "assets/imports/de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0.glb",
+      "sha256": "de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0",
+      "bytes": 7752
+    },
+    {
+      "id": "shelter",
+      "file": "assets/imports/c09bc1b3a273e8e5dc12f6410c99ca8b8abb68fc59f89eda0e73c6777a8b5562.glb",
+      "sha256": "c09bc1b3a273e8e5dc12f6410c99ca8b8abb68fc59f89eda0e73c6777a8b5562",
+      "bytes": 640492
+    },
+    {
+      "id": "structure",
+      "file": "assets/imports/4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4.glb",
+      "sha256": "4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4",
+      "bytes": 741484
+    }
+  ],
+  "textures": [
+    {
+      "file": "assets/imports/terrain/01c0197b3e916906455e99c9ae30e36f34a0567d4717d0267cf16b8d07ff00e1.png",
+      "sha256": "01c0197b3e916906455e99c9ae30e36f34a0567d4717d0267cf16b8d07ff00e1",
+      "bytes": 1136400,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/03c176a895e7df05e82ceacbc90879d497d6999ecbc002d9366ee1bc2b482a53.png",
+      "sha256": "03c176a895e7df05e82ceacbc90879d497d6999ecbc002d9366ee1bc2b482a53",
+      "bytes": 2039933,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/064219de7a846389232b702708e44ea33df6f277aab166b04d671ada8b5f3a38.png",
+      "sha256": "064219de7a846389232b702708e44ea33df6f277aab166b04d671ada8b5f3a38",
+      "bytes": 2501879,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/142834d6fa1a30abb4bc04007715a312f41d7a77b4993608bd2a5bc9e82e997c.png",
+      "sha256": "142834d6fa1a30abb4bc04007715a312f41d7a77b4993608bd2a5bc9e82e997c",
+      "bytes": 1517647,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/1829be02371f5f977e2aa3a5c1e6677de7d0b47b4391382291b2ff69d879419d.png",
+      "sha256": "1829be02371f5f977e2aa3a5c1e6677de7d0b47b4391382291b2ff69d879419d",
+      "bytes": 918947,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/1e04987c117bcebf291dc023842a50eb4dc6495f0062ae447fc30f2c90933edf.png",
+      "sha256": "1e04987c117bcebf291dc023842a50eb4dc6495f0062ae447fc30f2c90933edf",
+      "bytes": 6945,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/2523f7c4acfe3e03201e2bc19947b8e6b454f733d9488337a40d2b0716d4ee27.png",
+      "sha256": "2523f7c4acfe3e03201e2bc19947b8e6b454f733d9488337a40d2b0716d4ee27",
+      "bytes": 35824,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/f89651e1f8887a0708c34071fbf95b6fe4d808844bfd90367dc53a281f8ae594.png",
+      "sha256": "f89651e1f8887a0708c34071fbf95b6fe4d808844bfd90367dc53a281f8ae594",
+      "bytes": 2073408,
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "preview": {
+    "file": "preview.png",
+    "sha256": "a0b2d821b253214017064786ff89298352c26c518b9085d1306c8890fb32dfc3",
+    "bytes": 628533,
+    "width": 1280,
+    "height": 720
+  },
+  "integrity": "a2c3d3b64f9c98256b086ce6f3d7d971835d379f44b5a3eb17d01d863bae7119"
+}

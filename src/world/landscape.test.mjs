@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {WorldRuntime} from './runtime.mjs';
 
-const courtyard=JSON.parse(await readFile(new URL('../../examples/courtyard.json',import.meta.url),'utf8'));
+const courtyard=JSON.parse(await readFile(new URL('../../test/fixtures/courtyard-template.json',import.meta.url),'utf8'));
 const at=(o,x,z)=>Math.abs(x-o.position[0])<=o.shape.size[0]/2+.001&&Math.abs(z-o.position[2])<=o.shape.size[2]/2+.001;
 
 test('courtyard planting footprints sit in continuous soil beds with clearance from masonry',()=>{

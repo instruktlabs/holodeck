@@ -38,6 +38,15 @@ test('the lagoon behind the reef keeps low energy, so its beach gets small swash
   assert.ok(at(open,99,2)<at(open,84,2),'energy dies inland');
 });
 
+// The capability text promises this: after the rim, the swell breaks again only
+// where the lagoon gets shallower than the rim flat (plus slow recovery).
+test('the swell breaks again at a lagoon beach shallower than the reef flat, not over the deeper lagoon',()=>{
+  const map=build(),strength=x=>at(map,x,0);
+  for(const x of [50,60,72,79])assert.equal(strength(x),0,`no break over the lagoon at ${x} m (depth ${(-profile(x)).toFixed(1)} m)`);
+  assert.ok(Math.max(...[81,82,83].map(strength))>.3,'the beach face shallower than the rim breaks again');
+  assert.equal(at(map,82,1),0,'whitewater restarts from the beach break');
+});
+
 test('the map is deterministic and follows the swell direction',()=>{
   assert.deepEqual(build(),build());
   const reversed=build({surf:{...surf,direction:[-1,0]}});

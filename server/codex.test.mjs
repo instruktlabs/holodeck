@@ -68,7 +68,7 @@ async function readCapabilities(f,id){
  return out;
 }
 test('world_read supplies valid surface and possession records to previously scaffolded workspaces',async t=>{
- const f=await fixture(t),scene=JSON.parse(await readFile(new URL('../examples/courtyard.json',import.meta.url)));
+ const f=await fixture(t),scene=JSON.parse(await readFile(new URL('../test/fixtures/courtyard-template.json',import.meta.url)));
  f.agent.store.current={revision:2,schemaVersion:2,scene};
  await f.agent.startTurn({text:'Read supported terrain',model:'test-model'});
  const {spatial}=await readCapabilities(f,101);
@@ -98,7 +98,7 @@ test('world_read exposes the same delivery profile for legacy and runtime worlds
 });
 
 test('world_sample reports accepted terrain support without mutating or proposing a revision',async t=>{
- const f=await fixture(t),scene=JSON.parse(await readFile(new URL('../examples/courtyard.json',import.meta.url)));
+ const f=await fixture(t),scene=JSON.parse(await readFile(new URL('../test/fixtures/courtyard-template.json',import.meta.url)));
  scene.objects=[];scene.runtime.blockers=[];scene.runtime.modules.push('terrain.heightfield@1','inhabitant.maker@1');scene.runtime.possession={preset:'maker',camera:'first'};
  scene.terrain={type:'heightfield',bounds:[-20,20,-20,20],segments:[8,8],baseHeight:3,stamps:[]};
  f.agent.store.current={revision:2,schemaVersion:2,scene};const before=JSON.stringify(f.agent.store.current);

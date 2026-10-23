@@ -11,6 +11,7 @@ import {probe} from '../prototype/scene.jsx';
 import {loadTerrainTextures} from '../world/terrain-textures.js';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
+import {enableParallelCompile} from '../world/parallel-compile.js';
 import {validateScenario,scenarioCamera} from './benchmark-protocol.mjs';
 const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='1';
 const benchmarkCamera=benchmarkEnabled&&window.holodeckBenchmarkScenario?scenarioCamera(validateScenario(window.holodeckBenchmarkScenario)):{};
@@ -59,7 +60,7 @@ function Viewer(){
  function enterWorld(){setInhabiting(true);setCameraMode('walk');setHidden(false);document.activeElement?.blur();requestLook();}
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
  return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden&&inhabiting?'hud-hidden':''}`}>
-  <div className="viewer-scene"><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await renderer.init();return renderer;}}>
+  <div className="viewer-scene"><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await renderer.init();enableParallelCompile(renderer);return renderer;}}>
    <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
   <header className="viewer-toolbar"><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>

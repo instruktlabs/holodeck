@@ -1,6 +1,7 @@
 import React, { Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Canvas,useFrame } from '@react-three/fiber';
 import { ACESFilmicToneMapping, WebGPURenderer } from 'three/webgpu';
+import { enableParallelCompile } from './parallel-compile.js';
 import { Scene, probe } from '../prototype/scene.jsx';
 import { useVoice } from '../prototype/voice.js';
 import {useAssetBundle,useWorld,useWorldClient,WorldClientContext} from './client.js';
@@ -102,6 +103,8 @@ function WorldSession({host}){
     setHotNotice(`Revision ${world.revision} loaded where you are${chips.length?` · ${chips.slice(0,3).join(' · ')}`:''}`);
     const timer=setTimeout(()=>setHotNotice(''),4500);return()=>clearTimeout(timer);
   },[world]);
+  // Host notices, such as a Kiln workspace upgraded on connect, use the same line.
+  useEffect(()=>{if(!host.notice)return;setHotNotice(host.notice.text);const timer=setTimeout(()=>setHotNotice(''),6000);return()=>clearTimeout(timer);},[host.notice]);
   // The chosen model and effort survive reloads: this browser's last choice
   // first, then the session's saved values.
   const choiceProvider=useRef(null);
@@ -171,7 +174,7 @@ function WorldSession({host}){
   </section>;
 
   return <main className={`live-world hd ${inhabiting?'is-inhabiting':''} ${inhabiting&&hudHidden?'hud-hidden':''} ${sheetOpen?'has-sheet':''}`}>
-    <div className="scene"><Boundary><Canvas shadows dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=1.12;r.info.autoReset=false;await r.init();return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,interact,requestLook,toggleHud,toggleFree,person,setPerson}} leaveWorld={lockLost} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{preview&&ghost.items.length>0&&ghostBundle.bundle&&<Ghosts items={ghost.items} models={ghostBundle.bundle.models}/>}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects/></Suspense></Canvas></Boundary></div>
+    <div className="scene"><Boundary><Canvas shadows dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=1.12;r.info.autoReset=false;await r.init();enableParallelCompile(r);return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,interact,requestLook,toggleHud,toggleFree,person,setPerson}} leaveWorld={lockLost} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{preview&&ghost.items.length>0&&ghostBundle.bundle&&<Ghosts items={ghost.items} models={ghostBundle.bundle.models}/>}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects/></Suspense></Canvas></Boundary></div>
     <div className={`reticle ${aimText?'has-target':''}`}/><div className="aim-label">{aimText}</div>
     {inhabiting?<header className="hd-top is-inhabiting">
       <button className="b hud" onClick={leaveWorld}><Icon name="close" size={15}/>Return to making <kbd>Esc</kbd></button>

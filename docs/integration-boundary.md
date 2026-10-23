@@ -5,8 +5,9 @@ and world composition, runtime behavior, UI and agent orchestration in Holodeck.
 Holodeck owns the adapter between an asset delivery and its current runtime.
 Neither package's successful validation substitutes for review in the other.
 
-Holodeck currently pins `@instruktlabs/kiln` **1.3.1**. Keep that exact dependency
-until a separately scoped change has a reproduced need and compatibility evidence.
+Holodeck currently pins `@instruktlabs/kiln` **1.4.0**, adopted for Release 2 after the
+full test suite passed against it. Keep that exact dependency until a separately scoped
+change has a reproduced need and compatibility evidence.
 The installed package and its live tool contracts are authoritative; a feature
 in a development checkout or a proposal is not an installed capability.
 
@@ -29,7 +30,11 @@ See [licensing](../LICENSING.md) for MIT code and CC0 bundled content.
 Kiln runs on the local Node side. The browser loads the admitted GLB and uses
 Holodeck's renderer; it does not import Kiln's root SDK. Asset authoring stays in
 a separate configured workspace. Package maintenance does not authorize silently
-rewriting existing authors' installed skills or source files.
+rewriting existing authors' installed skills or source files. When a Kiln update
+leaves a world's Kiln workspace out of date, connecting an agent runs Kiln's own
+upgrade, which replaces only unedited Kiln-managed files and refuses conflicts;
+the interface says how many files it refreshed, and a refusal stops the
+connection with Kiln's reason.
 
 ## Versioned delivery profile and existing admission
 

@@ -10,10 +10,10 @@ Holodeck uses MIT for code and CC0 1.0 Universal for the designated first-party 
 
 Matthew Kissinger applies [CC0 1.0 Universal](LICENSES/CC0-1.0.txt) to his copyright and related rights in the following first-party content, to the extent permitted by law:
 
-- Scene data, manifests, GLBs and previews under examples/, including Construct, Courtyard, Kinetic and Tidemark Island.
+- Scene data, manifests, GLBs, terrain textures and previews under examples/, including Construct, Kinetic, Crescent Cove, the Quiet Courtyard and Tidemark Island, and the asset-free Courtyard template kept as a test fixture under test/fixtures/.
 - Models under public/assets/.
 - Images and non-code asset metadata under assets/cove/. Procedural JavaScript programs remain MIT.
-- Scene data (scene.json), manifests and GLBs in the static scene exports under site/worlds/: The Quiet Courtyard (site/worlds/courtyard/), the Cove (site/worlds/cove/) and Tidemark Island (site/worlds/tidemark/). The compiled viewer scripts and styles beside them are code under MIT. Their preview.jpg cards are not part of this dedication.
+- Scene data (scene.json), manifests and GLBs in the static scene exports the site build makes from these examples at holodeck.kilnstudio.tools/worlds/: Crescent Cove, the Quiet Courtyard, the Cove and Tidemark Island. The compiled viewer scripts and styles beside them are code under MIT. Their preview.jpg cards are not part of this dedication.
 - Concept images under design/ and public/design/.
 - The first-party reference SVG and synthesized speech fixtures under public/fixtures/.
 
@@ -23,7 +23,7 @@ This designation does not apply to users' own worlds, uploads, references or gen
 
 ## Project site images
 
-Screenshots, scene previews, social cards and icons under site/ (site/images/, site/worlds/*/preview.jpg and the site icons) are not covered by the CC0 designation above.
+Screenshots, scene previews, social cards and icons under site/ (site/images/, site/cards/, which become each scene's preview.jpg, and the site icons) are not covered by the CC0 designation above.
 
 ## Third-party material
 

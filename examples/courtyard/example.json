@@ -1,0 +1,223 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "courtyard",
+  "title": "The Quiet Courtyard",
+  "description": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
+  "sourceRevision": 8,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "motion.spin@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "c6f2e287e767d9f33324ace41ad1d8116ee73668286e8a8aaff1abc89e6ae0e8",
+    "bytes": 109788
+  },
+  "assets": [
+    {
+      "id": "bench-park",
+      "file": "assets/imports/f207e62c5261f1fd17b3ba3968e1e58c9fb39d8123e158e6d99682d7429408aa.glb",
+      "sha256": "f207e62c5261f1fd17b3ba3968e1e58c9fb39d8123e158e6d99682d7429408aa",
+      "bytes": 235352
+    },
+    {
+      "id": "bench-stone",
+      "file": "assets/imports/aad1dbfbbc79e7799dd234192a895b72d1482ad3b5060e2f501e016dfd794f96.glb",
+      "sha256": "aad1dbfbbc79e7799dd234192a895b72d1482ad3b5060e2f501e016dfd794f96",
+      "bytes": 201972
+    },
+    {
+      "id": "canopy",
+      "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+      "sha256": "0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0",
+      "bytes": 929100
+    },
+    {
+      "id": "fountain-cascade",
+      "file": "assets/imports/4c572f84fcd43237419bbb691c3e96150d45e1353756ccd50ca5dd679b800701.glb",
+      "sha256": "4c572f84fcd43237419bbb691c3e96150d45e1353756ccd50ca5dd679b800701",
+      "bytes": 76024
+    },
+    {
+      "id": "gate-pier",
+      "file": "assets/imports/5e03217f7392cce31a87e37582d77081f1507f09b187f93076a8abf177758e3a.glb",
+      "sha256": "5e03217f7392cce31a87e37582d77081f1507f09b187f93076a8abf177758e3a",
+      "bytes": 84936
+    },
+    {
+      "id": "hearth",
+      "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+      "sha256": "07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba",
+      "bytes": 1656308
+    },
+    {
+      "id": "lamp",
+      "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+      "sha256": "c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808",
+      "bytes": 254364
+    },
+    {
+      "id": "lamp-bollard",
+      "file": "assets/imports/49f33a7d06a5578f5fc4ae1dec23885f68f25503e0ec800d0b8f1e9bc0b0024b.glb",
+      "sha256": "49f33a7d06a5578f5fc4ae1dec23885f68f25503e0ec800d0b8f1e9bc0b0024b",
+      "bytes": 158372
+    },
+    {
+      "id": "lamp-post",
+      "file": "assets/imports/770131e904e7490fa509337b05786c4324f685ffa52448155add8bc04a587df9.glb",
+      "sha256": "770131e904e7490fa509337b05786c4324f685ffa52448155add8bc04a587df9",
+      "bytes": 180260
+    },
+    {
+      "id": "moodboard",
+      "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+      "sha256": "0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
+    },
+    {
+      "id": "pave-curb",
+      "file": "assets/imports/8cd3a720b19dd97a60cab9286aaa3a1f01017072377d0061034992a573b439a3.glb",
+      "sha256": "8cd3a720b19dd97a60cab9286aaa3a1f01017072377d0061034992a573b439a3",
+      "bytes": 26860
+    },
+    {
+      "id": "pave-curb-corner",
+      "file": "assets/imports/a525302d9b626e2b5879e906893aa482bf3a72e45b1e48f832ad0aec98ef4587.glb",
+      "sha256": "a525302d9b626e2b5879e906893aa482bf3a72e45b1e48f832ad0aec98ef4587",
+      "bytes": 9156
+    },
+    {
+      "id": "pave-field-a",
+      "file": "assets/imports/089c014c8904573a906e02982e1f0a7c3bb87f33426cd43039e8b69885f018d6.glb",
+      "sha256": "089c014c8904573a906e02982e1f0a7c3bb87f33426cd43039e8b69885f018d6",
+      "bytes": 75832
+    },
+    {
+      "id": "pave-field-b",
+      "file": "assets/imports/c2e9f54db7b5e13612eea2562588377ad33b157f77919d7c81e8bf22d9a6745b.glb",
+      "sha256": "c2e9f54db7b5e13612eea2562588377ad33b157f77919d7c81e8bf22d9a6745b",
+      "bytes": 134932
+    },
+    {
+      "id": "pave-step",
+      "file": "assets/imports/93c654b96136c1646b2c73f49ca0947f4dde6f3d6475edc25985e55df5cf799c.glb",
+      "sha256": "93c654b96136c1646b2c73f49ca0947f4dde6f3d6475edc25985e55df5cf799c",
+      "bytes": 33472
+    },
+    {
+      "id": "plant-lavender",
+      "file": "assets/imports/36165f92ab6a5090c5bcbaf75a7382f1c0c6f0d4697cea5dc39d639d02fac81f.glb",
+      "sha256": "36165f92ab6a5090c5bcbaf75a7382f1c0c6f0d4697cea5dc39d639d02fac81f",
+      "bytes": 129048
+    },
+    {
+      "id": "planter-square",
+      "file": "assets/imports/be8dd630b548b58f77f7c3b2a2e737fe1007b296c7cf253ed04d6eee2238d7db.glb",
+      "sha256": "be8dd630b548b58f77f7c3b2a2e737fe1007b296c7cf253ed04d6eee2238d7db",
+      "bytes": 457700
+    },
+    {
+      "id": "planter-urn",
+      "file": "assets/imports/4e87d39c92956ead45926198c3a2a6a699e7cd7678a905ab7690675886a7c237.glb",
+      "sha256": "4e87d39c92956ead45926198c3a2a6a699e7cd7678a905ab7690675886a7c237",
+      "bytes": 476524
+    },
+    {
+      "id": "planting",
+      "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+      "sha256": "cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8",
+      "bytes": 1053324
+    },
+    {
+      "id": "plaza-fountain",
+      "file": "assets/imports/20cc045bef270b029b867cadb8a265cfc44ff40f434d016625b4fd0c2801fb30.glb",
+      "sha256": "20cc045bef270b029b867cadb8a265cfc44ff40f434d016625b4fd0c2801fb30",
+      "bytes": 1424868
+    },
+    {
+      "id": "rug",
+      "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+      "sha256": "4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857",
+      "bytes": 121880
+    },
+    {
+      "id": "seating",
+      "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
+      "sha256": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
+      "bytes": 890148
+    },
+    {
+      "id": "shrub-box",
+      "file": "assets/imports/79811e4f56283556f658d24777e6c568d4a0fb7d6cb0a70671bad172e8bb5009.glb",
+      "sha256": "79811e4f56283556f658d24777e6c568d4a0fb7d6cb0a70671bad172e8bb5009",
+      "bytes": 174004
+    },
+    {
+      "id": "statue-bronze",
+      "file": "assets/imports/8a5f8c59337283fb22f2bd29d4886c1c1115749d5bf6c6bd010aa458a44cf091.glb",
+      "sha256": "8a5f8c59337283fb22f2bd29d4886c1c1115749d5bf6c6bd010aa458a44cf091",
+      "bytes": 275712
+    },
+    {
+      "id": "statue-figure",
+      "file": "assets/imports/6c34ff35f9515b8af47ef65104e462ba56dca94ebdeed4b2ee1c2af8b7f8ab58.glb",
+      "sha256": "6c34ff35f9515b8af47ef65104e462ba56dca94ebdeed4b2ee1c2af8b7f8ab58",
+      "bytes": 665560
+    },
+    {
+      "id": "statue-monolith",
+      "file": "assets/imports/2f07691222f79a81eb4488d24eb3dbcbac9da7f273978ceb053f5cb66ba9b53e.glb",
+      "sha256": "2f07691222f79a81eb4488d24eb3dbcbac9da7f273978ceb053f5cb66ba9b53e",
+      "bytes": 116216
+    },
+    {
+      "id": "structure",
+      "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+      "sha256": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "bytes": 1398268
+    },
+    {
+      "id": "tree-cypress",
+      "file": "assets/imports/13b989f92f16c7de529fbf01215227d6abf2598fe33729426933050e82ceb086.glb",
+      "sha256": "13b989f92f16c7de529fbf01215227d6abf2598fe33729426933050e82ceb086",
+      "bytes": 639456
+    },
+    {
+      "id": "tree-olive",
+      "file": "assets/imports/1fa318796c022a8a7d779ae34fca316ff4106815f2b1f7fe03514844ef8ef9fe.glb",
+      "sha256": "1fa318796c022a8a7d779ae34fca316ff4106815f2b1f7fe03514844ef8ef9fe",
+      "bytes": 1360188
+    },
+    {
+      "id": "tree-plane",
+      "file": "assets/imports/f939b12bf57bdc9d8801760e32042b31ac899a9f924e73556a4211ea0064412a.glb",
+      "sha256": "f939b12bf57bdc9d8801760e32042b31ac899a9f924e73556a4211ea0064412a",
+      "bytes": 1132872
+    },
+    {
+      "id": "wall-pier",
+      "file": "assets/imports/6e5cc025c8e2c5a4c2984ee24c1a9b9de0b69d782a621ecf23399395babb03e6.glb",
+      "sha256": "6e5cc025c8e2c5a4c2984ee24c1a9b9de0b69d782a621ecf23399395babb03e6",
+      "bytes": 94124
+    },
+    {
+      "id": "wall-segment",
+      "file": "assets/imports/b6de26a66c51811294bdd48d2158ff791f07ab8686de2ec956bca55982129401.glb",
+      "sha256": "b6de26a66c51811294bdd48d2158ff791f07ab8686de2ec956bca55982129401",
+      "bytes": 105836
+    }
+  ],
+  "preview": {
+    "file": "preview.png",
+    "sha256": "9875dfc34f12e5e309eb810eaa9902d89448e8bca63211dcf1f91b82bb463b33",
+    "bytes": 609742,
+    "width": 1280,
+    "height": 720
+  },
+  "integrity": "857fdc872496ae0b81c72ac96ab2fc0105fe86d704c5136b8661eaf231147ebf"
+}

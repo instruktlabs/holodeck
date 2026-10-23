@@ -124,7 +124,14 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
         if(!Number.isSafeInteger(data.revision)||!Array.isArray(data.position)||data.position.length!==3||data.position.some(n=>!Number.isFinite(n)))throw new Error('Invalid observation');
         observation={...data,receivedAt:new Date().toISOString()};return send(res,{ok:true});
       }
-      if(route==='/api/agent/connect'){const provider=data.provider||agent.snapshot?.().provider||'codex';selectAgent(provider);await ensureWorkspace(root,{provider});return send(res,await agent.connect());}
+      if(route==='/api/agent/connect'){
+        const provider=data.provider||agent.snapshot?.().provider||'codex';selectAgent(provider);
+        const upgrade=await ensureWorkspace(root,{provider});
+        // Kiln 1.4.0's upgrade report lists the files it rewrote in `changed`.
+        const files=upgrade?.changed?.length;
+        if(files)emit('notice',`Kiln workspace upgraded for the installed Kiln · ${files} Kiln-managed file${files===1?'':'s'} refreshed`);
+        return send(res,await agent.connect());
+      }
       if(route==='/api/agent/login')return send(res,await agent.login());
       if(route==='/api/agent/turn'||route==='/api/agent/image'){
         if(historyActive)throw new Error('Wait for the history operation to finish before starting an agent');
