@@ -291,6 +291,8 @@ test('only a plain run of one script inside assets/source qualifies for a script
   assert.equal(script('uv run assets/source/turn11/turn11.py verify clump sites 2>&1 | Select-Object -Last 40'),'assets/source/turn11/turn11.py');
   assert.equal(script('uv run assets\\source\\turn10b\\turn10b.py compare 2>&1 | Select-Object -Last 10'),'assets/source/turn10b/turn10b.py');
   assert.equal(script('node assets/source/plan.mjs --seed 3 | tail -n 20'),'assets/source/plan.mjs');
+  assert.equal(script('uv run assets/source/turn12/turn12.py bedmask 2>&1 | Select-Object -First 60'),'assets/source/turn12/turn12.py');
+  assert.equal(script('node assets/source/plan.mjs | head -n 5'),'assets/source/plan.mjs');
   assert.equal(script('python ./assets/source/a.py'),'assets/source/a.py');
   for(const command of ['uv run assets/source/a.py; Remove-Item world -Recurse','uv run assets/source/a.py > world/world.json','uv run assets/source/a.py $(whoami)',
    'uv run assets/source/a.py "quoted arg"','uv run assets/source/../../outside.py','uv run assets/imports/a.py','uv run --with requests assets/source/a.py',

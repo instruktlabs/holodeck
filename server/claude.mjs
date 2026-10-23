@@ -40,7 +40,7 @@ const shellGrant=(tool,command,root)=>'shell:'+JSON.stringify([tool,root,command
 // stderr merge and an output tail. The grant is bound to a hash of every code file
 // under assets/source, since turn scripts load each other; any code edit asks again,
 // while the JSON and images a script writes do not.
-const SCRIPT_RUN=/^(uv run|python3?|py|node) +((?:\.[\\/])?assets[\\/]source[\\/][\w.\-\\/]+\.(?:py|mjs|js))((?: +[\w.,=:@%+\-\\/]+)*)(?: +2>&1)?(?: *\| *(?:Select-Object -Last \d+|tail -n ?\d+))?\s*$/;
+const SCRIPT_RUN=/^(uv run|python3?|py|node) +((?:\.[\\/])?assets[\\/]source[\\/][\w.\-\\/]+\.(?:py|mjs|js))((?: +[\w.,=:@%+\-\\/]+)*)(?: +2>&1)?(?: *\| *(?:Select-Object -(?:First|Last) \d+|(?:head|tail) -n ?\d+))?\s*$/;
 const SOURCE_CODE=/\.(?:py|mjs|cjs|js|ts|ps1|sh)$/i,MAX_SOURCE_FILES=4000,MAX_SOURCE_BYTES=64*1024*1024;
 const scriptKey=(tool,root,script,hash)=>'script:'+JSON.stringify([tool,root,script,hash]);
 export function scriptRun(tool,command,root){

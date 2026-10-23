@@ -76,6 +76,7 @@ performance.
 | The site deploy script defaulted to branch `production`, but the `holodeck` Pages project's production branch is `main`, so an upload would only have made a preview. | `scripts/deploy-site.mjs` defaults to `main`. Before uploading, it reads the project's production deployments (`wrangler pages deployment list --environment production --json`, read-only) and refuses a branch that differs. `site/404.html` gives missing paths a real 404. | `server/deploy-site.test.mjs`: the listing is read before upload, a non-production branch and a project with no production deployment are refused, and nothing is uploaded. |
 | Example bundles refused any scene with terrain layers, so a layered island could not ship as an example. | `server/example-bundle.mjs` copies each pinned layer map and paint mask to `assets/imports/terrain/<sha256>.png` and lists it under `textures` in `example.json`. The terrain is repointed at those names. Install rechecks hashes, dimensions and the terrain size rules, and requires the listed files to be exactly the ones the terrain names. | `server/terrain-textures.test.mjs`: a layered world bundles, installs and reopens with the same texture hashes. A changed PNG, a dropped receipt and an unlisted file are each refused. |
 | H46: after the host moved to Kiln 1.4.0, the island's Kiln workspace was out of date and every Kiln command failed, with no sign on connect. | `ensureKilnWorkspace` in `server/kiln-workspace.mjs` runs Kiln's `kiln-init --check` when an agent connects to an existing workspace and, when it reports `update-required`, runs `--upgrade` before the agent starts. Kiln replaces only files it manages and authors have not edited, and refuses conflicts without changing anything; that reason stops the connection. The host announces an upgrade in the presence line ("Kiln workspace upgraded for the installed Kiln · N Kiln-managed files refreshed"). A check that cannot run leaves the workspace as it was. | `server/kiln-workspace.test.mjs` (stale, refused and current workspaces), `server/claude.test.mjs` (the notice event). Real Kiln 1.4.0 on a scratch workspace with an older runtime version: upgraded in 0.85 s; a current workspace adds 0.18 s per connect. Browser check of the notice. |
+| Turn 12: runs piped to `Select-Object -First N` (or `head -n N`) did not qualify for the H40 script grant, so four reruns asked for a one-time approval. | `SCRIPT_RUN` in `server/claude.mjs` accepts `Select-Object -First` or `-Last` and `head` or `tail -n` after a script run; each only trims output. | `server/claude.test.mjs` (parsing). |
 
 ## Holodeck findings
 
@@ -724,6 +725,48 @@ until Kiln makes it configurable (instruktlabs/kiln#212).
       solid green. A seabed terrain layer masked to the meadows would add
       colour underneath at no draw cost; the agent left it out because
       terrain was not in the brief.
+
+12. Meadow bed and a softer trail: applied as revision 15.
+    - **Brief:** the last turn before the hero shot, with no new draws. Add a
+      terrain layer under the three meadows so they read as green shapes
+      rather than speckled tufts, and soften the brown litter band along the
+      headland trail. The brief named the hub's Overlook camera (the overview
+      orbit) so the agent would judge the right view this time.
+    - **Meadow bed:** a new `seagrass-bed` terrain layer with generated,
+      tileable 1,024 px maps and a painted mask built from the accepted meadow
+      outlines. The mask is deepest under the cores and hearts and lightest
+      in the edge ring, and fades out about 1.5 m past the ragged edge. A
+      water band keeps it off the beach.
+    - **Trail:** the leaf-litter layer points at a new mask file; revision
+      14's file is untouched. The script first rebuilt revision 14's mask
+      bit for bit with turn 10B's code, so only the trail term changed. It is
+      now broken patches: within 4 m of the trail outside the grove, the mean
+      mask fell from 0.42 to 0.11.
+    - **Staging:** from `assets/source/turn12/scene-t12.json`. The staged
+      scene matched that file exactly. Against revision 14 it changed only
+      `terrain.appearance.layers`; assets, objects, scatters, bible, sky,
+      surf and runtime modules were unchanged.
+    - **Approvals:** 8 cards. This was the first turn with the H40 script
+      grant live on the host. It was used 4 times, but 7 of the 8 cards
+      followed an edit to `turn12.py`, which correctly asks again. The other
+      gap: runs piped to `Select-Object -First N` did not qualify; that is
+      fixed below.
+
+    Measured on the hub for revision 15 with the `release-2` build, at the
+    arrival view, 1280×720 (`20261023-110445`):
+
+    | Backend | Draws | Triangles | Ready, cold | Ready, warm | Frame interval p95 |
+    | --- | ---: | ---: | ---: | ---: | ---: |
+    | WebGPU | 229 | 3,416,897 | 10.8 s | 6.3 s | 8.4 ms |
+    | WebGL2 | 229 | 3,416,897 | 6.5 s | 5.9 s | 8.4 ms |
+
+    - **Draws:** a per-draw log measured 231 at arrival and 238 at the
+      overlook, the same as revision 14. Terrain layers add no draws.
+    - **Overlook:** the trail's brown double band is gone and the grove
+      litter is unchanged. The cliff and lagoon meadows sit on soft, darker
+      beds under the tufts and read as shapes; under the water tint the bed
+      shows as a deeper teal rather than green.
+    - **Arrival:** unchanged apart from water motion.
 
 ## Measurement
 
