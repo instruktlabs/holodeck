@@ -90,7 +90,7 @@ friction, **Low** is polish.
 | H42 | Static export | Fixed above. | — | — |
 | H43 | Scatter | Before apply, no tool reports where a staged scatter's instances land; only counts. In turn 9 the agent certified whole regions worst-case, so that every root the engine could accept passed its view checks. It said exact positions were "not verified". | Medium | Let `world_read` (or `world_sample` with `proposalId`) return a staged scatter's expanded instances: positions, variants and rotations. |
 | H44 | Sky | The `environment.sky` capability names `zenithColor`, `horizonColor` and a curve, but not the formula. In turn 9 the agent estimated the arrival sky colour by guessing a power-of-sine blend. | Low | State the gradient formula, or the colour at a few elevations, in the capability text. |
-| H45 | Rendering | On the draw-bound hub GPU, a light distance variant costs draws: each new asset is its own batch, per part and per pass. Turn 9's two far-palm assets added about 24 draws to save triangles that were not the limit. A group spanning over 96 m is also split into grid cells, and a cell holding one placement draws it alone (about 12 more). Revision 11 went from 269 to 307 draws and missed refresh. | Medium | Report draws per asset in `world_read` budgets, so agents weigh draws as well as triangles. Merge single-placement cells into a neighbouring batch. Longer term, distance LOD inside one asset rather than separate assets. |
+| H45 | Rendering | On the draw-bound hub GPU, a light distance variant costs draws: each new asset is its own batch, per part and per pass. Turn 9's two far-palm assets added about 24 draws to save triangles that were not the limit. A group spanning over 96 m is also split into grid cells, and a cell holding one placement draws it alone (about 12 more). Revision 11 went from 269 to 307 draws and missed refresh. Turn 10 adds a batch-bounds effect: a cell's batch is culled as one unit, so placements added to the far side of a cell pull its near members into view. Revision 12's north-shore palms brought two grove batches behind the arrival camera into view and the shadow box, for 24 draws. 48 m cells measured worse (359 draws at arrival, 410 at the overlook). | Medium | Report draws per asset in `world_read` budgets, so agents weigh draws as well as triangles. Merge single-placement cells into a neighbouring batch. Split a cell's batch into spatial clusters when its members are far apart, rather than shrinking the grid. Longer term, distance LOD inside one asset rather than separate assets. |
 
 ## Kiln findings
 
@@ -113,7 +113,9 @@ minimal reproduction in a Kiln workspace before it becomes a Kiln change.
 | K12 | Geometry | The work budget rejected noise beyond about 10 octaves. Export has no vertex colours or second UV set, so wet lines and dark pocket interiors needed exact triangle cuts. | Document the budget; support vertex colour or a second UV set for masks. |
 | K13 | Errors | Errors were often a generic "Invalid input", and one helper caps its input at 200 characters. | Name the field and limit in validation errors. |
 | K14 | Geometry | Turn 9: no way to derive a lighter variant. For 8 rocks, the agent hand-wrote culling of buried faces and a coarser remesh. For two far palms, it replayed the random draws by hand to keep their crowns identical. | Add a decimation or level-of-detail step that keeps silhouettes, materials and part names, and a seeded variant that reuses a parent's random state. |
-| K15 | Revisions | A child save reports "changed" without saying how much: no triangle, bounds or silhouette delta. The agent measured those outside Kiln. | Report triangle, bounds and silhouette deltas against the parent revision on save. |
+| K15 | Revisions | A child save reports "changed" without saying how much: no triangle, bounds or silhouette delta. The agent measured those outside Kiln. In turn 10 a merge that left the fronds' geometry identical also only reported "changed". | Report triangle, bounds and silhouette deltas against the parent revision on save. |
+| K16 | Textures | Turn 10: a procedural texture allows at most 64 drawing steps, so the first seagrass build was rejected. | Document the cap in the texture schema, or raise it for small atlases. |
+| K17 | Terrain | Turn 10: Kiln materials cannot target a Holodeck terrain layer, and Kiln cannot preview terrain layers or the underwater tint. The agent generated the leaf-litter maps with a Python script. | Export a material as terrain layer maps (albedo, normal, roughness at a set repeat), with a planar-tile preview. |
 
 ### Upstream status
 
@@ -138,6 +140,8 @@ in 1.4.0; Holodeck still pins Kiln 1.3.1.
 | K13 | Fixed on Kiln main: validation errors name the rule (instruktlabs/kiln#198, PR #214). |
 | K14 | Not filed yet; found in turn 9. |
 | K15 | Not filed yet; found in turn 9. |
+| K16 | Not filed yet; found in turn 10. |
+| K17 | Not filed yet; found in turn 10. |
 
 Also filed from Holodeck findings:
 - instruktlabs/kiln#212: configurable `KILN_PROGRESS.md` location (H26), fixed on Kiln main (PR #223).
@@ -571,6 +575,88 @@ until Kiln makes it configurable (instruktlabs/kiln#212).
    - **Arrival:** a bluer sky and a much calmer lagoon.
    - **Overlook:** the ridge palms stand in one line along the crest, like a
      hedge.
+
+10. Draws back under budget, leaf litter and seagrass: applied as revisions
+    12 and 13.
+    - **Brief (10A):** bring revision 11 back to about 270 draws. Plant the
+      north shore with the existing palm-tall and palm-lean, fix the lone
+      ridge palm, and break up the ridge line.
+    - **10A, revision 12:**
+      - **Changes:**
+        - the far-palm assets are gone;
+        - the north-shore regions stop at x = 95, so no palm sits alone in a
+          cell;
+        - five explicit palms in two clusters below the crest replace the
+          ridge scatter.
+      - **Prediction:** batches matched revision 10's (76 batches, 21
+        individual), and the agent predicted about 271 draws.
+    - **10A measured** on the hub at arrival in two runs (`20261023-000745`,
+      `20261023-000942`): 293 draws and 3,303,197 triangles on both backends.
+      WebGPU p95 was 8.4 ms; WebGL2 p95 was 16.6 and 16.7 ms.
+    - **Why 293:** found by hub A/B variants and a per-draw log of one
+      arrival frame (H45).
+      - Revision 12's sky and water with revision 10's objects draw 269;
+        revision 12's objects with revision 10's sky and water draw 293.
+      - The 24 extra draws are the palm-tall and palm-lean batches in cell
+        (0, −1), in both passes. In revision 10 those cells held 5 and 3
+        grove palms behind the arrival camera and were culled. The
+        north-shore scatter added about 34 palms out to x ≈ 95, which
+        stretched the batches' bounds into the view and the shadow box.
+      - The overlook draws 276 either way.
+      - 48 m cells measured worse: 359 draws at arrival and 410 at the
+        overlook.
+      - Palms were 124 of the 293 draws. Each palm had six parts, four of
+        them frond groups that differ only in a tint.
+    - **Brief (10B):** merge each palm's four frond groups into one
+      primitive, with the tints as colour bands in the frond strip. Then add
+      seagrass and leaf litter: arrival at most about 250 draws, overlook no
+      higher than 276.
+    - **10B, revision 13:**
+      - **Palms:** palm-tall, palm-lean, palm-arch and palm-young are saved
+        Kiln child revisions with three parts: trunk, crown_husk and
+        `fronds`. TEXCOORD_0.x picks the group's band; TEXCOORD_0.y stays the
+        wind weight. Foliage nodes are `["fronds"]`.
+        - The agent compared the GLB data directly: positions, indices,
+          TEXCOORD_0.y, trunk and husk are identical, and triangle counts are
+          unchanged.
+        - GPU renders of the old and new palms differ by at most 6/255. This
+          is the material merge K10 asked Kiln to suggest; the assets had
+          not taken it until the brief did.
+      - **Leaf litter:** one terrain layer with generated 1,024 px albedo,
+        normal and roughness maps on a 4 m repeat. A painted mask covers
+        about 2,700 m² of grove floor and trail edges, and keeps the middle of
+        each walking route, the cove pad and the shelter clear. Kiln could
+        not author it (K17).
+      - **Seagrass:** one 304-triangle asset with one opaque primitive, in
+        five scatters of 230 clumps in total, 0.65–2.4 m deep. All five
+        patches sit in one 96 m cell, so they are one batch. The first
+        build hit Kiln's procedural-texture step cap (K16).
+      - **Budget:** 49 assets, 834 placements and 1,930,919 placed
+        triangles, against a 2,000,000 limit.
+      - **Staging:** from `assets/source/turn10b/scene-t10b.json`. The staged
+        scene matched that file exactly. Against revision 12 it changed only
+        the assets, the terrain and the scatters. Objects, sky, surf and
+        runtime modules were unchanged.
+      - **Approvals:** 12, all reruns of `turn10b.py` with a new step or an
+        edited script, plus Kiln renders and exports (H40).
+
+    Measured on the hub for revision 13, at the arrival view, 1280×720, in
+    two runs (`20261023-085424`, `20261023-085610`):
+
+    | Backend | Draws | Triangles | Time to ready | Frame interval p95 |
+    | --- | ---: | ---: | ---: | ---: |
+    | WebGPU | 232 | 3,443,037 | 8.4 s, 6.8 s | 8.4 ms, 8.4 ms |
+    | WebGL2 | 232 | 3,443,037 | 16.8 s, 7.9 s | 8.4 ms, 8.4 ms |
+
+    - **Draws:** the agent predicted 231 at arrival and about 200 at the
+      overlook. A per-draw log measured 232 at arrival and 238 at the
+      overlook. Both backends keep refresh again.
+    - **Arrival:** the palms look the same as in revision 12. From the
+      beach, the seagrass patches line up into one dark row along the
+      waterline.
+    - **Overlook:** litter reads as brown ground under the grove, plus a
+      distinct brown band along the headland trail. From above, the seagrass
+      reads as scattered specks rather than meadows.
 
 ## Measurement
 
