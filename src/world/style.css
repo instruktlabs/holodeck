@@ -159,9 +159,10 @@
 .hd .hd-compose .sm{min-height:30px}
 
 /* Sections: the dock's way into every sheet. */
-.hd-sections{display:flex;align-items:center;gap:2px;padding:0 4px;overflow-x:auto;scrollbar-width:none}
+/* The tab row sits on glass so it reads over dark water and night skies as well as sand. */
+.hd-sections{display:flex;align-items:center;gap:2px;padding:3px 4px;overflow-x:auto;scrollbar-width:none;background:var(--hd-glass);border-radius:999px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .hd-sections::-webkit-scrollbar{display:none}
-.hd .hd-tab{min-height:26px;padding:3px 9px;border:0;border-radius:999px;background:transparent;color:var(--hd-ink-2);font-size:12px;font-weight:500;text-shadow:0 1px 6px rgba(255,255,255,.85)}
+.hd .hd-tab{min-height:26px;padding:3px 9px;border:0;border-radius:999px;background:transparent;color:var(--hd-ink-2);font-size:12px;font-weight:500}
 .hd .hd-tab:hover{background:var(--hd-glass);color:var(--hd-ink)}
 .hd .hd-tab.on{background:var(--hd-accent);color:var(--hd-on-accent);text-shadow:none}
 
