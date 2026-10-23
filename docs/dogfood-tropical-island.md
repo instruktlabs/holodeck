@@ -70,6 +70,7 @@ performance.
 | H37: Claude Code asked before every Read of the world's own skill references, which live in the session plugin folder outside the world. | `pluginRead` in `server/claude.mjs` answers a Read, Glob or Grep inside the session plugin folder without a card. The path must be absolute, and a Glob pattern or Grep `glob` may not be absolute or contain `..`. Edits there, and reads anywhere else outside the world, still ask. | `server/claude.test.mjs`: three plugin reads run without a card; a climbing pattern, an edit of a plugin skill and `plugin/../mcp.json` each raise one. Not yet seen live; the island's host copy is synced after turn 9. |
 | H38 and H39: every Claude Code card was titled **Run a command? · shell**, and a Glob card showed only its folder. Turn 8's Glob of `*` across the projects folder could not be judged from the card. | `permissionCard` in `server/claude.mjs` titles each card by tool: **Read a file?**, **Search for files?**, **Search file contents?**, **Edit a file?**, **Write a file?**, **Fetch a web page?**, **Use a Kiln tool?** and **Run a command?**. A search shows its pattern beside its folder, plus the Grep file filter. A path outside the world, or a pattern that climbs out, adds an **Outside this world** chip (`src/world/dock.jsx`). The card's source reads the tool name, for example **Claude Code · Glob**. | `server/claude.test.mjs`: titles, pattern lines and the outside flag for each tool, including turn 8's case. Not yet seen live. |
 | H42: `holodeck export` refused a world made with `init` until it had been opened in a browser. | `bin/holodeck.mjs` opens the new world once after `init`, which validates it and writes the accepted snapshot. `export` stays a projection of an accepted receipt and never opens a store. | `server/examples.test.mjs`: `init --example courtyard` then `export` through the CLI writes revision 0 and leaves no host lock. |
+| Turn 9: the surf capability said the swell breaks "where depth first falls below breakDepth", so the agent modelled both a single break and repeated breaks to explain the lagoon's whitewater. | `capabilities.spatial.surf` in `server/world-tools.mjs` states the engine's rule (`src/world/surf.mjs`). The swell is capped at depth/breakDepth and recovers about 1/200 per metre over deep water. It breaks again wherever the water gets shallower than any point it has crossed, so a lagoon beach shallower than the rim flat breaks a second time. | `src/world/surf.test.mjs`: no break over the 4 m lagoon, a second break on the beach face, and whitewater restarting there. |
 | Example bundles refused any scene with terrain layers, so a layered island could not ship as an example. | `server/example-bundle.mjs` copies each pinned layer map and paint mask to `assets/imports/terrain/<sha256>.png` and lists it under `textures` in `example.json`. The terrain is repointed at those names. Install rechecks hashes, dimensions and the terrain size rules, and requires the listed files to be exactly the ones the terrain names. | `server/terrain-textures.test.mjs`: a layered world bundles, installs and reopens with the same texture hashes. A changed PNG, a dropped receipt and an unlisted file are each refused. |
 
 ## Holodeck findings
@@ -87,6 +88,9 @@ friction, **Low** is polish.
 | H37–H39 | Agent permissions, request cards | Fixed above. | — | — |
 | H40 | Agent permissions | Each distinct argument list for the same world script needs its own approval. Turn 8 ran `turn8.py` four times (`verify export tint surf`, `verify`, `scene samples`, and so on), so **Allow this exact command for the session** never applied. Turn 9 asked four times in eight minutes to run `turn9.py farzones`. The script was edited between runs, and only the `Select-Object -Last N` tail changed in the command, so neither an exact-command grant nor a content-hash grant would have covered the reruns. | Low | Offer a session grant for one script under `assets/source` with any arguments, bound to the script's content hash so an edit asks again. |
 | H42 | Static export | Fixed above. | — | — |
+| H43 | Scatter | Before apply, no tool reports where a staged scatter's instances land; only counts. In turn 9 the agent certified whole regions worst-case, so that every root the engine could accept passed its view checks. It said exact positions were "not verified". | Medium | Let `world_read` (or `world_sample` with `proposalId`) return a staged scatter's expanded instances: positions, variants and rotations. |
+| H44 | Sky | The `environment.sky` capability names `zenithColor`, `horizonColor` and a curve, but not the formula. In turn 9 the agent estimated the arrival sky colour by guessing a power-of-sine blend. | Low | State the gradient formula, or the colour at a few elevations, in the capability text. |
+| H45 | Rendering | On the draw-bound hub GPU, a light distance variant costs draws: each new asset is its own batch, per part and per pass. Turn 9's two far-palm assets added about 24 draws to save triangles that were not the limit. A group spanning over 96 m is also split into grid cells, and a cell holding one placement draws it alone (about 12 more). Revision 11 went from 269 to 307 draws and missed refresh. | Medium | Report draws per asset in `world_read` budgets, so agents weigh draws as well as triangles. Merge single-placement cells into a neighbouring batch. Longer term, distance LOD inside one asset rather than separate assets. |
 
 ## Kiln findings
 
@@ -108,6 +112,8 @@ minimal reproduction in a Kiln workspace before it becomes a Kiln change.
 | K11 | Materials | Turn 4: the library had no stone, sand, foliage or driftwood materials; the agent authored `cove-limestone` (dry and wet), `cove-sand` and `cove-driftwood`. The newer material format cannot generate normal maps from height, so limestone pits are painted rather than embossed. | Add a height-to-normal step in the material format. |
 | K12 | Geometry | The work budget rejected noise beyond about 10 octaves. Export has no vertex colours or second UV set, so wet lines and dark pocket interiors needed exact triangle cuts. | Document the budget; support vertex colour or a second UV set for masks. |
 | K13 | Errors | Errors were often a generic "Invalid input", and one helper caps its input at 200 characters. | Name the field and limit in validation errors. |
+| K14 | Geometry | Turn 9: no way to derive a lighter variant. For 8 rocks, the agent hand-wrote culling of buried faces and a coarser remesh. For two far palms, it replayed the random draws by hand to keep their crowns identical. | Add a decimation or level-of-detail step that keeps silhouettes, materials and part names, and a seeded variant that reuses a parent's random state. |
+| K15 | Revisions | A child save reports "changed" without saying how much: no triangle, bounds or silhouette delta. The agent measured those outside Kiln. | Report triangle, bounds and silhouette deltas against the parent revision on save. |
 
 ### Upstream status
 
@@ -130,6 +136,8 @@ in 1.4.0; Holodeck still pins Kiln 1.3.1.
 | K11 | Fixed on Kiln main: V3 normal-from-height derivation (instruktlabs/kiln#205, PR #225). |
 | K12 | Fixed on Kiln main: authored vertex colours and attributes (instruktlabs/kiln#195, PR #226). |
 | K13 | Fixed on Kiln main: validation errors name the rule (instruktlabs/kiln#198, PR #214). |
+| K14 | Not filed yet; found in turn 9. |
+| K15 | Not filed yet; found in turn 9. |
 
 Also filed from Holodeck findings:
 - instruktlabs/kiln#212: configurable `KILN_PROGRESS.md` location (H26), fixed on Kiln main (PR #223).
@@ -506,6 +514,63 @@ until Kiln makes it configurable (instruktlabs/kiln#212).
      top of revision 9's frame is gone. The coral reads as darker seabed
      patches.
    - **Not yet seen:** a first-person walk along the jetty in the browser.
+
+9. Sky, lagoon, cheaper rocks and far palms: applied as revision 11.
+   - **Brief:** deepen the sky, calm the lagoon, cut the cliff triangles, and
+     add palms on the far shore.
+   - **Conflict:** the agent left the east horn across the bay bare. Palms there
+     would block the summit's protected view of the lagoon and reef (bible
+     rule 3), so it planted the headland ridge and north-east shore instead.
+   - **Sky:** zenith `#1e5eba` with `horizonColor` `#b0cfea`; fog and clouds
+     unchanged. The agent estimated the arrival colours by guessing the
+     gradient formula (H44).
+   - **Surf:** `breakDepth` 1.35 → 2.8, deeper than the 2.5 m lagoon basin, so
+     the lagoon no longer breaks a second time; `whitewater` 12 → 9 m,
+     `intensity` 0.9. The capability text described a single break, so the
+     agent modelled both readings. That text now states the engine's rule (see
+     Fixed). On the agent's terrain model, lagoon whitewater fell from 2,379 to
+     210 m².
+   - **Rocks:** eight Kiln child revisions with buried faces culled and a
+     coarser remesh. Placed rock triangles fell from 280,131 to 147,172, with
+     silhouettes within about 0.1–0.6 px from the beach and overlook. The
+     method was hand-written (K14), and Kiln reported changes without sizes
+     (K15).
+   - **Palms:** module `scatter.seeded@1` and three scatters. Five full palms
+     on the ridge behind the summit; ten within 16 m of the north trail; 21 of
+     24 light far variants (2,989 and 2,681 triangles) on the north-east
+     shore. The regions were certified worst-case against every protected ray
+     on a terrain replica, because no tool reports a staged scatter's
+     positions (H43).
+   - **Budget:** 50 assets, 603 placements, 1,729,626 placed triangles.
+   - **Staging:** from `assets/source/turn9/scene-t9.json`. The staged scene
+     matched that file exactly. Against revision 10 it changed only the eight
+     rock records, two new assets, the scatter module and records, `water.surf`
+     and `environment.sky`. All 567 objects, the bible and the board were
+     unchanged.
+   - **Approvals:** about 30, almost all reruns of the turn script with a new
+     step or an edited script (H40). Kiln renders and source exports ran
+     through the world's `kiln.mjs`.
+
+   Measured on the hub for revision 11, at the arrival view, 1280×720, on the
+   same build as revision 10, in two runs (`20261022-230509`, `20261022-230859`):
+
+   | Backend | Draws | Triangles | Time to ready | Frame interval p95 |
+   | --- | ---: | ---: | ---: | ---: |
+   | WebGPU | 307 | 2,951,468 | 9.0 s, 8.3 s | 8.4 ms, 16.6 ms |
+   | WebGL2 | 307 | 2,951,468 | 23.0 s, 9.3 s | 16.7 ms, 16.7 ms |
+
+   - **Regression:** revision 11 misses refresh on WebGL2 in both runs and on
+     WebGPU in one. It adds 38 draws; on this GPU the bottleneck is draws, not
+     triangles.
+   - **Where the draws come from:** counted with `planStaticBatches`, batches
+     went from 76 to 78 and individual placements from 21 to 22.
+     - The two light far-palm assets are new batches. Each has six parts, drawn
+       in the colour and shadow passes: about 24 draws.
+     - One ridge palm sits alone in its 96 m batching cell: about 12 draws.
+     - The far variants saved about 120,000 triangles that were not the limit.
+   - **Arrival:** a bluer sky and a much calmer lagoon.
+   - **Overlook:** the ridge palms stand in one line along the crest, like a
+     hedge.
 
 ## Measurement
 
