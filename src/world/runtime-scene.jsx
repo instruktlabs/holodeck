@@ -4,6 +4,7 @@ import * as THREE from 'three/webgpu';
 import {Cove,PlacedAsset,Construct,probe} from '../prototype/scene.jsx';
 import {MoodBoard} from './moodboard.jsx';
 import {resolveWorldKey,createFreeCamera,stepFreeCamera,isWorldInputTarget,stepCameraLook,firstPersonEyePosition} from './inhabit.mjs';
+import {touchDown,touchMove,touchUp,resetTouch,stickAxes} from './touch-input.mjs';
 import {WorldMaterialsProvider,WorldSurfaceMaterial} from './world-materials.js';
 import {Tree} from './vegetation.jsx';
 import {Landscape,LandscapeSky,createUnderwaterTint} from './landscape.jsx';
@@ -53,7 +54,9 @@ function useUnderwaterModels(models,placed,scene,runtime){
  return tinted?.models??models;
 }
 function Driver({runtime}){useFrame((_,dt)=>runtime.step(dt),-2);return null;}
-function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson}){
+const axis=v=>Math.max(-1,Math.min(1,v));
+const NO_STICK={forward:0,strafe:0,sprint:false};
+function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}){
  const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
  const actor=useRef(null),free=useRef(null),skipFrame=useRef(false);
  // A hidden page is throttled or paused; the first interval after it returns spans
@@ -103,26 +106,42 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    clear();
    if(intent.type==='compose')focusInput();else leaveWorld();
   };
-  const up=e=>keys.current.delete(e.code),move=e=>{if(!(drag.current||document.pointerLockElement===el))return;const orbit=mode==='overview',v=mode==='free'?free.current:orbit?view.current:walk.current;v.yaw-=e.movementX*.003;v.pitch=THREE.MathUtils.clamp(v.pitch+(orbit?1:-1)*e.movementY*.003,orbit?.15:-1.5,mode==='free'?1.45:1.3);};
-  const pointer=e=>{if(e.button===2){drag.current=true;e.preventDefault();}else if(e.button===0&&inhabiting&&document.pointerLockElement!==el)requestLook();},release=()=>{drag.current=false;},context=e=>e.preventDefault();
-  const zoom=e=>{if(mode==='overview'){e.preventDefault();const b=config.bounds,max=Math.max(45,b[1]-b[0],b[3]-b[2]);view.current.distance=THREE.MathUtils.clamp(view.current.distance+e.deltaY*.04,3,max*1.5);}};
+  const look=(dx,dy,rate)=>{const orbit=mode==='overview',v=mode==='free'?free.current:orbit?view.current:walk.current;v.yaw-=dx*rate;v.pitch=THREE.MathUtils.clamp(v.pitch+(orbit?1:-1)*dy*rate,orbit?.15:-1.5,mode==='free'?1.45:1.3);};
+  const orbitDistance=next=>{const b=config.bounds,max=Math.max(45,b[1]-b[0],b[3]-b[2]);view.current.distance=THREE.MathUtils.clamp(next(view.current.distance),3,max*1.5);};
+  // Touch never asks for the mouse lock: the left thumb walks, other fingers look,
+  // two fingers pinch the overlook, and a tap uses what the reticle aims at.
+  const at=e=>{const r=el.getBoundingClientRect();return {id:e.pointerId,x:e.clientX-r.left,y:e.clientY-r.top,width:r.width,time:e.timeStamp,mode};};
+  const touched=e=>e.pointerType==='touch'&&!!touch;
+  const up=e=>keys.current.delete(e.code),move=e=>{
+   if(touched(e)){const r=touchMove(touch,at(e));if(r?.type==='look')look(r.dx,r.dy,.006);else if(r?.type==='pinch'&&mode==='overview')orbitDistance(d=>d*r.scale);return;}
+   if(drag.current||document.pointerLockElement===el)look(e.movementX,e.movementY,.003);
+  };
+  const pointer=e=>{if(touched(e)){try{el.setPointerCapture(e.pointerId);}catch{/* The finger already lifted. */}touchDown(touch,at(e));return;}if(e.button===2){drag.current=true;e.preventDefault();}else if(e.button===0&&inhabiting&&document.pointerLockElement!==el)requestLook();};
+  const release=e=>{
+   if(!touched(e)){drag.current=false;return;}
+   const r=touchUp(touch,at(e));if(r?.type!=='tap'||mode!=='walk')return;
+   const target=runtime.interaction(aim.current,probe.actorEye??camera.position.toArray());if(target?.action)interact(target.id);
+  },cancel=e=>{if(touched(e))touchUp(touch,at(e));},context=e=>e.preventDefault();
+  const zoom=e=>{if(mode==='overview'){e.preventDefault();orbitDistance(d=>d+e.deltaY*.04);}};
+  // Focus moving to a button or the composer drops held keys but not a thumb that is still down.
+  const drop=()=>{clear();if(touch)resetTouch(touch);};
   let wasLocked=document.pointerLockElement===el;
   const lock=()=>{const isLocked=document.pointerLockElement===el;setLocked(isLocked);clear();if(wasLocked&&!isLocked)leaveWorld();wasLocked=isLocked;};
-  window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('blur',clear);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',clear);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
-  return()=>{clear();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('blur',clear);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',clear);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
- },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree]);
+  window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',drop);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',drop);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
+  return()=>{drop();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',drop);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',drop);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
+ },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree,touch]);
  const settled=useRef(0);
  useFrame((_,dt)=>{
-  let moving=false;
+  let moving=false;const stick=touch?stickAxes(touch):NO_STICK,pad=touch?.pad;
   if(actor.current)actor.current.camera=person;
   if(mode==='walk'||mode==='free'){
    const k=keys.current;stepCameraLook(mode==='free'?free.current:walk.current,{turn:Number(k.has('ArrowRight'))-Number(k.has('ArrowLeft')),tilt:Number(k.has('ArrowUp'))-Number(k.has('ArrowDown'))},dt,{maxPitch:mode==='free'?1.45:1.3});
   }
   if(mode==='walk'){
-   const k=keys.current,f=Number(k.has('KeyW'))-Number(k.has('KeyS')),r=Number(k.has('KeyD'))-Number(k.has('KeyA')),w=walk.current,len=Math.hypot(f,r)||1;
+   const k=keys.current,f=axis(Number(k.has('KeyW'))-Number(k.has('KeyS'))+stick.forward),r=axis(Number(k.has('KeyD'))-Number(k.has('KeyA'))+stick.strafe),w=walk.current,len=Math.max(1,Math.hypot(f,r)),sprint=k.has('ShiftLeft')||k.has('ShiftRight')||stick.sprint;
    if(actor.current){
     const a=actor.current;a.camera=person;
-    stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space'),sprint:k.has('ShiftLeft')||k.has('ShiftRight'),yaw:w.yaw},dt,inhabitantContext(runtime,a.radius));
+    stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space')||!!pad?.jump,sprint,yaw:w.yaw},dt,inhabitantContext(runtime,a.radius));
     moving=a.speed>.01;
     const eye=new THREE.Vector3(a.position[0],a.position[1]+a.eyeHeight,a.position[2]);w.position=eye.toArray();
     camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
@@ -142,7 +161,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
     }
     probe.actorEye=eye.toArray();
    }else{
-   moving=!!(f||r);const distance=Math.min(dt,.04)*(k.has('ShiftLeft')||k.has('ShiftRight')?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
+   moving=!!(f||r);const distance=Math.min(dt,.04)*(sprint?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
    // Small steps bound tunnelling through the narrowest supported blockers.
    const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.06));for(let i=0;i<steps;i++){if(!runtime.blocked(w.position[0]+dx/steps,w.position[2]))w.position[0]+=dx/steps;if(!runtime.blocked(w.position[0],w.position[2]+dz/steps))w.position[2]+=dz/steps;}
    camera.position.set(...w.position);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
@@ -151,7 +170,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   }else{
    if(actor.current){const a=actor.current;stepInhabitant(a,{stop:true},dt,inhabitantContext(runtime,a.radius));probe.actorEye=[a.position[0],a.position[1]+a.eyeHeight,a.position[2]];}else probe.actorEye=null;
    if(mode==='free'){
-    const k=keys.current,v=free.current,input={forward:Number(k.has('KeyW'))-Number(k.has('KeyS')),strafe:Number(k.has('KeyD'))-Number(k.has('KeyA')),up:Number(k.has('KeyE'))-Number(k.has('KeyQ')),sprint:k.has('ShiftLeft')||k.has('ShiftRight')};
+    const k=keys.current,v=free.current,input={forward:axis(Number(k.has('KeyW'))-Number(k.has('KeyS'))+stick.forward),strafe:axis(Number(k.has('KeyD'))-Number(k.has('KeyA'))+stick.strafe),up:axis(Number(k.has('KeyE'))-Number(k.has('KeyQ'))+(pad?.up??0)),sprint:k.has('ShiftLeft')||k.has('ShiftRight')||stick.sprint};
     stepFreeCamera(v,input,dt);moving=!!(input.forward||input.strafe||input.up);camera.position.set(...v.position);camera.rotation.set(v.pitch,v.yaw,0,'YXZ');
    }else{
     const v=view.current,t=config.target;camera.position.set(t[0]+Math.sin(v.yaw)*Math.cos(v.pitch)*v.distance,t[1]+Math.sin(v.pitch)*v.distance,t[2]+Math.cos(v.yaw)*Math.cos(v.pitch)*v.distance);camera.lookAt(...t);
@@ -167,6 +186,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const outOfBounds=!!a&&(runtime.terrain?.sample(a.position[0],a.position[2]).inBounds===false||a.position[0]-a.radius<b[0]||a.position[0]+a.radius>b[1]||a.position[2]-a.radius<b[2]||a.position[2]+a.radius>b[3]);
   probe.actor=a?{position:[...a.position],eyePosition:[a.position[0],a.position[1]+a.eyeHeight,a.position[2]],mode:a.mode,camera:person,possessed:mode==='walk',grounded:a.grounded,verticalVelocity:a.verticalVelocity,speed:a.speed,supportHeight:a.supportHeight,waterDepth:a.waterDepth,outOfBounds}:null;
   const look=mode==='free'?free.current:walk.current;
+  probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
   const gate=compileGate(gl,settled.current);settled.current=gate.settled;probe.compiling=gate.compiling;probe.ready||=gate.ready;
  },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} firstPerson={mode==='walk'&&person==='first'}/>:null;
