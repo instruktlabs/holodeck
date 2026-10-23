@@ -52,7 +52,9 @@ Rendering, collision and interaction share placement frames. The current box que
 supports yaw and scale; pitch/roll collision is rejected. Legacy walking uses a fixed-height
 ground plane. Optional heightfield, ocean and maker possession share terrain
 triangles, water time and one actor support anchor across first/third person.
-See [terrain and inhabitants](terrain-and-inhabitants.md) for their strict records.
+Collider boxes marked `walkable` add their tops to that support, so the walker and
+patrols can cross a jetty deck or climb stair treads; walkable boxes are static and
+yaw-only. See [terrain and inhabitants](terrain-and-inhabitants.md) for their strict records.
 Gate motion rotates its collider, but moving objects do not push actors
 or simulate rigid-body forces. Interaction is limited to nearby objects in walk mode.
 

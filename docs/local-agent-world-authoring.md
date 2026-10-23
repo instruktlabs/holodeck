@@ -50,6 +50,9 @@ of what changed.
 under `assets/source`; either way it is capped at 4 MiB. The host holds one
 pending proposal, and a newer one replaces it. `world_sample` and `world_check`
 accept the staged `proposalId` to measure a proposal before the user applies it.
+Where walkable collider tops overlap the terrain, `world_sample` reports which
+surface supports the point (`supportSource`, `supportId`) and every walkable height
+there (`levels`).
 
 ## Agent adapters
 

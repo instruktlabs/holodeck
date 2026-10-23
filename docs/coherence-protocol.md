@@ -20,8 +20,9 @@ JSON array of up to eight `{id,from:[x,1.72,z],to:[x,1.72,z]}` records. The HTTP
 equivalent accepts `routes` directly. Each route has at most 65 samples; reported
 spacing makes gaps explicit. Hits include object/blocker IDs and world positions.
 The query uses a 0.22 metre walker radius at the fixed 1.72 metre eye height.
-In worlds with terrain or maker possession, routes instead follow supported feet
-with the shared slope, step and water rules; see
+In worlds with terrain or maker possession, routes instead follow supported feet,
+including walkable collider tops, with the shared slope, step and water rules, and
+flag a `drop` issue where the feet fall more than one step between samples; see
 [terrain and inhabitants](terrain-and-inhabitants.md). The inventory reports
 target, placed and removed counts for each scatter.
 

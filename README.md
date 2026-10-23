@@ -6,9 +6,9 @@ Start in a cozy cove inside the grid construct. Connect your local agent, collec
 
 Holodeck is an early, actively changing prototype. It is available from source; there is no npm release.
 
-![Tidemark Island](examples/tidemark/preview.png)
+![Tidemark Island in the workspace, with the dock at the bottom of the screen](site/images/workspace.webp)
 
-![The cove mood board, with the palm study and the island it describes](site/images/cove-mood-board.png)
+![The starter cove inside the grid construct, with its mood board easel](docs/images/starter-cove.webp)
 
 ## Start locally
 
@@ -31,9 +31,10 @@ See [getting started](docs/getting-started.md) for the full flow. The current ch
 
 ## What you can do
 
-- Build through a local Codex, Cursor or Claude Code conversation, with model selection, approvals and cancellation.
+- Build through a local Codex, Cursor or Claude Code conversation, with model selection, approvals and cancellation. Allow an exact command, or all Kiln workspace tools, once for the session.
 - Edit a shared world bible and mood board with images, notes, file references and imported reference packs.
 - See a proposal's placements as ghosts in the world, review its differences, then apply it; hot-load validated Kiln assets.
+- Shape terrain with textured material layers, fill groves and undergrowth with seeded scatter, and add optional surf and a cloudy sky. Objects under water take the depth tint automatically, and collider tops marked walkable carry you along jetties and up stairs.
 - Walk, jump, swim, switch first/third-person cameras, or inspect with a free camera. Press Enter to talk to your agent without leaving the world.
 - Save, restore and remix scene revisions; create independent copies of example worlds.
 - Export an accepted scene as a standalone playable static site.
@@ -53,16 +54,20 @@ Compatible static placements use instancing and spatial chunks. Runtime behavior
 - [World history and remixing](docs/world-history-and-export.md)
 - [Static export](docs/static-export.md) and [example worlds](docs/example-worlds.md)
 - [Architecture](docs/architecture.md) and [Kiln integration](docs/integration-boundary.md)
-- [Coherence checks](docs/coherence-protocol.md)
+- [Terrain, water and inhabitants](docs/terrain-and-inhabitants.md) and [coherence checks](docs/coherence-protocol.md)
+- [Distribution and the scene shelf](docs/distribution.md)
 
 ## Development
 
 ```sh
 npm run test:world
 npm run test:runtime
+npm run test:prototype
 npm run build
 npm run check:distribution
 ```
+
+The public scene shelf in `site/` is static. After changing `site/scenes.json` or an export under `site/worlds/`, run `npm run render:site`; `npm run test:world` fails while the rendered shelf is stale. See [distribution](docs/distribution.md).
 
 Live agent inference is manual and separate from ordinary tests. Use `node bin/holodeck.mjs dev <world>` to serve a selected world.
 
