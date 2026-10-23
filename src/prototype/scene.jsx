@@ -7,6 +7,7 @@ import { applyCoveUVs, coveRole, makeCoveMaterials } from './cove-materials.js';
 import { MoodBoard } from '../world/moodboard.jsx';
 import { useAssetFoliage } from '../world/foliage.jsx';
 import { useAssetGait } from '../world/gait.jsx';
+import { SHADOW_ONLY_LAYER, shadowProxies } from '../world/sun-shadow.mjs';
 
 export const HOME = [1.25,1.72,2.35];
 export const probe = window.holodeckPrototype = { ready:false, frames:[], position:HOME, errors:[] };
@@ -64,6 +65,8 @@ export function Cove({gltf,target='cove'}) {
       const merged=mergeGeometries(geometries),mesh=new THREE.Mesh(merged,material);
       geometries.forEach(g=>g.dispose());mesh.castShadow=casts;mesh.receiveShadow=true;mesh.userData={target,sourceParts:parts};group.add(mesh);
     }
+    // Authored materials split into many batches; their sun shadows cost one draw per face side instead of one per batch.
+    for(const proxy of shadowProxies(group.children))group.add(proxy);
     group.rotation.y=Math.PI/2;
     group.userData.materials=materials;
     return group;
@@ -237,7 +240,7 @@ export function Scene({session,cove,bundle,collisionScene,...controls}) {
   return <>
     <color attach="background" args={[environment?.fogColor||'#eee2c9']}/><fog attach="fog" args={[environment?.fogColor||'#eee2c9',23,68]}/><Sky/>
     <hemisphereLight args={['#e5eced','#bb8d65',1.25]}/>
-    <directionalLight position={[-7,9,5]} color={environment?.sunColor||'#ffd6a0'} intensity={environment?.sunIntensity??3.3} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-22} shadow-camera-right={22} shadow-camera-top={22} shadow-camera-bottom={-22} shadow-camera-far={65} shadow-normalBias={.025} shadow-bias={-.0002}/>
+    <directionalLight position={[-7,9,5]} color={environment?.sunColor||'#ffd6a0'} intensity={environment?.sunIntensity??3.3} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-22} shadow-camera-right={22} shadow-camera-top={22} shadow-camera-bottom={-22} shadow-camera-far={65} shadow-camera-layers-mask={1|1<<SHADOW_ONLY_LAYER} shadow-normalBias={.025} shadow-bias={-.0002}/>
     <directionalLight position={[6,5,9]} color="#ecf0eb" intensity={.8}/>
     {(!environment||environment.type==='construct')?<Construct/>:<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.085,0]} receiveShadow><planeGeometry args={[240,240]}/><meshStandardMaterial color={environment.groundColor} roughness={1}/></mesh>}
     <group visible={cove}>{bundle?<Cove gltf={bundle.models[authored.origin]}/>:<LegacyCove/>}{!authored?.moodboard&&<ReferencePlacards/>}{!modular&&<><pointLight position={[-1.12,1.5,.4]} intensity={cove?3:0} color="#ff9c3f" distance={3} decay={2}/>
