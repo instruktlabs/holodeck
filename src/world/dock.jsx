@@ -38,12 +38,13 @@ export function DecisionSlot({requests,run,writeDisabled}){
       {!!request.params.todos?.length&&<ul>{request.params.todos.map(todo=><li key={todo.id}>{todo.status}: {todo.content}</li>)}</ul>}</div>
     <div className="hd-decision-actions"><button className="b pri" disabled={off} onClick={()=>answer({decision:'accept'})}>Accept plan</button><button className="b q" disabled={off} onClick={()=>answer({decision:'decline'})}>Decline</button></div>
   </article>;
-  const source=`${LABELS[request.provider]||'Codex'} · ${questions?'question':request.params.command?'shell':'permission'}`;
+  // Adapters that name the tool title the card by it (H38); the others fall back to shell or permission.
+  const p=request.params,source=`${LABELS[request.provider]||'Codex'} · ${questions?'question':p.tool||(p.command?'shell':'permission')}`;
   return <article className="hd-card need hd-decision" aria-label="Request waiting for your answer">
-    {head(questions?(request.params.title||'Your input'):request.params.command?'Run a command?':'Allow this?',source)}
+    {head(questions?(p.title||'Your input'):p.title||(p.command?'Run a command?':'Allow this?'),source)}
     <div className="hd-decision-body">
       {questions?questions.map(q=><fieldset key={q.id}><legend>{q.question}</legend>{q.options?.length?q.options.map(option=><label key={option.id} className="hd-check"><input type={q.allowMultiple?'checkbox':'radio'} name={q.id} checked={q.allowMultiple?Array.isArray(answers[q.id])&&answers[q.id].includes(option.id):answers[q.id]===option.id} onChange={()=>choose(q.id,option.id,q.allowMultiple)}/>{option.label}</label>):<input aria-label={q.question} value={answers[q.id]||''} onChange={e=>setAnswers(a=>({...a,[q.id]:e.target.value}))}/>}</fieldset>)
-      :<>{request.params.reason&&<p>{request.params.reason}</p>}<pre className="hd-code">{request.params.command||JSON.stringify(request.params.changes||{},null,2)}</pre>{request.params.cwd&&<span className="hd-meta">{request.params.cwd}</span>}</>}
+      :<>{p.reason&&<p>{p.reason}</p>}{p.outside&&<span className="hd-chip sm warn">Outside this world</span>}<pre className="hd-code">{p.command||JSON.stringify(p.changes||{},null,2)}</pre>{p.cwd&&<span className="hd-meta">{p.cwd}</span>}</>}
     </div>
     <div className="hd-decision-actions">{questions?<button className="b pri" disabled={off} onClick={()=>answer({answers})}>Reply</button>
       :options?.length?options.map((option,i)=><button key={option.optionId} className={`b ${i===0?'pri':/decline|deny|reject/i.test(option.optionId+option.label)?'q':''}`} disabled={off} onClick={()=>answer({decision:option.optionId})}>{option.label||option.optionId}</button>)

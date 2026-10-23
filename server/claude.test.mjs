@@ -5,7 +5,7 @@ import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
-import {ClaudeAgent,claudeCommand,claudeEnv,sessionGrant,INSTRUCTIONS} from './claude.mjs';
+import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,sessionGrant,INSTRUCTIONS} from './claude.mjs';
 import {createHost} from './host.mjs';
 
 // A stand-in for the installed CLI. It records what it was given, answers
@@ -55,11 +55,12 @@ if(scenario==='permission'||scenario==='hold-permission'){
   client.close();say('msg-2','Decided');finish();
 }
 // Asks the permission tool for each [tool_name,input] in FAKE_CLAUDE_ASKS, in order.
+// $PLUGIN in the list stands for the session plugin folder passed with --plugin-dir.
 if(scenario==='asks'){
   const client=mcp(),tool=flag('--permission-prompt-tool').split('__')[2];
   await client.request('initialize',{protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'fake-claude',version:'0'}});
   const results=[];
-  for(const [tool_name,input] of JSON.parse(process.env.FAKE_CLAUDE_ASKS))results.push(JSON.parse((await client.request('tools/call',{name:tool,arguments:{tool_name,input}})).result.content[0].text).behavior);
+  for(const [tool_name,input] of JSON.parse(process.env.FAKE_CLAUDE_ASKS.replaceAll('$PLUGIN',JSON.stringify(flag('--plugin-dir')||'').slice(1,-1))))results.push(JSON.parse((await client.request('tools/call',{name:tool,arguments:{tool_name,input}})).result.content[0].text).behavior);
   record({kind:'asks',results});
   client.close();finish();
 }
@@ -197,6 +198,7 @@ test('permission prompts reach the Holodeck approval card and return allow or de
     const card=await requested(agent);
     assert.equal(card.provider,'claude');assert.equal(card.kind,'permission');
     assert.equal(card.params.command,'node -e 0');assert.match(card.params.reason,/Bash/);
+    assert.equal(card.params.title,'Run a command?');assert.equal(card.params.tool,'Bash');assert.equal(card.params.outside,false);
     assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-session','reject-once']);
     assert.equal(card.params.options[1].label,'Allow this exact command for the session');
     assert.throws(()=>agent.answer({id:card.id,decision:'allow-always'}),/Invalid approval decision/);
@@ -257,6 +259,38 @@ test('an exact shell command may be allowed for the session; other arguments, to
   await writeFile(file,JSON.stringify(saved));
   const reopened=make();t.after(()=>reopened.close());
   assert.deepEqual((await reopened.connect()).sessionTools,[sessionGrant('Bash',{command:plan},root)]);
+});
+
+test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{
+  const root=path.resolve(os.tmpdir(),'world'),out=path.resolve(os.tmpdir(),'projects');
+  const card=(tool,input)=>{const c=permissionCard(tool,input,root);return [c.title,c.command,c.outside];};
+  assert.deepEqual(card('PowerShell',{command:'uv run a.py'}),['Run a command?','uv run a.py',false]);
+  assert.deepEqual(card('Read',{file_path:path.join(root,'world/world.json')}),['Read a file?',path.join(root,'world/world.json'),false]);
+  assert.deepEqual(card('Read',{file_path:path.join(out,'notes.md')}),['Read a file?',path.join(out,'notes.md'),true]);
+  assert.deepEqual(card('Edit',{file_path:'assets/source/a.py'}),['Edit a file?','assets/source/a.py',false]);
+  assert.deepEqual(card('Write',{file_path:path.join(out,'a.py')}),['Write a file?',path.join(out,'a.py'),true]);
+  // Turn 8's case: a Glob of * across the projects folder showed only the folder.
+  assert.deepEqual(card('Glob',{pattern:'*',path:out}),['Search for files?',`pattern: *\nfolder: ${out}`,true]);
+  assert.deepEqual(card('Glob',{pattern:'assets/**/*.glb'}),['Search for files?',`pattern: assets/**/*.glb\nfolder: ${root}`,false]);
+  assert.equal(card('Glob',{pattern:'../**/*.md'})[2],true,'a pattern that climbs out is outside');
+  assert.deepEqual(card('Grep',{pattern:'surf',path:'assets/source',glob:'*.py'}),['Search file contents?',`pattern: surf\nfolder: assets/source\nfiles: *.py`,false]);
+  assert.equal(card('Grep',{pattern:'surf',path:out})[2],true);
+  assert.deepEqual(card('WebFetch',{url:'https://example.test/'}),['Fetch a web page?','https://example.test/',true]);
+  assert.deepEqual(card('mcp__kiln_workspace__kiln_render',{program:'a'}),['Use a Kiln tool?','',false]);
+});
+
+test('reads of the session plugin need no card; edits there and climbing patterns still ask',async t=>{
+  const asks=[['Read',{file_path:'$PLUGIN/skills/holodeck-verify-world/references/render-cost.md'}],['Glob',{pattern:'**/*.md',path:'$PLUGIN/skills'}],['Grep',{pattern:'draws',path:'$PLUGIN'}],
+    ['Glob',{pattern:'../../**/*',path:'$PLUGIN/skills'}],['Edit',{file_path:'$PLUGIN/skills/holodeck-verify-world/SKILL.md'}],['Read',{file_path:'$PLUGIN/../mcp.json'}]];
+  const {agent,root,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await mkdir(path.join(root,'.agents/skills/holodeck-verify-world'),{recursive:true});
+  await writeFile(path.join(root,'.agents/skills/holodeck-verify-world/SKILL.md'),'---\nname: holodeck-verify-world\ndescription: verify\n---\n');
+  await agent.connect();await agent.startTurn({text:'Check render cost',model:'default'});
+  const {results}=await answerCards(agent,calls,['reject-once','reject-once','reject-once']);
+  assert.deepEqual(results,['allow','allow','allow','deny','deny','deny']);
+  const plugin=agent.plugin.directory;
+  assert.equal(pluginRead('Read',{file_path:path.join(plugin,'skills/x/SKILL.md')},null),false,'no plugin, no exception');
+  assert.equal(pluginRead('Read',{file_path:'skills/x/SKILL.md'},plugin),false,'a relative path resolves against the world, not the plugin');
 });
 
 test('all Kiln workspace tools may be allowed for the session at once, and that survives reconnect',async t=>{

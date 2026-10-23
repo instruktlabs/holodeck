@@ -48,6 +48,33 @@ export function sessionGrant(tool,input,root){
   const rel=path.relative(path.join(root,'assets','source'),path.resolve(root,file));
   return rel&&!rel.startsWith('..')&&!path.isAbsolute(rel)?SOURCE_GRANT:null;
 }
+const inside=(dir,file)=>{const rel=path.relative(dir,file);return !rel.startsWith('..')&&!path.isAbsolute(rel);};
+const reaches=(root,p)=>typeof p==='string'&&p?!inside(root,path.resolve(root,p)):false;
+const climbs=pattern=>typeof pattern==='string'&&(path.isAbsolute(pattern)||/(^|[\\/])\.\.([\\/]|$)/.test(pattern));
+// A Read, Glob or Grep inside the session plugin, which holds Holodeck's own
+// copies of the world's installed skills, needs no card (H37). Nothing else is
+// allowed from there, and a pattern may not climb out of it.
+export function pluginRead(tool,input,plugin){
+  if(!plugin)return false;
+  const at=p=>typeof p==='string'&&p&&inside(plugin,path.resolve(plugin,p));
+  if(tool==='Read')return path.isAbsolute(input?.file_path??'')&&at(input.file_path);
+  if(tool==='Glob'||tool==='Grep')return path.isAbsolute(input?.path??'')&&at(input.path)&&!climbs(input.pattern)&&!climbs(input.glob);
+  return false;
+}
+// The card names the tool (H38) and shows its whole target: a search shows its
+// pattern beside its folder, and anything reaching outside the world says so (H39).
+export function permissionCard(tool,input={},root){
+  const lines=entries=>entries.filter(([,v])=>v!==undefined&&v!==null&&v!=='').map(([k,v])=>`${k}: ${v}`).join('\n');
+  if(SHELL_TOOLS.has(tool))return {title:'Run a command?',command:String(input.command??''),outside:false};
+  if(tool==='Read')return {title:'Read a file?',command:String(input.file_path??''),outside:reaches(root,input.file_path)};
+  if(EDIT_TOOLS.has(tool)){const file=input.file_path??input.notebook_path;return {title:tool==='Write'?'Write a file?':'Edit a file?',command:String(file??''),outside:reaches(root,file)};}
+  if(tool==='Glob')return {title:'Search for files?',command:lines([['pattern',input.pattern],['folder',input.path||root]]),outside:reaches(root,input.path)||climbs(input.pattern)};
+  if(tool==='Grep')return {title:'Search file contents?',command:lines([['pattern',input.pattern],['folder',input.path||root],['files',input.glob],['type',input.type]]),outside:reaches(root,input.path)||climbs(input.glob)};
+  if(tool==='WebFetch')return {title:'Fetch a web page?',command:String(input.url??''),outside:true};
+  if(tool==='WebSearch')return {title:'Search the web?',command:String(input.query??''),outside:true};
+  if(/^mcp__kiln_workspace__/.test(tool))return {title:'Use a Kiln tool?',command:'',outside:false};
+  return {title:'Allow this?',command:String(input.command??input.file_path??input.path??input.url??''),outside:false};
+}
 const SUBSCRIPTION_AUTH=new Set(['claude.ai']);
 // API-key and third-party provider routes. Removing them keeps a turn on the
 // user's subscription sign-in instead of silently moving billing elsewhere.
@@ -150,11 +177,11 @@ export class ClaudeAgent extends EventEmitter{
     const reply=decision=>({content:[{type:'text',text:JSON.stringify(decision)}]});
     if(!this.turn||this.stopRequested)return reply({behavior:'deny',message:'No active Holodeck turn.'});
     const grant=sessionGrant(tool,input,this.store.root);
-    if(this.granted(grant))return reply({behavior:'allow',updatedInput:input});
-    const id=`claude-permission-${++this.requestSeq}`,target=typeof input.command==='string'?input.command:input.file_path||input.path||input.url||'';
+    if(this.granted(grant)||pluginRead(tool,input,this.plugin?.directory))return reply({behavior:'allow',updatedInput:input});
+    const id=`claude-permission-${++this.requestSeq}`,card=permissionCard(tool,input,this.store.root);
     const kiln=SESSION_GRANTABLE.test(tool),label=grant===SOURCE_GRANT?'Allow edits in assets/source for this session':grant?.startsWith('shell:')?'Allow this exact command for the session':kiln?'Allow this Kiln tool for this session':'Allow for this session';
     const options=grant?[OPTIONS[0],{optionId:'allow-session',label},...(kiln?[{optionId:'allow-kiln-session',label:'Allow all Kiln workspace tools for this session'}]:[]),OPTIONS[1]]:OPTIONS;
-    const view={reason:`Claude Code wants to use ${tool}.`,command:String(target),cwd:this.store.root,changes:input,options};
+    const view={title:card.title,tool:tool.replace(/^mcp__\w+?__/,''),reason:`Claude Code wants to use ${tool}.`,command:card.command,outside:card.outside,cwd:this.store.root,changes:input,options};
     return new Promise(resolve=>{
       this.pending.set(id,{id,grant,input,view,resolve:decision=>resolve(reply(decision))});this.publish();
     });
