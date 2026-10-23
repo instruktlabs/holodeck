@@ -113,6 +113,7 @@ footer a{text-decoration:none}
 @media (max-width:860px){
   .by,.top nav a:not(.gh){display:none}
   .hero::after{background:linear-gradient(180deg,rgba(26,31,22,.45) 0%,rgba(26,31,22,.1) 28%,rgba(26,31,22,.55) 46%,rgba(26,31,22,.88) 62%,rgba(26,31,22,.95) 100%)}
+  .hero-image{object-position:40% 55%}
   .button{flex:1 1 auto}
   .section-head,.step,.step:nth-of-type(even),.status,.scene,.build-grid{grid-template-columns:1fr}
   .step:nth-of-type(even) .copy{order:0}
