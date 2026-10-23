@@ -182,7 +182,7 @@ test('later turns and a reconnected agent resume the saved Claude session',async
   await agent.startTurn({text:'Second',model:'default'});await settled(agent);
   const second=(await calls()).filter(c=>c.kind==='turn')[1].argv;
   assert.equal(second[second.indexOf('--resume')+1],id);assert.equal(second.includes('--session-id'),false);
-  agent.close();
+  await agent.persistQueue;agent.close();
   const reopened=make();t.after(()=>reopened.close());
   const state=await reopened.connect();
   assert.equal(state.sessionId,id);assert.equal(state.messages.at(-1).text,'Hello from Claude');

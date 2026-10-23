@@ -46,7 +46,8 @@ const scriptKey=(tool,root,script,hash)=>'script:'+JSON.stringify([tool,root,scr
 export function scriptRun(tool,command,root){
   if(!SHELL_TOOLS.has(tool)||typeof command!=='string')return null;
   const m=command.trim().match(SCRIPT_RUN);if(!m)return null;
-  const source=path.join(root,'assets','source'),file=path.resolve(root,m[2]);
+  // Agents write either separator; resolve both on every platform.
+  const source=path.join(root,'assets','source'),file=path.resolve(root,m[2].replaceAll('\\','/'));
   if(!inside(source,file)||file===source)return null;
   return {runner:m[1],script:path.relative(root,file).split(path.sep).join('/'),file};
 }
