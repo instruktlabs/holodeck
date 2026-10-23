@@ -38,9 +38,9 @@ admission, exact accepted asset hashes, explicit foliage bindings, runtime joint
 diagnostics, loaded-revision observations, and proposal/apply revision checks.
 `world_read` exposes the current host's supported records so older scaffolded
 workspaces can learn capabilities without an instruction overwrite. The current
-dynamic tool session contract is version 4; the world runtime remains version 1.
+dynamic tool session contract is version 5; the world runtime remains version 1.
 
-`world_read.capabilities.assetDelivery` exposes the shared
+The `world_read` capabilities section (`assetDelivery`) exposes the shared
 `ASSET_DELIVERY_PROFILE`: `id: 'static-rigid-v1'`, `version: 1`, GLB/glTF 2.0 and
 self-contained resources. `supportedRequiredExtensions` is the same allowlist
 the validator uses. `embeddedClips`, `skinning` and `automaticLOD` are false;

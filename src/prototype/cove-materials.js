@@ -56,6 +56,8 @@ export function makeCoveMaterials(){
   return {
     create(source,role){
       const m=source.clone();
+      // Kiln-authored surfaces carry their own maps and UVs; only legacy flat modules are derived here.
+      if(source.map)return m;
       if(['clay','stone','linen','cushion','wood','rug'].includes(role)){
         if(!textures.has(role)){let shared=sharedTextures.get(role);if(!shared){shared={...texture(role),refs:0};sharedTextures.set(role,shared);}shared.refs++;textures.set(role,shared);}
         const t=textures.get(role);m.color.set('white');m.map=t.color;m.normalMap=t.normal;

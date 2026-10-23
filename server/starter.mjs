@@ -4,24 +4,27 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {DEFAULT_WORLD} from '../src/world/contract.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
-export async function installStarter(root){
+// Foliage bindings are schema v2 records; v1 worlds keep the same authored ferns without wind.
+export async function installStarter(root,{schemaVersion=1}={}){
   const w=structuredClone(DEFAULT_WORLD),manifest=JSON.parse(await readFile(path.join(packageRoot,'assets/cove/modules/manifest.json'),'utf8'));
   w.scene.assets=[];w.scene.origin='structure';
   for(const m of manifest){
     const file=`assets/imports/cove-${m.id}-${m.revisionId}.glb`;
     await writeFile(path.join(root,file),await readFile(path.join(packageRoot,`public/assets/cove-modules/${m.id}.glb`)));
     await writeFile(path.join(root,`assets/source/cove-${m.id}.kiln.js`),await readFile(path.join(packageRoot,`assets/cove/modules/${m.id}/source.kiln.js`)),{flag:'wx'}).catch(e=>{if(e.code!=='EEXIST')throw e;});
-    w.scene.assets.push({id:m.id,file,provenance:{assetId:m.assetId,revisionId:m.revisionId,collection:'project'}});
+    w.scene.assets.push({id:m.id,file,provenance:{assetId:m.assetId,revisionId:m.revisionId,collection:'project'},...(m.foliage&&schemaVersion===2?{foliage:m.foliage}:{})});
   }
-  const place=(id,asset,position,collider=null,light)=>({id,asset,position,rotation:[0,0,0],scale:[1,1,1],layer:'origin',materialStyle:'cove',collider,...(light?{light}:{})});
+  // Foliage modules keep their authored materials and frame; the rest use cove batching.
+  const foliage=new Set(manifest.filter(m=>m.foliage).map(m=>m.id));
+  const place=(id,asset,position,collider=null,light)=>({id,asset,position,rotation:[0,0,0],scale:[1,1,1],layer:'origin',...(foliage.has(asset)?{}:{materialStyle:'cove'}),collider,...(light?{light}:{})});
   const box=(size,offset)=>({type:'box',size,offset});
   const light=(intensity,offset)=>({color:'#ffba79',intensity,distance:3.5,offset});
   w.scene.objects=[
     place('cove-canopy','canopy',[0,0,0],{type:'compound',boxes:[[-3.25,-1.7],[2.55,-1.7],[-3.25,2.55],[2.55,2.55]].map(([x,z])=>({size:[.2,3.25,.2],offset:[x,1.625,z]}))}),
     place('cove-seating','seating',[0,0,0]),place('cove-hearth','hearth',[-1.12,0,.08],box([2.38,.85,2.38],[0,.425,0]),light(1.3,[0,1.45,0])),
     place('cove-planting','planting',[0,0,0]),place('cove-rug','rug',[.45,0,.7]),
-    place('cove-lamp-left','lamp',[-2.35,0,-1],box([.56,.66,.56],[0,.33,0]),light(3,[0,.5,0])),
-    place('cove-lamp-right','lamp',[2.5,0,.7],box([.56,.66,.56],[0,.33,0]),light(3,[0,.5,0])),
+    place('cove-lamp-left','lamp',[-2.35,0,-1],box([.56,.66,.56],[0,.33,0]),light(3,[0,.36,0])),
+    place('cove-lamp-right','lamp',[2.5,0,.7],box([.56,.66,.56],[0,.33,0]),light(3,[0,.36,0])),
   ];
   w.scene.moodboard={asset:'moodboard',position:[1.05,0,-2.45],rotation:[0,-Math.PI/2,0],page:0,title:'The world we are imagining',theme:'linen'};
   w.references=[];

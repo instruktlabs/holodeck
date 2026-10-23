@@ -1,11 +1,11 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
-import {mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import path from 'node:path';
 import os from 'node:os';
-import {ClaudeAgent,claudeCommand,claudeEnv} from './claude.mjs';
+import {ClaudeAgent,claudeCommand,claudeEnv,sessionGrant,INSTRUCTIONS} from './claude.mjs';
 import {createHost} from './host.mjs';
 
 // A stand-in for the installed CLI. It records what it was given, answers
@@ -51,8 +51,25 @@ if(scenario==='permission'||scenario==='hold-permission'){
   const read=await client.request('tools/call',{name:'world_read',arguments:{}});
   say('msg-1','Checking');
   const decision=await client.request('tools/call',{name:flag('--permission-prompt-tool').split('__')[2],arguments:{tool_name:'Bash',input:{command:'node -e 0'},tool_use_id:'toolu_1'}});
-  record({kind:'mcp',init:init.result,tools:listed.result.tools.map(t=>t.name),read:JSON.parse(read.result.content[0].text).world?.revision,decision:JSON.parse(decision.result.content[0].text)});
+  record({kind:'mcp',init:init.result,tools:listed.result.tools.map(t=>t.name),read:JSON.parse(read.result.content[0].text).revision,decision:JSON.parse(decision.result.content[0].text)});
   client.close();say('msg-2','Decided');finish();
+}
+// Asks the permission tool for each [tool_name,input] in FAKE_CLAUDE_ASKS, in order.
+if(scenario==='asks'){
+  const client=mcp(),tool=flag('--permission-prompt-tool').split('__')[2];
+  await client.request('initialize',{protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'fake-claude',version:'0'}});
+  const results=[];
+  for(const [tool_name,input] of JSON.parse(process.env.FAKE_CLAUDE_ASKS))results.push(JSON.parse((await client.request('tools/call',{name:tool,arguments:{tool_name,input}})).result.content[0].text).behavior);
+  record({kind:'asks',results});
+  client.close();finish();
+}
+if(scenario==='kiln-permission'){
+  const client=mcp(),tool=flag('--permission-prompt-tool').split('__')[2];
+  await client.request('initialize',{protocolVersion:'2025-06-18',capabilities:{},clientInfo:{name:'fake-claude',version:'0'}});
+  const ask=async input=>JSON.parse((await client.request('tools/call',{name:tool,arguments:{tool_name:'mcp__kiln_workspace__kiln_render',input}})).result.content[0].text);
+  const first=await ask({program:'a'}),second=await ask({program:'b'});
+  record({kind:'kiln',first,second});
+  client.close();finish();
 }
 `;
 
@@ -126,6 +143,36 @@ test('a turn runs claude -p with stream-json, safe permissions, strict MCP confi
   assert.equal(done.sessionId,value('--session-id'));
 });
 
+test('instructions replace the unloaded world CLAUDE.md and installed skills load as a session plugin',async t=>{
+  const {agent,calls,root}=await fixture(t);
+  const skill=async(registry,name)=>{await mkdir(path.join(root,registry,name),{recursive:true});await writeFile(path.join(root,registry,name,'SKILL.md'),`---\nname: ${name}\ndescription: ${name}\n---\n`);};
+  await agent.connect();await agent.startTurn({text:'No skills yet',model:'default'});await settled(agent);
+  assert.equal((await calls()).find(c=>c.kind==='turn').argv.includes('--plugin-dir'),false,'a world without skills passes no plugin');
+  await skill('.agents/skills','holodeck-author-world');await skill('skills','kiln-author-asset');await skill('skills','kiln-compose-scene');
+  await agent.startTurn({text:'Author a palm',model:'default'});await settled(agent);
+  const argv=(await calls()).filter(c=>c.kind==='turn')[1].argv,value=name=>argv[argv.indexOf(name)+1];
+  // --setting-sources user loads no project CLAUDE.md, AGENTS.md or .claude/skills.
+  assert.equal(value('--setting-sources'),'user');
+  const plugin=value('--plugin-dir');
+  assert.equal(path.relative(root,plugin).startsWith('..'),true,'the plugin lives outside the world folder');
+  assert.equal(JSON.parse(await readFile(path.join(plugin,'.claude-plugin/plugin.json'),'utf8')).name,'holodeck-world');
+  for(const name of ['holodeck-author-world','kiln-author-asset'])await readFile(path.join(plugin,'skills',name,'SKILL.md'));
+  await assert.rejects(readFile(path.join(plugin,'skills/kiln-compose-scene/SKILL.md')),{code:'ENOENT'});
+  const instructions=value('--append-system-prompt');
+  assert.equal(instructions,INSTRUCTIONS);
+  for(const fact of [/CLAUDE\.md and AGENTS\.md of this world are not loaded/,/holodeck-world:<name> skills/,/read \.kiln\/AGENTS\.md/,/Kiln progress log at assets\/source\/KILN_PROGRESS\.md/,/export command in holodeck-integrate-asset/,/do not read Holodeck engine sources/])assert.match(instructions,fact);
+});
+
+test('exact model IDs are offered beside aliases and passed through unchanged',async t=>{
+  const {agent,calls}=await fixture(t);
+  const state=await agent.connect(),ids=state.models.map(m=>m.model);
+  for(const id of ['default','opus','claude-opus-5-5','claude-sonnet-5-5','claude-haiku-5-5','claude-fable-5-1'])assert.ok(ids.includes(id),id);
+  await agent.startTurn({text:'Pinned run',model:'claude-opus-5-5',effort:'max'});await settled(agent);
+  const argv=(await calls()).find(c=>c.kind==='turn').argv;
+  assert.equal(argv[argv.indexOf('--model')+1],'claude-opus-5-5');
+  await assert.rejects(agent.startTurn({text:'Unknown',model:'claude-opus-9-9'}),/Select a listed model/);
+});
+
 test('later turns and a reconnected agent resume the saved Claude session',async t=>{
   const {agent,make,calls}=await fixture(t);
   await agent.connect();await agent.startTurn({text:'First',model:'default'});await settled(agent);
@@ -150,8 +197,10 @@ test('permission prompts reach the Holodeck approval card and return allow or de
     const card=await requested(agent);
     assert.equal(card.provider,'claude');assert.equal(card.kind,'permission');
     assert.equal(card.params.command,'node -e 0');assert.match(card.params.reason,/Bash/);
-    assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','reject-once']);
+    assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-session','reject-once']);
+    assert.equal(card.params.options[1].label,'Allow this exact command for the session');
     assert.throws(()=>agent.answer({id:card.id,decision:'allow-always'}),/Invalid approval decision/);
+    assert.throws(()=>agent.answer({id:card.id,decision:'allow-kiln-session'}),/Invalid approval decision/,'only Kiln cards offer all Kiln tools');
     agent.answer({id:card.id,decision});
     const done=await settled(agent);
     assert.equal(done.status,'completed');assert.deepEqual(done.requests,[]);
@@ -160,6 +209,89 @@ test('permission prompts reach the Holodeck approval card and return allow or de
     assert.equal(mcp.read,7,'world tools answer through the bridge');
     assert.deepEqual(mcp.decision,expected);
   }
+});
+
+test('a Kiln tool allowed for the session skips later prompts and survives reconnect',async t=>{
+  const {agent,make,calls}=await fixture(t,{scenario:'kiln-permission'});
+  await agent.connect();await agent.startTurn({text:'Author a palm',model:'default'});
+  const card=await requested(agent);
+  assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-session','allow-kiln-session','reject-once']);
+  agent.answer({id:card.id,decision:'allow-session'});
+  const done=await settled(agent);
+  assert.equal(done.status,'completed');
+  const kiln=(await calls()).find(c=>c.kind==='kiln');
+  assert.deepEqual(kiln.first,{behavior:'allow',updatedInput:{program:'a'}});
+  assert.deepEqual(kiln.second,{behavior:'allow',updatedInput:{program:'b'}},'the second call is allowed without a card');
+  assert.deepEqual(done.sessionTools,['mcp__kiln_workspace__kiln_render']);
+  assert.equal(done.resolvedModel,'claude-test','the init event records the resolved model');
+  await agent.persistQueue;agent.close();
+  const reopened=make();t.after(()=>reopened.close());
+  const state=await reopened.connect();
+  assert.deepEqual(state.sessionTools,['mcp__kiln_workspace__kiln_render']);assert.equal(state.resolvedModel,'claude-test');
+});
+
+// Answers each card in turn and returns the decisions the fake Claude received.
+async function answerCards(agent,calls,decisions){
+  const seen=[];
+  for(const decision of decisions){
+    const card=await new Promise(resolve=>{const check=s=>{const next=s.requests.find(r=>!seen.includes(r.id));if(next){agent.off('agent',check);resolve(next);}};agent.on('agent',check);check(agent.snapshot());});
+    seen.push(card.id);agent.answer({id:card.id,decision});
+  }
+  const done=await settled(agent);assert.equal(done.status,'completed');
+  return {done,results:(await calls()).find(c=>c.kind==='asks').results};
+}
+
+test('an exact shell command may be allowed for the session; other arguments, tools and folders still ask',async t=>{
+  const plan='python assets/source/plan_grove.py --seed 1';
+  const asks=[['Bash',{command:plan,description:'Plan the grove'}],['Bash',{command:plan,description:'Plan again',timeout:60000}],['Bash',{command:'python assets/source/plan_grove.py --seed 2'}],['Bash',{command:plan+' '}],['PowerShell',{command:plan}]];
+  const {agent,make,root,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await agent.connect();await agent.startTurn({text:'Plan the grove',model:'default'});
+  // Four cards: the repeat of the granted command is allowed without one.
+  const {done,results}=await answerCards(agent,calls,['allow-session','allow-once','reject-once','reject-once']);
+  assert.deepEqual(results,['allow','allow','allow','deny','deny']);
+  assert.deepEqual(done.sessionTools,[sessionGrant('Bash',{command:plan},root)]);
+  await agent.persistQueue;agent.close();
+  // The grant survives a reconnect in the same world folder, but not in another.
+  const file=path.join(root,'.holodeck/session/claude.json'),saved=JSON.parse(await readFile(file,'utf8'));
+  saved.sessionTools.push(sessionGrant('Bash',{command:plan},path.join(root,'elsewhere')),'shell:not json');
+  await writeFile(file,JSON.stringify(saved));
+  const reopened=make();t.after(()=>reopened.close());
+  assert.deepEqual((await reopened.connect()).sessionTools,[sessionGrant('Bash',{command:plan},root)]);
+});
+
+test('all Kiln workspace tools may be allowed for the session at once, and that survives reconnect',async t=>{
+  const asks=[['mcp__kiln_workspace__kiln_render',{program:'a'}],['mcp__kiln_workspace__kiln_validate',{program:'a'}],['mcp__kiln_workspace__kiln_save',{program:'a'}],['Bash',{command:'node kiln.mjs list'}]];
+  const {agent,make,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await agent.connect();await agent.startTurn({text:'Author a palm',model:'default'});
+  const card=await requested(agent);
+  assert.deepEqual(card.params.options.map(o=>[o.optionId,o.label]),[['allow-once','Allow once'],['allow-session','Allow this Kiln tool for this session'],['allow-kiln-session','Allow all Kiln workspace tools for this session'],['reject-once','Reject']]);
+  // One card for the first Kiln tool, then only the shell command asks.
+  const {done,results}=await answerCards(agent,calls,['allow-kiln-session','reject-once']);
+  assert.deepEqual(results,['allow','allow','allow','deny']);
+  assert.deepEqual(done.sessionTools,['mcp__kiln_workspace__*']);
+  await agent.persistQueue;agent.close();
+  const reopened=make();t.after(()=>reopened.close());
+  assert.deepEqual((await reopened.connect()).sessionTools,['mcp__kiln_workspace__*']);
+});
+
+test('Claude Code shell calls start in the world folder',()=>{
+  assert.equal(claudeEnv({PATH:'x'}).CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR,'1');
+});
+
+test('edit grants cover only files inside the world assets/source folder',()=>{
+  const root=path.resolve(os.tmpdir(),'world');
+  assert.equal(sessionGrant('Write',{file_path:path.join(root,'assets/source/terrain/a.py')},root),'edit:assets/source');
+  assert.equal(sessionGrant('Edit',{file_path:'assets/source/palm.kiln.js'},root),'edit:assets/source','relative paths resolve against the world');
+  assert.equal(sessionGrant('Edit',{file_path:path.join(root,'assets/source/../../outside.txt')},root),null);
+  assert.equal(sessionGrant('Write',{file_path:path.join(root,'world/world.json')},root),null);
+  assert.equal(sessionGrant('Write',{file_path:path.join(root,'assets/source')},root),null,'the folder itself is not a file');
+  assert.equal(sessionGrant('Bash',{command:'echo hi > assets/source/a.txt'},root),'shell:'+JSON.stringify(['Bash',root,'echo hi > assets/source/a.txt']),'a shell grant names the exact command, never an edit grant');
+  assert.notEqual(sessionGrant('Bash',{command:'echo hi'},root),sessionGrant('Bash',{command:'echo hi'},path.join(root,'other')));
+  assert.equal(sessionGrant('Bash',{command:'  '},root),null);assert.equal(sessionGrant('Bash',{command:'x'.repeat(8001)},root),null);assert.equal(sessionGrant('Bash',{},root),null);
+  assert.equal(sessionGrant('WebFetch',{url:'https://example.test'},root),null,'other tools always ask');
+  // H32: world_read carries the engine contract, so no read grant exists for engine docs, home or config folders.
+  for(const [tool,input] of [['Read',{file_path:path.join(os.homedir(),'.claude','settings.json')}],['Grep',{pattern:'terrain',path:path.join(os.homedir(),'.claude')}],['Glob',{pattern:'**/*.md',path:path.join(root,'..','holodeck','docs')}],['Read',{file_path:path.join(root,'assets/source/notes.md')}]])assert.equal(sessionGrant(tool,input,root),null,`${tool} asks per call`);
+  assert.equal(sessionGrant('mcp__kiln_workspace__kiln_render',{},root),'mcp__kiln_workspace__kiln_render');
 });
 
 test('stop sends SIGINT first and denies a pending approval',async t=>{
@@ -193,7 +325,7 @@ test('a turn that reports an API key source is stopped before billing changes',a
 
 test('claudeEnv strips Anthropic API and provider credentials but keeps unrelated variables',()=>{
   const env=claudeEnv({PATH:'x',HOME:'h',ANTHROPIC_API_KEY:'k',ANTHROPIC_AUTH_TOKEN:'t',ANTHROPIC_BASE_URL:'u',ANTHROPIC_VERTEX_PROJECT_ID:'v',CLAUDE_CODE_USE_VERTEX:'1',CLAUDE_CODE_USE_FOUNDRY:'1',AWS_BEARER_TOKEN_BEDROCK:'b',CLAUDE_CODE_SIMPLE:'1'});
-  assert.deepEqual(env,{PATH:'x',HOME:'h'});
+  assert.deepEqual(env,{PATH:'x',HOME:'h',CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR:'1'});
 });
 
 test('claude command is the installed CLI and nothing else',()=>{

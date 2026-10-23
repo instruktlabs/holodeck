@@ -3,8 +3,10 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {readRevisionBundle} from './history.mjs';
+import {SKILLS_GUIDE,KILN_GUIDE} from './world-guide.mjs';
 import {validateWorld,validateGlb,MAX_ASSET_BYTES} from '../src/world/contract.mjs';
 import {placedSourceTriangles,MAX_PLACED_TRIANGLES} from '../src/world/asset-budget.mjs';
+import {terrainTextureFiles} from '../src/world/terrain-layers.mjs';
 
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -89,9 +91,11 @@ export async function createExampleBundle(root,{out,revision,id,title,descriptio
  if(typeof out!=='string'||!out.trim())fail('Choose a new example bundle directory');const output=path.resolve(out);await absent(output);exact(authoring,['intent','rules'],'public authoring');
  if(typeof authoring.intent!=='string'||typeof authoring.rules!=='string')fail('Supply public intent and rules as strings');
  const accepted=await readRevisionBundle(root,revision);if(accepted.world.schemaVersion!==2)fail('Example bundles require schema version 2');
+ // Bundles carry GLBs only; terrain layer PNGs are not part of the bundle format yet.
+ if(terrainTextureFiles(accepted.world.scene.terrain).size)fail('Example bundles do not carry terrain layer textures yet; remove appearance.layers first');
  const world=structuredClone(accepted.world);world.revision=0;world.bible={title,intent:authoring.intent,rules:authoring.rules};world.references=[];
  if(world.scene.moodboard){world.scene.moodboard.page=0;world.scene.moodboard.title='World board';}
- const needed=new Set([world.scene.origin,...world.scene.objects.map(item=>item.asset).filter(Boolean),...(world.scene.moodboard?[world.scene.moodboard.asset]:[])]),assets=[],blobs=new Map();
+ const needed=new Set([world.scene.origin,...world.scene.objects.map(item=>item.asset).filter(Boolean),...(world.scene.scatters||[]).flatMap(s=>s.variants.map(v=>v.asset)),...(world.scene.moodboard?[world.scene.moodboard.asset]:[])]),assets=[],blobs=new Map();
  world.scene.assets=world.scene.assets.filter(asset=>needed.has(asset.id)).map(asset=>{
   const hash=accepted.assets[asset.id].hash,file=`assets/imports/${hash}.glb`,provenance=publicProvenance(asset.provenance);assets.push({id:asset.id,file,sha256:hash,bytes:accepted.assets[asset.id].bytes});return {id:asset.id,file,...(provenance?{provenance}:{}),...(asset.foliage?{foliage:structuredClone(asset.foliage)}:{})};
  });
@@ -111,7 +115,7 @@ export async function installExampleBundle(directory,destination){
  for(const name of ['world','assets/imports','assets/source','references/files'])await mkdir(path.join(output,name),{recursive:true});const copied=new Set();
  for(const asset of Object.values(assets)){if(copied.has(asset.file))continue;await writeFile(path.join(output,asset.file),asset.bytes,{flag:'wx'});copied.add(asset.file);}
  await cp(path.join(packageRoot,'skills'),path.join(output,'.agents/skills'),{recursive:true});
- await writeFile(path.join(output,'AGENTS.md'),'# Holodeck example workspace\n\nUse the installed Holodeck skills and world_read/world_propose. This is a new editable revision history. Exact GLBs and public scene guidance came from a validated local example bundle; sessions, reference attachments and source authoring files were not copied. Configure a separate kiln_workspace before refining assets. Never edit installed packages.\n',{flag:'wx'});
+ await writeFile(path.join(output,'AGENTS.md'),`# Holodeck example workspace\n\nUse the installed Holodeck skills and world_read/world_propose. ${SKILLS_GUIDE} This is a new editable revision history. Exact GLBs and public scene guidance came from a validated local example bundle; sessions, reference attachments and source authoring files were not copied. Never edit installed packages.\n${KILN_GUIDE}\n`,{flag:'wx'});
  if(previewBytes)await writeFile(path.join(output,'EXAMPLE-preview.png'),previewBytes,{flag:'wx'});
  await writeFile(path.join(output,'EXAMPLE.json'),JSON.stringify({format:'holodeck-example-install-v1',id:manifest.id,integrity:manifest.integrity,sourceRevision:manifest.sourceRevision,...(manifest.preview?{preview:{...manifest.preview,file:'EXAMPLE-preview.png'}}:{})},null,2)+'\n',{flag:'wx'});
  await writeFile(path.join(output,'world/world.json'),JSON.stringify(world,null,2)+'\n',{flag:'wx'});await unlink(path.join(output,'INSTALL-INCOMPLETE.txt'));return world;

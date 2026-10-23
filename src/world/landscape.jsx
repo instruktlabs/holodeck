@@ -2,8 +2,12 @@ import React,{useEffect,useMemo} from 'react';
 import {useFrame} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {SkyMesh} from 'three/addons/objects/SkyMesh.js';
-import {Fn,cameraPosition,color,cos,float,ivec2,mix,normalMap,normalWorldGeometry,positionLocal,positionWorld,select,sin,smoothstep,texture,textureLoad,uniform,vec2,vec3,vec4} from 'three/tsl';
+import {Fn,abs,acos,cameraPosition,color,cos,dot,exp,float,floor,int,ivec2,materialColor,max,mix,modelViewProjection,normalMap,normalWorldGeometry,positionLocal,positionWorld,select,sin,smoothstep,step,texture,textureLoad,uniform,vec2,vec3,vec4} from 'three/tsl';
 import {createTerrain} from './terrain.mjs';
+import {rasterizeLayerMasks} from './terrain-layers.mjs';
+import {SEABED_SHALLOW_COLOR,WATER_DEEP_COLOR,WATER_TRANSMISSION} from './water-optics.mjs';
+import {buildSurfMap,resolveSurf} from './surf.mjs';
+import {resolveSky} from './sky.mjs';
 
 // Two bounded surface draws. Geometry, walking and shoreline shading all read
 // the same terrain lattice; only material detail is evaluated per fragment.
@@ -106,7 +110,85 @@ function oceanDetailNodes(p,water,clock,oceanTexture){
  return {dx:slope.x.mul(windX).sub(slope.y.mul(windZ)),dz:slope.x.mul(windZ).add(slope.y.mul(windX)),patch:warp.x.add(.5),foam:a.a.mul(.65).add(b.b.mul(.35)),footprint};
 }
 
-function makeTerrainMaterial(terrain,water,clock,textures){
+// Authored layer maps pack into two texture arrays: albedo (sRGB) with
+// roughness in alpha, and tangent-space normals. A single layer is padded to
+// two so both backends bind a true array texture.
+const DEFAULT_LAYER_ROUGHNESS=230;
+function makeLayerTextures(layers,images){
+ if(!layers?.length||!layers.every(l=>['albedo','normal','roughness'].every(k=>!l.maps[k]||images?.[l.maps[k]])))return null;
+ const size=images[layers[0].maps.albedo].width,count=Math.max(2,layers.length),texel=size*size*4;
+ const albedo=new Uint8Array(texel*count),normal=new Uint8Array(texel*count);
+ for(let i=0;i<count;i++){
+  const layer=layers[Math.min(i,layers.length-1)],roughness=layer.maps.roughness?images[layer.maps.roughness].data:null;
+  albedo.set(images[layer.maps.albedo].data,i*texel);normal.set(images[layer.maps.normal].data,i*texel);
+  for(let k=0;k<size*size;k++)albedo[i*texel+k*4+3]=roughness?roughness[k*4]:DEFAULT_LAYER_ROUGHNESS;
+ }
+ const make=(data,srgb)=>{
+  const t=new THREE.DataArrayTexture(data,size,size,count);t.format=THREE.RGBAFormat;t.type=THREE.UnsignedByteType;
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;t.magFilter=THREE.LinearFilter;t.minFilter=THREE.LinearMipmapLinearFilter;t.generateMipmaps=true;t.anisotropy=4;
+  if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t;
+ };
+ return {albedo:make(albedo,true),normal:make(normal,false),dispose(){this.albedo.dispose();this.normal.dispose();}};
+}
+// Near and paint masks for up to four layers, one per channel, over the terrain bounds.
+const MASK_SIZE=512;
+function makeMaskTexture(){
+ const t=new THREE.DataTexture(new Uint8Array(MASK_SIZE*MASK_SIZE*4).fill(255),MASK_SIZE,MASK_SIZE,THREE.RGBAFormat,THREE.UnsignedByteType);
+ t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;t.magFilter=t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;
+}
+// terrain-layers.mjs bandWeight: 1 inside [min,max], fading over `fade` outside.
+const band=(value,[min,max,fade])=>{const f=Math.max(fade,1e-4);return smoothstep(min-f,min,value).mul(smoothstep(max,max+f,value).oneMinus());};
+function layerSample(arrays,index,layer,p,n){
+ const k=1/(layer.scale??4),at=(map,uv)=>texture(map,uv).depth(int(index));
+ // Image rows run +v in a DataArrayTexture, so green is flipped into the
+ // terrain's tangent frame (u along +x, v along +z).
+ const tangent=sample=>vec3(sample.r,sample.g.oneMinus(),sample.b);
+ if(layer.projection!=='triplanar'){const uv=p.xz.mul(k),a=at(arrays.albedo,uv);return {albedo:a.rgb,roughness:a.a,normal:tangent(at(arrays.normal,uv))};}
+ // Triplanar albedo and roughness; normal detail comes from the top projection
+ // only and fades out on steep faces.
+ const b=abs(n).pow(vec3(4)),w=b.div(b.x.add(b.y).add(b.z));
+ const a=at(arrays.albedo,p.zy.mul(k)).mul(w.x).add(at(arrays.albedo,p.xz.mul(k)).mul(w.y)).add(at(arrays.albedo,p.xy.mul(k)).mul(w.z));
+ return {albedo:a.rgb,roughness:a.a,normal:mix(vec3(.5,.5,1),tangent(at(arrays.normal,p.xz.mul(k))),w.y)};
+}
+
+// Light through the water column, shared by the terrain and placed objects
+// (H34) so coral and the seabed beside it take the same tint at the same
+// depth. Submerged surfaces carry the water's colour: light crosses the column
+// twice and red is absorbed first (Beer-Lambert), so pale sand reads turquoise
+// in the shallows and blue with depth, as clear reef water does. The CPU mirror
+// is underwaterColor in water-optics.mjs.
+function waterColumn({dry,bed,p,surface,water,clock,detail,environment}){
+ const submerged=surface.sub(p.y).max(0);
+ const transmit=exp(vec3(...WATER_TRANSMISSION).mul(submerged.mul(-2)));
+ const scatter=mix(color(water.shallowColor??SEABED_SHALLOW_COLOR),color(water.color??WATER_DEEP_COLOR),smoothstep(1.5,9,submerged));
+ // Cheap caustics: two drifting samples of the detail map form a bright net
+ // where they cross. They fade in below the foam line and out with depth.
+ const drift=clock.mul(.02),c1=texture(detail,p.xz.mul(.33).add(vec2(drift,drift.mul(.6)))).r,c2=texture(detail,p.xz.mul(.29).add(vec2(drift.mul(-.8),drift.mul(.9)))).r;
+ const near=smoothstep(55,12,cameraPosition.sub(p).length());
+ const caustic=smoothstep(.07,0,abs(c1.sub(c2))).mul(smoothstep(.06,.45,submerged)).mul(smoothstep(7,1.2,submerged)).mul(near).mul(.6);
+ const lit=bed.add(color(environment?.sunColor??'#fff1d0').mul(caustic));
+ return mix(dry,lit.mul(transmit).add(scatter.mul(transmit.oneMinus())),smoothstep(0,.12,submerged));
+}
+
+// Surf (H22): one map over the terrain bounds (see surf.mjs) read by the ocean
+// for reef-break foam and by the terrain for swash. Each set arrives once per
+// period and travels with the swell; detail noise bends the set line.
+function makeSurf(water,terrain,lattice){
+ if(!water?.surf||!lattice)return null;
+ const settings=resolveSurf(water),data=buildSurfMap({bounds:terrain.bounds,heightAt:(x,z)=>lattice.sample(x,z).height,level:water.level,surf:settings});
+ const map=new THREE.DataTexture(data,SURF_SIZE,SURF_SIZE,THREE.RGBAFormat,THREE.UnsignedByteType);
+ map.magFilter=map.minFilter=THREE.LinearFilter;map.wrapS=map.wrapT=THREE.ClampToEdgeWrapping;map.needsUpdate=true;
+ return {map,settings,bounds:terrain.bounds};
+}
+const SURF_SIZE=512;
+function surfNodes(surf,p,clock,bend){
+ const [xmin,xmax,zmin,zmax]=surf.bounds,{direction:[ux,uz],period,celerity}=surf.settings;
+ const sample=texture(surf.map,p.xz.sub(vec2(xmin,zmin)).div(vec2(xmax-xmin,zmax-zmin)));
+ const phase=clock.div(period).sub(p.x.mul(ux).add(p.z.mul(uz)).div(celerity*period)).add(bend).fract();
+ return {strength:sample.r,whitewater:sample.g.oneMinus(),swell:sample.b,phase};
+}
+
+function makeTerrainMaterial(terrain,water,clock,textures,environment,layerTextures,mask,surf){
  const a=terrain.appearance??{},scale=a.textureScale??1,material=new THREE.MeshStandardNodeMaterial({roughness:.95});
  const p=positionWorld,coords=p.xz.mul(scale),grain=texture(textures.detail,coords.mul(.85)),broad=texture(textures.detail,coords.mul(.037)).r;
  const wetHeight=water?waveNodes(p.xz,water,clock).height.add(.13):float(-1000);
@@ -120,17 +202,46 @@ function makeTerrainMaterial(terrain,water,clock,textures){
  const wetSand=color(a.wetSandColor??'#9f9173').mul(grain.g.mul(.08).add(.94));
  const grassColor=color(a.grassColor??'#738150').mul(grain.b.mul(.38).add(.72));
  const rockColor=color(a.rockColor??'#929087').mul(grain.r.mul(.32).add(.76));
- material.colorNode=mix(mix(mix(sand,wetSand,wet.mul(.88)),grassColor,grass),rockColor,rock);
+ let land=mix(mix(mix(sand,wetSand,wet.mul(.88)),grassColor,grass),rockColor,rock),bedBase=mix(sand,rockColor,rock);
+ let detailNormal=texture(textures.normal,coords.mul(.85)).xyz,normalScale=vec2(.48),roughness=mix(float(.96),float(.44),wet).add(rock.mul(.025));
+ // Authored layers draw over the base in order. The wet band stays on top, and
+ // the seabed takes the layers too, so the shoreline reads the same.
+ if(layerTextures){
+  const [xmin,xmax,zmin,zmax]=terrain.bounds,n=normalWorldGeometry,slope=acos(n.y.clamp(-1,1)).mul(180/Math.PI),masks=texture(mask,p.xz.sub(vec2(xmin,zmin)).div(vec2(xmax-xmin,zmax-zmin)));
+  terrain.appearance.layers.forEach((layer,index)=>{
+   const m=layer.mask||{};let weight=float(layer.strength??1);
+   if(m.height)weight=weight.mul(band(p.y,m.height));
+   if(m.slope)weight=weight.mul(band(slope,m.slope));
+   if(m.water)weight=weight.mul(band(p.y.sub(water?.level??0),m.water));
+   if(m.near||m.paint)weight=weight.mul(masks[['r','g','b','a'][index]]);
+   const s=layerSample(layerTextures,index,layer,p,n),surface=layer.tint?s.albedo.mul(color(layer.tint)):s.albedo,dry=weight.mul(wet.oneMinus());
+   land=mix(land,surface,dry);bedBase=mix(bedBase,surface,weight);
+   detailNormal=mix(detailNormal,s.normal,weight);normalScale=mix(normalScale,vec2(1),weight);roughness=mix(roughness,s.roughness,dry);
+  });
+ }
+ // Swash: a film runs up the beach to level + runUp × swell and drains back
+ // each period (uprush a third of it), with lace foam at its edge and sand
+ // left damp below the highest reach.
+ if(surf){
+  const s=surfNodes(surf,p,clock,broad.mul(.6)),level=water.level,reach=s.swell.mul(surf.settings.runUp);
+  const cycle=smoothstep(0,1/3,s.phase).mul(smoothstep(1,1/3,s.phase)),front=reach.mul(cycle).add(level);
+  const above=smoothstep(level-.2,level+.02,p.y),film=smoothstep(front.add(.02),front.sub(.03),p.y).mul(above).mul(step(.005,reach));
+  const damp=smoothstep(reach.add(level),float(level),p.y).mul(above).mul(.45);
+  const lace=smoothstep(.045,0,abs(p.y.sub(front))).mul(step(.04,cycle)).mul(above).mul(step(.005,reach)).mul(grain.g.mul(.6).add(.4)).mul(surf.settings.intensity);
+  land=mix(land,land.mul(.66),film.max(damp));land=mix(land,color('#edf3df'),lace.mul(.85));
+  roughness=mix(roughness,float(.22),film);
+ }
+ if(!water)material.colorNode=land;
+ else material.colorNode=waterColumn({dry:land,bed:bedBase,p,surface:wetHeight.sub(.13),water,clock,detail:textures.detail,environment});
  const ripplePhase=p.x.mul(20*scale).add(p.z.mul(7*scale)).add(sin(p.z.mul(1.7*scale)).mul(1.2));
  const rippleFade=ripplePhase.fwidth().mul(.7).clamp(0,1).oneMinus();
  const ripple=cos(ripplePhase).mul(.065).mul(rippleFade).mul(grass.oneMinus()).mul(wet.mul(.6).oneMinus());
- const detailNormal=texture(textures.normal,coords.mul(.85)).xyz;
- material.normalNode=normalMap(detailNormal.add(vec3(ripple,0,0)),vec2(.48));
- material.roughnessNode=mix(float(.96),float(.44),wet).add(rock.mul(.025)).clamp(.4,1);
+ material.normalNode=normalMap(detailNormal.add(vec3(ripple,0,0)),normalScale);
+ material.roughnessNode=roughness.clamp(.4,1);
  return material;
 }
 
-function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures,environment){
+function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures,environment,surf){
  const material=new THREE.MeshBasicNodeMaterial({transparent:true,depthWrite:false});
  const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize();
  material.positionNode=Fn(()=>{
@@ -143,8 +254,14 @@ function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures
   const dx=w.dx.add(detail.dx.mul(detailFade)),dz=w.dz.add(detail.dz.mul(detailFade));
   const normal=vec3(dx.negate(),1,dz.negate()).normalize().toVar(),view=cameraPosition.sub(p).normalize();
   const facing=normal.dot(view).clamp(0,1),fresnel=facing.oneMinus().pow(5).mul(.98).add(.02);
-  const reflected=view.negate().reflect(normal),sky=mix(color(environment.fogColor??'#c5d9dd'),color('#4b88b7'),reflected.y.clamp(0,1).pow(.5));
+  // Reflect a blue sky gradient rather than the fog colour, which washed the
+  // shallows to grey at grazing angles.
+  const authored=resolveSky(environment),reflected=view.negate().reflect(normal);
+  const sky=authored?skyGradientNode(authored,reflected.y):mix(mix(color(environment.fogColor??'#c5d9dd'),color('#9cc9e6'),.6),color('#3f7fbf'),reflected.y.clamp(0,1).pow(.5));
   const deep=smoothstep(.1,5.5,depth),body=mix(color(water.shallowColor??'#68bcb2'),color(water.color??'#145a70'),deep);
+  // The seabed already carries absorption, so shallow water stays clear and
+  // its reflection softer until the bottom is out of sight.
+  const reflectance=fresnel.mul(mix(float(.55),float(1),deep));
   const sunFacing=reflected.dot(vec3(sun.x,sun.y,sun.z)).max(0);
   // A broad lobe surrounds the tight solar glint. Analytical reflection costs
   // no reflection camera or screen/depth target and stays stable on WebGL2.
@@ -156,11 +273,20 @@ function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures
   const shorePhase=shoreDistance.mul(2.3).add(clock.mul(1.45)).add(detail.patch.mul(3.2));
   const resolved=smoothstep(.7,2.8,shorePhase.fwidth()).oneMinus(),foamPatches=smoothstep(.3,.67,detail.foam);
   const ripple=sin(shorePhase),breaking=smoothstep(.55,.93,ripple).mul(resolved).mul(smoothstep(width*.6,width*4,shoreDistance).oneMinus()).mul(smoothstep(.015,.12,depth));
-  const foam=shoreBand.mul(foamPatches.mul(.55).add(.18)).add(breaking.mul(foamPatches.mul(.5).add(.24))).clamp(0,.9).toVar();
-  const waterColor=mix(body.mul(.83).add(body.mul(normal.y.max(0).mul(.17))),reflectedLight,fresnel);
+  let foam=shoreBand.mul(foamPatches.mul(.55).add(.18)).add(breaking.mul(foamPatches.mul(.5).add(.24))).clamp(0,.9);
+  // Reef-break surf: a bright set line where the swell breaks, then whitewater
+  // carried shoreward with the same phase, fading over the whitewater distance.
+  if(surf){
+   const s=surfNodes(surf,p,clock,detail.patch.mul(.15)),crest=smoothstep(.3,0,s.phase),intensity=surf.settings.intensity;
+   const surfFoam=s.strength.mul(crest.mul(1.2).add(.3)).add(s.whitewater.mul(crest.mul(.9).add(.2))).mul(foamPatches.mul(.6).add(.4)).mul(intensity).mul(smoothstep(.015,.12,depth));
+   foam=foam.max(surfFoam.clamp(0,.95));
+  }
+  foam=foam.toVar();
+  const waterColor=mix(body.mul(.83).add(body.mul(normal.y.max(0).mul(.17))),reflectedLight,reflectance);
   const foamColor=color('#edf3df').mul(detail.foam.mul(.1).add(.9));
   const result=mix(waterColor,foamColor,foam);
-  const alpha=mix(float(.38).add(smoothstep(0,2.8,depth).mul(.6)).add(fresnel.mul(.25)).clamp(0,1),float(.97),foam);
+  // Deep water is opaque, so the edge of the terrain lattice never shows through.
+  const alpha=mix(float(.16).add(smoothstep(0,6,depth).mul(.84)).add(reflectance.mul(.3)).clamp(0,1),float(.97),foam);
   return vec4(result,alpha);
  })();
  material.colorNode=surface.rgb;material.opacityNode=surface.a;return material;
@@ -178,21 +304,25 @@ function makeOceanGeometry(water){
  g.boundingSphere=g.boundingBox.getBoundingSphere(new THREE.Sphere());return g;
 }
 
-export function Landscape({terrain,water,runtime,environment={}}){
- const clock=useMemo(()=>uniform(0),[]);
+export function Landscape({terrain,water,runtime,environment={},textures:images,placements}){
+ const clock=useMemo(()=>uniform(0),[]),layers=terrain?.appearance?.layers;
+ const layerTextures=useMemo(()=>makeLayerTextures(layers,images),[layers,images]),mask=useMemo(()=>layerTextures?makeMaskTexture():null,[layerTextures]);
+ useEffect(()=>()=>{layerTextures?.dispose();mask?.dispose();},[layerTextures,mask]);
+ // Masks follow placements without rebuilding the material.
+ useEffect(()=>{if(!mask)return;mask.image.data.set(rasterizeLayerMasks({terrain,placements,paints:images,size:MASK_SIZE}));mask.needsUpdate=true;},[mask,terrain,placements,images]);
  const landscape=useMemo(()=>{
   const lattice=terrain?(runtime?.terrain??createTerrain(terrain)):null,textures=makeDetailTextures();
   if(water)textures.ocean=makeOceanDetailTexture();
-  const heightTexture=lattice?makeHeightTexture(lattice):null,baseHeight=terrain?.baseHeight??(water?.level??0)-12;
+  const heightTexture=lattice?makeHeightTexture(lattice):null,baseHeight=terrain?.baseHeight??(water?.level??0)-12,surf=makeSurf(water,terrain,lattice);
   let terrainGeometry=null,terrainMaterial=null,oceanGeometry=null,oceanMaterial=null;
   if(lattice){
    terrainGeometry=new THREE.BufferGeometry();terrainGeometry.setAttribute('position',new THREE.BufferAttribute(lattice.positions,3));terrainGeometry.setAttribute('normal',new THREE.BufferAttribute(lattice.normals,3));terrainGeometry.setIndex(new THREE.BufferAttribute(lattice.indices,1));
    const uv=new Float32Array(lattice.heights.length*2);for(let i=0;i<lattice.heights.length;i++){uv[i*2]=lattice.positions[i*3];uv[i*2+1]=lattice.positions[i*3+2];}terrainGeometry.setAttribute('uv',new THREE.BufferAttribute(uv,2));terrainGeometry.computeBoundingSphere();
-   terrainMaterial=makeTerrainMaterial(terrain,water,clock,textures);
+   terrainMaterial=makeTerrainMaterial(terrain,water,clock,textures,environment,layerTextures,mask,surf);
   }
-  if(water){oceanGeometry=makeOceanGeometry(water);oceanMaterial=makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures,environment);}
-  return {terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,dispose(){for(const item of [terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,heightTexture,textures.detail,textures.normal,textures.ocean])item?.dispose();}};
- },[terrain,water,runtime?.terrain,environment,clock]);
+  if(water){oceanGeometry=makeOceanGeometry(water);oceanMaterial=makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures,environment,surf);}
+  return {terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,dispose(){for(const item of [terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,heightTexture,textures.detail,textures.normal,textures.ocean,surf?.map])item?.dispose();}};
+ },[terrain,water,runtime?.terrain,environment,clock,layerTextures,mask]);
  useEffect(()=>()=>landscape.dispose(),[landscape]);
  useFrame(()=>{clock.value=runtime?.time??0;},-1);
  return <group name="landscape" dispose={null}>
@@ -201,7 +331,90 @@ export function Landscape({terrain,water,runtime,environment={}}){
  </group>;
 }
 
-export function LandscapeSky({environment={}}){
+// Placed GLB materials that can reach below the water get the same water
+// column as the terrain. Each source material is converted once to its node
+// equivalent (as the renderer would) with its diffuse colour carried through
+// the water at the fragment's own depth. Vertex and instance colours still
+// multiply afterwards, as in any node material.
+const NODE_MATERIALS={MeshStandardMaterial:THREE.MeshStandardNodeMaterial,MeshPhysicalMaterial:THREE.MeshPhysicalNodeMaterial,MeshBasicMaterial:THREE.MeshBasicNodeMaterial,MeshLambertMaterial:THREE.MeshLambertNodeMaterial,MeshPhongMaterial:THREE.MeshPhongNodeMaterial};
+export function createUnderwaterTint(water,environment={}){
+ const clock=uniform(0),textures=makeDetailTextures();textures.normal.dispose();
+ function material(source){
+  let target;
+  if(source.isNodeMaterial)target=source.clone();
+  else{
+   const Class=NODE_MATERIALS[source.type];if(!Class)return null;
+   target=new Class();for(const key in source)if(key!=='uuid'&&key!=='_listeners')target[key]=source[key];
+  }
+  const base=target.colorNode?vec4(target.colorNode):materialColor,p=positionWorld;
+  const surface=waveNodes(p.xz,water,clock).height;
+  target.colorNode=vec4(waterColumn({dry:base.rgb,bed:base.rgb,p,surface,water,clock,detail:textures.detail,environment}),base.a);
+  target.name=source.name;target.needsUpdate=true;return target;
+ }
+ return {clock,material,dispose(){textures.detail.dispose();}};
+}
+
+// Authored sky (H23, see sky.mjs): a gradient from horizonColor (fogColor by
+// default) to zenithColor, the sun disc and glow in sunColor, and optional
+// cumulus. The water reflects the same gradient, so fog, horizon and water
+// agree. Cloud noise follows three.js SkyMesh (MIT): a sine-free lattice
+// hash, quintic gradient noise, drifting fbm and Beer-Lambert opacity, lit
+// here from the authored colours and the runtime clock.
+const skyGradientNode=(sky,elevation)=>mix(color(sky.horizonColor),color(sky.zenithColor),elevation.clamp(0,1).pow(sky.curve));
+const cloudGradient=Fn(([i])=>{const p=i.xyx.mul(vec3(.1031,.1030,.0973)).fract().toVar();p.addAssign(dot(p,p.yzx.add(33.33)));return p.xx.add(p.yz).mul(p.zy).fract().mul(2).sub(1);});
+const cloudNoise=Fn(([p])=>{
+ const i=floor(p),f=p.fract(),u=f.mul(f).mul(f).mul(f.mul(f.mul(6).sub(15)).add(10));
+ const a=dot(cloudGradient(i),f),b=dot(cloudGradient(i.add(vec2(1,0))),f.sub(vec2(1,0))),c=dot(cloudGradient(i.add(vec2(0,1))),f.sub(vec2(0,1))),d=dot(cloudGradient(i.add(vec2(1,1))),f.sub(vec2(1,1)));
+ return mix(mix(a,b,u.x),mix(c,d,u.x),u.y).mul(1.6);
+});
+// Four octaves unrolled here rather than a shader loop.
+function cloudFbm(position,drift){
+ let p=position,result=float(0);
+ for(let octave=0;octave<4;octave++){result=result.add(cloudNoise(p).mul(.5**octave));p=p.mul(2).add(drift);}
+ return result;
+}
+function makeSkyMaterial(sky,environment,clock){
+ const material=new THREE.MeshBasicNodeMaterial({side:THREE.BackSide,depthWrite:false});material.fog=false;
+ // Pin the dome to the far plane, as SkyMesh does, so the camera's far
+ // distance never clips it.
+ material.vertexNode=Fn(()=>{const position=modelViewProjection;position.z.assign(position.w);return position;})();
+ const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize(),sunColor=color(environment.sunColor??'#fff1d0');
+ material.colorNode=Fn(()=>{
+  const direction=positionWorld.sub(cameraPosition).normalize(),cosine=dot(direction,vec3(sun.x,sun.y,sun.z)).toVar();
+  const base=skyGradientNode(sky,direction.y);
+  const disc=smoothstep(.99975,.9999,cosine).mul(8),glow=cosine.max(0).pow(400).mul(.6).add(cosine.max(0).pow(24).mul(.12));
+  const result=base.add(sunColor.mul(disc.add(glow).mul(sky.sunDisc))).toVar();
+  if(sky.clouds){
+   const c=sky.clouds,plane=direction.xz.div(direction.y.mul(1-.9*c.height).max(.02)).mul(1000);
+   const q=plane.add(vec2(clock.mul(c.drift[0]),clock.mul(c.drift[1])));
+   const field=cloudFbm(q.div(1500*c.scale),clock.mul(.004)).mul(.7).add(.5).clamp(0,1);
+   const region=cloudNoise(q.div(5000*c.scale)).mul(.37).add(.5),cover=region.sub(.5).mul(.6).add(c.coverage).clamp(0,1),threshold=cover.oneMinus();
+   const horizonFade=smoothstep(0,.03+.06*c.height,direction.y),mask=smoothstep(threshold,threshold.add(.3),field).mul(horizonFade);
+   const depth=field.sub(threshold).max(0),beer=exp(depth.mul(-4)),shade=mix(float(.45),float(1),beer.mul(beer.mul(beer).oneMinus()).mul(2.6).clamp(0,1));
+   const silver=float(.51).div(float(1.49).sub(cosine.mul(1.4)).pow(1.5)).clamp(0,3),edge=mask.mul(mask.oneMinus()).mul(4);
+   const lit=base.mul(.45).add(sunColor.mul(shade.mul(.78))).add(sunColor.mul(silver.mul(edge).mul(.12)));
+   // Distant clouds dissolve into the horizon haze.
+   const cloud=mix(color(sky.horizonColor),lit,smoothstep(0,.25,direction.y));
+   const alpha=exp(depth.mul(-12*c.density)).oneMinus().mul(horizonFade);
+   result.assign(mix(result,cloud,alpha));
+  }
+  return result;
+ })();
+ return material;
+}
+
+export function LandscapeSky({environment={},runtime}){
+ const sky=resolveSky(environment);
+ return sky?<AuthoredSky sky={sky} environment={environment} runtime={runtime}/>:<AnalyticSky environment={environment}/>;
+}
+function AuthoredSky({sky,environment,runtime}){
+ const clock=useMemo(()=>uniform(0),[]);
+ const mesh=useMemo(()=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.5,48,24),makeSkyMaterial(sky,environment,clock));m.scale.setScalar(10000);m.frustumCulled=false;m.renderOrder=-100;m.name='landscape-sky';return m;},[environment,clock]);
+ useEffect(()=>()=>{mesh.geometry.dispose();mesh.material.dispose();},[mesh]);
+ useFrame(()=>{clock.value=runtime?.time??0;},-1);
+ return <primitive object={mesh} dispose={null}/>;
+}
+function AnalyticSky({environment}){
  const sky=useMemo(()=>{
   const s=new SkyMesh();s.scale.setScalar(10000);s.sunPosition.value.set(...(environment.sunPosition??[-8,14,9]));
   s.turbidity.value=2.2;s.rayleigh.value=1.35;s.mieCoefficient.value=.0035;s.mieDirectionalG.value=.82;

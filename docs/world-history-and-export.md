@@ -6,7 +6,7 @@ asset IDs to immutable GLB bytes. Replacing a mutable import does not change the
 bytes belonging to an older accepted revision. Transient player positions,
 activity phases and agent sessions are not simulation checkpoints.
 
-Open **World → World history** to browse snapshots. Restoring an older revision
+Open the **History** tab in the dock to browse snapshots. Restoring an older revision
 creates a new current revision: later snapshots remain available. Restore checks
 the current base revision and verifies the old asset hashes before applying it.
 Wait for an active agent turn to finish so its proposal is not silently displaced.
@@ -24,6 +24,18 @@ History is local and data-driven. It requires no Git repository or VCS service.
 Its files are a development format rather than a cross-version archival standard.
 Deleting a workspace or its cached blobs can make revisions unavailable; normal
 workspace backup remains separate.
+
+Pinned GLBs stay byte-exact in `.holodeck/blobs`, in history and in exports.
+The local host serves the browser a derived form of each GLB: embedded
+images move to `/api/textures/<sha256>.<ext>`, so an image shared by many
+assets downloads once. The image bytes are unchanged, so rendering is the same.
+The derived form is rebuilt in memory and never written back.
+`HOLODECK_SHARED_TEXTURES=0` serves the pinned bytes instead.
+
+Terrain layer PNGs are pinned the same way, in the receipt's `textures` map
+keyed by their path. Restore and remix copy each pinned image to
+`assets/imports/terrain/snapshot-<sha256>.png` and point the layers at it;
+undo uses `restored-<sha256>.png`.
 
 ## Static experience boundary
 

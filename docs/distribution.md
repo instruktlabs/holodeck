@@ -28,12 +28,24 @@ Scaffolded worlds live outside the package. Static exports contain a playable
 accepted scene and its pinned assets; local agents, authoring prose, reference
 files and editable workspaces are excluded. See [static export](static-export.md).
 
-The public scene shelf is a separate static site in `site/`. `site/scenes.json`
-lists each world by id, title, summary, preview and path. Tidemark is the first
-entry, exported into `site/worlds/tidemark/`. The shelf plays those scenes and
-points visitors to the clone and launch commands. It does not connect an agent,
-accept uploads, or publish the npm package. Contribution and direct publishing
-from the local app come later, on top of this catalog.
+The public scene shelf is a separate static site in `site/`, for
+`https://holodeck.kilnstudio.tools/`. `site/scenes.json` lists each world by id,
+title, summary, preview, path and Kiln gallery link. The shelf lists the Quiet
+Courtyard, the Cove and Tidemark Island, each exported into `site/worlds/<id>/`
+with `holodeck export --title --description --url --image`, so every scene page
+carries its own title, description, canonical link, social card and JSON-LD.
+
+`npm run render:site` prerenders `site/index.html` from `site/scenes.json`, with
+the home page JSON-LD, `sitemap.xml` and `robots.txt`; the shelf needs no script
+at runtime. `server/site.test.mjs` fails while the rendered output is stale, and
+checks image sizes, lazy loading, local links, social card sizes and export
+hashes offline. Fonts are bundled as woff2 subsets, and the site loads nothing
+from other hosts.
+
+The shelf plays those scenes and points visitors to the clone and launch
+commands. It does not connect an agent, accept uploads, or publish the npm
+package. Deploying it is a separate, manual step. Contribution and direct
+publishing from the local app come later, on top of this catalog.
 
 Curated editable examples use the versioned [example world bundle](example-world-bundles.md)
 format: accepted scene data, exact pinned GLBs and an optional real runtime preview.

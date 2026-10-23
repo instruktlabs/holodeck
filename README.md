@@ -6,9 +6,9 @@ Start in a cozy cove inside the grid construct. Connect your local agent, collec
 
 Holodeck is an early, actively changing prototype. It is available from source; there is no npm release.
 
-![Tidemark Island](examples/tidemark/preview.png)
+![Tidemark Island in the workspace, with the dock at the bottom of the screen](site/images/workspace.webp)
 
-![The cove mood board, with the palm study and the island it describes](site/images/cove-mood-board.png)
+![The starter cove inside the grid construct, with its mood board easel](docs/images/starter-cove.webp)
 
 ## Start locally
 
@@ -23,7 +23,7 @@ node bin/holodeck.mjs launch
 
 With no directory, launch uses `cove` inside `holodeck-worlds` next to your current directory, outside this checkout. A new folder receives the construct cove. An existing Holodeck world is reopened, and a folder that is not a world is left unchanged. The command starts the local server and opens `prototype.html`.
 
-To choose the folder yourself: `node bin/holodeck.mjs launch ../my-worlds/first-world`. Then choose **Connect → Codex**, **Cursor** or **Claude Code**, select a model or Cursor mode, and describe what to build. For Claude Code, sign in first by running `claude` in a terminal; Holodeck checks `claude auth status` and never handles your Claude credentials. Connect also configures Kiln tools in that world's workspace.
+To choose the folder yourself: `node bin/holodeck.mjs launch ../my-worlds/first-world`. Then choose **Connect** in the dock at the bottom of the screen, pick **Codex**, **Cursor** or **Claude Code**, connect, select a model or Cursor mode, and describe what to build. For Claude Code, sign in first by running `claude` in a terminal; Holodeck checks `claude auth status` and never handles your Claude credentials. Connect also configures Kiln tools in that world's workspace.
 
 The world-name menu lets you create and switch worlds or start from **Tidemark Island**, an editable example with beaches, terrain, ocean, jungle and wildlife. Each world has its own scene, references and revision history. Your worlds live outside the source checkout, in a parent folder you choose.
 
@@ -31,16 +31,17 @@ See [getting started](docs/getting-started.md) for the full flow. The current ch
 
 ## What you can do
 
-- Build through a local Codex, Cursor or Claude Code conversation, with model selection, approvals and cancellation.
-- Edit a shared world bible and mood board with images, notes and file references.
-- Review and apply scene proposals; hot-load validated Kiln assets.
-- Walk, jump, swim, switch first/third-person cameras, or inspect with a free camera.
+- Build through a local Codex, Cursor or Claude Code conversation, with model selection, approvals and cancellation. Allow an exact command, or all Kiln workspace tools, once for the session.
+- Edit a shared world bible and mood board with images, notes, file references and imported reference packs.
+- See a proposal's placements as ghosts in the world, review its differences, then apply it; hot-load validated Kiln assets.
+- Shape terrain with textured material layers, fill groves and undergrowth with seeded scatter, and add optional surf and a cloudy sky. Objects under water take the depth tint automatically, and collider tops marked walkable carry you along jetties and up stairs.
+- Walk, jump, swim, switch first/third-person cameras, or inspect with a free camera. Press Enter to talk to your agent without leaving the world.
 - Save, restore and remix scene revisions; create independent copies of example worlds.
 - Export an accepted scene as a standalone playable static site.
 
 ## How it works
 
-**React and React Three Fiber** drive the interface and 3D scene. Three.js renders through WebGPU with a WebGL2 fallback. The editor panels use React HTML/CSS over the viewport; the physical in-world mood board uses a canvas texture. Procedural character posing uses pmndrs math. Voice input uses local Whisper transcription through Transformers.js; model files download on first use.
+**React and React Three Fiber** drive the interface and 3D scene. Three.js renders through WebGPU with a WebGL2 fallback. The bottom dock and the sheets that open above it use React HTML/CSS over the viewport; the physical in-world mood board uses a canvas texture. Procedural character posing uses pmndrs math. Voice input uses local Whisper transcription through Transformers.js; model files download on first use.
 
 A local Node host stores worlds and connects to the installed Codex app-server, the Cursor CLI through ACP, or the installed Claude Code CLI in print mode. Codex works in the selected world's folder with Holodeck skills and world tools. Cursor uses the same folder, its own sign-in, and Holodeck's permission, question and plan cards. Claude Code runs once per turn with its own subscription sign-in; Holodeck strips API-key variables from its environment, reaches world tools through a local MCP bridge, and shows its permission prompts as approval cards. Image generation stays on Codex. **Kiln 1.3.1** supplies asset authoring and export; Holodeck owns scene composition, interaction, terrain, water, cameras and runtime activity. Kiln's root SDK stays on the Node side.
 
@@ -53,18 +54,22 @@ Compatible static placements use instancing and spatial chunks. Runtime behavior
 - [World history and remixing](docs/world-history-and-export.md)
 - [Static export](docs/static-export.md) and [example worlds](docs/example-worlds.md)
 - [Architecture](docs/architecture.md) and [Kiln integration](docs/integration-boundary.md)
-- [Coherence checks](docs/coherence-protocol.md)
+- [Terrain, water and inhabitants](docs/terrain-and-inhabitants.md) and [coherence checks](docs/coherence-protocol.md)
+- [Distribution and the scene shelf](docs/distribution.md)
 
 ## Development
 
 ```sh
 npm run test:world
 npm run test:runtime
+npm run test:prototype
 npm run build
 npm run check:distribution
 ```
 
-Live agent inference is manual and separate from ordinary tests. Use the CLI dev command above for a selected world.
+The public scene shelf in `site/` is static. After changing `site/scenes.json` or an export under `site/worlds/`, run `npm run render:site`; `npm run test:world` fails while the rendered shelf is stale. See [distribution](docs/distribution.md).
+
+Live agent inference is manual and separate from ordinary tests. Use `node bin/holodeck.mjs dev <world>` to serve a selected world.
 
 ## License
 

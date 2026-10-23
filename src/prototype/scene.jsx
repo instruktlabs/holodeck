@@ -7,6 +7,7 @@ import { applyCoveUVs, coveRole, makeCoveMaterials } from './cove-materials.js';
 import { MoodBoard } from '../world/moodboard.jsx';
 import { useAssetFoliage } from '../world/foliage.jsx';
 import { useAssetGait } from '../world/gait.jsx';
+import { SHADOW_ONLY_LAYER, shadowProxies } from '../world/sun-shadow.mjs';
 
 export const HOME = [1.25,1.72,2.35];
 export const probe = window.holodeckPrototype = { ready:false, frames:[], position:HOME, errors:[] };
@@ -30,7 +31,8 @@ export function Cove({gltf,target='cove'}) {
     // Static runtime derivative; the saved Kiln GLB retains its semantic parts.
     source.traverse(mesh=>{if(!mesh.isMesh)return;
       const role=coveRole(mesh.name),casts=!/LinenCanopy/.test(mesh.name);
-      const key=mesh.material.uuid+role+casts;
+      // Roles only steer derived surfaces; authored materials batch by material alone.
+      const key=mesh.material.uuid+(mesh.material.map?'':role)+casts;
       if(!batches.has(key)){
         const material=materials.create(mesh.material,role);
         batches.set(key,{material,geometries:[],casts,parts:[],triangles:0});
@@ -41,15 +43,17 @@ export function Cove({gltf,target='cove'}) {
         const geometry=mesh.geometry.clone();
         // GLB positions can be normalized integers. Bake transforms in floats to
         // avoid truncation/overflow when flattening the quantized source meshes.
-        for(const name of ['position','normal','uv']){
+        // Authored normal maps keep their exported tangents; derived surfaces need only position/normal/uv.
+        const kept=mesh.material.map&&mesh.material.normalMap&&geometry.getAttribute('tangent')?['position','normal','uv','tangent']:['position','normal','uv'];
+        for(const name of kept){
           const a=geometry.getAttribute(name);if(!a)continue;
           const floats=new Float32Array(a.count*a.itemSize);
           for(let k=0;k<a.count;k++)for(let c=0;c<a.itemSize;c++)floats[k*a.itemSize+c]=a.getComponent(k,c);
           geometry.setAttribute(name,new THREE.BufferAttribute(floats,a.itemSize));
         }
         geometry.applyMatrix4(transform);
-        applyCoveUVs(geometry,role);
-        for(const attr of Object.keys(geometry.attributes)) if(!['position','normal','uv'].includes(attr)) geometry.deleteAttribute(attr);
+        if(!mesh.material.map)applyCoveUVs(geometry,role);
+        for(const attr of Object.keys(geometry.attributes)) if(!kept.includes(attr)) geometry.deleteAttribute(attr);
         if(!geometry.attributes.uv) geometry.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count*2),2));
         const flat=geometry.index?geometry.toNonIndexed():geometry,batch=batches.get(key),count=flat.attributes.position.count/3;
         if(flat!==geometry)geometry.dispose();
@@ -57,9 +61,12 @@ export function Cove({gltf,target='cove'}) {
       }
     });
     for(const {material,geometries,casts,parts} of batches.values()){
+      if(geometries.some(g=>!g.attributes.tangent))geometries.forEach(g=>g.deleteAttribute('tangent'));
       const merged=mergeGeometries(geometries),mesh=new THREE.Mesh(merged,material);
       geometries.forEach(g=>g.dispose());mesh.castShadow=casts;mesh.receiveShadow=true;mesh.userData={target,sourceParts:parts};group.add(mesh);
     }
+    // Authored materials split into many batches; their sun shadows cost one draw per face side instead of one per batch.
+    for(const proxy of shadowProxies(group.children))group.add(proxy);
     group.rotation.y=Math.PI/2;
     group.userData.materials=materials;
     return group;
@@ -233,7 +240,7 @@ export function Scene({session,cove,bundle,collisionScene,...controls}) {
   return <>
     <color attach="background" args={[environment?.fogColor||'#eee2c9']}/><fog attach="fog" args={[environment?.fogColor||'#eee2c9',23,68]}/><Sky/>
     <hemisphereLight args={['#e5eced','#bb8d65',1.25]}/>
-    <directionalLight position={[-7,9,5]} color={environment?.sunColor||'#ffd6a0'} intensity={environment?.sunIntensity??3.3} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-22} shadow-camera-right={22} shadow-camera-top={22} shadow-camera-bottom={-22} shadow-camera-far={65} shadow-normalBias={.025} shadow-bias={-.0002}/>
+    <directionalLight position={[-7,9,5]} color={environment?.sunColor||'#ffd6a0'} intensity={environment?.sunIntensity??3.3} castShadow shadow-mapSize={[2048,2048]} shadow-camera-left={-22} shadow-camera-right={22} shadow-camera-top={22} shadow-camera-bottom={-22} shadow-camera-far={65} shadow-camera-layers-mask={1|1<<SHADOW_ONLY_LAYER} shadow-normalBias={.025} shadow-bias={-.0002}/>
     <directionalLight position={[6,5,9]} color="#ecf0eb" intensity={.8}/>
     {(!environment||environment.type==='construct')?<Construct/>:<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.085,0]} receiveShadow><planeGeometry args={[240,240]}/><meshStandardMaterial color={environment.groundColor} roughness={1}/></mesh>}
     <group visible={cove}>{bundle?<Cove gltf={bundle.models[authored.origin]}/>:<LegacyCove/>}{!authored?.moodboard&&<ReferencePlacards/>}{!modular&&<><pointLight position={[-1.12,1.5,.4]} intensity={cove?3:0} color="#ff9c3f" distance={3} decay={2}/>

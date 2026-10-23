@@ -28,12 +28,38 @@ mouse capture. Right-drag is available without capture. The toolbar controls cov
 visibility, return to arrival and activity pause. Activity is local to the browser
 session and is never saved into the exported files.
 
-Exports contain the scene and only GLBs used by its origin and placements. The
+Exports contain the scene, only the GLBs used by its origin, placements and
+scatter variants, and its pinned terrain layer PNGs (renamed by hash under
+`assets/imports/terrain/`). The
 bible's title is replaced by a generic title; intent, rules, references and the
 mood board are excluded. Agent history, credentials, source files, workspace paths
 and installed authoring skills are not copied. Safe collection/asset/revision IDs
 are retained. Embedded GLB metadata stays unchanged because the original pinned
 bytes are delivered; this is not a metadata scrubber or a publication license.
+
+## Page metadata
+
+The page title defaults to "Holodeck world". To publish a scene with real head
+tags, supply public metadata at export time. It never comes from the bible:
+
+```sh
+holodeck export ./my-world --out ./site/worlds/garden \
+  --title "The garden · Holodeck" --description "A walled garden to walk at dusk." \
+  --url https://example.com/worlds/garden/ --image ./garden-card.jpg \
+  --image-alt "The garden from its gate" --license https://creativecommons.org/publicdomain/zero/1.0/
+```
+
+- `--title` and `--description` are required together. They set `<title>` and the
+  meta description.
+- `--url` is the page's absolute `https` address and must end with `/`. It adds a
+  canonical link, Open Graph and Twitter tags, and schema.org `CreativeWork`
+  JSON-LD.
+- `--image` takes a local PNG or JPEG. It is copied to `preview.png` or
+  `preview.jpg`, and its dimensions are read from the file. The social card uses
+  it only when `--url` is also given.
+- `--license` adds a license URL to the JSON-LD.
+
+All text is HTML-escaped. Values that look like local file paths are refused.
 
 `manifest.json` identifies the accepted revision and SHA-256 of every delivered
 file except the manifest itself. The build uses its own Vite entrypoint with

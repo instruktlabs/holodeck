@@ -16,6 +16,29 @@ asset revision and editable source. Export a supported runtime artifact; do not
 claim a modified derivative is the unchanged saved revision. Stage placement
 changes through Holodeck's world tools.
 
+## Deliver a saved revision
+
+Kiln's MCP `kiln_export` returns `kiln://` resources and writes no files. To
+put a saved revision into the world, run the workspace CLI from the world root:
+
+```sh
+node kiln.mjs export ASSET_ID REVISION_ID --profile editable --format glb --out assets/imports/SCENE_ID-REVISION_ID.glb --json
+```
+
+- `ASSET_ID` and `REVISION_ID` are the `a_…` and `r_…` IDs that `save` returned.
+- `SCENE_ID` is the asset ID you will use in `scene.assets`.
+- The destination is always `assets/imports/<scene asset id>-<revision id>.glb`.
+
+The editable GLB profile writes the exact saved bytes, so the file matches the
+revision's hash and keeps its provenance; the `--json` receipt lists its
+`sha256`. Export never overwrites, so each revision gets its own file. Do not use `--target three`: its Meshopt
+compression is not in Holodeck's delivery profile. Then add the asset with
+`provenance: {assetId, revisionId, collection}` and let the host validate it.
+The command needs a shell approval each time.
+
+Author materials as they look in air. Holodeck tints placements below the water
+by their depth, like the seabed, so do not bake an underwater tint into albedo.
+
 Check units, axes, pivot, bounds, materials, semantic roles/anchors and required
 extensions against the actual consumer. Convert geometry, anchors and colliders
 through the same frame. Preserve authored UV/material meaning unless a declared

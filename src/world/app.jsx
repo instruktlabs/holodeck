@@ -6,102 +6,39 @@ import { useVoice } from '../prototype/voice.js';
 import {useAssetBundle,useWorld,useWorldClient,WorldClientContext} from './client.js';
 import {worldContextKey} from './world-client.mjs';
 import {resetWorldProbe,completeWorldFrame,canObserveWorld} from './world-probe.mjs';
-import {useWorldDrafts,useEditorDraft,useDraftUnloadGuard} from './world-drafts.jsx';
+import {useWorldDrafts,useDraftUnloadGuard} from './world-drafts.jsx';
 import {WorldPicker} from './world-picker.jsx';
 import './style.css';
-import { MoodBoardEditor,referenceUrl } from './moodboard.jsx';
+import { MoodBoardEditor } from './moodboard.jsx';
 import {CoveEffects} from './effects.jsx';
 import {WorldRuntime} from './runtime.mjs';
 import {RuntimeScene} from './runtime-scene.jsx';
-import {toggleSelectedRef,pruneSelectedRefs} from './selection.mjs';
+import {toggleSelectedRef,pruneSelectedRefs,selectableItem} from './selection.mjs';
 import {SelectionPanel} from './selection-panel.jsx';
 import {HistoryPanel} from './history-panel.jsx';
+import {ProposalReview} from './proposal-review.jsx';
+import {diffProposal} from './proposal-diff.mjs';
+import {Icon} from './icons.jsx';
+import {Presence,DecisionSlot,ProposalLine,Composer,ReferenceTray,Sections,proposalChips} from './dock.jsx';
+import {Conversation,Glance} from './conversation.jsx';
+import {WorldEditor} from './world-editor.jsx';
+import {BibleEditor,AgentSettings,ObservePanel} from './panels.jsx';
+import {Ghosts,ghostPlacements} from './ghosts.jsx';
+import {agentPresence,readLastAgent,writeLastAgent} from './presence.mjs';
 
 class Boundary extends React.Component{
   state={error:null};static getDerivedStateFromError(error){return {error};}
   render(){return this.state.error?<div className="render-error"><h2>Unable to render this world.</h2><p>{this.state.error.message}</p><a href="?backend=webgl">Try WebGL2</a></div>:this.props.children;}
 }
-function BibleEditor({world,run,drafts,writeDisabled}){
-  const {api,url:scopedUrl}=useWorldClient();
-  const {draft,base,dirty,change:edit,saved:markSaved,reset}=useEditorDraft(drafts,'bible',world.bible,world.revision,{label:'bible',panel:'bible'}),[saved,setSaved]=useState(false);
-  const change=(key,value)=>{setSaved(false);edit(d=>({...d,[key]:value}));};
-  return <form onSubmit={e=>{e.preventDefault();run(async()=>{await api('world',{baseRevision:base,bible:draft});markSaved();setSaved(true);});}}>
-    <p>Shared intentions for the world. You and your agent edit the same document.</p>
-    <label>World name<input value={draft.title} maxLength={120} onChange={e=>change('title',e.target.value)}/></label>
-    <label>Visual direction<textarea rows={5} value={draft.intent} maxLength={8000} onChange={e=>change('intent',e.target.value)}/></label>
-    <label>Rules of this place<textarea rows={7} value={draft.rules} maxLength={8000} onChange={e=>change('rules',e.target.value)}/></label>
-    {dirty&&base!==world.revision&&<p className="notice">The world changed while you were editing. Your draft is preserved; reload before saving.</p>}
-    <div className="button-row"><button className="primary" disabled={writeDisabled||!dirty||base!==world.revision}>Save bible</button><button type="button" onClick={reset}>Discard bible draft</button></div>
-    <small role="status">{dirty?'Unsaved draft':saved?'Bible saved to disk.':`Saved · revision ${world.revision}`}</small>
-    <h3>Pinned visual direction</h3>{(world.references||[]).filter(r=>world.bible.referenceIds?.includes(r.id)).map(r=><figure key={r.id}>{(!r.kind||r.kind==="image")?<img src={referenceUrl(r,scopedUrl)} alt={r.title}/>:<p>{r.kind==="file"?"Linked file":"Note"}</p>}<figcaption>{r.title} · {r.notes}</figcaption></figure>)}
-  </form>;
-}
-function PlacementEditor({world,item,run,drafts,removed=false,writeDisabled}){
-  const {api}=useWorldClient();
-  const {draft,base,dirty,change:edit,saved:markSaved,reset}=useEditorDraft(drafts,`placement/${item.id}`,item,world.revision,{label:`${item.id} placement`,panel:'scene',item:item.id});
-  const change=(field,i,value)=>edit(d=>({...d,[field]:d[field].map((n,j)=>j===i?Number(value):n)}));
-  return <details open><summary>Place {item.id}</summary>{removed&&<p className="notice">This object was removed in a newer revision. Copy your placement values if needed, then discard this draft.</p>}{['position','rotation','scale'].map(field=><div key={field}><small>{field}{field==='rotation'?' (radians)':''}</small><div className="vector-fields">{['X','Y','Z'].map((axis,i)=><label key={axis}>{axis}<input aria-label={`${field} ${axis}`} type="number" step="0.1" value={draft[field][i]} onChange={e=>change(field,i,e.target.value)}/></label>)}</div></div>)}<button disabled={writeDisabled||removed||!dirty||base!==world.revision} onClick={()=>run(async()=>{await api('world',{baseRevision:base,scene:{...world.scene,objects:world.scene.objects.map(o=>o.id===item.id?draft:o)}});markSaved();})}>Save placement</button><button disabled={!dirty} onClick={reset}>Discard placement draft</button>{dirty&&base!==world.revision&&<p className="notice">World changed. Reselect the module before saving.</p>}<small>Asset geometry stays separate. Its collider and local light follow this placement.</small></details>;
-}
-function SceneEditor({world,run,selected,runtime,drafts,draftFocus,writeDisabled}){
-  const {api,fetch:worldFetch}=useWorldClient();
-  const [editing,setEditing]=useState(selected||'');
-  useEffect(()=>{if(selected)setEditing(selected);},[selected]);
-  useEffect(()=>{if(draftFocus?.item)setEditing(draftFocus.item);},[draftFocus]);
-  const placed=world.scene.objects.find(o=>o.id===editing),orphan=drafts.getSnapshot()[`placement/${editing}`],placement=placed??(orphan?.dirty?orphan.value:null);
-  const savedSource=useMemo(()=>JSON.stringify(world.scene,null,2),[world.scene]);
-  const {draft:source,base,dirty,change:setSource,saved:markSaved,reset}=useEditorDraft(drafts,'scene',savedSource,world.revision,{label:'scene document',panel:'scene'});
-  async function preset(type){await api('world',{baseRevision:world.revision,scene:{...world.scene,environment:{...world.scene.environment,type},bridge:type==='woodland'?world.scene.bridge:null}});}
-  async function upload(file){
-    if(!file)return;const r=await worldFetch(`/api/import?name=${encodeURIComponent(file.name)}`,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:file});const asset=await r.json();if(!r.ok)throw new Error(asset.error);
-    const yaw=probe.look?.yaw||0,p=(probe.cameraMode==='walk'?probe.actorEye:null)??probe.position??[0,1.72,0],id=`placed-${crypto.randomUUID().slice(0,8)}`,x=p[0]-Math.sin(yaw)*4,z=p[2]-Math.cos(yaw)*4;
-    const y=runtime?.terrain?.sample(x,z).height??0;
-    await api('world',{baseRevision:world.revision,scene:{...world.scene,assets:[...world.scene.assets.filter(a=>a.id!==asset.id),asset],objects:[...world.scene.objects,{id,asset:asset.id,position:[x,y,z],rotation:[0,0,0],scale:[1,1,1],collider:null}]}});
-  }
-  return <>
-    <p>Load an environment around the cove, then place your Kiln exports. Changes are saved to this world.</p>
-    <label>Environment<select disabled={writeDisabled} aria-label="Environment" value={world.scene.environment.type} onChange={e=>run(()=>preset(e.target.value))}><option value="construct">Empty construct</option><option value="meadow">Open meadow</option>{world.schemaVersion===1&&<option value="woodland">Woodland & stream</option>}</select></label>
-    <label className="upload">Add a Kiln GLB<input disabled={writeDisabled} type="file" accept=".glb" onChange={e=>{const file=e.target.files[0];e.target.value='';run(()=>upload(file));}}/></label>
-    <small>Places a self-contained GLB four metres ahead. Use the scene document below to adjust its transform and add a box collider.</small>
-    <p>{world.scene.objects.length} placed objects{selected?` · selected: ${selected}`:''}</p>
-    <label>Arrange a module<select aria-label="Arrange a module" value={editing} onChange={e=>setEditing(e.target.value)}><option value="">Choose a module</option>{world.scene.objects.map(o=><option key={o.id}>{o.id}</option>)}</select></label>
-    {placement&&<PlacementEditor key={editing} world={world} item={placement} run={run} drafts={drafts} removed={!placed} writeDisabled={writeDisabled}/>}
-    {world.scene.objects.map(o=><div className="asset-row" key={o.id}><span>{o.id}<small>{o.asset}</small></span><button disabled={writeDisabled} aria-label={`Remove ${o.id}`} onClick={()=>run(()=>api('world',{baseRevision:world.revision,scene:{...world.scene,objects:world.scene.objects.filter(x=>x.id!==o.id)}}))}>Remove</button></div>)}
-    <details open={draftFocus?.id==='scene'?true:undefined}><summary>Edit scene document</summary><p>Transforms use metres and radians. Optional collider: {`{"type":"box","size":[1,1,1],"offset":[0,0.5,0]}`}</p><textarea className="code-editor" aria-label="Scene document" rows={18} value={source} onChange={e=>{setSource(e.target.value);}}/>
-      {dirty&&base!==world.revision&&<p className="notice">A newer revision exists. Reload before saving; your draft is still here.</p>}
-      <div className="button-row"><button disabled={writeDisabled||!dirty||base!==world.revision} onClick={()=>run(async()=>{await api('world',{baseRevision:base,scene:JSON.parse(source)});markSaved();})}>Save scene</button><button onClick={reset}>Discard scene draft</button></div>
-    </details>
-  </>;
-}
-function AgentSettings({agent,run,model,setModel,effort,setEffort,workspace,writeDisabled}){
-  const {api}=useWorldClient();
-  const provider=agent.provider||'codex',cursor=provider==='cursor';
-  const [login,setLogin]=useState(null),[choice,setChoice]=useState(provider),chosen=agent.models?.find(m=>m.model===model);
-  useEffect(()=>{if(agent.connected)setChoice(provider);},[agent.connected,provider]);
-  const selected=choice==='cursor',claude=choice==='claude';
-  const modeChoices=selected&&cursor?agent.models:selected?[{id:'agent',model:'agent',displayName:'Agent'},{id:'plan',model:'plan',displayName:'Plan'},{id:'ask',model:'ask',displayName:'Ask'}]:claude&&provider!=='claude'?[]:agent.models;
-  return <>
-    <p>{selected?'Connect the Cursor CLI in this world. Sign-in, billing and credentials stay inside Cursor. Holodeck does not read them. Image generation stays on Codex.':claude?'Runs your installed Claude Code CLI in this world with your own Claude subscription sign-in. Sign-in, billing and credentials stay inside Claude Code; Holodeck only checks its sign-in status. To sign in, run claude in a terminal. Image generation stays on Codex.':'Connect your local Codex CLI. Each message uses your signed-in ChatGPT plan. Holodeck does not read or copy its credentials.'}</p>
-    <div className="button-row provider-choice" role="group" aria-label="Agent provider"><button type="button" aria-pressed={choice==='codex'} disabled={writeDisabled} onClick={()=>setChoice('codex')}>Codex</button><button type="button" aria-pressed={selected} disabled={writeDisabled} onClick={()=>setChoice('cursor')}>Cursor</button><button type="button" aria-pressed={claude} disabled={writeDisabled} onClick={()=>setChoice('claude')}>Claude Code</button></div>
-    <button className="primary" disabled={writeDisabled} onClick={()=>run(()=>api('agent/connect',{provider:choice}))}>{agent.connected&&provider===choice?'Refresh connection':`Connect ${selected?'Cursor':claude?'Claude Code':'Codex'}`}</button>
-    {cursor&&agent.connected?<p>Cursor session. Login and billing stay in Cursor.</p>:provider==='claude'&&agent.connected?<p>Claude Code · {agent.account?.authMethod} · {agent.account?.subscriptionType||'subscription'}. Sign-in and billing stay in Claude Code.</p>:<p>{agent.connected?agent.account?.type==='chatgpt'?`ChatGPT · ${agent.account.planType||'plan connected'}`:'Codex is running; ChatGPT sign-in is needed.':'No agent process connected.'}</p>}
-    {provider==='codex'&&agent.connected&&agent.account?.type!=='chatgpt'&&<button disabled={writeDisabled} onClick={()=>run(async()=>setLogin(await api('agent/login',{})))}>Sign in with ChatGPT</button>}
-    {login?.authUrl&&<p><a href={login.authUrl} target="_blank" rel="noreferrer">Continue sign-in in your browser ↗</a></p>}
-    <label>{selected?'Mode':'Model'}<select aria-label={selected?'Cursor mode':claude?'Claude model':'Codex model'} value={model||''} onChange={e=>{setModel(e.target.value);setEffort('');}}><option value="">{selected?'Choose a mode':'Choose a model'}</option>{modeChoices?.map(m=><option key={m.id||m.model} value={m.model}>{m.displayName||m.model}</option>)}</select></label>
-    {!selected&&<label>Reasoning<select aria-label="Reasoning effort" value={effort} onChange={e=>setEffort(e.target.value)}><option value="">Model default</option>{chosen?.supportedReasoningEfforts?.map(e=><option key={e.reasoningEffort}>{e.reasoningEffort}</option>)}</select></label>}
-    <small>{selected?'Cursor permissions, questions and plans appear in the conversation. Scene changes still wait for your review.':claude?'Claude Code permission requests appear in the conversation. Holodeck world tools run without prompts; scene changes still wait for your review.':'Model availability is confirmed when a turn succeeds. Native commands use workspace-write sandboxing and approval requests; scene tools stage changes for review.'}</small>
-    <p className="workspace-path">{workspace}</p><small>{selected||claude?'Session':'Thread'}: {agent.threadId||'created on your first message'}</small>
-  </>;
-}
-function PendingRequest({request,run,writeDisabled}){
-  const {api}=useWorldClient();
-  const [answers,setAnswers]=useState({});const questions=request.params.questions,options=request.params.options;
-  const choose=(id,value,multiple)=>{setAnswers(a=>{if(!multiple)return {...a,[id]:value};const current=Array.isArray(a[id])?a[id]:[];return {...a,[id]:current.includes(value)?current.filter(item=>item!==value):[...current,value]};});};
-  if(request.kind==='plan')return <article className="agent-card glass"><span className="eyebrow">CURSOR PLAN</span><p>{request.params.reason}</p>{request.params.overview&&<p>{request.params.overview}</p>}<pre>{request.params.command}</pre>{!!request.params.todos?.length&&<ul>{request.params.todos.map(todo=><li key={todo.id}>{todo.status}: {todo.content}</li>)}</ul>}<div className="button-row"><button className="primary" disabled={writeDisabled} onClick={()=>run(()=>api('agent/answer',{id:request.id,decision:'accept'}))}>Accept plan</button><button disabled={writeDisabled} onClick={()=>run(()=>api('agent/answer',{id:request.id,decision:'decline'}))}>Decline</button></div></article>;
-  return <article className="agent-card glass"><span className="eyebrow">{questions?'YOUR INPUT':{cursor:'CURSOR PERMISSION',claude:'CLAUDE CODE PERMISSION'}[request.provider]||'CODEX PERMISSION'}</span>
-    {questions?<>{request.params.title&&<p>{request.params.title}</p>}{questions.map(q=><fieldset key={q.id}><legend>{q.question}</legend>{q.options?.length?q.options.map(option=><label key={option.id} className="image-checkbox"><input type={q.allowMultiple?'checkbox':'radio'} name={q.id} checked={q.allowMultiple?Array.isArray(answers[q.id])&&answers[q.id].includes(option.id):answers[q.id]===option.id} onChange={()=>choose(q.id,option.id,q.allowMultiple)}/>{option.label}</label>):<input aria-label={q.question} value={answers[q.id]||''} onChange={e=>setAnswers(a=>({...a,[q.id]:e.target.value}))}/>}</fieldset>)}</>:<><p>{request.params.reason||'The agent requests permission for this operation.'}</p><pre>{request.params.command||JSON.stringify(request.params.changes||{},null,2)}</pre><small>{request.params.cwd}</small></>}
-    <div className="button-row">{questions?<button disabled={writeDisabled} onClick={()=>run(()=>api('agent/answer',{id:request.id,answers}))}>Reply</button>:options?.length?options.map(option=><button key={option.optionId} disabled={writeDisabled} onClick={()=>run(()=>api('agent/answer',{id:request.id,decision:option.optionId}))}>{option.label||option.optionId}</button>):<><button disabled={writeDisabled} onClick={()=>run(()=>api('agent/answer',{id:request.id,decision:'accept'}))}>Allow once</button><button disabled={writeDisabled} onClick={()=>run(()=>api('agent/answer',{id:request.id,decision:'decline'}))}>Decline</button></>}</div>
-  </article>;
-}
+const choiceKey=provider=>`holodeck.agent-choice.${provider||'codex'}`;
+function readAgentChoice(provider){try{return JSON.parse(localStorage.getItem(choiceKey(provider)))||{};}catch{return {};}}
+function writeAgentChoice(provider,choice){try{localStorage.setItem(choiceKey(provider),JSON.stringify(choice));}catch{/* Storage may be unavailable; the session still saves after a turn. */}}
+const storage=()=>{try{return localStorage;}catch{return null;}};
+const clock=ms=>{const s=Math.max(0,Math.floor(ms/1000));return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;};
+
+const SHEETS={conversation:'Conversation',bible:'World bible',references:'Mood board',scene:'World composition',activity:'Runtime observations',history:'World history',agent:'Agent connection',review:'Review proposal'};
+const TALL=new Set(['references','scene','review']);
+
 export function WorldApp(){
   const host=useWorld();return <WorldClientContext.Provider value={host.payload?.context}><WorldSession key={worldContextKey(host.payload?.context)} host={host}/></WorldClientContext.Provider>;
 }
@@ -110,24 +47,33 @@ function SessionFrame({contextKey,revision}){useFrame(()=>completeWorldFrame(pro
 function WorldSession({host}){
   const {api}=useWorldClient(),loaded=useAssetBundle(host.payload),{agent,proposal}=host,drafts=useWorldDrafts(),contextKey=worldContextKey(host.payload?.context);
   useLayoutEffect(()=>resetWorldProbe(probe,contextKey),[contextKey]);
-  const runtimeRef=useRef(null),worldRef=useRef(null),inhabitRef=useRef(false),input=useRef();
+  const runtimeRef=useRef(null),worldRef=useRef(null),inhabitRef=useRef(false),composingRef=useRef(false),input=useRef();
   const [person,setPerson]=useState('first'),[draftFocus,setDraftFocus]=useState(null);
   const [cameraMode,setCameraMode]=useState('walk'),[paused,setPaused]=useState(false),[runtimeNotice,setRuntimeNotice]=useState(''),[runtimeObservation,setRuntimeObservation]=useState(null),[coherence,setCoherence]=useState(null);
-  const [panel,setPanel]=useState(null),[cove,setCove]=useState(true),[homeTick,setHomeTick]=useState(0),[locked,setLocked]=useState(false),[moving,setMoving]=useState(false),[selected,setSelected]=useState(null),[aim,setAim]=useState(null),[text,setText]=useState(''),[model,setModel]=useState(''),[effort,setEffort]=useState(''),[busy,setBusy]=useState(false);
-  const [inhabiting,setInhabiting]=useState(false),[pointerHint,setPointerHint]=useState(''),[selectedRefs,setSelectedRefs]=useState([]),[selectionOpen,setSelectionOpen]=useState(false),[chatOpen,setChatOpen]=useState(false);
+  const [panel,setPanel]=useState(null),[tall,setTall]=useState(false),[cove,setCove]=useState(true),[homeTick,setHomeTick]=useState(0),[locked,setLocked]=useState(false),[moving,setMoving]=useState(false),[selected,setSelected]=useState(null),[aim,setAim]=useState(null),[text,setText]=useState(''),[model,setModel]=useState(''),[effort,setEffort]=useState(''),[busy,setBusy]=useState(false);
+  const [inhabiting,setInhabiting]=useState(false),[composing,setComposing]=useState(false),[pointerHint,setPointerHint]=useState(''),[selectedRefs,setSelectedRefs]=useState([]),[selectionOpen,setSelectionOpen]=useState(false),[glanceOpen,setGlanceOpen]=useState(false);
   const [hudHidden,setHudHidden]=useState(false),toggleHud=useCallback(()=>setHudHidden(v=>!v),[]);
+  const [preview,setPreview]=useState(true),[hotNotice,setHotNotice]=useState(''),[pageHidden,setPageHidden]=useState(()=>typeof document!=='undefined'&&document.hidden),[now,setNow]=useState(()=>Date.now());
   const toggleFree=useCallback(()=>{setCameraMode(m=>m==='free'?'walk':'free');document.activeElement?.blur();},[]);
-  const world=loaded.bundle?.payload.world,accepted=host.payload?.world;worldRef.current=world;inhabitRef.current=inhabiting;
+  const world=loaded.bundle?.payload.world,accepted=host.payload?.world,worldId=host.payload?.context?.worldId;worldRef.current=world;inhabitRef.current=inhabiting;
   const runtime=useMemo(()=>{if(world?.schemaVersion!==2)return null;if(runtimeRef.current)runtimeRef.current.reconcile(world.scene);else runtimeRef.current=new WorldRuntime(world.scene);return runtimeRef.current;},[world]);
   if(runtime){runtime.originVisible=cove;runtime.paused=paused;}
-  const leaveWorld=useCallback(()=>{setInhabiting(false);setLocked(false);setMoving(false);setPanel(null);setSelectionOpen(false);document.exitPointerLock?.();document.activeElement?.blur();},[]);
-  const focusInput=useCallback(()=>{leaveWorld();requestAnimationFrame(()=>input.current?.focus());},[leaveWorld]);
+  const endCompose=useCallback(()=>{composingRef.current=false;setComposing(false);},[]);
+  const leaveWorld=useCallback(()=>{endCompose();setInhabiting(false);setLocked(false);setMoving(false);setSelectionOpen(false);document.exitPointerLock?.();document.activeElement?.blur();},[endCompose]);
+  // While composing inside the world, losing the mouse lock is expected; only an
+  // unexplained loss (Esc while walking) returns to making. Esc while making
+  // folds the sheet instead.
+  const lockLost=useCallback(()=>{if(composingRef.current)return;if(!inhabitRef.current){setPanel(null);setGlanceOpen(false);}leaveWorld();},[leaveWorld]);
+  const focusInput=useCallback(()=>{
+    if(inhabitRef.current){composingRef.current=true;setComposing(true);setHudHidden(false);}
+    document.exitPointerLock?.();requestAnimationFrame(()=>input.current?.focus());
+  },[]);
   const select=useCallback((id,{additive=false}={})=>{
     if(inhabitRef.current)return;
-    if(id==='moodboard'){leaveWorld();setPanel('references');return;}
-    if(!worldRef.current?.scene.objects.some(o=>o.id===id))return;
-    setSelected(id);setSelectedRefs(old=>additive&&old.length>=16&&!old.some(r=>r.id===id)?old:toggleSelectedRef(old,{id,part:null},{additive}));setSelectionOpen(true);setPanel(null);
-  },[leaveWorld]);
+    if(id==='moodboard'){setPanel('references');setTall(true);return;}
+    if(!selectableItem(worldRef.current?.scene,id))return;
+    setSelected(id);setSelectedRefs(old=>additive&&old.length>=16&&!old.some(r=>r.id===id)?old:toggleSelectedRef(old,{id,part:null},{additive}));setSelectionOpen(true);
+  },[]);
   const interact=useCallback(id=>{
     const r=runtimeRef.current;if(!r)return;
     const query=r.interaction(id,probe.actorEye??probe.position);
@@ -139,67 +85,135 @@ function WorldSession({host}){
     try{const canvas=document.querySelector('canvas');if(!canvas?.requestPointerLock){setPointerHint('Mouse lock unavailable here. Arrow keys or right-drag to look.');return;}canvas.requestPointerLock()?.catch(()=>setPointerHint('Mouse lock unavailable here. Arrow keys or right-drag to look.'));}
     catch{setPointerHint('Mouse lock unavailable here. Arrow keys or right-drag to look.');}
   },[]);
+  // Enter counts as a gesture for the mouse lock; Esc does not, so after Esc the
+  // lock hint asks for a click instead of reporting a failure.
+  const resumeWalk=useCallback((look=false)=>{endCompose();input.current?.blur();if(look)requestLook();},[endCompose,requestLook]);
   useEffect(()=>{const failure=()=>setPointerHint('Mouse lock unavailable here. Arrow keys or right-drag to look.');document.addEventListener('pointerlockerror',failure);return()=>document.removeEventListener('pointerlockerror',failure);},[]);
+  useEffect(()=>{const change=()=>setPageHidden(document.hidden);document.addEventListener('visibilitychange',change);return()=>document.removeEventListener('visibilitychange',change);},[]);
   useEffect(()=>{setRuntimeObservation(null);const timer=setInterval(()=>{if(!world||!canObserveWorld(probe,contextKey,world.revision))return;const recent=probe.frames.slice(-120).sort((a,b)=>a-b);setRuntimeObservation({backend:probe.backend,position:probe.position,activity:probe.runtime,actor:probe.actor,drawCalls:probe.drawCalls,triangles:probe.triangles,frameP95Ms:recent[Math.min(recent.length-1,Math.floor(recent.length*.95))]??null});},500);return()=>clearInterval(timer);},[contextKey,world?.revision]);
   useEffect(()=>{if(!runtimeNotice)return;const timer=setTimeout(()=>setRuntimeNotice(''),3500);return()=>clearTimeout(timer);},[runtimeNotice]);
-  useEffect(()=>{if(world){setSelectedRefs(old=>pruneSelectedRefs(world.scene,old));if(selected&&!world.scene.objects.some(o=>o.id===selected))setSelected(null);}},[world,selected]);
-  useEffect(()=>{if(agent.provider==='cursor'||agent.provider==='claude')setModel(current=>agent.models?.some(m=>m.model===current)?current:agent.model||'agent');else if(!model&&agent.model)setModel(agent.model);},[agent.provider,agent.model,agent.models,model]);
+  useEffect(()=>{if(world){setSelectedRefs(old=>pruneSelectedRefs(world.scene,old));if(selected&&!selectableItem(world.scene,selected))setSelected(null);}},[world,selected]);
+  // A new revision loads where you stand; say what arrived instead of moving you.
+  const lastWorld=useRef(null);
+  useEffect(()=>{
+    const before=lastWorld.current;lastWorld.current=world;
+    if(!world||!before||before.revision===world.revision)return;
+    let chips=[];try{chips=proposalChips(diffProposal(before,world)).filter(c=>c!=='no differences');}catch{/* The notice is a courtesy; the world has already loaded. */}
+    setHotNotice(`Revision ${world.revision} loaded where you are${chips.length?` · ${chips.slice(0,3).join(' · ')}`:''}`);
+    const timer=setTimeout(()=>setHotNotice(''),4500);return()=>clearTimeout(timer);
+  },[world]);
+  // The chosen model and effort survive reloads: this browser's last choice
+  // first, then the session's saved values.
+  const choiceProvider=useRef(null);
+  useEffect(()=>{
+    // A choice made for one provider never carries over to another.
+    const changed=choiceProvider.current!==agent.provider;choiceProvider.current=agent.provider;
+    const saved=readAgentChoice(agent.provider),listed=m=>agent.models?.some(x=>x.model===m);
+    if(agent.provider==='cursor'||agent.provider==='claude')setModel(current=>!changed&&listed(current)?current:[saved.model,agent.model].find(listed)||agent.model||'agent');
+    else if(changed||!model)setModel(saved.model||agent.model||'');
+    if(changed)setEffort(saved.effort??agent.effort??'');
+  },[agent.provider,agent.model,agent.models,model]);
+  useEffect(()=>{if(agent.effort)setEffort(current=>current||agent.effort);},[agent.effort]);
+  useEffect(()=>{if(agent.provider&&model)writeAgentChoice(agent.provider,{model,effort});},[agent.provider,model,effort]);
+  // The last connected agent per world, so a restart offers one-click reconnect.
+  const [remembered,setRemembered]=useState(()=>readLastAgent(storage(),worldId));
+  useEffect(()=>{if(agent.connected&&agent.provider&&worldId){const value={provider:agent.provider,model,effort};writeLastAgent(storage(),worldId,value);setRemembered(value);}},[agent.connected,agent.provider,model,effort,worldId]);
   const voice=useVoice(t=>{setText(t);focusInput();});
-  const selectedObject=world?.scene.objects.find(o=>o.id===selected),aimObject=world?.scene.objects.find(o=>o.id===aim),interaction=cameraMode==='walk'?runtime?.interaction(aim,probe.actorEye??probe.position):null;
+  const aimObject=selectableItem(world?.scene,aim),interaction=cameraMode==='walk'?runtime?.interaction(aim,probe.actorEye??probe.position):null;
   const session=useMemo(()=>({world:world?.scene.environment.type==='woodland',clear:world?.scene.environment.clearPath,bridge:world?.scene.bridge,preview:null}),[world]);
   useEffect(()=>{probe.world=world;probe.loadedRevision=world?.revision;probe.assets=loaded.bundle?.payload.assets;probe.selected=selected;probe.cove=cove;probe.locked=locked;probe.session=session;},[world,loaded.bundle,selected,cove,locked,session]);
   useEffect(()=>{
-    if(!world)return;const report=()=>{if(!canObserveWorld(probe,contextKey,world.revision))return;const sorted=[...probe.frames].sort((a,b)=>a-b);api('observation',{revision:world.revision,position:probe.position,selected,backend:probe.backend||'initializing',frameP95Ms:sorted[Math.floor(sorted.length*.95)]||null,drawCalls:probe.drawCalls||0,triangles:probe.triangles||0,loadError:loaded.error||null,cameraMode:probe.cameraMode||'walk',activity:probe.runtime||null,actor:probe.actor||null,originVisible:cove}).catch(()=>{});};report();const timer=setInterval(report,2500);return()=>clearInterval(timer);
+    if(!world)return;const report=()=>{if(!canObserveWorld(probe,contextKey,world.revision))return;const sorted=[...probe.frames].sort((a,b)=>a-b);api('observation',{revision:world.revision,position:probe.position,selected,backend:probe.backend||'initializing',frameP95Ms:sorted[Math.floor(sorted.length*.95)]||null,firstFrameMs:probe.firstFrameMs??null,pageHidden:document.hidden,drawCalls:probe.drawCalls||0,triangles:probe.triangles||0,loadError:loaded.error||null,cameraMode:probe.cameraMode||'walk',activity:probe.runtime||null,actor:probe.actor||null,originVisible:cove}).catch(()=>{});};report();const timer=setInterval(report,2500);return()=>clearInterval(timer);
   },[world,selected,loaded.error,cove,contextKey,api]);
+  // Proposed placements appear as ghosts in the world before Apply.
+  const ghostPayload=useMemo(()=>proposal?.assets?{assets:proposal.assets}:null,[proposal]);
+  const ghostBundle=useAssetBundle(ghostPayload);
+  const ghost=useMemo(()=>proposal&&runtime?ghostPlacements(accepted,proposal.world):{items:[],total:0},[proposal,accepted,runtime]);
+  useEffect(()=>{setPreview(true);},[proposal?.id]);
   const writeDisabled=!host.online||!!host.pendingSession;
   const run=async task=>{if(host.pendingSession){host.setError('Another tab changed worlds. Your local drafts remain here; copy or discard them before reconnecting.');return;}if(!host.online){host.setError('Reconnect to the local host before saving changes. Your drafts are preserved.');return;}setBusy(true);host.setError(null);try{return await task();}catch(e){host.setError(e.message);}finally{setBusy(false);}};
-  function openPanel(name){const next=panel===name?null:name;leaveWorld();setPanel(next);setSelectionOpen(false);}
-  function enterWorld(){setPanel(null);setCameraMode('walk');setInhabiting(true);setHudHidden(false);setChatOpen(false);document.activeElement?.blur();requestLook();}
-  const send=()=>run(async()=>{await api('agent/turn',{text,model,effort:effort||null,selectedRefs});setText(current=>current===text?'':current);setChatOpen(true);});
+  function openPanel(name){const next=panel===name?null:name;setPanel(next);if(next)setTall(TALL.has(next));setSelectionOpen(false);if(next)setGlanceOpen(false);}
+  function enterWorld(){setPanel(null);setCameraMode('walk');setInhabiting(true);setHudHidden(false);setGlanceOpen(false);setSelectionOpen(false);document.activeElement?.blur();requestLook();}
+  const send=()=>{const message=text;if(inhabitRef.current)resumeWalk(true);return run(async()=>{await api('agent/turn',{text:message,model,effort:effort||null,selectedRefs});setText(current=>current===message?'':current);if(!inhabitRef.current&&panel!=='conversation')setGlanceOpen(true);});};
   useDraftUnloadGuard(drafts.dirty.length>0||!!text.trim());
   const hasDrafts=drafts.dirty.length>0||!!text.trim();
   host.draftGuard.current=()=>hasDrafts;
   const active=!!agent.turnId||['starting','connecting'].includes(agent.status)||!!agent.requests?.length,error=host.error||loaded.error||agent.error;
-  const showConversation=chatOpen||active||proposal||agent.requests?.length||error;
+  // A fresh reply opens the glance once; folding it keeps it folded until the next one.
+  const replies=(agent.messages||[]).filter(m=>m.role!=='user').length,seenReplies=useRef(replies);
+  useEffect(()=>{if(replies>seenReplies.current&&!inhabitRef.current&&panel!=='conversation')setGlanceOpen(true);seenReplies.current=replies;},[replies]);
+  const startedAt=useRef(null);
+  useEffect(()=>{if(!active){startedAt.current=null;return;}startedAt.current??=Date.now();const timer=setInterval(()=>setNow(Date.now()),1000);return()=>clearInterval(timer);},[active]);
+  const presence=agentPresence(agent,{remembered});
   const forcedGL=new URLSearchParams(location.search).get('backend')==='webgl';
   const aimText=interaction?.action?(interaction.available?`E · ${interaction.label}`:`${aimObject?.label||aim} · move closer`):!inhabiting&&aimObject?`${aimObject.label||aim} · F to reference`:'';
-  return <main className={`live-world zen-workspace ${inhabiting?'is-inhabiting':''} ${inhabiting&&hudHidden?'hud-hidden':''}`}>
-    <div className="scene"><Boundary><Canvas shadows dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=1.12;r.info.autoReset=false;await r.init();return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson}} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects/></Suspense></Canvas></Boundary></div>
+  const resolveBlocker=blocker=>{if(blocker.location==='conversation')openPanel('conversation');else if(blocker.location==='message')focusInput();else{setDraftFocus({...blocker,serial:performance.now()});if(blocker.item)setSelected(blocker.item);setPanel(blocker.location);setTall(TALL.has(blocker.location));}};
+  const canSend=!writeDisabled&&!!text.trim()&&!!model&&!active&&!busy;
+  const placeholder=inhabiting?'Say something to your agent · Esc returns to walking':agent.connected?'Describe, ask, or change something…':'A thought for your world…';
+  const walkHint=cameraMode==='free'?'WASD fly · Q down / E up · Shift faster · G return · Enter to talk · H hide':runtime?.scene.runtime.possession?'WASD move · Space jump · Shift run · V view · G free camera · E interact · Enter to talk · H hide':'WASD move · E interact · G free camera · Enter to talk · H hide';
+  const sheetOpen=!inhabiting&&panel&&accepted;
+
+  const dock=<section className={`hd-dock ${inhabiting?'is-compact':''}`} aria-label="Agent dock">
+    {!inhabiting&&glanceOpen&&!panel&&<Glance agent={agent} onOpen={()=>openPanel('conversation')} onClose={()=>setGlanceOpen(false)}/>}
+    {agent.requests?.length>0&&<DecisionSlot requests={agent.requests} run={run} writeDisabled={writeDisabled}/>}
+    {proposal&&accepted&&<ProposalLine proposal={proposal} accepted={accepted} preview={preview} setPreview={setPreview} ghosted={ghost.items.length} onReview={()=>{if(inhabiting)leaveWorld();setPanel('review');setTall(true);}} onApply={()=>run(()=>api('proposal/apply',{id:proposal.id}))} onDiscard={()=>run(()=>api('proposal/discard',{id:proposal.id}))} disabled={writeDisabled} busy={busy}/>}
+    {proposal&&preview&&ghost.total>ghost.items.length&&<span className="hd-meta hd-dock-note">Previewing {ghost.items.length} of {ghost.total} proposed placements.</span>}
+    {!inhabiting&&selectionOpen&&selectedRefs.length>0&&world&&<SelectionPanel world={world} refs={selectedRefs} setRefs={setSelectedRefs} focusInput={focusInput} onArrange={id=>{setSelected(id);setPanel('scene');setTall(true);setSelectionOpen(false);}} onClose={()=>setSelectionOpen(false)}/>}
+    {!inhabiting&&<ReferenceTray refs={selectedRefs} world={world} setRefs={setSelectedRefs} onOpen={()=>setSelectionOpen(v=>!v)}/>}
+    {(!inhabiting||composing||text.trim())&&<Composer inputRef={input} text={text} setText={setText} onSend={send} placeholder={placeholder} voice={voice} agent={agent} active={active} canSend={canSend} writeDisabled={writeDisabled}
+      onEscape={inhabiting?()=>resumeWalk(false):()=>input.current?.blur()} onFocus={()=>{if(inhabitRef.current){composingRef.current=true;setComposing(true);}document.exitPointerLock?.();}} onBlur={()=>{if(inhabitRef.current)endCompose();}}
+      onConnect={()=>openPanel('agent')} onStop={()=>run(()=>api('agent/stop',{}))}/>}
+    <Presence presence={presence} elapsed={active&&startedAt.current?clock(now-startedAt.current):null} notice={hotNotice||(inhabiting&&runtimeNotice)} onReconnect={()=>run(()=>api('agent/connect',{provider:remembered.provider}))} writeDisabled={writeDisabled}>
+      {inhabiting?<span className="hd-meta hd-hide-narrow">{composing?'Enter sends · Esc returns to walking':walkHint}</span>
+        :<span className="hd-meta hd-hide-narrow">{voice.status||(cameraMode==='free'?'WASD fly · Q/E down, up · G return':'Click to select · Shift adds · Enter to talk')}</span>}
+    </Presence>
+    {!inhabiting&&<Sections panel={panel} openPanel={openPanel} runtime={!!runtime}/>}
+  </section>;
+
+  return <main className={`live-world hd ${inhabiting?'is-inhabiting':''} ${inhabiting&&hudHidden?'hud-hidden':''} ${sheetOpen?'has-sheet':''}`}>
+    <div className="scene"><Boundary><Canvas shadows dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=1.12;r.info.autoReset=false;await r.init();return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,interact,requestLook,toggleHud,toggleFree,person,setPerson}} leaveWorld={lockLost} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{preview&&ghost.items.length>0&&ghostBundle.bundle&&<Ghosts items={ghost.items} models={ghostBundle.bundle.models}/>}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects/></Suspense></Canvas></Boundary></div>
     <div className={`reticle ${aimText?'has-target':''}`}/><div className="aim-label">{aimText}</div>
-    {inhabiting?<>
-      <button className="exit-world" onClick={leaveWorld}>Return to making <kbd>Esc</kbd></button><div className="person-camera camera-controls glass" role="group" aria-label="Camera mode">
-       {runtime?.scene.runtime.possession&&<>{['first','third'].map(view=><button key={view} aria-pressed={cameraMode==='walk'&&person===view} onClick={()=>{setCameraMode('walk');setPerson(view);document.activeElement?.blur();}}>{view==='first'?'First person':'Third person'}</button>)}</>}
-       <button aria-pressed={cameraMode==='free'} onClick={toggleFree}>{cameraMode==='free'?'Return to inhabitant':'Free camera'} <kbd>G</kbd></button>
+    {inhabiting?<header className="hd-top is-inhabiting">
+      <button className="b hud" onClick={leaveWorld}><Icon name="close" size={15}/>Return to making <kbd>Esc</kbd></button>
+      <div className="hd-cluster hud" role="group" aria-label="Camera mode">
+        {runtime?.scene.runtime.possession&&['first','third'].map(view=><button key={view} className="b sm" aria-pressed={cameraMode==='walk'&&person===view} onClick={()=>{setCameraMode('walk');setPerson(view);document.activeElement?.blur();}}>{view==='first'?'First person':'Third person'}</button>)}
+        <button className="b sm" aria-pressed={cameraMode==='free'} onClick={toggleFree}>{cameraMode==='free'?'Return to inhabitant':'Free camera'} <kbd>G</kbd></button>
       </div>
-      <div className="inhabit-hint"><span>{runtimeNotice||(cameraMode==='free'?'WASD fly · Q down / E up · Shift faster · G return · Enter to talk · H hide hints':runtime?.scene.runtime.possession?'WASD move · Space jump · Shift run · V view · G free camera · E interact · Enter to talk':'WASD move · E interact · G free camera · Enter to talk · H hide hints')}</span>{!locked&&<small>{pointerHint||'Click to lock your mouse · arrow keys or right-drag to look'}</small>}</div>
-    </>:<>
-      <header className="topbar"><div className="identity glass"><span className="kiln-mark">◒</span><span className="brand">holodeck</span><i/><span className="mode">making</span></div><WorldPicker world={accepted} context={host.payload?.context} library={host.payload?.library} active={active} pendingProposal={!!proposal} busy={busy} loading={loaded.loading} online={host.online} drafts={drafts.dirty} message={text} onOpen={leaveWorld} onBusyChange={setBusy} request={api} onChanged={host.adoptSession} onResolve={blocker=>{if(blocker.location==='conversation'){setChatOpen(true);setPanel(null);}else if(blocker.location==='message')focusInput();else{setDraftFocus({...blocker,serial:performance.now()});if(blocker.item)setSelected(blocker.item);setPanel(blocker.location);}}}/><div className="top-actions"><button className="glass" onClick={()=>setCove(v=>!v)}>{cove?'Hide cove':'Show cove'}</button>{runtime&&<button className="primary enter-world" onClick={enterWorld}>Enter world <span>↗</span></button>}</div></header>
-      {host.pendingSession&&<section className="world-session-notice glass" role="alert"><strong>Another tab changed worlds.</strong><p>Your unsaved drafts are preserved here. Copy anything you want to keep; this session can no longer save changes.</p><button onClick={()=>host.reconnect({discardDrafts:true})}>Discard local drafts &amp; open {host.pendingSession.world.bible.title}</button></section>}
-      <nav className="world-tools glass" aria-label="World workspace"><button className={panel==='scene'?'active':''} onClick={()=>openPanel('scene')}>World</button><button className={panel==='bible'?'active':''} onClick={()=>openPanel('bible')}>Bible</button><button className={panel==='references'?'active':''} onClick={()=>openPanel('references')}>Mood board</button>{runtime&&<button className={panel==='activity'?'active':''} onClick={()=>openPanel('activity')}>Activity</button>}<button className={panel==='agent'?'active':''} onClick={()=>openPanel('agent')}>Agent</button></nav>
-      {!panel&&<div className="view-tools"><button className="glass" onClick={()=>{leaveWorld();setCameraMode(m=>m==='overview'?'walk':'overview');}}>{cameraMode==='overview'?'Ground view ↘':'Overlook ↗'}</button>{runtime&&<button className="glass" onClick={toggleFree}>{cameraMode==='free'?'Return to inhabitant':'Free camera'} <kbd>G</kbd></button>}<button className="glass" onClick={()=>{leaveWorld();setCameraMode('walk');setCove(true);setHomeTick(n=>n+1);}}>Return to arrival</button></div>}
-      {showConversation&&<section className="conversation" aria-label="Conversation with your agent"><div className="conversation-heading"><span className="eyebrow">WITH YOUR AGENT</span><button className="icon-button" aria-label="Fold conversation" onClick={()=>setChatOpen(false)}>−</button></div><div className="expanded-cards">
-        {agent.messages?.slice(-3).map(m=><article key={m.id} className={`${m.role==='user'?'you-card':'agent-card'} glass`}><span className="eyebrow">{m.role==='user'?'YOU':{cursor:'CURSOR',claude:'CLAUDE'}[agent.provider]||'CODEX'}</span>{m.selectionContext?.entities?.length>0&&<small className="message-references">Referred to: {m.selectionContext.entities.map(e=>e.label||e.id).join(', ')} · revision {m.selectionContext.acceptedRevision}</small>}<p className="message-text">{m.text}</p></article>)}
-        {active&&<article className="agent-card glass"><span className="eyebrow">WORKING · {agent.activity||'THINKING'}</span><p>Following the world bible and your references.</p><button disabled={writeDisabled} onClick={()=>run(()=>api('agent/stop',{}))}>Stop</button></article>}
-        {agent.requests?.map(r=><PendingRequest key={r.id} request={r} run={run} writeDisabled={writeDisabled}/>)}
-        {proposal&&<article className="agent-card glass"><span className="eyebrow">READY TO REVIEW</span><h2>A change to your world.</h2><p>{proposal.summary}</p><details><summary>Review scene and bible changes</summary><pre>{JSON.stringify({scene:proposal.world.scene,bible:proposal.world.bible,references:proposal.world.references},null,2)}</pre></details><div className="button-row"><button className="primary" disabled={writeDisabled||busy||proposal.baseRevision!==accepted?.revision} onClick={()=>run(()=>api('proposal/apply',{id:proposal.id}))}>Apply proposal</button><button disabled={writeDisabled} onClick={()=>run(()=>api('proposal/discard',{id:proposal.id}))}>Discard</button></div></article>}
-        {error&&<article className="agent-card glass notice" role="alert">{error}<button className="text-button" onClick={()=>host.setError(null)}>Dismiss</button></article>}
-      </div></section>}
-      {selectionOpen&&selectedRefs.length>0&&!panel&&world&&<SelectionPanel world={world} refs={selectedRefs} setRefs={setSelectedRefs} focusInput={focusInput} onArrange={id=>{setSelected(id);openPanel('scene');}} onClose={()=>setSelectionOpen(false)}/>}
-      {panel&&accepted&&<aside className={`drawer glass ${panel==='references'?'board-drawer':''}`}><div className="card-meta"><span className="eyebrow">{panel==='bible'?'SHARED INTENTIONS':panel==='scene'?'WORLD COMPOSITION':panel==='references'?'PINNED DIRECTION':panel==='activity'?'RUNTIME OBSERVATIONS':'LOCAL CONNECTION'}</span><button aria-label="Close panel" className="icon-button" onClick={()=>setPanel(null)}>×</button></div><h2>{panel==='bible'?'The rules of this place.':panel==='scene'?'A world around you.':panel==='references'?'A feeling to build toward.':panel==='activity'?'A living world.':'Your coding agent.'}</h2>
-        {writeDisabled&&!host.pendingSession&&<p className="notice" role="status">Reconnecting to the local host. Saving is unavailable; your drafts are preserved.</p>}
-        {panel==='bible'?<BibleEditor world={accepted} run={run} drafts={drafts.registry} writeDisabled={writeDisabled}/>:panel==='scene'?<><div className="button-row"><button disabled={writeDisabled||!accepted.revision||busy} onClick={()=>run(()=>api('undo',{baseRevision:accepted.revision}))}>Undo world edit</button></div><HistoryPanel world={accepted} run={run} busy={busy} active={active} writeDisabled={writeDisabled}/><SceneEditor world={accepted} run={run} selected={selected} runtime={runtime} drafts={drafts.registry} draftFocus={draftFocus} writeDisabled={writeDisabled}/></>:panel==='references'?<MoodBoardEditor world={accepted} run={run} agent={agent} model={model} effort={effort} drafts={drafts.registry} draftFocus={draftFocus} writeDisabled={writeDisabled}/>:panel==='activity'&&runtime?<>
-          <p>Activity runs independently of authoring. Enter the world and use E on a nearby object.</p><div className="button-row"><button onClick={()=>setPaused(v=>!v)}>{paused?'Resume activity':'Pause activity'}</button><button onClick={()=>{runtime.reset();setRuntimeNotice('Activity reset.');}}>Reset activity</button></div>
-          <label>Inspect activity<select aria-label="Inspect activity" value={selectedObject?.behavior?selected:''} onChange={e=>setSelected(e.target.value||null)}><option value="">Choose an object</option>{world.scene.objects.filter(o=>o.behavior&&(o.layer!=='origin'||cove)).map(o=><option value={o.id} key={o.id}>{o.label||o.id}</option>)}</select></label>
-          {selectedObject?.behavior&&<button disabled={cameraMode!=='walk'} onClick={()=>interact(selected)}>{runtime.interaction(selected,probe.actorEye??probe.position).label}</button>}<small role="status">{runtimeNotice}</small>
-          <details open><summary>Runtime observations</summary><small>{runtimeObservation?.backend||'Preparing renderer'} / {runtimeObservation?.drawCalls||0} draws<br/>Rendered triangles: {runtimeObservation?.triangles?.toLocaleString()??'—'}<br/>Recent frame interval p95: {runtimeObservation?.frameP95Ms?.toFixed(1)??'—'} ms<br/>Position: {runtimeObservation?.position?.map(n=>n.toFixed(2)).join(', ')}<br/>Camera: {cameraMode} · {runtimeObservation?.actor?`${runtimeObservation.actor.camera} person / ${runtimeObservation.actor.mode}`:'flat-ground walker'}{runtimeObservation?.actor&&<><br/>Feet: {runtimeObservation.actor.position.map(n=>n.toFixed(2)).join(', ')}<br/>Water depth: {runtimeObservation.actor.waterDepth.toFixed(2)} m</>}<br/>Mouse: {locked?'locked':'free'}<br/>Activity: {runtimeObservation?.activity?.time?.toFixed(2)||'0'} s</small><small>Rendered counts include render passes. Frame intervals include CPU work and refresh pacing; these are not GPU timings or the placed-source budget.</small>{Object.entries(runtimeObservation?.activity?.states||{}).map(([id,s])=><small key={id}>{id}: {s.open!==undefined?(s.open?'open':'closed'):(s.running?'running':'stopped')} / {(s.angle??0).toFixed(2)} rad</small>)}</details>
-          <button disabled={writeDisabled} onClick={()=>run(async()=>setCoherence(await api('check',{})))}>Check world</button>{coherence&&<div className="coherence-report" role="status"><b>Advisory / revision {coherence.worldRevision}</b>{coherence.checks.map(c=><p key={c.id}><strong>{c.id}: {c.status}</strong><br/>{c.message}</p>)}<small>Read-only observations; no quality verdict.</small></div>}
-        </>:<AgentSettings {...{agent,run,model,setModel,effort,setEffort,writeDisabled}} workspace={host.payload.workspace}/>}
-      </aside>}
-      <footer className="composer-area">
-        {selectedRefs.length>0&&<div className="reference-tray glass"><button onClick={()=>{setSelectionOpen(v=>!v);setPanel(null);}}>{selectedRefs.length} {selectedRefs.length===1?'reference':'references'} <span>↗</span></button><div>{selectedRefs.map(ref=><span key={ref.id}>{world?.scene.objects.find(o=>o.id===ref.id)?.label||ref.id}{ref.part?` / ${ref.part}`:''}<button aria-label={`Remove selected ${ref.id}`} onClick={()=>setSelectedRefs(old=>old.filter(r=>r.id!==ref.id))}>×</button></span>)}</div><button aria-label="Clear all references" onClick={()=>setSelectedRefs([])}>Clear</button></div>}
-        <form className="composer glass" onSubmit={e=>{e.preventDefault();send();}}><button type="button" className={`mic ${voice.recording?'recording':''}`} disabled={voice.busy} aria-label={voice.recording?'Stop recording':'Start voice input'} onClick={voice.toggle}>◉</button><input ref={input} aria-label={{cursor:'Message Cursor',claude:'Message Claude'}[agent.provider]||'Message Codex'} value={text} onChange={e=>setText(e.target.value)} onFocus={()=>document.exitPointerLock?.()} placeholder={voice.recording?'Listening…':agent.connected?'Describe, ask, or change something…':'A thought for your world…'} maxLength={12000}/>{!agent.connected?<button type="button" onClick={()=>openPanel('agent')}>Connect ↗</button>:<button className="send" aria-label="Send message" disabled={writeDisabled||!text.trim()||!model||active||busy}>↑</button>}<button type="button" aria-label="Show conversation" onClick={()=>setChatOpen(v=>!v)}>···</button>{active&&<button type="button" disabled={writeDisabled} onClick={()=>run(()=>api('agent/stop',{}))}>Stop</button>}</form>
-        <div className="controls-hint">{voice.status||(cameraMode==='free'?'WASD fly · Q down / E up · Shift faster · Arrows look · G return':'Click / F reference · Shift adds · Arrows look · E interacts · Enter to talk')}</div>
-      </footer>
-    </>}
+    </header>:<header className="hd-top">
+      <WorldPicker world={accepted} context={host.payload?.context} library={host.payload?.library} active={active} pendingProposal={!!proposal} busy={busy} loading={loaded.loading} online={host.online} drafts={drafts.dirty} message={text} onOpen={()=>setSelectionOpen(false)} onBusyChange={setBusy} request={api} onChanged={host.adoptSession} onResolve={resolveBlocker}/>
+      <div className="hd-cluster" role="group" aria-label="View">
+        <button className="b sm" aria-pressed={cameraMode==='overview'} onClick={()=>setCameraMode(m=>m==='overview'?'walk':'overview')}>{cameraMode==='overview'?'Ground view':'Overlook'}</button>
+        {runtime&&<button className="b sm" aria-pressed={cameraMode==='free'} onClick={toggleFree}>Free camera <kbd>G</kbd></button>}
+        <button className="b sm" onClick={()=>{setCameraMode('walk');setCove(true);setHomeTick(n=>n+1);}}>Arrival</button>
+        <button className="b sm" aria-pressed={!cove} onClick={()=>setCove(v=>!v)}>{cove?'Hide cove':'Show cove'}</button>
+      </div>
+      {runtime&&<button className="b pri hd-enter" onClick={enterWorld}>Enter world <Icon name="enter" size={15}/></button>}
+    </header>}
+    {inhabiting&&!locked&&!composing&&<p className="hd-lock-hint">{pointerHint||'Click the world to lock your mouse · arrow keys or right-drag to look'}</p>}
+    {host.pendingSession&&<section className="hd-card hd-session-notice" role="alert"><strong>Another tab changed worlds.</strong><p>Your unsaved drafts are preserved here. Copy anything you want to keep; this session can no longer save changes.</p><button className="b" onClick={()=>host.reconnect({discardDrafts:true})}>Discard local drafts &amp; open {host.pendingSession.world.bible.title}</button></section>}
+    <div className="hd-stack">
+      {sheetOpen&&<section className={`hd-sheet ${tall?'is-tall':''} ${panel==='references'?'is-board':''}`} aria-label={SHEETS[panel]}>
+        <header className="hd-sheet-head">
+          <strong className="hd-sheet-title">{SHEETS[panel]}</strong>
+          {panel==='review'&&proposal&&<span className="hd-meta">{proposal.summary}</span>}
+          <span className="hd-end"/>
+          <button className="b sm q" aria-label={tall?'Shorter sheet':'Taller sheet'} onClick={()=>setTall(v=>!v)}><Icon name={tall?'down':'up'} size={15}/>{tall?'Half':'Tall'}</button>
+          <button className="b sm q i" aria-label="Close panel" onClick={()=>setPanel(null)}><Icon name="close" size={16}/></button>
+        </header>
+        <div className="hd-sheet-body">
+          {writeDisabled&&!host.pendingSession&&<p className="hd-notice" role="status">Reconnecting to the local host. Saving is unavailable; your drafts are preserved.</p>}
+          {panel==='conversation'?<Conversation agent={agent} active={active} error={error} onDismissError={()=>host.setError(null)}/>
+          :panel==='bible'?<BibleEditor world={accepted} run={run} drafts={drafts.registry} writeDisabled={writeDisabled}/>
+          :panel==='scene'?<WorldEditor world={accepted} run={run} selected={selected} setSelected={setSelected} runtime={runtime} drafts={drafts.registry} draftFocus={draftFocus} writeDisabled={writeDisabled} assets={loaded.bundle?.payload.assets} busy={busy} onReference={id=>select(id,{additive:true})}/>
+          :panel==='references'?<MoodBoardEditor world={accepted} run={run} agent={agent} model={model} effort={effort} drafts={drafts.registry} draftFocus={draftFocus} writeDisabled={writeDisabled}/>
+          :panel==='activity'&&runtime&&world?<ObservePanel {...{runtime,world,cameraMode,locked,paused,setPaused,selected,setSelected,cove,interact,coherence,setCoherence,run,writeDisabled,pageHidden}} observation={runtimeObservation} notice={runtimeNotice} setNotice={setRuntimeNotice}/>
+          :panel==='history'?<HistoryPanel world={accepted} run={run} busy={busy} active={active} writeDisabled={writeDisabled} initiallyOpen/>
+          :panel==='review'?(proposal?<><ProposalReview accepted={accepted} proposal={proposal}/><div className="hd-row hd-sheet-actions"><button className="b pri" aria-label="Apply proposal" disabled={writeDisabled||busy||proposal.baseRevision!==accepted.revision} onClick={()=>run(async()=>{await api('proposal/apply',{id:proposal.id});setPanel(null);})}>Apply</button><button className="b q" disabled={writeDisabled} onClick={()=>run(async()=>{await api('proposal/discard',{id:proposal.id});setPanel(null);})}>Discard</button>{proposal.baseRevision!==accepted.revision&&<span className="hd-meta">This proposal was made against revision {proposal.baseRevision}; the world is now at {accepted.revision}. Ask for a fresh proposal.</span>}</div></>:<p className="hd-empty">No proposal is waiting. New proposals appear in the dock.</p>)
+          :<AgentSettings {...{agent,run,model,setModel,effort,setEffort,writeDisabled,remembered}} workspace={host.payload.workspace}/>}
+        </div>
+      </section>}
+      {error&&!(sheetOpen&&panel==='conversation')&&!inhabiting&&<div className="hd-card hd-alert" role="alert"><p>{error}</p><button className="b sm q" onClick={()=>host.setError(null)}>Dismiss</button></div>}
+      {dock}
+    </div>
   </main>;
 }

@@ -24,3 +24,12 @@ test('legacy selection resolves one whole entity and explicit empty refs clear i
   assert.throws(()=>resolveSelectionContext(world,{selectedRefs:[{id:'gone',part:null}]}),/no longer exists/);
   assert.throws(()=>resolveSelectionContext(world,{selectedRefs:[{id:'gate',part:'canopy'}]}),/part/);
 });
+
+test('a scatter instance is referenced as its scatter record with the placed count',()=>{
+  const terrain={type:'heightfield',bounds:[-20,20,-20,20],segments:[16,16],baseHeight:1,stamps:[]};
+  const scatter={id:'ferns',label:'Fern bed',seed:3,variants:[{asset:'gate-kit'}],region:{polygon:[[-10,-10],[10,-10],[10,10],[-10,10]]},density:5,maxCount:12,minSpacing:1};
+  const scattered={...world,scene:{...world.scene,terrain,scatters:[scatter]}};
+  const context=resolveSelectionContext(scattered,{selectedRefs:[{id:'ferns',part:null}]});
+  assert.deepEqual(context.entities,[{id:'ferns',label:'Fern bed',scope:'whole',availableParts:[],scatter:{...scatter,placed:12}}]);
+  assert.throws(()=>resolveSelectionContext(scattered,{selectedRefs:[{id:'ferns',part:'canopy'}]}),/Unsupported selected part/);
+});

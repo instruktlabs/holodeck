@@ -20,7 +20,8 @@ edits nor approves the world. For supported terrain/possession worlds, also use
 `world_sample` for accepted terrain height, normal, slope, water depth and actor
 support at named points. Its requested Y is context, not an instruction to move
 the ground. Independent points use the swim entry threshold; route probes retain
-the previous mode between samples. Neither samples an unapplied proposal. Test
+the previous mode between samples. Pass a staged `proposalId` to either tool to
+measure an unapplied proposal; those reads have no browser observation. Test
 actual slope movement, waterline entry/exit, both possession cameras and origin
 hide/recall separately from the advisory report.
 

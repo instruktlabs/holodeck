@@ -9,9 +9,9 @@ holodeck init my-world --example construct
 holodeck init my-world --bundle ./portable-example
 ```
 
-Named bundles live at `examples/<id>/example.json` inside the package. Once a
-`tidemark` bundle is included, `holodeck init my-world --example tidemark` uses
-that same installer. The world library consumes `listExamples()` metadata and
+Named bundles live at `examples/<id>/example.json` inside the package. The
+included `tidemark` bundle installs through that same path with
+`holodeck init my-world --example tidemark`. The world library consumes `listExamples()` metadata and
 creates a new workspace through `scaffold(root, id)`. It does not open or edit
 the packaged example in place. A library world ID belongs to the new workspace;
 it is independent of the example ID, display title and bundle integrity digest.
@@ -40,7 +40,9 @@ must agree with `scene.runtime`. Unsupported versions or modules fail locally;
 the installer does not fetch code or add capabilities. The current schema-v2
 limits remain 64 assets, 1200 placements, 32 MiB per GLB, 128 MiB of assets and
 two million placed source triangles, including every flock member. Legacy
-schema-v1 scenes retain their 200-placement limit.
+schema-v1 scenes retain their 200-placement limit. Bundles do not yet carry
+terrain layer textures: the writer refuses a scene whose terrain has
+`appearance.layers`.
 
 Only validated world data, GLBs and the optional PNG enter an install. Bundle
 scripts, plugins, session files, extra files and escaping paths are rejected.

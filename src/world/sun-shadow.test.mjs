@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DirectionalLight,PerspectiveCamera,Vector3} from 'three/webgpu';
+import {BoxGeometry,DirectionalLight,DoubleSide,FrontSide,Mesh,MeshStandardMaterial,PerspectiveCamera,PlaneGeometry,Vector3} from 'three/webgpu';
 import {createTerrain} from './terrain.mjs';
-import {SUN_SHADOW,configureSunShadow,shadowFadeAt,shadowViewFocus} from './sun-shadow.mjs';
+import {SHADOW_ONLY_LAYER,SUN_SHADOW,configureSunShadow,shadowFadeAt,shadowProxies,shadowViewFocus} from './sun-shadow.mjs';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
 const terrain=createTerrain({type:'heightfield',bounds:[-40,40,-40,40],segments:[8,8],baseHeight:2,stamps:[]});
 const view=(position,target)=>{const camera=new PerspectiveCamera(63,1,.05,200);camera.position.set(...position);camera.lookAt(...target);camera.updateMatrixWorld();return camera;};
@@ -31,4 +31,14 @@ test('upward or excessively distant view falls back to support under the camera'
 test('focus may reuse a caller-owned output vector without mutating the camera or actor',()=>{
  const camera=view([0,10,10],[0,2,0]),actor={position:[9,2,9]},out=new Vector3();
  assert.equal(shadowViewFocus({mode:'free',actor,camera,terrain},out),out);assert.deepEqual(camera.position.toArray(),[0,10,10]);assert.deepEqual(actor.position,[9,2,9]);
+});
+test('shadow proxies replace casting batches per face side and only the sun shadow camera sees them',()=>{
+ const caster=(geometry,side,casts=true)=>{const mesh=new Mesh(geometry,new MeshStandardMaterial({side}));mesh.castShadow=casts;return mesh;};
+ const meshes=[caster(new BoxGeometry(),FrontSide),caster(new BoxGeometry(2,1,1).toNonIndexed(),FrontSide),caster(new PlaneGeometry(),DoubleSide),caster(new PlaneGeometry(),FrontSide,false)];
+ const proxies=shadowProxies(meshes),light=new DirectionalLight();configureSunShadow(light);
+ assert.ok(meshes.every(m=>!m.castShadow));assert.equal(proxies.length,2);
+ assert.deepEqual(proxies.map(p=>p.material.side),[FrontSide,DoubleSide]);assert.deepEqual(proxies.map(p=>p.geometry.attributes.position.count),[72,6]);
+ assert.deepEqual(Object.keys(proxies[0].geometry.attributes),['position']);
+ for(const proxy of proxies){assert.ok(proxy.castShadow);assert.equal(proxy.layers.mask,1<<SHADOW_ONLY_LAYER);assert.ok(light.shadow.camera.layers.test(proxy.layers));assert.ok(!new PerspectiveCamera().layers.test(proxy.layers));}
+ assert.ok(light.shadow.camera.layers.isEnabled(0));assert.deepEqual(shadowProxies(meshes),[]);
 });
