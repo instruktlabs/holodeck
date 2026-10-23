@@ -81,8 +81,10 @@ export function validateWorld(w){
     if(o.label!==undefined)str(o.label,100,'object label');
     vec(o.position,'position');vec(o.rotation,'rotation');vec(o.scale,'scale',true);
     if(o.collider!==null){
-      if(o.collider?.type==='compound'){exact(o.collider,['type','boxes'],'compound collider');if(!Array.isArray(o.collider.boxes)||o.collider.boxes.length>16)fail('Compound colliders allow up to 16 boxes');for(const b of o.collider.boxes){exact(b,['size','offset'],'box');vec(b.size,'box size',true);vec(b.offset,'box offset');}}
-      else {exact(o.collider,['type','size','offset'],'collider');if(o.collider.type!=='box')fail('Only box or compound colliders are supported');vec(o.collider.size,'collider size',true);vec(o.collider.offset,'collider offset');}
+      // walkable lends a box's top to the walker as support (schema 2 only).
+      const walkable=b=>{if(b.walkable===undefined)return;if(w.schemaVersion!==2)fail('Walkable colliders require schema version 2');if(typeof b.walkable!=='boolean')fail('Collider walkable must be true or false');};
+      if(o.collider?.type==='compound'){exact(o.collider,['type','boxes'],'compound collider');if(!Array.isArray(o.collider.boxes)||o.collider.boxes.length>16)fail('Compound colliders allow up to 16 boxes');for(const b of o.collider.boxes){exact(b,['size','offset','walkable'],'box');vec(b.size,'box size',true);vec(b.offset,'box offset');walkable(b);}}
+      else {exact(o.collider,['type','size','offset','walkable'],'collider');if(o.collider.type!=='box')fail('Only box or compound colliders are supported');vec(o.collider.size,'collider size',true);vec(o.collider.offset,'collider offset');walkable(o.collider);}
     }
   }
   if(s.moodboard){exact(s.moodboard,['asset','position','rotation','page','title','theme',...(w.schemaVersion===2?['collider']:[])],'mood board');if(!ids.has(s.moodboard.asset))fail('Mood board frame is missing');vec(s.moodboard.position,'board position');vec(s.moodboard.rotation,'board rotation');if(!Number.isInteger(s.moodboard.page)||s.moodboard.page<0||s.moodboard.page>33)fail('Invalid board page');if(s.moodboard.title!==undefined)str(s.moodboard.title,120,'board title');if(s.moodboard.theme!==undefined&&!['linen','charcoal','clay'].includes(s.moodboard.theme))fail('Invalid board theme');}

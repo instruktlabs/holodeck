@@ -18,8 +18,8 @@ function probeTime(time,observation,current){
 const probeLimits=driver=>[
  'Support and box samples are not a traversal test, physics certification or visual review.',
  'Samples freeze moving objects and water at the reported pose and time; they do not simulate motion along a path.',
- driver==='terrain-heightfield'?'Terrain support uses the rendered heightfield triangles; placed mesh surfaces are not ground support.':'No terrain support is present; this driver assumes a flat ground plane at the declared spawn ground height.',
- 'Input x/z is projected onto controller support; input y is retained as context, not an alternative flight height.',
+ driver==='terrain-heightfield'?'Terrain support uses the rendered heightfield triangles. Collider boxes marked walkable add their tops as support; other placed mesh surfaces are not ground support.':'No terrain support is present; this driver assumes a flat ground plane at the declared spawn ground height.',
+ 'Input x/z is projected onto controller support. Input y is an eye height: where walkable tops overlap, it picks the highest level at or below y - 1.72 + 0.35 (one step), as the walker does at spawn; levels lists every one. It is not an alternative flight height.',
  'No global quality score or universal performance threshold is inferred.',
 ];
 function makeProbe(world,observation,current,time){
@@ -33,14 +33,18 @@ function makeProbe(world,observation,current,time){
  const driver=runtime.terrain?'terrain-heightfield':world.scene.runtime.possession?'inhabitant-ground-plane':'legacy-ground-plane';
  const actor=driver==='legacy-ground-plane'?null:createInhabitant(runtime);
  const poseSource=current?'matching browser observation (when available)':'initial behavior state';
- const sample=(position,previousMode='grounded')=>{
+ // maxTop is the highest walkable top to stand on; by default one step above the
+ // feet implied by an eye-height y. Samples gain supportId and levels only where
+ // walkable tops exist, so worlds without them read as before.
+ const sample=(position,previousMode='grounded',maxTop=position[1]-INHABITANT_LIMITS.eyeHeight+INHABITANT_LIMITS.maxStep)=>{
   const [x,,z]=position;if(actor)actor.mode=previousMode;
-  const support=actor?sampleInhabitantSupport(actor,x,z,{terrain:runtime.terrain,water:world.scene.water,time}):{feet:0,height:1.72,eyeHeight:1.72,mode:'grounded',depth:0,surfaceHeight:null,ground:{height:0,normal:[0,1,0],slope:0,inBounds:true}};
-  const blockerId=runtime.collisionAt(x,z,.22,support.feet,support.height),issues=[];
+  const support=actor?sampleInhabitantSupport(actor,x,z,{terrain:runtime.terrain,water:world.scene.water,time,walkable:(x,z,top)=>runtime.walkableAt(x,z,top)},maxTop):{feet:0,height:1.72,eyeHeight:1.72,mode:'grounded',depth:0,surfaceHeight:null,ground:{height:0,normal:[0,1,0],slope:0,inBounds:true}};
+  const terrain=support.terrain??support.ground,blockerId=runtime.collisionAt(x,z,.22,support.feet,support.height,null,actor?INHABITANT_LIMITS.maxStep:0),issues=[];
   if(!support.ground.inBounds)issues.push('outside-terrain');
   if(support.mode!=='swimming'&&support.ground.slope>INHABITANT_LIMITS.maxSlope)issues.push('slope-limit');
   if(blockerId)issues.push('blocker');
-  return {requestedPosition:[...position],feetPosition:[x,support.feet,z],eyePosition:[x,support.feet+support.eyeHeight,z],supportSource:runtime.terrain?'terrain-heightfield':'assumed-ground-plane',terrainHeight:support.ground.height,terrainNormal:[...support.ground.normal],slopeRadians:support.ground.slope,inBounds:support.ground.inBounds,waterHeight:support.surfaceHeight,waterDepth:support.depth,mode:support.mode,blockerId,issues};
+  const tops=actor?runtime.walkableLevels(x,z):[],levels=tops.length?[...tops.map(t=>({source:'collider',id:t.id,height:t.height})),{source:runtime.terrain?'terrain-heightfield':'assumed-ground-plane',id:null,height:terrain.height}]:null;
+  return {requestedPosition:[...position],feetPosition:[x,support.feet,z],eyePosition:[x,support.feet+support.eyeHeight,z],supportSource:support.supportId?'collider':runtime.terrain?'terrain-heightfield':'assumed-ground-plane',...(support.supportId?{supportId:support.supportId,supportHeight:support.ground.height}:{}),...(levels?{levels}:{}),terrainHeight:terrain.height,terrainNormal:[...terrain.normal],slopeRadians:support.ground.slope,inBounds:support.ground.inBounds,waterHeight:support.surfaceHeight,waterDepth:support.depth,mode:support.mode,blockerId,issues};
  };
  return {runtime,driver,poseSource,time,sample};
 }
@@ -80,9 +84,12 @@ export function checkWorld(world,{observation=null,assets={},routes=[],now=Date.
  for(const route of routes){
   if(probe.driver==='legacy-ground-plane'&&(route.from[1]!==1.72||route.to[1]!==1.72)){result.checks.push({id:`route:${route.id}`,status:'unsupported',evidence:{from:route.from,to:route.to},message:'This driver only samples a 1.72 metre eye height on flat ground; no terrain support is present.'});continue;}
   const length=Math.hypot(route.to[0]-route.from[0],route.to[2]-route.from[2]),segments=Math.max(1,Math.min(64,Math.ceil(length/.1)));
-  let firstHit=null,firstProblem=null,mode='grounded',maxSlopeRadians=0,maxWaterDepth=0,outOfBoundsSamples=0;const modes=new Set();
+  let firstHit=null,firstProblem=null,mode='grounded',feet=null,maxSlopeRadians=0,maxWaterDepth=0,outOfBoundsSamples=0;const modes=new Set();
+  // Later samples stand on what is within one step of the previous feet, as the
+  // walker does, so a route along a walkable deck stays on it.
   for(let i=0;i<=segments;i++){
-   const t=i/segments,p=route.from.map((x,j)=>x+(route.to[j]-x)*t),sample=probe.sample(p,mode);mode=sample.mode;modes.add(mode);
+   const t=i/segments,p=route.from.map((x,j)=>x+(route.to[j]-x)*t),sample=feet===null?probe.sample(p,mode):probe.sample(p,mode,feet+INHABITANT_LIMITS.maxStep);mode=sample.mode;modes.add(mode);
+   if(feet!==null&&feet-sample.feetPosition[1]>INHABITANT_LIMITS.maxStep)sample.issues.push('drop');feet=sample.feetPosition[1];
    maxSlopeRadians=Math.max(maxSlopeRadians,sample.slopeRadians);maxWaterDepth=Math.max(maxWaterDepth,sample.waterDepth);if(!sample.inBounds)outOfBoundsSamples++;
    if(sample.blockerId&&!firstHit)firstHit={...sample,position:sample.eyePosition};if(sample.issues.length&&!firstProblem)firstProblem={...sample,position:sample.eyePosition};
   }
