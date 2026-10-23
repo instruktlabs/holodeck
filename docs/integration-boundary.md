@@ -5,8 +5,9 @@ and world composition, runtime behavior, UI and agent orchestration in Holodeck.
 Holodeck owns the adapter between an asset delivery and its current runtime.
 Neither package's successful validation substitutes for review in the other.
 
-Holodeck currently pins `@instruktlabs/kiln` **1.3.1**. Keep that exact dependency
-until a separately scoped change has a reproduced need and compatibility evidence.
+Holodeck currently pins `@instruktlabs/kiln` **1.4.0**, adopted for Release 2 after the
+full test suite passed against it. Keep that exact dependency until a separately scoped
+change has a reproduced need and compatibility evidence.
 The installed package and its live tool contracts are authoritative; a feature
 in a development checkout or a proposal is not an installed capability.
 

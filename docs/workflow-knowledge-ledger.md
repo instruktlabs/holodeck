@@ -2,7 +2,7 @@
 
 This ledger turns demonstrated authoring and integration failures into reusable
 product knowledge. It follows the agreed [integration boundary](integration-boundary.md).
-The current Kiln dependency is pinned to 1.3.1. A fixed regression is not a claim
+The current Kiln dependency is pinned to 1.4.0. A fixed regression is not a claim
 that all art, routes, devices or performance targets are qualified.
 
 Work proceeds through the approved sequence: finish the pinned Holodeck adapter,

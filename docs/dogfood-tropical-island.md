@@ -97,7 +97,7 @@ friction, **Low** is polish.
 
 ## Kiln findings
 
-Kiln stays pinned at 1.3.1. These are consumer observations. Each needs a
+Holodeck pins Kiln 1.4.0 from Release 2 on. These are consumer observations. Each needs a
 minimal reproduction in a Kiln workspace before it becomes a Kiln change.
 
 | # | Area | Finding | Suggested change |
@@ -124,7 +124,8 @@ minimal reproduction in a Kiln workspace before it becomes a Kiln change.
 
 First checked against Kiln main at 1.3.1, then updated on 2026-10-22 after
 the Kiln fix cycle for these findings. Merged fixes are on Kiln `main` and ship
-in 1.4.0; Holodeck still pins Kiln 1.3.1.
+in 1.4.0, which Holodeck pins from Release 2 on. The island host copy still runs 1.3.1
+until it is refreshed.
 
 | # | Status |
 | --- | --- |
