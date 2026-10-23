@@ -6,7 +6,7 @@ Start in a cozy cove inside the grid construct. Connect your local agent, collec
 
 Holodeck is an early, actively changing prototype. It is available from source; there is no npm release.
 
-![Tidemark Island in the workspace, with the dock at the bottom of the screen](site/images/workspace.webp)
+![Crescent Cove in the workspace, with the dock at the bottom of the screen](site/images/workspace.webp)
 
 ![The starter cove inside the grid construct, with its mood board easel](docs/images/starter-cove.webp)
 
