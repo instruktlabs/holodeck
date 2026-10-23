@@ -91,25 +91,41 @@ the workflow never uses `pull_request_target`.
 - a production upload names a branch other than the project's production branch;
 - a preview names the production branch.
 
-It reads the production branch from the project's production deployments
-(read-only). In CI it stops with a clear message when `CLOUDFLARE_API_TOKEN` is
-missing.
+It reads the project's `production_branch` from the Cloudflare Pages API
+(read-only, with the deploy token). Wrangler compares against the same setting
+to decide between production and preview, and it is already set before the
+first deployment. A real upload needs `CLOUDFLARE_API_TOKEN` and a 32-character
+`CLOUDFLARE_ACCOUNT_ID` in the environment; there is no interactive login. A
+production deploy notes when `holodeck.kilnstudio.tools` is not yet attached to
+the project.
+
+`site/_headers` sets the Pages response headers: `nosniff`, a strict referrer
+policy, no framing, and a Permissions-Policy without camera, microphone,
+location, payment or USB on every page. Viewer bundles, GLBs and terrain
+textures under `/worlds/*/assets/` are named by content hash and cached as
+immutable. There is deliberately no script Content-Security-Policy, which
+could break the WebGPU viewer. `server/site.test.mjs` checks that every file the immutable rule
+covers has a hashed name.
 
 **One-time setup, by the maintainer.** None of this is in the repository:
-1. Create a Cloudflare API token with only *Account · Cloudflare Pages · Edit*
+1. In Cloudflare, make sure the `holodeck` Pages project exists as a direct
+   upload project with production branch `main`, and attach
+   `holodeck.kilnstudio.tools` as its custom domain.
+2. Create a Cloudflare API token with only *Account · Cloudflare Pages · Edit*
    on the Kiln account. Pages permissions cannot be limited to one project, so
    this token can also deploy production. That is why previews never run for
    forks.
-2. Create the GitHub environments `site-preview` and `site-production`. Give
+3. Create the GitHub environments `site-preview` and `site-production`. Give
    `site-production` a required reviewer and limit it to the `main` branch.
-3. Add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as secrets of both
+4. Add `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as secrets of both
    environments.
-4. Set the repository variable `SITE_DEPLOY` to `enabled`. Until it is set,
+5. Set the repository variable `SITE_DEPLOY` to `enabled`. Until it is set,
    the deploy jobs are skipped, so no environment is created without its
    protection.
 
-To deploy by hand in an emergency, from a clean checkout of the commit to
-publish, run:
+To deploy by hand in an emergency, set the token and account ID in the
+environment for the run. Then, from a clean checkout of the commit to publish,
+run:
 
 ```powershell
 ./scripts/deploy-site.ps1 -ProjectName holodeck -DryRun

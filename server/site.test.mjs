@@ -54,6 +54,17 @@ test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
  assert.equal(attr(html.match(/<a [^>]*id="first-world"[^>]*>/)[0],'href'),scenes[0].path,'the hero leads into the first scene');
 });
 
+test('long-lived caching covers only content-hashed scene files, and every page gets the security headers',async()=>{
+ const rules=(await readFile(path.join(site,'_headers'),'utf8')).split(/\n(?=\S)/).filter(block=>block.startsWith('/')).map(block=>{const [route,...lines]=block.trim().split('\n');return {route,headers:Object.fromEntries(lines.map(line=>line.trim().split(/:\s*/,2)))};});
+ assert.deepEqual(rules.map(rule=>rule.route),['/*','/worlds/*/assets/*']);
+ for(const name of ['X-Content-Type-Options','Referrer-Policy','Content-Security-Policy','X-Frame-Options','Permissions-Policy'])assert.ok(rules[0].headers[name],name);
+ assert.doesNotMatch(rules[0].headers['Content-Security-Policy'],/script-src|default-src/,'no script policy that could break the viewer');
+ assert.match(rules[1].headers['Cache-Control'],/immutable/);
+ const cached=(await readdir(path.join(built,'worlds'),{recursive:true})).map(name=>name.replaceAll('\\','/')).filter(name=>/^[^/]+\/assets\/.+\.\w+$/.test(name));
+ assert.ok(cached.length>100);
+ for(const name of cached)assert.match(name,/\/(?:[0-9a-f]{64}\.(?:glb|png)|index-[\w-]{8}\.(?:js|css))$/,`${name} would be cached forever without a content hash`);
+});
+
 test('the shelf head carries a canonical URL, a social card and structured data for each scene',async()=>{
  const html=await readFile(path.join(site,'index.html'),'utf8'),scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
  assert.match(html,new RegExp(`<link rel="canonical" href="${SITE_URL}">`));

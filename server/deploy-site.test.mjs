@@ -4,19 +4,21 @@ import {mkdtemp,mkdir,writeFile,rm,symlink,readdir,readFile,cp} from 'node:fs/pr
 import os from 'node:os';
 import path from 'node:path';
 import {renderSite,SITE_URL} from '../scripts/render-site.mjs';
-import {deploy,preflight,parseArgs,productionBranch,WRANGLER_VERSION} from '../scripts/deploy-site.mjs';
+import {deploy,preflight,parseArgs,WRANGLER_VERSION} from '../scripts/deploy-site.mjs';
 
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a63sAAAAASUVORK5CYII=','base64');
 // The same PNG with a 1200×630 header: the site checks card sizes, not pixels.
 const CARD=Buffer.from(PNG);CARD.writeUInt32BE(1200,16);CARD.writeUInt32BE(630,20);
 const HEAD='a'.repeat(40);
-// Tests set the environment themselves; a CI runner's own CI variable must not leak in.
-const go=options=>deploy({env:{},...options});
+const ACCOUNT='0123456789abcdef0123456789abcdef';
+// Tests set the environment themselves, so a runner's own variables never leak in;
+// the Pages API is the fixture's stub.
+const go=options=>deploy({env:{CLOUDFLARE_API_TOKEN:'test-value',CLOUDFLARE_ACCOUNT_ID:ACCOUNT},fetch:options.run?.fetch,...options});
 const SHOTS=Array.from({length:4},(_,i)=>({src:'images/cove.png',alt:`Cove shot ${i+1}`}));
 const scenes=title=>JSON.stringify([{id:'cove',example:'construct',title,summary:'A small cove.',shots:SHOTS,path:'worlds/cove/'}]);
 
 // A one-scene shelf, rendered current, and a site built from it, with git and
-// Wrangler replaced by a recorder.
+// Wrangler and the Pages API replaced by recorders.
 async function fixture(t){
  const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-deploy-')),site=path.join(root,'site'),built=path.join(root,'built');t.after(()=>rm(root,{recursive:true,force:true}));
  await mkdir(path.join(site,'images'),{recursive:true});await mkdir(path.join(site,'cards'));
@@ -31,15 +33,15 @@ async function fixture(t){
  await writeFile(path.join(built,'worlds/cove/scene.json'),'{}');
  await writeFile(path.join(built,'worlds/cove/manifest.json'),JSON.stringify({files:[{file:'scene.json',sha256:'44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a'}]}));
  const listed=async()=>(await readdir(site,{recursive:true,withFileTypes:true})).filter(e=>e.isFile()).map(e=>path.relative(root,path.join(e.parentPath??e.path,e.name)).replaceAll('\\','/'));
- const state={status:'',tracked:await listed(),version:WRANGLER_VERSION,calls:[],onVersion:null,production:[{Id:'d1',Environment:'Production',Branch:'main',Source:'abc1234'}]};
+ const state={status:'',tracked:await listed(),version:WRANGLER_VERSION,calls:[],onVersion:null,requests:[],http:200,project:{production_branch:'main',domains:['holodeck-site.pages.dev','holodeck.kilnstudio.tools']}};
  const run=async(file,args)=>{
   state.calls.push([file,...args]);
   if(file==='git'){const op=args[2];if(op==='rev-parse')return HEAD;if(op==='status')return state.status;if(op==='ls-files')return state.tracked.join('\0');}
   if(args.includes('--version')){await state.onVersion?.();return `wrangler ${state.version}\n`;}
-  if(args.includes('deployment')&&args.includes('list'))return JSON.stringify(state.production);
   if(args.includes('pages'))return '';
   throw new Error(`unexpected ${file} ${args.join(' ')}`);
  };
+ run.fetch=async(url,init)=>{state.requests.push([url,init]);return {status:state.http,ok:state.http<300,json:async()=>state.http<300?{success:true,result:state.project}:{success:false,errors:[{message:'refused'}]}};};
  return {root,site,built,state,run};
 }
 
@@ -62,12 +64,12 @@ test('without a site folder, a deploy builds one into a temporary folder and rem
 test('a deploy pins Wrangler, rechecks the site and uploads only the built folder at HEAD',async t=>{
  const {root,built,state,run}=await fixture(t);
  await go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}});
- assert.deepEqual(state.calls.find(c=>c.includes('list')),['wrangler','pages','deployment','list','--project-name','holodeck-site','--environment','production','--json'],'the production branch is read, never changed');
+ assert.deepEqual(state.requests,[[`https://api.cloudflare.com/client/v4/accounts/${ACCOUNT}/pages/projects/holodeck-site`,{headers:{Authorization:'Bearer test-value'}}]],'the production branch is read, never changed');
  const upload=state.calls.find(c=>c.includes('deploy'));
  assert.deepEqual(upload,['wrangler','pages','deploy',built,'--project-name','holodeck-site','--branch','main','--commit-hash',HEAD,'--commit-dirty=false']);
  assert.equal(state.calls.filter(c=>c[0]==='git'&&c[3]==='status').length,2,'preflight runs again after Wrangler is ready');
- await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CI:'true'},run,log:()=>{}}),/CLOUDFLARE_API_TOKEN is not set/);
- await go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CI:'true',CLOUDFLARE_API_TOKEN:'test-value'},run,log:()=>{}});
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CLOUDFLARE_ACCOUNT_ID:ACCOUNT},run,log:()=>{}}),/CLOUDFLARE_API_TOKEN is not set/);
+ await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',env:{CLOUDFLARE_API_TOKEN:'test-value',CLOUDFLARE_ACCOUNT_ID:'kiln'},run,log:()=>{}}),/32-character/);
  state.version='4.146.0';
  await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/requires Wrangler 4\.147\.0/);
 });
@@ -95,12 +97,19 @@ test('a preview never uses the production branch, and a production upload never 
  assert.deepEqual(state.calls.find(c=>c.includes('deploy')).slice(6,8),['--branch','pr-12']);
  await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',preview:true,branch:'main',wrangler:'wrangler',run,log:()=>{}}),/production branch; a preview must use another branch/);
  await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',branch:'production',wrangler:'wrangler',run,log:()=>{}}),/production branch is main, not production; this upload would only make a preview/);
- state.production=[];
- await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/no production deployment/);
- assert.equal(state.calls.filter(c=>c.includes('deploy')&&!c.includes('deployment')).length,1,'only the preview was uploaded');
- assert.equal(productionBranch(JSON.stringify([{Environment:'Preview',Branch:'x'},{Environment:'Production',Branch:'main'},{Environment:'Production',Branch:'main'}])),'main');
- assert.throws(()=>productionBranch(JSON.stringify([{Environment:'Production',Branch:'main'},{Environment:'Production',Branch:'production'}])),/more than one branch/);
- assert.throws(()=>productionBranch('not json'),/as JSON/);
+ assert.equal(state.calls.filter(c=>c.includes('deploy')).length,1,'only the preview was uploaded');
+});
+
+test('the production branch comes from the project settings, so the first deploy works too',async t=>{
+ const {root,built,state,run}=await fixture(t),lines=[];
+ // A new project has no deployments; its settings still name the production branch.
+ state.project={production_branch:'main',domains:['holodeck-site.pages.dev']};
+ await go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:line=>lines.push(line)});
+ assert.ok(lines.some(line=>/holodeck\.kilnstudio\.tools is not attached/.test(line)),'a missing custom domain is reported');
+ state.http=404;await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/does not exist/);
+ state.http=403;await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/refused the project lookup \(HTTP 403\)/);
+ state.http=200;state.project={domains:[]};await assert.rejects(go({root,siteDir:built,projectName:'holodeck-site',wrangler:'wrangler',run,log:()=>{}}),/no production branch/);
+ assert.equal(state.calls.filter(c=>c.includes('deploy')).length,1,'only the first deploy uploaded');
 });
 
 test('a site that changes while Wrangler is prepared is not uploaded',async t=>{

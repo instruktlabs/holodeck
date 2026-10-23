@@ -14,12 +14,12 @@ import {appendFile,lstat,mkdtemp,readFile,readdir,realpath,rm} from 'node:fs/pro
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {renderSite} from './render-site.mjs';
+import {SITE_URL,renderSite} from './render-site.mjs';
 import {buildSite,verifySite} from './build-site.mjs';
 
 export const WRANGLER_VERSION='4.147.0';
 const ROOT=fileURLToPath(new URL('../',import.meta.url));
-const MAX_FILES=20_000,MAX_FILE_BYTES=25*1024*1024;
+const MAX_FILES=20_000,MAX_FILE_BYTES=25*1024*1024,SITE_HOST=new URL(SITE_URL).host;
 const fail=message=>{throw new Error(message);};
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 
@@ -99,20 +99,25 @@ async function wranglerCommand({root,wrangler,npmCli}){
  return {file:process.execPath,prefix:[npmCli??await resolveNpmCli(),'exec','--yes',`--package=wrangler@${WRANGLER_VERSION}`,'--','wrangler']};
 }
 
-// A branch that is not the project's production branch only makes a preview. A
-// production upload names the branch of the project's current production
-// deployment (read-only); a preview upload must name any other branch.
-export function productionBranch(listing){
- let rows;try{rows=JSON.parse(listing);}catch{fail('Wrangler did not return the production deployments as JSON.');}
- if(!Array.isArray(rows))fail('Wrangler did not return a deployment list.');
- const branches=[...new Set(rows.filter(row=>row?.Environment==='Production').map(row=>row.Branch))];
- if(!branches.length)fail('The project has no production deployment to confirm its production branch. Make the first one deliberately in Cloudflare.');
- if(branches.length>1||typeof branches[0]!=='string')fail(`Production deployments name more than one branch: ${branches.join(', ')}.`);
- return branches[0];
+// A branch that is not the project's production branch only makes a preview. The
+// project's production_branch is read (read-only) from the Pages API with the deploy
+// token: the same record Wrangler compares to decide production or preview, so it
+// holds before the first deployment too. A production upload must name it; a
+// preview upload must name any other branch.
+export async function projectSettings({projectName,env,fetch:get=fetch}){
+ const token=env.CLOUDFLARE_API_TOKEN,account=env.CLOUDFLARE_ACCOUNT_ID;
+ if(!token)fail('CLOUDFLARE_API_TOKEN is not set. In CI, add it as a secret of the deploy environment; by hand, set it for this run.');
+ if(!/^[0-9a-f]{32}$/.test(account??''))fail('CLOUDFLARE_ACCOUNT_ID must be the 32-character Cloudflare account ID.');
+ const response=await get(`https://api.cloudflare.com/client/v4/accounts/${account}/pages/projects/${projectName}`,{headers:{Authorization:`Bearer ${token}`}});
+ if(response.status===404)fail(`The Pages project ${projectName} does not exist. Create it in Cloudflare (direct upload, production branch main) first.`);
+ let body;try{body=await response.json();}catch{fail('Cloudflare did not return the project as JSON.');}
+ if(!response.ok||body?.success!==true)fail(`Cloudflare refused the project lookup (HTTP ${response.status}). Check the token's Pages permission and the account ID.`);
+ const branch=body.result?.production_branch;if(typeof branch!=='string'||!branch)fail(`The Pages project ${projectName} has no production branch.`);
+ return {branch,domains:Array.isArray(body.result.domains)?body.result.domains.filter(domain=>typeof domain==='string'):[]};
 }
 
 // The full preflight runs in a dry run too. Only a non-dry run prepares Wrangler and uploads.
-export async function deploy({root=ROOT,projectName,branch='main',preview=false,siteDir,expectSha256,githubOutput,wrangler,dryRun=false,npmCli,env=process.env,run=execute,build=buildSite,log=console.log}={}){
+export async function deploy({root=ROOT,projectName,branch='main',preview=false,siteDir,expectSha256,githubOutput,wrangler,dryRun=false,npmCli,env=process.env,fetch:get=fetch,run=execute,build=buildSite,log=console.log}={}){
  if(typeof projectName!=='string'||!/^[a-z0-9][a-z0-9-]{0,57}$/.test(projectName))fail('Choose the Cloudflare Pages project with --project-name.');
  if(typeof branch!=='string'||!/^[a-z0-9][a-z0-9._/-]{0,99}$/i.test(branch))fail('Invalid Pages branch.');
  if(expectSha256!==undefined&&!/^[0-9a-f]{64}$/.test(expectSha256))fail('--expect-sha256 must be a SHA-256 hex digest.');
@@ -126,14 +131,14 @@ export async function deploy({root=ROOT,projectName,branch='main',preview=false,
   if(expectSha256&&initial.sha256!==expectSha256)fail(`The site folder's sha256 is ${initial.sha256}, not the built ${expectSha256}.`);
   if(githubOutput)await appendFile(githubOutput,`sha256=${initial.sha256}\nfiles=${initial.files}\nbytes=${initial.bytes}\nhead=${initial.head}\n`);
   if(dryRun){log(`Dry run: no upload, package preparation or login. Deployment uses Wrangler ${WRANGLER_VERSION}.`);return {deployed:false,preflight:initial};}
-  // In CI, Wrangler would otherwise fall back to an interactive login.
-  if(env.CI&&!env.CLOUDFLARE_API_TOKEN)fail('CLOUDFLARE_API_TOKEN is not set. Add it as a secret of the deploy environment.');
+  // Wrangler and the project lookup both use this token; there is no interactive login.
+  const project=await projectSettings({projectName,env,fetch:get});
+  if(preview&&project.branch===branch)fail(`${branch} is ${projectName}'s production branch; a preview must use another branch.`);
+  if(!preview&&project.branch!==branch)fail(`${projectName}'s production branch is ${project.branch}, not ${branch}; this upload would only make a preview. Pass --branch ${project.branch}.`);
+  if(!preview&&!project.domains.includes(SITE_HOST))log(`Note: ${SITE_HOST} is not attached to ${projectName} yet (${project.domains.join(', ')||'no domains'}); the deploy is live only on its pages.dev address until it is.`);
   const command=await wranglerCommand({root,wrangler,npmCli});
   const version=String(await run(command.file,[...command.prefix,'--version'],{cwd:initial.root})).match(/^\s*(?:wrangler\s+)?(\d+\.\d+\.\d+(?:[-+][\w.-]+)?)\s*$/m)?.[1];
   if(version!==WRANGLER_VERSION)fail(`Deployment requires Wrangler ${WRANGLER_VERSION}; the executable did not report that exact version.`);
-  const live=productionBranch(String(await run(command.file,[...command.prefix,'pages','deployment','list','--project-name',projectName,'--environment','production','--json'],{cwd:initial.root})));
-  if(preview&&live===branch)fail(`${branch} is ${projectName}'s production branch; a preview must use another branch.`);
-  if(!preview&&live!==branch)fail(`${projectName}'s production branch is ${live}, not ${branch}; this upload would only make a preview. Pass --branch ${live}.`);
   // Preparing Wrangler can take a while; recheck every byte and the Git state right before upload.
   const checked=await preflight({root:initial.root,siteDir,run});
   if(checked.head!==initial.head||checked.sha256!==initial.sha256)fail('The site or HEAD changed while preparing Wrangler. Review it again.');
