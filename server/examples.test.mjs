@@ -5,10 +5,19 @@ import os from 'node:os';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
-import {scaffold} from './scaffold.mjs';
+import {scaffold,listExamples} from './scaffold.mjs';
+import {readExampleBundle} from './example-bundle.mjs';
 import {WorldStore} from './world-store.mjs';
 import {WorldRuntime} from '../src/world/runtime.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
+test('the picker offers the starter templates and every shipped bundle, each intact',async()=>{
+ const examples=await listExamples();
+ assert.deepEqual(examples.map(entry=>entry.id),['construct','kinetic','courtyard','crescent-cove','tidemark']);
+ for(const entry of examples.filter(entry=>entry.kind==='bundle')){
+  // Every receipt, GLB and terrain texture hash is checked, not just the manifest.
+  const bundle=await readExampleBundle(path.join(packageRoot,'examples',entry.id));assert.equal(bundle.manifest.id,entry.id);assert.ok(entry.preview,`${entry.id} has a runtime preview`);
+ }
+});
 test('default CLI init starts a fresh construct with the current cove and walk collision',async()=>{
  const parent=await mkdtemp(path.join(os.tmpdir(),'holodeck-example-')),root=path.join(parent,'world');let store;
  try{
@@ -64,11 +73,11 @@ test('construct is also an explicit scaffold choice; unknown examples leave no w
  const parent=await mkdtemp(path.join(os.tmpdir(),'holodeck-example-'));
  try{
   const w=await scaffold(path.join(parent,'construct'),'construct');assert.equal(w.scene.environment.type,'construct');
-  await assert.rejects(scaffold(path.join(parent,'unknown'),'unknown'),/Choose construct, courtyard or kinetic/);
+  await assert.rejects(scaffold(path.join(parent,'unknown'),'unknown'),/Choose construct, kinetic or a bundled example/);
   await assert.rejects(readFile(path.join(parent,'unknown','world/world.json')),/ENOENT/);
  }finally{assert.ok(path.resolve(parent).startsWith(path.resolve(os.tmpdir())+path.sep+'holodeck-example-'));await rm(parent,{recursive:true,force:true});}
 });
-for(const example of ['courtyard','kinetic'])test(`${example}: scaffold, edit, reject invalid capability, undo and reopen`,async()=>{
+for(const example of ['kinetic'])test(`${example}: scaffold, edit, reject invalid capability, undo and reopen`,async()=>{
  const parent=await mkdtemp(path.join(os.tmpdir(),'holodeck-example-')),root=path.join(parent,'world');let store;
  try{
   const w=await scaffold(root,example);assert.equal(w.schemaVersion,2);assert.ok(w.scene.objects.some(o=>o.behavior));

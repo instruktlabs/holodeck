@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {checkWorld,sampleWorldPoints} from './coherence.mjs';
-const template=JSON.parse(await readFile(new URL('../examples/courtyard.json',import.meta.url)));
+const template=JSON.parse(await readFile(new URL('../test/fixtures/courtyard-template.json',import.meta.url)));
 const world={revision:4,schemaVersion:2,scene:{...template,assets:[],origin:'cove'}};
 test('advisory findings never mutate, accept or reject a world revision',()=>{
  const before=JSON.stringify(world),r=checkWorld(world,{routes:[{id:'gate-route',from:[.5,1.72,-5],to:[.5,1.72,-9]}],now:1000});

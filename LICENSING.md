@@ -10,7 +10,7 @@ Holodeck uses MIT for code and CC0 1.0 Universal for the designated first-party 
 
 Matthew Kissinger applies [CC0 1.0 Universal](LICENSES/CC0-1.0.txt) to his copyright and related rights in the following first-party content, to the extent permitted by law:
 
-- Scene data, manifests, GLBs and previews under examples/, including Construct, Courtyard, Kinetic and Tidemark Island.
+- Scene data, manifests, GLBs, terrain textures and previews under examples/, including Construct, Kinetic, Crescent Cove, the Quiet Courtyard and Tidemark Island, and the asset-free Courtyard template kept as a test fixture under test/fixtures/.
 - Models under public/assets/.
 - Images and non-code asset metadata under assets/cove/. Procedural JavaScript programs remain MIT.
 - Scene data (scene.json), manifests and GLBs in the static scene exports under site/worlds/: The Quiet Courtyard (site/worlds/courtyard/), the Cove (site/worlds/cove/) and Tidemark Island (site/worlds/tidemark/). The compiled viewer scripts and styles beside them are code under MIT. Their preview.jpg cards are not part of this dedication.

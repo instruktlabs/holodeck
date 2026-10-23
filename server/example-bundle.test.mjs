@@ -38,12 +38,12 @@ test('tampered manifest, unlisted files and unsafe metadata never become install
  await assert.rejects(createExampleBundle(root,{...options(path.join(parent,'unsafe')),title:'C:\\private\\world'}),/absolute|portable/i);
 });
 test('example catalog advertises portable metadata and scaffold installs a named bundle',async t=>{
- const {root,parent}=await fixture(t),directory=path.join(parent,'examples');await mkdir(directory);for(const id of ['construct','courtyard','kinetic'])await copyFile(new URL(`../examples/${id}.json`,import.meta.url),path.join(directory,`${id}.json`));
- const manifest=await createExampleBundle(root,options(path.join(directory,'portable-study'))),examples=await listExamples({directory});assert.deepEqual(examples.map(entry=>entry.id),['construct','courtyard','kinetic','portable-study']);assert.ok(examples.every(entry=>!entry.file));assert.equal(examples[3].integrity,manifest.integrity);
+ const {root,parent}=await fixture(t),directory=path.join(parent,'examples');await mkdir(directory);for(const id of ['construct','kinetic'])await copyFile(new URL(`../examples/${id}.json`,import.meta.url),path.join(directory,`${id}.json`));
+ const manifest=await createExampleBundle(root,options(path.join(directory,'portable-study'))),examples=await listExamples({directory});assert.deepEqual(examples.map(entry=>entry.id),['construct','kinetic','portable-study']);assert.ok(examples.every(entry=>!entry.file));assert.equal(examples[2].integrity,manifest.integrity);
  const world=await scaffoldBundle(path.join(parent,'named'),'portable-study',{examplesDirectory:directory});assert.equal(world.bible.title,'Portable Study');assert.equal(world.revision,0);
  await assert.rejects(scaffoldBundle(path.join(parent,'escaped'),'../portable-study',{examplesDirectory:directory}),/valid local example/);await assert.rejects(stat(path.join(parent,'escaped')),{code:'ENOENT'});
  const duplicate=path.join(parent,'same-content');assert.equal((await createExampleBundle(root,options(duplicate))).integrity,manifest.integrity);
- await writeFile(path.join(directory,'portable-study','EXAMPLE-INCOMPLETE.txt'),'Interrupted');await assert.rejects(readExampleManifest(path.join(directory,'portable-study')),/incomplete/);assert.equal((await listExamples({directory})).length,3);
+ await writeFile(path.join(directory,'portable-study','EXAMPLE-INCOMPLETE.txt'),'Interrupted');await assert.rejects(readExampleManifest(path.join(directory,'portable-study')),/incomplete/);assert.equal((await listExamples({directory})).length,2);
 });
 test('local bundle CLI installs without downloading or executing bundle-supplied code',async t=>{
  const {root,parent}=await fixture(t),out=path.join(parent,'bundle');await createExampleBundle(root,options(out));const target=path.join(parent,'cli');const stdout=execFileSync(process.execPath,[fileURLToPath(new URL('../bin/holodeck.mjs',import.meta.url)),'init',target,'--bundle',out],{encoding:'utf8'});assert.match(stdout,/Created Portable Study world/);assert.equal(JSON.parse(await readFile(path.join(target,'world/world.json'),'utf8')).revision,0);
