@@ -8,7 +8,7 @@ import {WorldMaterialsProvider,WorldSurfaceMaterial} from './world-materials.js'
 import {Tree} from './vegetation.jsx';
 import {Landscape,LandscapeSky,createUnderwaterTint} from './landscape.jsx';
 import {underwaterAssets} from './water-optics.mjs';
-import {createInhabitant,stepInhabitant} from './inhabitant.mjs';
+import {createInhabitant,stepInhabitant,inhabitantContext} from './inhabitant.mjs';
 import {Maker} from './inhabitant.jsx';
 import {pickWorldAim} from './aim.mjs';
 import {planStaticBatches} from './static-batches.mjs';
@@ -120,7 +120,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    const k=keys.current,f=Number(k.has('KeyW'))-Number(k.has('KeyS')),r=Number(k.has('KeyD'))-Number(k.has('KeyA')),w=walk.current,len=Math.hypot(f,r)||1;
    if(actor.current){
     const a=actor.current;a.camera=person;
-    stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space'),sprint:k.has('ShiftLeft')||k.has('ShiftRight'),yaw:w.yaw},dt,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time,blocked:(x,z,feetY,height)=>runtime.blocked(x,z,a.radius,feetY,height)});
+    stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space'),sprint:k.has('ShiftLeft')||k.has('ShiftRight'),yaw:w.yaw},dt,inhabitantContext(runtime,a.radius));
     moving=a.speed>.01;
     const eye=new THREE.Vector3(a.position[0],a.position[1]+a.eyeHeight,a.position[2]);w.position=eye.toArray();
     camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
@@ -147,7 +147,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
     probe.actorEye=null;
    }
   }else{
-   if(actor.current){const a=actor.current;stepInhabitant(a,{stop:true},dt,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time,blocked:(x,z,feetY,height)=>runtime.blocked(x,z,a.radius,feetY,height)});probe.actorEye=[a.position[0],a.position[1]+a.eyeHeight,a.position[2]];}else probe.actorEye=null;
+   if(actor.current){const a=actor.current;stepInhabitant(a,{stop:true},dt,inhabitantContext(runtime,a.radius));probe.actorEye=[a.position[0],a.position[1]+a.eyeHeight,a.position[2]];}else probe.actorEye=null;
    if(mode==='free'){
     const k=keys.current,v=free.current,input={forward:Number(k.has('KeyW'))-Number(k.has('KeyS')),strafe:Number(k.has('KeyD'))-Number(k.has('KeyA')),up:Number(k.has('KeyE'))-Number(k.has('KeyQ')),sprint:k.has('ShiftLeft')||k.has('ShiftRight')};
     stepFreeCamera(v,input,dt);moving=!!(input.forward||input.strafe||input.up);camera.position.set(...v.position);camera.rotation.set(v.pitch,v.yaw,0,'YXZ');

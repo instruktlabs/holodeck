@@ -72,7 +72,10 @@ spatial probes where supported. It does not block or accept edits. Optional
 routesJson contains up to eight {id,from:[x,y,z],to:[x,y,z]} routes. The terrain
 driver samples supported feet, slope and water; only the legacy ground-plane
 driver requires eye Y=1.72. `world_sample` reads up to64 accepted-world support
-points with terrain height/normal/slope, water height/depth and blockers. Pass a
+points with terrain height/normal/slope, water height/depth and blockers. Its y is
+an eye height: over a walkable deck, pass the deck top + 1.72 to stand on it or the
+seabed + 1.72 to stand under it; `supportSource`, `supportId` and `levels` show
+which you got. Pass a
 staged `proposalId` to `world_sample` or `world_check` to measure the proposal
 instead, before the user applies it. Findings describe samples and uncertainty,
 not a verdict on the intended world.
@@ -98,6 +101,14 @@ Planting footprints, wall connections and collision still require authored data.
 Optional behavior is {type:hinge,angle,speed} or {type:spin,speed}; it requires the
 corresponding enabled module. Hinge needs a collider. Speeds are radians/second,
 greater than zero and at most four. Colliders and moving modules support yaw only.
+A collider box with `walkable: true` (per box in a compound) also supports the
+walker and patrols: a jetty deck, floor, bridge or stair tread. Put its top at the
+walking surface and keep posts and rails as separate non-walkable boxes. They step
+up at most 0.35m, treads 0.35m apart or less climb as stairs, the footprint grows
+0.1m to bridge seams, and edges fall. Walkable boxes are refused with a behavior,
+and scatter colliders are never walkable; the `world_read` capabilities text
+(`spatial.colliders`) has the water and swimming rules. Do not fake a deck with
+hidden terrain ramps.
 Optional motion.patrol@1 adds bounded terrain-following waypoint motion for up
 to16 entities. Its behavior is {type:patrol,path:[[x,z],...],speed,waitSeconds,
 waterPolicy:avoid|wade,heightOffset?,radius?,height?}. Paths have2..16 world-space

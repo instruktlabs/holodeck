@@ -257,6 +257,49 @@ body with a visual gait and basic foot IK. Arbitrary imported rigs, ragdolls,
 moving-body push response and a general physics solver are not implemented by
 these records.
 
+### Walkable colliders
+
+A collider box marked `walkable` also supports the walker and patrols, so a jetty
+deck, raised floor, bridge or stair tread can be walked on. On a compound collider
+the flag belongs to each box, so a deck can be walkable while its posts and rails
+stay walls:
+
+```json
+{
+  "type": "compound",
+  "boxes": [
+    {"size": [3, 0.3, 1.8], "offset": [0, -0.15, 0], "walkable": true},
+    {"size": [0.26, 1.6, 0.26], "offset": [-1.5, -0.2, 1.03]}
+  ]
+}
+```
+
+- **Support.** The walker stands on the highest of the terrain and every walkable
+  top over its position that is at most 0.35m (one step) above its feet. In the
+  air it lands only on a top it falls past. A top has no slope.
+- **Footprint.** Each top is the box's top rectangle grown by 0.1m, so pieces that
+  meet within 0.1m walk as one surface.
+- **Treads.** A walkable top within one step above the feet does not block, so
+  treads 0.35m apart or less climb as stairs. Every other box face blocks as before.
+- **Edges.** Walking off a top that is more than one step above the ground below
+  falls, then lands on whatever is there.
+- **Water.** Depth counts from the support, so a deck above the water is dry. A
+  1.82m wader cannot pass under a deck whose underside is lower than that above the
+  seabed. A swimmer (feet 1m below the surface, 1.35m tall) passes under only where
+  the underside is more than 0.35m above the water.
+- **Limits.** Walkable boxes are yaw-only, like every collider, and are refused on
+  placements with a behavior: nothing carries the walker on a moving object. Scatter
+  colliders are never walkable. Sloped walkways are not supported; author stairs or
+  terrain.
+
+`world_sample` reads its point's y as an eye height. Where walkable tops overlap the
+point, it stands on the highest one at or below y − 1.72 + 0.35, as the walker does
+at spawn. It then reports `supportSource: "collider"`, `supportId`, `supportHeight`
+and `levels`, every walkable height there including the terrain. `world_check`
+routes carry each sample's feet to the next, so a route along a deck stays on it,
+and a step down of more than 0.35m is reported as a `drop`. Worlds without the flag
+sample exactly as before.
+
 ## Bounded waypoint activity
 
 An entity can use `motion.patrol@1`, which requires `collision.boxes@1`, with this
@@ -282,7 +325,9 @@ speed, wait and water policy are required. Optional height offset is 0–3m, rad
 
 The entity starts at its authored X/Z position, targets the first waypoint, and
 loops the path with a pause at every arrival. Terrain supplies ground height plus
-the offset; without terrain it retains authored Y. Local +X faces travel and the
+the offset; without terrain it retains authored Y. Like the walker, a patrol also
+stands on a walkable collider top up to 0.35m above its feet; its first feet are
+its authored Y minus the offset, so a patrol authored on a deck walks along it. Local +X faces travel and the
 authored yaw can correct a model's front direction. Avoid policy rejects water
 deeper than 0.08m; wade allows up to 0.8m. Terrain bounds, 45 degree slopes, 0.35m
 upward steps and explicit blockers can stop movement. A blocked patrol retries;

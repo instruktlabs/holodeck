@@ -3,20 +3,29 @@ import {createTerrain,sampleWater} from './terrain.mjs';
 export const INHABITANT_DEFAULTS=Object.freeze({preset:'maker',camera:'first',walkSpeed:2.6,runSpeed:4.5,swimSpeed:1.8,thirdPerson:Object.freeze({distance:3.6,height:1.3})});
 const EYE_HEIGHT=1.72,HEIGHT=1.82,SWIM_EYE_HEIGHT=1.25,SWIM_HEIGHT=1.35;
 const MAX_SLOPE=Math.PI/4,MAX_STEP=.35,MAX_DELTA=.1,MOVE_STEP=.06,GRAVITY=18,JUMP_SPEED=5.4;
-export const INHABITANT_LIMITS=Object.freeze({maxSlope:MAX_SLOPE,maxStep:MAX_STEP,maxDelta:MAX_DELTA,moveStep:MOVE_STEP,gravity:GRAVITY,jumpSpeed:JUMP_SPEED});
+export const INHABITANT_LIMITS=Object.freeze({maxSlope:MAX_SLOPE,maxStep:MAX_STEP,maxDelta:MAX_DELTA,moveStep:MOVE_STEP,gravity:GRAVITY,jumpSpeed:JUMP_SPEED,eyeHeight:EYE_HEIGHT});
 const inputAxis=value=>Number.isFinite(value)?Math.max(-1,Math.min(1,value)):0;
 
-function supportAt(actor,x,z,{terrain,water,time=0}={}){
- const ground=terrain?.sample(x,z)||{height:actor.groundHeight,normal:[0,1,0],slope:0,inBounds:true};
+// Support is the terrain or the highest walkable collider top (context.walkable)
+// not above reference: one step above the feet on foot, the feet themselves in
+// the air, so a jump lands only on a surface it falls past.
+function supportAt(actor,x,z,{terrain,water,time=0,walkable}={},reference=actor.position[1]+(actor.mode==='airborne'?1e-6:MAX_STEP)){
+ const sampled=terrain?.sample(x,z)||{height:actor.groundHeight,normal:[0,1,0],slope:0,inBounds:true};
+ const top=walkable?.(x,z,reference),onTop=!!top&&top.height>sampled.height;
+ const ground=onTop?{height:top.height,normal:[0,1,0],slope:0,inBounds:sampled.inBounds}:sampled;
  const surface=water?sampleWater(water,x,z,time):null;
  const depth=surface?.inBounds?Math.max(0,surface.height-ground.height):0;
  const swimming=actor.mode==='swimming'?depth>.9:depth>=1.25;
  const mode=swimming?'swimming':depth>.08?'wading':'grounded';
- return {mode,ground,depth,surfaceHeight:surface?.inBounds?surface.height:null,feet:swimming?Math.max(ground.height,surface.height-1):ground.height,height:swimming?SWIM_HEIGHT:HEIGHT,eyeHeight:swimming?SWIM_EYE_HEIGHT:EYE_HEIGHT};
+ return {mode,ground,terrain:sampled,supportId:onTop?top.id:null,depth,surfaceHeight:surface?.inBounds?surface.height:null,feet:swimming?Math.max(ground.height,surface.height-1):ground.height,height:swimming?SWIM_HEIGHT:HEIGHT,eyeHeight:swimming?SWIM_EYE_HEIGHT:EYE_HEIGHT};
 }
 // Read-only support query, shared by the controller and advisory probes. The
-// caller supplies the prior mode when it needs swimming-depth hysteresis.
+// caller supplies the prior mode when it needs swimming-depth hysteresis, and
+// may pass the highest top to consider.
 export {supportAt as sampleInhabitantSupport};
+// The context a WorldRuntime gives the controller: terrain, water, walkable tops
+// and box collision with the step rule for treads.
+export const inhabitantContext=(runtime,radius)=>({terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time,walkable:(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),blocked:(x,z,feetY,height,stepUp)=>runtime.blocked(x,z,radius,feetY,height,null,stepUp)});
 
 function adoptSupport(actor,support){
  actor.position[1]=support.feet;actor.mode=support.mode;actor.height=support.height;actor.eyeHeight=support.eyeHeight;
@@ -35,7 +44,7 @@ export function createInhabitant(runtime,possession=runtime.scene.runtime.posses
  const r=runtime.scene.runtime,config={...INHABITANT_DEFAULTS,...possession,thirdPerson:{...INHABITANT_DEFAULTS.thirdPerson,...possession?.thirdPerson}};
  const actor={position:[r.spawn[0],r.spawn[1]-EYE_HEIGHT,r.spawn[2]],yaw:r.look[0],velocity:[0,0,0],movementVelocity:[0,0],verticalVelocity:0,grounded:true,jumpHeld:false,speed:0,mode:'grounded',camera:config.camera,eyeHeight:EYE_HEIGHT,height:HEIGHT,radius:.22,distance:0,gaitPhase:0,groundHeight:r.spawn[1]-EYE_HEIGHT,config};
  const terrain=runtime.terrain||(runtime.scene.terrain?createTerrain(runtime.scene.terrain):null);
- adoptSupport(actor,supportAt(actor,actor.position[0],actor.position[2],{terrain,water:runtime.scene.water,time:runtime.time||0}));
+ adoptSupport(actor,supportAt(actor,actor.position[0],actor.position[2],{terrain,water:runtime.scene.water,time:runtime.time||0,walkable:runtime.walkableAt?(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop):null}));
  return actor;
 }
 
@@ -71,7 +80,7 @@ export function stepInhabitant(actor,input,seconds,context={}){
   if(inAir){if(support.ground.height>actor.position[1]+1e-6)return false;}
   else if(support.mode!=='swimming'&&(support.ground.slope>MAX_SLOPE||support.feet-actor.position[1]>MAX_STEP))return false;
   const feet=inAir||fall?actor.position[1]:support.feet,height=inAir||fall?HEIGHT:support.height;
-  if(context.blocked?.(x,z,feet,height))return false;
+  if(context.blocked?.(x,z,feet,height,inAir||fall?0:MAX_STEP))return false;
   actor.position[0]=x;actor.position[2]=z;
   if(inAir||fall)airborne(actor,support);else adoptSupport(actor,support);return true;
  };
