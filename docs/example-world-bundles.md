@@ -25,6 +25,9 @@ The versioned format is `holodeck-example-v1`. It contains only:
 - `world/world.json`: a validated schema-v2 scene starting at revision zero.
 - `assets/imports/<sha256>.glb`: the exact pinned GLBs used by the scene, origin
   and physical mood board.
+- `assets/imports/terrain/<sha256>.png`, only when the terrain has
+  `appearance.layers`: the exact pinned layer maps and paint masks. The manifest
+  lists each under `textures` with its hash, byte count and dimensions.
 - Optional `preview.png`: an actual runtime screenshot, limited to 8 MiB and
   4096 pixels per dimension, with its own hash, byte count and dimensions.
 
@@ -40,11 +43,12 @@ must agree with `scene.runtime`. Unsupported versions or modules fail locally;
 the installer does not fetch code or add capabilities. The current schema-v2
 limits remain 64 assets, 1200 placements, 32 MiB per GLB, 128 MiB of assets and
 two million placed source triangles, including every flock member. Legacy
-schema-v1 scenes retain their 200-placement limit. Bundles do not yet carry
-terrain layer textures: the writer refuses a scene whose terrain has
-`appearance.layers`.
+schema-v1 scenes retain their 200-placement limit. Terrain layer textures keep
+their own rules: at most 32 MiB of PNGs, counted inside the 128 MiB, and layer
+maps square, power-of-two and one shared size. The listed textures must be
+exactly the files the terrain names.
 
-Only validated world data, GLBs and the optional PNG enter an install. Bundle
+Only validated world data, GLBs, terrain PNGs and the optional preview enter an install. Bundle
 scripts, plugins, session files, extra files and escaping paths are rejected.
 Installed authoring skills come from the trusted Holodeck package, never from
 the bundle. The install creates a fresh editable history when first opened.
@@ -59,7 +63,8 @@ refinement therefore needs a separately available, authorized source artifact.
 ## Preparing a curated bundle
 
 The Node-side `createExampleBundle(workspace, options)` reads an immutable
-accepted receipt and rechecks pinned asset hashes before copying. `options`
+accepted receipt and rechecks pinned asset and terrain texture hashes before
+copying. The terrain is repointed at the texture copies' content-addressed names. `options`
 requires `out`, `id`, `title` and `description`; `revision` selects a specific
 accepted revision. Optional `authoring: {intent, rules}` supplies public prose.
 When omitted, those fields are blank. `preview` is a local path to a real
@@ -87,8 +92,10 @@ bytes, hash and dimensions, or `null`. `loadExamplePreview(id)` resolves a known
 packaged example before reading that preview; a host can serve it through a
 fixed authenticated image route without exposing arbitrary filesystem paths.
 `readExampleBundle(directory)` performs full verification and returns
-`{manifest, world, assets, previewBytes}`; each asset entry includes its hash,
-relative file, geometry metrics and retained verified byte buffer.
+`{manifest, world, assets, textures, previewBytes}`. Each asset entry includes
+its hash, relative file, geometry metrics and retained verified byte buffer.
+Each texture entry, keyed by file, includes its dimensions, byte count and
+verified bytes.
 `installExampleBundle(directory, newWorkspace)` returns the installed world.
 Both writer and installer refuse existing destinations. An interrupted output
 retains an `EXAMPLE-INCOMPLETE.txt` or `INSTALL-INCOMPLETE.txt` marker; the library
