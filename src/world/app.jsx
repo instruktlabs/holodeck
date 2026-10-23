@@ -103,6 +103,8 @@ function WorldSession({host}){
     setHotNotice(`Revision ${world.revision} loaded where you are${chips.length?` · ${chips.slice(0,3).join(' · ')}`:''}`);
     const timer=setTimeout(()=>setHotNotice(''),4500);return()=>clearTimeout(timer);
   },[world]);
+  // Host notices, such as a Kiln workspace upgraded on connect, use the same line.
+  useEffect(()=>{if(!host.notice)return;setHotNotice(host.notice.text);const timer=setTimeout(()=>setHotNotice(''),6000);return()=>clearTimeout(timer);},[host.notice]);
   // The chosen model and effort survive reloads: this browser's last choice
   // first, then the session's saved values.
   const choiceProvider=useRef(null);

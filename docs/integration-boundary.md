@@ -30,7 +30,11 @@ See [licensing](../LICENSING.md) for MIT code and CC0 bundled content.
 Kiln runs on the local Node side. The browser loads the admitted GLB and uses
 Holodeck's renderer; it does not import Kiln's root SDK. Asset authoring stays in
 a separate configured workspace. Package maintenance does not authorize silently
-rewriting existing authors' installed skills or source files.
+rewriting existing authors' installed skills or source files. When a Kiln update
+leaves a world's Kiln workspace out of date, connecting an agent runs Kiln's own
+upgrade, which replaces only unedited Kiln-managed files and refuses conflicts;
+the interface says how many files it refreshed, and a refusal stops the
+connection with Kiln's reason.
 
 ## Versioned delivery profile and existing admission
 

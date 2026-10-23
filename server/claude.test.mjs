@@ -422,3 +422,28 @@ test('the host offers Claude Code and keeps image generation on Codex',async t=>
   const refused=await post('agent/image',{prompt:'A cove'});
   assert.equal(refused.status,400);assert.match((await refused.json()).error,/Codex connection/);
 });
+
+test('connecting says when the world\'s Kiln workspace was upgraded',async t=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-kiln-notice-'));
+  const claude=Object.assign(new EventEmitter(),{snapshot(){return {provider:'claude',status:'ready',requests:[]};},async connect(){return this.snapshot();},close(){}});
+  let upgrade={status:'current',changed:['skills/kiln-author-asset/SKILL.md','.kiln/workspace.json']};
+  const host=await createHost(root,{claudeFactory:()=>claude,ensureWorkspace:async()=>upgrade});
+  const server=createServer((req,res)=>host.middleware(req,res,()=>{res.statusCode=404;res.end();}));
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  t.after(async()=>{await host.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await rm(root,{recursive:true,force:true});});
+  const base=`http://127.0.0.1:${server.address().port}`;
+  const session=await fetch(`${base}/api/session`),cookie=session.headers.get('set-cookie').split(';')[0];
+  const events=await fetch(`${base}/api/events`,{headers:{cookie}}),reader=events.body.getReader(),decoder=new TextDecoder();let stream='';
+  const post=(route,data)=>fetch(`${base}/api/${route}`,{method:'POST',headers:{cookie,'Content-Type':'application/json'},body:JSON.stringify(data)});
+  assert.equal((await post('agent/connect',{provider:'claude'})).status,200);
+  while(!stream.includes('event: notice')){const {value,done}=await reader.read();if(done)break;stream+=decoder.decode(value);}
+  assert.match(stream,/event: notice\ndata: "Kiln workspace upgraded for the installed Kiln · 2 Kiln-managed files refreshed"/);
+  // A current workspace connects quietly: after one more upgrade, the stream holds exactly one new notice.
+  upgrade=null;stream='';
+  assert.equal((await post('agent/connect',{provider:'claude'})).status,200);
+  upgrade={status:'current',changed:['.kiln/workspace.json']};
+  assert.equal((await post('agent/connect',{provider:'claude'})).status,200);
+  while(!stream.includes('event: notice')){const {value,done}=await reader.read();if(done)break;stream+=decoder.decode(value);}
+  await reader.cancel();
+  assert.deepEqual(stream.match(/data: "Kiln workspace[^"]*"/g),['data: "Kiln workspace upgraded for the installed Kiln · 1 Kiln-managed file refreshed"']);
+});

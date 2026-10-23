@@ -18,12 +18,15 @@ async function fixture(t,layout){
     // Matches Kiln 1.3.1's import-only root export and unexported package.json.
     await writeFile(path.join(kiln,'package.json'),JSON.stringify({name:'@instruktlabs/kiln',version:'1.3.1',type:'module',exports:{'.':{types:'./lib/index.d.ts',import:'./lib/index.js'}},bin:{'kiln-init':'./scripts/create-workspace.mjs'}}));
     await writeFile(path.join(kiln,'lib/index.js'),"throw new Error('Locating the initializer must not evaluate the engine SDK');\n");
+    // Answers --check from the world's check-status file and fails --upgrade when upgrade-fails holds a reason.
     await writeFile(path.join(kiln,'scripts/create-workspace.mjs'),[
-      "import {writeFile} from 'node:fs/promises';",
+      "import {appendFile,readFile,writeFile} from 'node:fs/promises';",
       "import path from 'node:path';",
-      "import {appendFile} from 'node:fs/promises';",
-      "await writeFile(path.join(process.argv[2],'setup-call.json'),JSON.stringify({args:process.argv.slice(2),cwd:process.cwd()}));",
-      "await appendFile(path.join(process.argv[2],'setup-calls.log'),JSON.stringify(process.argv.slice(3))+'\\n');",
+      "const root=process.argv[2],flags=process.argv.slice(3);",
+      "await writeFile(path.join(root,'setup-call.json'),JSON.stringify({args:process.argv.slice(2),cwd:process.cwd()}));",
+      "await appendFile(path.join(root,'setup-calls.log'),JSON.stringify(flags)+'\\n');",
+      "if(flags.includes('--check')){const status=(await readFile(path.join(root,'check-status'),'utf8').catch(()=>'current')).trim();console.log(JSON.stringify({status}));process.exitCode=status==='current'?0:1;}",
+      "if(flags.includes('--upgrade')){const reason=await readFile(path.join(root,'upgrade-fails'),'utf8').catch(()=>null);if(reason){console.error(reason);process.exitCode=1;}else{await writeFile(path.join(root,'check-status'),'current');console.log(JSON.stringify({status:'current',changed:['.kiln/workspace.json']}));}}",
     ].join('\n'));
     const require=createRequire(module);
     assert.throws(()=>require.resolve('@instruktlabs/kiln/package.json'),{code:'ERR_PACKAGE_PATH_NOT_EXPORTED'});
@@ -31,6 +34,8 @@ async function fixture(t,layout){
   }
   return {world,adapter:await import(pathToFileURL(module).href)};
 }
+
+const calls=async world=>(await readFile(path.join(world,'setup-calls.log'),'utf8')).trim().split('\n').map(line=>JSON.parse(line));
 
 for(const layout of ['nested','hoisted'])test(`workspace setup resolves an import-only ${layout} Kiln package without loading its SDK`,async t=>{
   const {world,adapter}=await fixture(t,layout);
@@ -53,9 +58,9 @@ test('an existing workspace gains the connecting harness once and keeps its othe
   const {world,adapter}=await fixture(t,'nested'),file=path.join(world,'.kiln/workspace.json');
   await mkdir(path.dirname(file));await writeFile(file,JSON.stringify({schemaVersion:2,harness:'codex',harnesses:['codex']}));
   await adapter.ensureKilnWorkspace(world,{provider:'codex'});
-  await assert.rejects(readFile(path.join(world,'setup-calls.log')),{code:'ENOENT'},'a registered harness runs no setup');
+  assert.deepEqual(await calls(world),[['--check']],'a registered harness runs only the check');
   await adapter.ensureKilnWorkspace(world,{provider:'claude'});
-  assert.deepEqual((await readFile(path.join(world,'setup-calls.log'),'utf8')).trim().split('\n').map(line=>JSON.parse(line)),[['--adopt','--harness','claude']]);
+  assert.deepEqual(await calls(world),[['--check'],['--adopt','--harness','claude'],['--check']]);
 });
 
 test('a failed harness registration leaves an existing workspace usable',async t=>{
@@ -65,6 +70,24 @@ test('a failed harness registration leaves an existing workspace usable',async t
   await mkdir(path.join(world,'setup-calls.log'));
   await adapter.ensureKilnWorkspace(world,{provider:'claude'});
   assert.deepEqual(JSON.parse(await readFile(file,'utf8')).harnesses,['codex']);
+});
+
+test('a workspace left stale by a Kiln upgrade is upgraded before the agent connects',async t=>{
+  const {world,adapter}=await fixture(t,'nested'),file=path.join(world,'.kiln/workspace.json');
+  await mkdir(path.dirname(file));await writeFile(file,JSON.stringify({schemaVersion:2,harness:'claude',harnesses:['claude']}));
+  await writeFile(path.join(world,'check-status'),'update-required');
+  assert.deepEqual(await adapter.ensureKilnWorkspace(world,{provider:'claude'}),{status:'current',changed:['.kiln/workspace.json']},'Kiln\'s upgrade report goes back to the host');
+  assert.deepEqual(await calls(world),[['--check'],['--upgrade']]);
+  assert.equal(await adapter.ensureKilnWorkspace(world,{provider:'claude'}),null);
+  assert.deepEqual((await calls(world)).slice(2),[['--check']],'a current workspace is left alone');
+});
+
+test('an upgrade Kiln refuses stops the connection with its reason',async t=>{
+  const {world,adapter}=await fixture(t,'nested'),file=path.join(world,'.kiln/workspace.json');
+  await mkdir(path.dirname(file));await writeFile(file,JSON.stringify({schemaVersion:2,harness:'claude',harnesses:['claude']}));
+  await writeFile(path.join(world,'check-status'),'update-required');
+  await writeFile(path.join(world,'upgrade-fails'),'Workspace upgrade has conflicts; no files were changed: skills/kiln-author-asset/SKILL.md.');
+  await assert.rejects(adapter.ensureKilnWorkspace(world,{provider:'claude'}),/out of date for the installed Kiln.*conflicts; no files were changed: skills\/kiln-author-asset\/SKILL\.md/s);
 });
 
 test('the session skills plugin copies installed world skills once, without the compose skill',async t=>{

@@ -34,7 +34,7 @@ export function useAssetBundle(payload){
   return {bundle,error,loading};
 }
 export function useWorld(){
- const [payload,setPayload]=useState(null),[agent,setAgent]=useState({connected:false,status:'disconnected',models:[],messages:[],requests:[]}),[proposal,setProposal]=useState(null),[error,setError]=useState(null),[online,setOnline]=useState(false),[connection,setConnection]=useState(0),[pendingSession,setPendingSession]=useState(null),identity=useRef('opening'),recovery=useRef(null),draftGuard=useRef(()=>false);
+ const [payload,setPayload]=useState(null),[agent,setAgent]=useState({connected:false,status:'disconnected',models:[],messages:[],requests:[]}),[proposal,setProposal]=useState(null),[error,setError]=useState(null),[online,setOnline]=useState(false),[connection,setConnection]=useState(0),[pendingSession,setPendingSession]=useState(null),[notice,setNotice]=useState(null),identity=useRef('opening'),recovery=useRef(null),draftGuard=useRef(()=>false);
  const adoptSession=useCallback((data,{discardDrafts=false}={})=>{
   recovery.current?.invalidate();
   if(!discardDrafts&&identity.current!=='opening'&&worldContextKey(data.context)!==identity.current&&draftGuard.current()){setPendingSession(data);setOnline(false);return;}
@@ -51,9 +51,10 @@ export function useWorld(){
   events.addEventListener('agent',event=>{if(valid())setAgent(JSON.parse(event.data));});
   events.addEventListener('proposal',event=>{if(valid())setProposal(JSON.parse(event.data));});
   events.addEventListener('diagnostic',event=>{if(valid())setError(JSON.parse(event.data));});
+  events.addEventListener('notice',event=>{if(valid())setNotice({text:JSON.parse(event.data)});});
   events.onopen=()=>{if(valid())setOnline(true);};events.onerror=()=>{events.close();if(valid())setOnline(false);};
   return()=>{disposed=true;events.close();};
  },[key,connection]);
  useEffect(()=>{if(online)return;const retry=setInterval(()=>recover(),2000);return()=>clearInterval(retry);},[online,recover]);
- return {payload,agent,proposal,error,setError,online,adoptSession,pendingSession,draftGuard,reconnect:recover};
+ return {payload,agent,proposal,error,setError,notice,online,adoptSession,pendingSession,draftGuard,reconnect:recover};
 }
