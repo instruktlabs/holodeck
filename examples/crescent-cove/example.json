@@ -3,7 +3,7 @@
   "id": "crescent-cove",
   "title": "Crescent Cove",
   "description": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
-  "sourceRevision": 15,
+  "sourceRevision": 16,
   "capabilities": {
     "schemaVersion": 2,
     "runtimeVersion": 1,
@@ -18,7 +18,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "9b04ef1cc2a85def679b056a8515860f81c42c9ad5552673b4a2e684bdd73639",
+    "sha256": "73c473eba0718808b17212954141efa0aafb8eb4fdf4f8fd9a70c379cb0ae12c",
     "bytes": 507189
   },
   "assets": [
@@ -72,8 +72,8 @@
     },
     {
       "id": "debris-fronds",
-      "file": "assets/imports/53a9a97341ac15b8f63897af0d77faca92300500d59aaeb4e02fc263e6d7d793.glb",
-      "sha256": "53a9a97341ac15b8f63897af0d77faca92300500d59aaeb4e02fc263e6d7d793",
+      "file": "assets/imports/97e707aeffcb515ab5b56e9de071c9e76ebf5d0516acc0555fff7b099776203e.glb",
+      "sha256": "97e707aeffcb515ab5b56e9de071c9e76ebf5d0516acc0555fff7b099776203e",
       "bytes": 42008
     },
     {
@@ -120,27 +120,27 @@
     },
     {
       "id": "palm-arch",
-      "file": "assets/imports/074f4c7de19610909c9a58b460966730c46971c9a9b21f21da5fe7e6e9cd67ef.glb",
-      "sha256": "074f4c7de19610909c9a58b460966730c46971c9a9b21f21da5fe7e6e9cd67ef",
-      "bytes": 345316
+      "file": "assets/imports/654ca7a558cc41520b45aa66edc8dc6f23774b0b922231fd167f2eb3f8cccc55.glb",
+      "sha256": "654ca7a558cc41520b45aa66edc8dc6f23774b0b922231fd167f2eb3f8cccc55",
+      "bytes": 345096
     },
     {
       "id": "palm-lean",
-      "file": "assets/imports/4ea8a1dee1a71d4f81fb9f3b06a1837d3d9e156e1d7e5db29942553cec9b5c87.glb",
-      "sha256": "4ea8a1dee1a71d4f81fb9f3b06a1837d3d9e156e1d7e5db29942553cec9b5c87",
-      "bytes": 357500
+      "file": "assets/imports/f8028226c593994888e7777d3b67c349b6a9de5215bbadd1f3e2264228f11f61.glb",
+      "sha256": "f8028226c593994888e7777d3b67c349b6a9de5215bbadd1f3e2264228f11f61",
+      "bytes": 360512
     },
     {
       "id": "palm-tall",
-      "file": "assets/imports/2a92fe3faa55784724b04c679db2ff10de6b9bc1f9d4213f1a902436280ee8ba.glb",
-      "sha256": "2a92fe3faa55784724b04c679db2ff10de6b9bc1f9d4213f1a902436280ee8ba",
-      "bytes": 407600
+      "file": "assets/imports/94ac0c8b9d40f3937ed5156072cb08171c0fb10b5f77b24ebe355634ebe4eaf3.glb",
+      "sha256": "94ac0c8b9d40f3937ed5156072cb08171c0fb10b5f77b24ebe355634ebe4eaf3",
+      "bytes": 401320
     },
     {
       "id": "palm-young",
-      "file": "assets/imports/8fa6ae7ecfc12c7bed6fc5199206993faee3dab9757dfb3e8a9d42f6978e242f.glb",
-      "sha256": "8fa6ae7ecfc12c7bed6fc5199206993faee3dab9757dfb3e8a9d42f6978e242f",
-      "bytes": 188668
+      "file": "assets/imports/9ad758e75a1a0430322a0dafcda7c626f920aaec60be8d0793b23d48e28ea41e.glb",
+      "sha256": "9ad758e75a1a0430322a0dafcda7c626f920aaec60be8d0793b23d48e28ea41e",
+      "bytes": 190392
     },
     {
       "id": "plant-alocasia",
@@ -377,10 +377,10 @@
   ],
   "preview": {
     "file": "preview.png",
-    "sha256": "a0b2d821b253214017064786ff89298352c26c518b9085d1306c8890fb32dfc3",
-    "bytes": 628533,
+    "sha256": "bf28a0d8bf6793f61e4be8fdeea70e8550ffbc49352842822501b21bff70e350",
+    "bytes": 589168,
     "width": 1280,
     "height": 720
   },
-  "integrity": "a2c3d3b64f9c98256b086ce6f3d7d971835d379f44b5a3eb17d01d863bae7119"
+  "integrity": "5edb5b06219d767b782aa8de6ec1fdbf3b4d6c8c6209258528d0e5da30cb60c3"
 }

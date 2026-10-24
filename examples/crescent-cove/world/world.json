@@ -106,10 +106,10 @@
       },
       {
         "id": "palm-tall",
-        "file": "assets/imports/2a92fe3faa55784724b04c679db2ff10de6b9bc1f9d4213f1a902436280ee8ba.glb",
+        "file": "assets/imports/94ac0c8b9d40f3937ed5156072cb08171c0fb10b5f77b24ebe355634ebe4eaf3.glb",
         "provenance": {
           "assetId": "a_a81882dd8c9c4b6aa936614f592987a7",
-          "revisionId": "r_833811c9eae048acac736131aa951660",
+          "revisionId": "r_01bc8fedd7cf4e6996a2a7b4866ffc75",
           "collection": "project"
         },
         "foliage": {
@@ -130,10 +130,10 @@
       },
       {
         "id": "palm-lean",
-        "file": "assets/imports/4ea8a1dee1a71d4f81fb9f3b06a1837d3d9e156e1d7e5db29942553cec9b5c87.glb",
+        "file": "assets/imports/f8028226c593994888e7777d3b67c349b6a9de5215bbadd1f3e2264228f11f61.glb",
         "provenance": {
           "assetId": "a_26aa8b78264d45f2bf79d6dff7188cb4",
-          "revisionId": "r_0ba7b32ad3ee4bd494e55146b8312ed7",
+          "revisionId": "r_7a73a65486b049138933dba49173cd11",
           "collection": "project"
         },
         "foliage": {
@@ -154,10 +154,10 @@
       },
       {
         "id": "palm-arch",
-        "file": "assets/imports/074f4c7de19610909c9a58b460966730c46971c9a9b21f21da5fe7e6e9cd67ef.glb",
+        "file": "assets/imports/654ca7a558cc41520b45aa66edc8dc6f23774b0b922231fd167f2eb3f8cccc55.glb",
         "provenance": {
           "assetId": "a_bb596df66efe4eae8214d48bca2b787e",
-          "revisionId": "r_5593211abef14ebab49f45b57a8b8758",
+          "revisionId": "r_ac2f113187cc4102b579b69a848b8afd",
           "collection": "project"
         },
         "foliage": {
@@ -178,10 +178,10 @@
       },
       {
         "id": "palm-young",
-        "file": "assets/imports/8fa6ae7ecfc12c7bed6fc5199206993faee3dab9757dfb3e8a9d42f6978e242f.glb",
+        "file": "assets/imports/9ad758e75a1a0430322a0dafcda7c626f920aaec60be8d0793b23d48e28ea41e.glb",
         "provenance": {
           "assetId": "a_6eb503ebdea045718159089428df57f7",
-          "revisionId": "r_8bdbc20277274140a7ba5c2dfe005f61",
+          "revisionId": "r_52b7948902c44b00aa7a1bb7cd0e6634",
           "collection": "project"
         },
         "foliage": {
@@ -229,10 +229,10 @@
       },
       {
         "id": "debris-fronds",
-        "file": "assets/imports/53a9a97341ac15b8f63897af0d77faca92300500d59aaeb4e02fc263e6d7d793.glb",
+        "file": "assets/imports/97e707aeffcb515ab5b56e9de071c9e76ebf5d0516acc0555fff7b099776203e.glb",
         "provenance": {
           "assetId": "a_365867ac52424e3894f092142c528e44",
-          "revisionId": "r_dabf789f83a84d039243505e7afe4341",
+          "revisionId": "r_466841e6880d4c74a4ff49bad935b460",
           "collection": "project"
         }
       },
