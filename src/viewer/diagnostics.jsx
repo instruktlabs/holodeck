@@ -5,6 +5,10 @@ const getApi=()=>window.holodeckBenchmark;
 const value=text=>text===undefined||text===null||text===''?'Unverified':String(text);
 const stop=e=>e.stopPropagation();
 function backendLink(backend){const url=new URL(location.href);url.searchParams.set('benchmark','1');if(backend==='webgl')url.searchParams.set('backend','webgl');else url.searchParams.delete('backend');return url.href;}
+export function RenderReadiness({evidence}){
+ const pending=evidence?.pendingCompiles;
+ return <p role="status">Scene rendering: <strong>{evidence?.renderReady?'Settled':pending>0?'Compiling':'Settling'}</strong> · {value(pending)} pending programs · {value(evidence?.settledFrames)} / 3 settled frames. This is current render readiness, not a visual quality verdict.</p>;
+}
 export function InitializationEvidence({evidence,download}){
  if(!evidence)return <p>Renderer initialization has not been observed yet.</p>;
  return <section aria-label="Renderer initialization"><h2>Renderer initialization</h2>
@@ -70,6 +74,7 @@ export function Diagnostics({readErrors,readInitialization}){
   <h1>Viewer diagnostics</h1>
   <p>Fixed-camera measurements · {status?.protocol??'Waiting for renderer'} · Revision {status?.revision??'unverified'}</p>
   <InitializationEvidence evidence={initialization} download={initializationDownload?.evidence===initialization?initializationDownload:null}/>
+  <RenderReadiness evidence={status}/>
   <p>Actual backend: <strong>{value(proof?.backend)}</strong> · Hardware evidence: <strong>{hardware.status}</strong></p>
   <dl><dt>Adapter vendor</dt><dd>{value(proof?.adapter?.vendor)}</dd><dt>Architecture</dt><dd>{value(proof?.adapter?.architecture)}</dd><dt>Device / description</dt><dd>{value(proof?.adapter?.device)} / {value(proof?.adapter?.description)}</dd><dt>Fallback adapter</dt><dd>{value(proof?.adapter?.isFallbackAdapter)}</dd><dt>GL renderer</dt><dd>{value(proof?.renderer)}</dd><dt>Presentation</dt><dd>{view?`${view.width}×${view.height} · device DPR ${view.dpr} · canvas ${view.canvasWidth}×${view.canvasHeight}`:'Unverified'} · {value(proof?.visibility)}</dd></dl>
   <p>Requires a visible 1920×1080 viewport, device DPR1 and 1920×1080 canvas. Missing hardware fields remain unverified. Reload to clear a rejected session.</p>

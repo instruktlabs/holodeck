@@ -1,5 +1,8 @@
 export const BENCHMARK_PROTOCOL='holodeck-benchmark-v1';
 export const MAX_FRAMES=32768;
+export function assertRenderReady(value){
+ if(value?.renderReady!==true||value.pendingCompiles!==0)throw Error('Scene rendering is not settled; shader compilation may be in progress');
+}
 export function scenarioCamera(s){
  const [x,y,z]=s.target.map((n,i)=>n-s.position[i]);return {position:[...s.position],rotation:[Math.atan2(y,Math.hypot(x,z)),Math.atan2(-x,-z),0,'YXZ'],fov:s.fov};
 }
