@@ -57,8 +57,11 @@ triangles, water time and one actor support anchor across first/third person.
 Collider boxes marked `walkable` add their tops to that support, so the walker and
 patrols can cross a jetty deck or climb stair treads; walkable boxes are static and
 yaw-only. See [terrain and inhabitants](terrain-and-inhabitants.md) for their strict records.
-Gate motion rotates its collider, but moving objects do not push actors
-or simulate rigid-body forces. Interaction is limited to nearby objects in walk mode.
+Gate motion rotates its collider. A hinge waits before its swept collider reaches
+the player's body, in either direction, and continues when the player moves clear.
+The maker or legacy walking body remains protected in free camera and overview.
+Moving objects do not push actors or simulate rigid-body forces. Interaction is
+limited to nearby objects in walk mode.
 
 Origin visibility controls the cove meshes, lights, blockers and activity together.
 New worlds carry shell blockers in data. The v1 demo retains its legacy collision.

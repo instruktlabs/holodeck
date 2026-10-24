@@ -69,11 +69,15 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
  useLayoutEffect(()=>{
   walk.current={position:[...config.spawn],yaw:config.look[0],pitch:config.look[1]};
   actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;
+  // The body stays protected while its camera is free/overview. Legacy walking
+  // has no maker actor, but still occupies a fixed-height body on the ground.
+  const body=actor.current??{position:[config.spawn[0],0,config.spawn[2]],radius:.22,height:1.72};runtime.playerBody=body;
   probe.arrivalReset={tick:homeTick,spawn:[...config.spawn],feet:actor.current?[...actor.current.position]:null};
   setPerson(config.possession?.camera??'first');
   const d=new THREE.Vector3(...config.overview).sub(new THREE.Vector3(...config.target));
   view.current={yaw:Math.atan2(d.x,d.z),pitch:Math.asin(d.y/d.length()),distance:d.length()};keys.current.clear();
- },[homeTick,cameraConfig,!!runtime.scene.terrain,!!runtime.scene.water]);
+  return()=>{if(runtime.playerBody===body)runtime.playerBody=null;};
+ },[runtime,homeTick,cameraConfig,!!runtime.scene.terrain,!!runtime.scene.water]);
  useLayoutEffect(()=>{
   // Geometry extents can change without a new spawn or possession config.
   // Update projection separately so a landscape edit does not respawn the maker.
@@ -165,6 +169,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    moving=!!(f||r);const distance=Math.min(dt,.04)*(sprint?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
    // Small steps bound tunnelling through the narrowest supported blockers.
    const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.06));for(let i=0;i<steps;i++){if(!runtime.blocked(w.position[0]+dx/steps,w.position[2]))w.position[0]+=dx/steps;if(!runtime.blocked(w.position[0],w.position[2]+dz/steps))w.position[2]+=dz/steps;}
+   runtime.playerBody.position[0]=w.position[0];runtime.playerBody.position[2]=w.position[2];
    camera.position.set(...w.position);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
     probe.actorEye=null;
    }
