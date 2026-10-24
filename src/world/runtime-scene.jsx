@@ -17,7 +17,6 @@ import {placedObjects} from './scatter.mjs';
 import {StaticAssetBatch} from './static-batches.jsx';
 import {FlockAsset} from './flock.jsx';
 import {SUN_SHADOW,configureSunShadow,shadowViewFocus} from './sun-shadow.mjs';
-import {compileGate} from './parallel-compile.js';
 import {applySceneExposure,resolveLighting} from './lighting.mjs';
 
 function Shape({shape,id}){
@@ -135,7 +134,6 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',drop);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',drop);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
   return()=>{drop();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',drop);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',drop);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
  },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree,touch]);
- const settled=useRef(0);
  useFrame((_,dt)=>{
   let moving=false;const stick=touch?stickAxes(touch):NO_STICK,pad=touch?.pad;
   if(actor.current)actor.current.camera=person;
@@ -194,7 +192,6 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const look=mode==='free'?free.current:walk.current;
   probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
-  const gate=compileGate(gl,settled.current);settled.current=gate.settled;probe.compiling=gate.compiling;probe.ready||=gate.ready;
  },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} firstPerson={mode==='walk'&&person==='first'}/>:null;
 }
 function Sun({runtime,environment,cameraMode}){

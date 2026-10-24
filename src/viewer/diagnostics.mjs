@@ -1,4 +1,4 @@
-import {BENCHMARK_PROTOCOL,validateScenario,validateScenarios,assertObservation,summarize} from './benchmark-protocol.mjs';
+import {BENCHMARK_PROTOCOL,validateScenario,validateScenarios,assertObservation,assertRenderReady,summarize} from './benchmark-protocol.mjs';
 
 export const SCENARIO_TEXT_LIMIT=16384;
 export const WARMUP_MS=10000;
@@ -35,6 +35,7 @@ export function hardwareEvidence(proof,expectedBackend){
 }
 function assertStatus(status,scenario){
  if(status?.protocol!==BENCHMARK_PROTOCOL||!status.ready)throw Error('Benchmark API is not ready');
+ assertRenderReady(status);
  assertObservation(status,scenario);
  if(status.appliedCove!==scenario.cove)throw Error('Requested cove visibility has not been applied');
 }
@@ -88,6 +89,7 @@ export async function recordDiagnostic({getApi,scenario,expectedBackend,manifest
   onProgress({phase:'Recording',elapsedMs:0});
   report.measurement=await api.sample(SAMPLE_MS);
   report.end=observe();retainErrors(report.measurement.errors);
+  for(const row of report.measurement.rows??[])try{assertRenderReady(row);}catch(e){retainErrors([e]);}
   assertStatus(report.end,scenario);assertObservation(report.measurement,scenario);
   if(report.start.revision!==report.end.revision)throw Error('Scene revision changed during the run');
   if([report.warmupEnd.proof,report.end.proof,report.measurement.proof].some(p=>identity(p)!==identity(report.start.proof)))throw Error('Renderer identity changed during the run');

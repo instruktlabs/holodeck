@@ -9,14 +9,14 @@ import {BENCHMARK_PROTOCOL} from '../src/viewer/benchmark-protocol.mjs';
 const cameras=()=>['arrival','inside','forest'].map(id=>({id,position:[0,2,8],target:[0,2,0],fov:63,cove:false}));
 function fixture(){
  const f={time:0,applied:0,calls:[],errors:[],sampleError:null,onWait:()=>{},onSample:()=>{}};
- f.status={protocol:BENCHMARK_PROTOCOL,ready:true,revision:8,scenario:null,position:[0,0,0],fov:63,cameraMode:'free',paused:false,manualCounters:true,appliedCove:true,errors:[],proof:{backend:'webgpu',adapter:{vendor:'nvidia',architecture:'turing',isFallbackAdapter:false},renderer:null,visibility:'visible',viewport:{width:1920,height:1080,dpr:1,canvasWidth:1920,canvasHeight:1080}}};
+ f.status={protocol:BENCHMARK_PROTOCOL,ready:true,renderReady:true,pendingCompiles:0,settledFrames:3,revision:8,scenario:null,position:[0,0,0],fov:63,cameraMode:'free',paused:false,manualCounters:true,appliedCove:true,errors:[],proof:{backend:'webgpu',adapter:{vendor:'nvidia',architecture:'turing',isFallbackAdapter:false},renderer:null,visibility:'visible',viewport:{width:1920,height:1080,dpr:1,canvasWidth:1920,canvasHeight:1080}}};
  f.api={
   status:()=>structuredClone(f.status),
   scenario(s){f.calls.push(['scenario',f.time]);f.status.scenario=structuredClone(s);},
   async sample(ms){
    f.calls.push(['sample',ms,f.time]);if(f.sampleError)throw f.sampleError;
    f.time+=ms;
-   f.sample={...structuredClone(f.status),durationMs:ms,rows:[{t:16,intervalMs:16,cpuFrameSpanMs:3,drawCalls:200,triangles:400000},{t:60,intervalMs:44,cpuFrameSpanMs:9,drawCalls:220,triangles:450000}],longTasks:[],runtimeTime:70};
+   f.sample={...structuredClone(f.status),durationMs:ms,rows:[{t:16,intervalMs:16,cpuFrameSpanMs:3,drawCalls:200,triangles:400000,renderReady:true,pendingCompiles:0,settledFrames:3},{t:60,intervalMs:44,cpuFrameSpanMs:9,drawCalls:220,triangles:450000,renderReady:true,pendingCompiles:0,settledFrames:3}],longTasks:[],runtimeTime:70};
    f.onSample();return f.sample;
   }
  };
@@ -46,7 +46,7 @@ test('run waits for the actual camera, warms up for ten seconds and records once
  assert.match(report.manifestVerification,/not performed/);assert.deepEqual(report.errors,[]);
 });
 test('presentation and readiness failures are bounded and never start a sample',async()=>{
- for(const mutate of [s=>s.proof.viewport.dpr=2,s=>s.proof.viewport.width=1280,s=>s.ready=false,s=>s.paused=true,s=>s.manualCounters=false]){
+ for(const mutate of [s=>s.proof.viewport.dpr=2,s=>s.proof.viewport.width=1280,s=>s.ready=false,s=>s.renderReady=false,s=>s.pendingCompiles=1,s=>s.paused=true,s=>s.manualCounters=false]){
   const f=fixture();mutate(f.status);const report=await recordDiagnostic(f.options);
   assert.equal(report.outcome,'rejected');assert.equal(f.calls.length,1);assert.ok(f.time<=5000);assert.match(report.errors.join(' '),/deadline/);
  }
@@ -56,6 +56,32 @@ test('warmup rejects a lost visible presentation, ordinary browser error or API 
   const f=fixture();f.onWait=()=>{if(f.time>=3100)change(f);};const report=await recordDiagnostic(f.options);
   assert.equal(report.outcome,'rejected');assert.equal(f.calls.length,1);assert.ok(report.errors.length);
  }
+});
+test('new shader compilation during warmup rejects before recording',async()=>{
+ const f=fixture();f.onWait=()=>{if(f.time>=3100){f.status.renderReady=false;f.status.pendingCompiles=2;}};
+ const report=await recordDiagnostic(f.options);
+ assert.equal(report.outcome,'rejected');assert.equal(f.calls.length,1);
+ assert.match(report.errors.join(' '),/not settled/);assert.equal(report.end.pendingCompiles,2);
+});
+test('compilation in a retained frame invalidates a recording even when its final view has settled again',async()=>{
+ const f=fixture();f.onSample=()=>Object.assign(f.sample.rows[0],{renderReady:false,pendingCompiles:2,settledFrames:0});
+ const report=await recordDiagnostic(f.options);
+ assert.equal(report.end.renderReady,true);assert.equal(report.end.pendingCompiles,0);
+ assert.equal(report.outcome,'rejected');assert.match(report.errors.join(' '),/not settled/);
+ assert.equal(report.measurement.rows[0].pendingCompiles,2);assert.equal(report.measurement.rows.length,2);
+ assert.ok(report.summary,'rejected raw evidence and summaries remain available');
+ f.onSample=()=>{};
+ const retry=await recordDiagnostic(f.options);
+ assert.equal(retry.outcome,'recorded','a later settled attempt is not poisoned by the prior compilation');
+ assert.equal(report.outcome,'rejected');assert.equal(report.measurement.rows[0].pendingCompiles,2,'earlier failure evidence is unchanged');
+});
+test('render-readiness markup uses the dynamic state rather than legacy ready',async t=>{
+ const server=await createServer({configFile:false,server:{middlewareMode:true,hmr:false,watch:null},appType:'custom'});t.after(()=>server.close());
+ const {RenderReadiness}=await server.ssrLoadModule('/src/viewer/diagnostics.jsx');
+ const html=renderToStaticMarkup(React.createElement(RenderReadiness,{evidence:{ready:true,renderReady:false,pendingCompiles:4,settledFrames:0}}));
+ assert.match(html,/<strong>Compiling<\/strong>/);assert.match(html,/4 pending programs/);assert.match(html,/0 \/ 3 settled frames/);
+ const settled=renderToStaticMarkup(React.createElement(RenderReadiness,{evidence:{renderReady:true,pendingCompiles:0,settledFrames:3}}));
+ assert.match(settled,/<strong>Settled<\/strong>/);assert.match(settled,/not a visual quality verdict/);
 });
 test('resolved sample errors reject the result while retaining raw records and summaries',async()=>{
  const f=fixture();f.onSample=()=>f.sample.errors.push('Presentation changed');const report=await recordDiagnostic(f.options);

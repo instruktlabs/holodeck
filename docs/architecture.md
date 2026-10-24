@@ -91,6 +91,14 @@ culling or occlusion culling. Terrain and ocean remain whole meshes; each flock
 has a bound covering its authored flight volume. Performance claims need a
 specific scene, viewpoint and renderer measurement.
 
+Current render readiness is separate from loaded-world/frame identity. After each
+completed scene-and-bloom render, three consecutive frames with no pending shader
+links mark the view settled. New links clear that state. Static-player status and
+diagnostics expose the state and pending count; applying a diagnostic camera resets
+settling, and compilation during a recording invalidates that evidence. This does
+not prewarm unseen views or certify visual completeness or performance. A later
+settled recording can retry; the prior failed result retains its raw evidence.
+
 ## Local world activation
 
 One local host activates one saved world at a time. Each activation has an

@@ -11,7 +11,7 @@ import {probe} from '../prototype/scene.jsx';
 import {loadTerrainTextures} from '../world/terrain-textures.js';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
-import {Diagnostics} from './diagnostics.jsx';
+import {Diagnostics,RenderReadiness} from './diagnostics.jsx';
 import {createInitializationEvidence} from './renderer-diagnostics.mjs';
 import {enableParallelCompile} from '../world/parallel-compile.js';
 import {DEFAULT_EXPOSURE} from '../world/lighting.mjs';
@@ -60,7 +60,9 @@ function Viewer(){
  const requestLook=useCallback(()=>{try{const canvas=document.querySelector('canvas');if(!canvas?.requestPointerLock){setNotice('Right-drag to look.');return;}canvas.requestPointerLock()?.catch(()=>setNotice('Right-drag to look.'));}catch{setNotice('Right-drag to look.');}},[]);
  const toggleHud=useCallback(()=>setHidden(v=>!v),[]),toggleFree=useCallback(()=>{setCameraMode(m=>m==='free'?'walk':'free');document.activeElement?.blur();},[]);
  const interact=useCallback(id=>{if(!runtime)return;const position=probe.actorEye??probe.position,query=runtime.interaction(id,position);setNotice(runtime.act(id,position)?query.label:query.reason==='out-of-reach'?'Move closer to interact.':'No action available here.');},[runtime]);
- useEffect(()=>{const timer=setInterval(()=>setObservation({ready:probe.ready,backend:probe.backend,position:probe.position,actor:probe.actor,errors:probe.errors}),500);return()=>clearInterval(timer);},[]);
+ // Legacy readiness still owns control availability; current render readiness
+ // can become false again without resetting the player or disabling movement.
+ useEffect(()=>{const timer=setInterval(()=>setObservation({ready:probe.ready,renderReady:probe.renderReady===true,pendingCompiles:probe.pendingCompiles,settledFrames:probe.settledFrames,backend:probe.backend,position:probe.position,actor:probe.actor,errors:probe.errors}),500);return()=>clearInterval(timer);},[]);
  useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),4000);return()=>clearTimeout(timer);},[notice]);
  useEffect(()=>{const fail=()=>setNotice('Mouse capture is unavailable. Right-drag to look.');document.addEventListener('pointerlockerror',fail);return()=>document.removeEventListener('pointerlockerror',fail);},[]);
  // The phone menu closes when a choice is made or the scene is touched.
@@ -78,7 +80,7 @@ function Viewer(){
   </Canvas>}</RenderBoundary></div>
   {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
   <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
-  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle||!observation.ready?<section className="viewer-card" role="status">Loading the scene…</section>:null}
+  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle?<section className="viewer-card" role="status">Loading the scene…</section>:!benchmarkEnabled&&!observation.renderReady?<section className="viewer-card" role="status">Preparing the current view…</section>:null}
   {inhabiting&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
   <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} bottom={hidden&&inhabiting?24:150}>
    {inhabiting&&<button type="button" className="touch-button quiet" aria-pressed={hidden} onClick={toggleHud}>{hidden?'Show controls':'Clear view'}</button>}
@@ -94,7 +96,7 @@ function Viewer(){
    </div>
    </div>
    <p role="status">{notice||hint}{inhabiting&&!locked&&!touchMode?' · Right-drag to look, or click the scene to capture the mouse.':''}</p>
-   <details><summary>{observation.backend??'Preparing renderer'} · Revision {bundle?.payload.world.revision??'…'} · Static scene</summary><p>Scene activity stays in this browser session. No agent or backend connection.</p><p>Camera: {effectiveMode}{possessed?` / ${person}`:''} · Feet: {observation.actor?.position?.map(n=>n.toFixed(2)).join(', ')??'—'} · State: {observation.actor?.mode??'—'}</p>{observation.errors?.length>0&&<p role="alert">{observation.errors.join(' · ')}</p>}</details>
+   <details><summary>{observation.backend??'Preparing renderer'} · Revision {bundle?.payload.world.revision??'…'} · Static scene</summary><RenderReadiness evidence={observation}/><p>Scene activity stays in this browser session. No agent or backend connection.</p><p>Camera: {effectiveMode}{possessed?` / ${person}`:''} · Feet: {observation.actor?.position?.map(n=>n.toFixed(2)).join(', ')??'—'} · State: {observation.actor?.mode??'—'}</p>{observation.errors?.length>0&&<p role="alert">{observation.errors.join(' · ')}</p>}</details>
   </footer>
  </main>;
 }
