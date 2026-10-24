@@ -12,12 +12,14 @@ import {loadTerrainTextures} from '../world/terrain-textures.js';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
 import {Diagnostics} from './diagnostics.jsx';
+import {createInitializationEvidence} from './renderer-diagnostics.mjs';
 import {enableParallelCompile} from '../world/parallel-compile.js';
 import {validateScenario,scenarioCamera} from './benchmark-protocol.mjs';
 import {createTouchInput} from '../world/touch-input.mjs';
 import {TouchControls,useTouchMode} from '../world/touch.jsx';
 const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='1';
 const benchmarkCamera=benchmarkEnabled&&window.holodeckBenchmarkScenario?scenarioCamera(validateScenario(window.holodeckBenchmarkScenario)):{};
+const initialization=benchmarkEnabled?createInitializationEvidence({forceWebGL:new URLSearchParams(location.search).get('backend')==='webgl'}):null;
 
 const noop=()=>{};
 const readViewerErrors=()=>probe.errors;
@@ -70,10 +72,10 @@ function Viewer(){
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
  return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden&&inhabiting?'hud-hidden':''}`}>
-  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await renderer.init();enableParallelCompile(renderer);return renderer;}}>
+  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
    <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
-  {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors}/>}
+  {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
   <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
   {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle||!observation.ready?<section className="viewer-card" role="status">Loading the scene…</section>:null}
   {inhabiting&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
