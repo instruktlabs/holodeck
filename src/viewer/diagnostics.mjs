@@ -10,9 +10,12 @@ export const DIAGNOSTIC_LIMITATIONS=[
  'Diagnostics add collection and overlay overhead. Use identical scenarios, exports and presentation settings for comparisons.'
 ];
 // Keep a native download URL alive until its displayed report is replaced.
-export function createReportDownload(report,urlApi=URL){
+export function createJsonDownload(report,filename,urlApi=URL){
  const href=urlApi.createObjectURL(new Blob([JSON.stringify(report,null,2)+'\n'],{type:'application/json'}));
- return {href,filename:`holodeck-${report.scenario?.id??'unknown'}-${report.expectedBackend}-${report.outcome}.json`,dispose:()=>urlApi.revokeObjectURL(href)};
+ return {href,filename,dispose:()=>urlApi.revokeObjectURL(href)};
+}
+export function createReportDownload(report,urlApi=URL){
+ return createJsonDownload(report,`holodeck-${report.scenario?.id??'unknown'}-${report.expectedBackend}-${report.outcome}.json`,urlApi);
 }
 export function parseScenarios(text){
  if(typeof text!=='string'||text.length>SCENARIO_TEXT_LIMIT)throw Error('Camera JSON exceeds the 16,384-character limit');
@@ -46,8 +49,8 @@ const identity=p=>JSON.stringify([p?.backend,p?.adapter??null,p?.renderer??null]
 
 // Uses only the public benchmark API. Injectable time makes lifecycle failures
 // testable without launching a renderer or shortening production measurements.
-export async function recordDiagnostic({getApi,scenario,expectedBackend,manifestSha256='',readErrors=()=>[],onProgress=()=>{},now=()=>performance.now(),date=()=>new Date().toISOString(),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}){
- const report={format:'holodeck-viewer-diagnostics-v1',protocol:BENCHMARK_PROTOCOL,startedAt:date(),expectedBackend,scenario:structuredClone(scenario),manifestSha256:manifestSha256||null,manifestVerification:'not performed; hash is user-supplied',warmupMs:0,requestedSampleMs:SAMPLE_MS,start:null,warmupEnd:null,end:null,measurement:null,summary:null,errors:[],outcome:'rejected',limitations:DIAGNOSTIC_LIMITATIONS};
+export async function recordDiagnostic({getApi,scenario,expectedBackend,manifestSha256='',readErrors=()=>[],readInitialization=()=>null,onProgress=()=>{},now=()=>performance.now(),date=()=>new Date().toISOString(),wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}){
+ const report={format:'holodeck-viewer-diagnostics-v1',protocol:BENCHMARK_PROTOCOL,startedAt:date(),expectedBackend,scenario:structuredClone(scenario),manifestSha256:manifestSha256||null,manifestVerification:'not performed; hash is user-supplied',rendererInitialization:null,warmupMs:0,requestedSampleMs:SAMPLE_MS,start:null,warmupEnd:null,end:null,measurement:null,summary:null,errors:[],outcome:'rejected',limitations:DIAGNOSTIC_LIMITATIONS};
  const retainErrors=errors=>{for(const e of errors??[]){const text=errorText(e);if(!report.errors.includes(text)&&report.errors.length<100)report.errors.push(text);}};
  let api;
  const observe=()=>{
@@ -55,6 +58,7 @@ export async function recordDiagnostic({getApi,scenario,expectedBackend,manifest
   const status=structuredClone(api.status());retainErrors(status.errors);retainErrors(readErrors());return status;
  };
  try{
+  report.rendererInitialization=structuredClone(readInitialization());
   scenario=validateScenario(scenario);
   if(!['webgpu','webgl'].includes(expectedBackend))throw Error('Invalid expected backend');
   if(manifestSha256&&!/^[a-f0-9]{64}$/.test(manifestSha256))throw Error('Manifest SHA-256 must be 64 lowercase hex characters');

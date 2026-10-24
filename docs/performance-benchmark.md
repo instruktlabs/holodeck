@@ -8,6 +8,18 @@ agent connection or browser automation is needed. The ordinary player is
 unchanged when this parameter is absent. Benchmark mode reserves the canvas and
 keyboard for declared fixed-camera views; return to the normal player to walk.
 
+**Renderer initialization** retains the renderer's own primary WebGPU exception
+before Three falls back to WebGL2, plus any final initialization failure. It shows
+the requested and initialized backend, secure-context/API presence and whether
+WebGPU was attempted. Forced WebGL2 is labelled not attempted. Error names and
+messages are bounded; stacks are excluded. **Download initialization JSON** works
+without a camera or ready benchmark API, including total initialization failure
+and a captured primary error while fallback is still pending. Measurement reports
+also retain their initialization snapshot. The observer makes no additional GPU
+adapter/device requests and leaves normal fallback behavior intact. API presence
+does not establish adapter availability; the browser may not expose the underlying
+reason for an unavailable adapter. This cannot recover errors from earlier loads.
+
 1. Prepare the three camera records described below. Paste their JSON array into
    the panel and choose **Load camera JSON**. Input is limited to 16,384 characters
    and accepts only the existing bounded scenario schema, never executable code.

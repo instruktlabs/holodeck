@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseScenarios,hardwareEvidence,recordDiagnostic,createReportDownload,SCENARIO_TEXT_LIMIT} from '../src/viewer/diagnostics.mjs';
+import {parseScenarios,hardwareEvidence,recordDiagnostic,createReportDownload,createJsonDownload,SCENARIO_TEXT_LIMIT} from '../src/viewer/diagnostics.mjs';
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {createServer} from 'vite';
@@ -116,4 +116,20 @@ test('full-size report download retains complete JSON and revokes only on explic
  assert.deepEqual(JSON.parse(await blob.text()),report);assert.equal(link.filename,'holodeck-arrival-webgpu-recorded.json');
  assert.equal(link.href,'blob:retained-report');assert.deepEqual(revoked,[]);
  link.dispose();assert.deepEqual(revoked,['blob:retained-report']);
+});
+
+test('failed renderer initialization is visible and downloadable without a benchmark API or camera',async t=>{
+ const evidence={format:'holodeck-renderer-initialization-v1',requestedBackend:'webgpu',forceWebGL:false,secureContext:true,webgpuApiPresent:true,status:'failed',actualBackend:null,webgpuAttempt:'failed',primaryError:{name:'OperationError',message:'Adapter unavailable'},initializationError:{name:'Error',message:'GL context unavailable'}};
+ let blob;const revoked=[],link=createJsonDownload(evidence,'holodeck-renderer-webgpu-failed.json',{createObjectURL:value=>{blob=value;return 'blob:initialization';},revokeObjectURL:url=>revoked.push(url)});
+ const server=await createServer({configFile:false,server:{middlewareMode:true,hmr:false,watch:null},appType:'custom'});t.after(()=>server.close());
+ const {InitializationEvidence}=await server.ssrLoadModule('/src/viewer/diagnostics.jsx');
+ const html=renderToStaticMarkup(React.createElement(InitializationEvidence,{evidence,download:link}));
+ assert.match(html,/OperationError: Adapter unavailable/);assert.match(html,/Renderer initialization failed: Error: GL context unavailable/);
+ assert.match(html,/None initialized/);assert.match(html,/href="blob:initialization" download="holodeck-renderer-webgpu-failed.json"/);
+ assert.deepEqual(JSON.parse(await blob.text()),evidence);assert.deepEqual(revoked,[]);link.dispose();assert.deepEqual(revoked,['blob:initialization']);
+ const forced={...evidence,forceWebGL:true,webgpuAttempt:'not-attempted',primaryError:null,initializationError:null};
+ assert.match(renderToStaticMarkup(React.createElement(InitializationEvidence,{evidence:forced})),/WebGPU was not attempted because WebGL2 was forced/);
+ const report=await recordDiagnostic({...fixture().options,getApi:()=>null,readInitialization:()=>evidence});
+ assert.equal(report.outcome,'rejected');assert.equal(report.measurement,null);assert.deepEqual(report.rendererInitialization,evidence);
+ evidence.primaryError.message='Changed later';assert.equal(report.rendererInitialization.primaryError.message,'Adapter unavailable');
 });

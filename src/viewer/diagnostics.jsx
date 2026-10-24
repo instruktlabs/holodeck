@@ -1,10 +1,21 @@
 import React,{useEffect,useRef,useState} from 'react';
-import {createReportDownload,hardwareEvidence,parseScenarios,recordDiagnostic,SCENARIO_TEXT_LIMIT,DIAGNOSTIC_LIMITATIONS} from './diagnostics.mjs';
+import {createJsonDownload,createReportDownload,hardwareEvidence,parseScenarios,recordDiagnostic,SCENARIO_TEXT_LIMIT,DIAGNOSTIC_LIMITATIONS} from './diagnostics.mjs';
 
 const getApi=()=>window.holodeckBenchmark;
 const value=text=>text===undefined||text===null||text===''?'Unverified':String(text);
 const stop=e=>e.stopPropagation();
 function backendLink(backend){const url=new URL(location.href);url.searchParams.set('benchmark','1');if(backend==='webgl')url.searchParams.set('backend','webgl');else url.searchParams.delete('backend');return url.href;}
+export function InitializationEvidence({evidence,download}){
+ if(!evidence)return <p>Renderer initialization has not been observed yet.</p>;
+ return <section aria-label="Renderer initialization"><h2>Renderer initialization</h2>
+  <dl><dt>Status</dt><dd>{evidence.status}</dd><dt>Requested / initialized backend</dt><dd>{evidence.requestedBackend} / {evidence.actualBackend??'None initialized'}</dd><dt>Secure context / WebGPU API present</dt><dd>{value(evidence.secureContext)} / {value(evidence.webgpuApiPresent)}</dd><dt>WebGPU attempt</dt><dd>{evidence.webgpuAttempt}</dd></dl>
+  {evidence.forceWebGL&&<p>WebGPU was not attempted because WebGL2 was forced.</p>}
+  {evidence.primaryError&&<p>Primary WebGPU initialization error: {evidence.primaryError.name}: {evidence.primaryError.message}</p>}
+  {evidence.initializationError&&<p role="alert">Renderer initialization failed: {evidence.initializationError.name}: {evidence.initializationError.message}</p>}
+  <p>Captured during this renderer's own initialization. API presence does not establish adapter availability; the browser may not expose the underlying reason.</p>
+  {download&&<a href={download.href} download={download.filename}>Download initialization JSON</a>}
+ </section>;
+}
 export function MeasurementResult({report,download}){
  const camera=report.scenario,vector=v=>Array.isArray(v)?v.join(', '):'Unverified';
  return <section aria-label="Measurement result"><h2>{report.outcome==='recorded'?'Recorded — session checks met':report.outcome==='unverified'?'Recorded — hardware unverified':'Rejected measurement'}</h2>
@@ -18,9 +29,10 @@ export function MeasurementResult({report,download}){
   {download&&<a href={download.href} download={download.filename}>Download result JSON</a>}
  </section>;
 }
-export function Diagnostics({readErrors}){
+export function Diagnostics({readErrors,readInitialization}){
  const [status,setStatus]=useState(null),[text,setText]=useState(''),[scenarios,setScenarios]=useState([]),[selected,setSelected]=useState(''),[manifest,setManifest]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[progress,setProgress]=useState(null),[report,setReport]=useState(null);
  const [download,setDownload]=useState(null);
+ const [initialization,setInitialization]=useState(null),[initializationDownload,setInitializationDownload]=useState(null);
  const mounted=useRef(false),running=useRef(false),events=useRef([]),phaseStart=useRef(0);
  const expectedBackend=new URLSearchParams(location.search).get('backend')==='webgl'?'webgl':'webgpu';
  useEffect(()=>{
@@ -28,13 +40,17 @@ export function Diagnostics({readErrors}){
   const link=createReportDownload(report);setDownload({report,...link});return link.dispose;
  },[report]);
  useEffect(()=>{
+  if(!initialization||!initialization.finishedAt&&!initialization.primaryError)return;
+  const link=createJsonDownload(initialization,`holodeck-renderer-${initialization.requestedBackend}-${initialization.status}.json`);setInitializationDownload({evidence:initialization,...link});return link.dispose;
+ },[initialization]);
+ useEffect(()=>{
   mounted.current=true;
   const fail=message=>{if(events.current.length<50)events.current.push(String(message));};
   const changed=()=>{if(running.current)fail('Presentation changed during warmup or recording; reload before retrying');};
   // Benchmark mode starts at navigation, before any scene input. The canvas and
   // normal controls are inert; panel keys must not reach window gameplay listeners.
   const key=e=>{if(!e.target.closest?.('.viewer-diagnostics'))e.stopImmediatePropagation();};
-  const update=()=>{try{setStatus(getApi()?.status()??null);}catch(e){fail(e.message);}if(running.current)setProgress(p=>p?{...p,elapsedMs:performance.now()-phaseStart.current}:p);};
+  const update=()=>{setInitialization(readInitialization());try{setStatus(getApi()?.status()??null);}catch(e){fail(e.message);}if(running.current)setProgress(p=>p?{...p,elapsedMs:performance.now()-phaseStart.current}:p);};
   window.addEventListener('keydown',key,true);window.addEventListener('keyup',key,true);
   window.addEventListener('resize',changed);document.addEventListener('visibilitychange',changed);
   const timer=setInterval(update,1000);update();
@@ -46,13 +62,14 @@ export function Diagnostics({readErrors}){
  async function record(){
   if(running.current)return;
   running.current=true;setBusy(true);setError('');
-  const result=await recordDiagnostic({getApi,scenario:scenarios.find(s=>s.id===selected),expectedBackend,manifestSha256:manifest,readErrors:allErrors,onProgress:p=>{phaseStart.current=performance.now()-p.elapsedMs;if(mounted.current)setProgress(p);}});
+  const result=await recordDiagnostic({getApi,scenario:scenarios.find(s=>s.id===selected),expectedBackend,manifestSha256:manifest,readErrors:allErrors,readInitialization,onProgress:p=>{phaseStart.current=performance.now()-p.elapsedMs;if(mounted.current)setProgress(p);}});
   running.current=false;if(mounted.current){setReport(result);setBusy(false);setProgress(null);}
  }
  const proof=status?.proof,view=proof?.viewport,hardware=hardwareEvidence(proof,expectedBackend),ready=!!status?.ready&&scenarios.length===3;
  return <aside className="viewer-diagnostics" aria-label="Viewer diagnostics" onKeyDown={stop} onKeyUp={stop}>
   <h1>Viewer diagnostics</h1>
   <p>Fixed-camera measurements · {status?.protocol??'Waiting for renderer'} · Revision {status?.revision??'unverified'}</p>
+  <InitializationEvidence evidence={initialization} download={initializationDownload?.evidence===initialization?initializationDownload:null}/>
   <p>Actual backend: <strong>{value(proof?.backend)}</strong> · Hardware evidence: <strong>{hardware.status}</strong></p>
   <dl><dt>Adapter vendor</dt><dd>{value(proof?.adapter?.vendor)}</dd><dt>Architecture</dt><dd>{value(proof?.adapter?.architecture)}</dd><dt>Device / description</dt><dd>{value(proof?.adapter?.device)} / {value(proof?.adapter?.description)}</dd><dt>Fallback adapter</dt><dd>{value(proof?.adapter?.isFallbackAdapter)}</dd><dt>GL renderer</dt><dd>{value(proof?.renderer)}</dd><dt>Presentation</dt><dd>{view?`${view.width}×${view.height} · device DPR ${view.dpr} · canvas ${view.canvasWidth}×${view.canvasHeight}`:'Unverified'} · {value(proof?.visibility)}</dd></dl>
   <p>Requires a visible 1920×1080 viewport, device DPR1 and 1920×1080 canvas. Missing hardware fields remain unverified. Reload to clear a rejected session.</p>
