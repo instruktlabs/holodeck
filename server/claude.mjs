@@ -180,12 +180,17 @@ export class ClaudeAgent extends EventEmitter{
     this.token=randomBytes(32).toString('hex');const file=bridgePath();
     const server=net.createServer(socket=>{
       socket.setEncoding('utf8');
-      createInterface({input:socket}).on('line',async line=>{
+      const lines=createInterface({input:socket});
+      // Readline re-emits input errors; a stopped CLI may reset this pipe
+      // while a permission response is still pending.
+      lines.on('error',()=>socket.destroy());
+      socket.on('error',()=>lines.close());socket.on('close',()=>lines.close());
+      const reply=message=>{if(!socket.destroyed&&socket.writable)socket.write(JSON.stringify(message)+'\n');};
+      lines.on('line',async line=>{
         let m;try{m=JSON.parse(line);}catch{return;}
         if(m.token!==this.token){socket.destroy();return;}
-        try{socket.write(JSON.stringify({id:m.id,result:await this.onBridge(m)})+'\n');}catch(e){if(!socket.destroyed)socket.write(JSON.stringify({id:m.id,error:{message:e.message}})+'\n');}
+        try{reply({id:m.id,result:await this.onBridge(m)});}catch(e){reply({id:m.id,error:{message:e.message}});}
       });
-      socket.on('error',()=>{});
     });
     await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(file,()=>{server.off('error',reject);resolve();});});
     this.bridge={server,file};
