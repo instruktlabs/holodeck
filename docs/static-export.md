@@ -26,6 +26,9 @@ validated fixed-camera scenarios, bounded measurements and a local JSON download
 It preserves the strict presentation gate and reports missing proof as unverified.
 See [measuring a static world](performance-benchmark.md) for the workflow and its
 limits. Without this parameter the player keeps its normal exploration controls.
+Use **Hide diagnostics** for an unobstructed fixed-camera view and **Show diagnostics**
+to restore the retained controls and results. Hiding is disabled during warmup and
+recording; it does not enable scene input or change the canvas size or camera.
 
 The player reuses the registered world runtime, terrain, water, interactions and
 camera controller. Enter world starts exploration. Worlds with maker possession

@@ -144,6 +144,36 @@ test('full-size report download retains complete JSON and revokes only on explic
  link.dispose();assert.deepEqual(revoked,['blob:retained-report']);
 });
 
+test('diagnostics collapse retains camera input and result links while hiding panel contents',async t=>{
+ const server=await createServer({configFile:false,server:{middlewareMode:true,hmr:false,watch:null},appType:'custom'});t.after(()=>server.close());
+ const {DiagnosticsPanel,MeasurementResult}=await server.ssrLoadModule('/src/viewer/diagnostics.jsx');
+ const report=await recordDiagnostic(fixture().options),original=structuredClone(report);
+ const children=[React.createElement('textarea',{key:'cameras',defaultValue:JSON.stringify(cameras())}),React.createElement(MeasurementResult,{key:'result',report,download:{href:'blob:retained-report',filename:'result.json'}})];
+ let toggles=0;
+ for(const collapsed of [false,true,false]){
+  const panel=DiagnosticsPanel({collapsed,busy:false,onToggle:()=>toggles++,children});
+  assert.equal(panel.props.children[1].props.children,children,'contents stay mounted in the same wrapper');
+  const html=renderToStaticMarkup(panel);
+  assert.match(html,new RegExp(`aria-expanded="${!collapsed}" aria-controls="diagnostics-content"`));
+  assert.match(html,collapsed?/id="diagnostics-content" hidden=""/:/id="diagnostics-content">/);
+  assert.match(html,collapsed?/Show diagnostics/:/Hide diagnostics/);
+  assert.match(html,/arrival/);assert.match(html,/href="blob:retained-report" download="result.json"/);
+  panel.props.children[0].props.onClick();
+ }
+ assert.equal(toggles,3);assert.deepEqual(report,original);
+});
+test('diagnostics cannot collapse or restore during warmup or recording',async t=>{
+ const server=await createServer({configFile:false,server:{middlewareMode:true,hmr:false,watch:null},appType:'custom'});t.after(()=>server.close());
+ const {DiagnosticsPanel}=await server.ssrLoadModule('/src/viewer/diagnostics.jsx');
+ let toggles=0;
+ for(const collapsed of [false,true]){
+  const panel=DiagnosticsPanel({collapsed,busy:true,onToggle:()=>toggles++,children:'Retained controls'});
+  const button=panel.props.children[0];assert.equal(button.props.disabled,true);
+  button.props.onClick();assert.equal(toggles,0,'disabled handler also refuses programmatic activation');
+  assert.match(renderToStaticMarkup(panel),/disabled=""/);
+ }
+});
+
 test('failed renderer initialization is visible and downloadable without a benchmark API or camera',async t=>{
  const evidence={format:'holodeck-renderer-initialization-v1',requestedBackend:'webgpu',forceWebGL:false,secureContext:true,webgpuApiPresent:true,status:'failed',actualBackend:null,webgpuAttempt:'failed',primaryError:{name:'OperationError',message:'Adapter unavailable'},initializationError:{name:'Error',message:'GL context unavailable'}};
  let blob;const revoked=[],link=createJsonDownload(evidence,'holodeck-renderer-webgpu-failed.json',{createObjectURL:value=>{blob=value;return 'blob:initialization';},revokeObjectURL:url=>revoked.push(url)});
