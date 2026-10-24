@@ -18,6 +18,7 @@ import {StaticAssetBatch} from './static-batches.jsx';
 import {FlockAsset} from './flock.jsx';
 import {SUN_SHADOW,configureSunShadow,shadowViewFocus} from './sun-shadow.mjs';
 import {compileGate} from './parallel-compile.js';
+import {applySceneExposure,resolveLighting} from './lighting.mjs';
 
 function Shape({shape,id}){
  if(shape.type==='tree')return <group position={shape.offset}><Tree size={shape.size} color={shape.color} seed={id}/></group>;
@@ -205,12 +206,17 @@ function Sun({runtime,environment,cameraMode}){
  },-.25);
  return <><primitive object={target}/><directionalLight ref={light} target={target} color={environment.sunColor} intensity={environment.sunIntensity} castShadow/></>;
 }
+function EnvironmentLighting({environment}){
+ const {gl}=useThree(),{hemisphere,exposure}=resolveLighting(environment);
+ useLayoutEffect(()=>applySceneExposure(gl,exposure),[gl,exposure]);
+ return <hemisphereLight args={[hemisphere.skyColor,hemisphere.groundColor,hemisphere.intensity]}/>;
+}
 export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
  const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
  const placed=useMemo(()=>placedObjects(s),[s]),models=useUnderwaterModels(bundle.models,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models),[placed,models]);
  return <WorldMaterialsProvider>
   <color attach="background" args={[e.fogColor]}/><fog attach="fog" args={[e.fogColor,e.fogNear??28,e.fogFar??85]}/>
-  <hemisphereLight args={['#f1eee2','#95806d',1.8]}/>
+  <EnvironmentLighting environment={e}/>
   <Sun runtime={runtime} environment={e} cameraMode={cameraMode}/>
   {(s.terrain||s.water)&&<><Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/><LandscapeSky environment={e} runtime={runtime}/></>}
   {!s.terrain&&(e.type==='construct'?<Construct/>:!s.water&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[180,180]}/><WorldSurfaceMaterial surface="soil" color={e.groundColor}/></mesh>)}

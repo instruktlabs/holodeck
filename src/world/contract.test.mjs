@@ -39,3 +39,13 @@ test('landscape presentation accepts bounded lighting and fog with legacy defaul
  for(const change of [{sunPosition:[0,0,0]},{sunPosition:[0,Infinity,0]},{fogNear:-1},{fogNear:null},{fogFar:null},{fogFar:100},{fogFar:2001}]){const bad=structuredClone(w);Object.assign(bad.scene.environment,change);assert.throws(()=>validateWorld(bad));}
  const partial=world();partial.scene.environment.fogNear=100;assert.throws(()=>validateWorld(partial),/fog/);
 });
+
+test('optional hemisphere and exposure validate only on schema two without normalizing old worlds',()=>{
+ for(const w of [structuredClone(DEFAULT_WORLD),world()]){const before=structuredClone(w);assert.equal(validateWorld(w),w);assert.deepEqual(w,before);}
+ const authored=world();Object.assign(authored.scene.environment,{hemisphere:{skyColor:'#b9d2ff',intensity:0},exposure:.7});
+ const before=structuredClone(authored);assert.equal(validateWorld(authored),authored);assert.deepEqual(authored,before);
+ for(const change of [{hemisphere:null},{hemisphere:{skyColor:['#ffffff']}},{hemisphere:{intensity:9}},{hemisphere:{unknown:1}},{exposure:null},{exposure:0},{exposure:5}]){
+  const bad=world();Object.assign(bad.scene.environment,change);assert.throws(()=>validateWorld(bad),/hemisphere|exposure/);
+ }
+ for(const change of [{hemisphere:{}},{exposure:1.12}]){const legacy=structuredClone(DEFAULT_WORLD);Object.assign(legacy.scene.environment,change);assert.throws(()=>validateWorld(legacy),/environment fields/);}
+});

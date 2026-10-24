@@ -64,3 +64,12 @@ test('scene settings and terrain stamps are summarized, and no change says so',(
   assert.deepEqual(summarizeProposal(diffProposal(before,after)),['Environment: fogColor','Water: level, type','Terrain: stamps +1 −1 ~1; baseHeight']);
   assert.deepEqual(summarizeProposal(diffProposal(before,structuredClone(before))),['No differences from the accepted world.']);
 });
+
+test('lighting changes and removal remain visible in proposal review',()=>{
+ const before=world([]),after=structuredClone(before);
+ Object.assign(after.scene.environment,{hemisphere:{skyColor:'#c9d9ed',intensity:.9},exposure:1.05});
+ assert.deepEqual(summarizeProposal(diffProposal(before,after)),['Environment: exposure, hemisphere']);
+ const revised=structuredClone(after);revised.scene.environment.hemisphere.intensity=0;
+ assert.deepEqual(summarizeProposal(diffProposal(after,revised)),['Environment: hemisphere']);
+ assert.deepEqual(summarizeProposal(diffProposal(after,before)),['Environment: exposure, hemisphere']);
+});
