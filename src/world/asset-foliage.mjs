@@ -16,6 +16,8 @@ function acquire(source,config,environment){
  let entry=cache.get(key);
  if(!entry){
   const material=new (source.isMeshPhysicalMaterial?THREE.MeshPhysicalNodeMaterial:THREE.MeshStandardNodeMaterial)().copy(source),clock=uniform(0);
+  // NodeMaterial.copy omits the inherited alphaTest accessor used by cutout maps.
+  material.alphaTest=source.alphaTest;
   material.name=`${source.name||'authored'} / explicit foliage`;material.side=THREE.DoubleSide;material.shadowSide=THREE.DoubleSide;
   const light=uniform(new THREE.Vector3(...direction).normalize()),tint=uniform(new THREE.Color(sunColor)),backlight=normalWorld.negate().dot(light).clamp(0,1).pow(1.4).mul((config.translucency??.15)*Math.min(2,sunIntensity/3));
   material.emissiveNode=Fn(builder=>{

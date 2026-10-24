@@ -19,10 +19,9 @@ export function enableParallelCompile(renderer){
 }
 // With parallel compilation, objects whose program is still linking are skipped, so a
 // frame can be drawn before the scene is complete. Ready means SETTLE frames in a row
-// with nothing compiling; without parallel compilation every drawn frame is ready.
+// with nothing compiling. Other backends use the same completed-frame settling.
 export const SETTLE=3;
 export function compileGate(renderer,settled=0){
- if(!renderer.pendingCompiles)return {ready:true,settled,compiling:0};
- const compiling=renderer.pendingCompiles(),next=compiling?0:settled+1;
+ const compiling=renderer.pendingCompiles?.()??0,next=compiling?0:Math.min(SETTLE,settled+1);
  return {ready:next>=SETTLE,settled:next,compiling};
 }

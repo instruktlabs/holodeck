@@ -429,6 +429,34 @@ near must be less than far. Their defaults remain 28 and 85. Terrain/ocean enabl
 the sky automatically: the analytic daylight dome, unless `environment.sky` is
 set.
 
+Optional `environment.hemisphere` controls the global fill light independently
+of the visible sky. Its optional `skyColor` and `groundColor` are `#rrggbb`
+colors, defaulting to `#f1eee2` and `#95806d`; optional `intensity` is 0–8,
+defaulting to 1.8. Zero disables its contribution. This light has no shadows or
+indoor occlusion; changing `environment.sky` does not automatically relight it.
+
+Optional `environment.exposure` is a finite number from 0.1 to 4, defaulting to
+1.12. These are authoring limits. Exposure scales scene radiance before final
+ACES tone mapping, after the scene and bloom are composed. It affects sky,
+emissive surfaces and bloom appearance; it is not an
+independent shadow/contrast control. The renderer updates it on accepted
+revision changes and restores the default when omitted. Both options are
+schema-v2 fields shared by the editor and static player. Old documents retain
+their appearance without migration; documents using these fields need a
+toolchain that supports them.
+
+```json
+{"hemisphere": {"skyColor": "#c9d9ed", "groundColor": "#777982", "intensity": 0.9},
+ "exposure": 1.05}
+```
+
+Use `world_read` capabilities and a complete scene proposal, or the World
+panel's Scene document editor, to author these settings. Bible rules describe
+intent; they do not execute lighting changes. Check applied changes and their
+static exports on WebGPU and forced WebGL2, including interior materials,
+glass, foliage, sky/fog and practical lights. Numeric validation is not a
+visual-quality verdict.
+
 ```json
 {"sky": {"zenithColor": "#3d7fc4", "horizonColor": "#d6e5ec", "curve": 0.45,
   "sunDisc": 1, "clouds": {"coverage": 0.35, "density": 0.5, "height": 0.5,

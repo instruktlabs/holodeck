@@ -17,7 +17,7 @@ import {placedObjects} from './scatter.mjs';
 import {StaticAssetBatch} from './static-batches.jsx';
 import {FlockAsset} from './flock.jsx';
 import {SUN_SHADOW,configureSunShadow,shadowViewFocus} from './sun-shadow.mjs';
-import {compileGate} from './parallel-compile.js';
+import {applySceneExposure,resolveLighting} from './lighting.mjs';
 
 function Shape({shape,id}){
  if(shape.type==='tree')return <group position={shape.offset}><Tree size={shape.size} color={shape.color} seed={id}/></group>;
@@ -68,11 +68,15 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
  useLayoutEffect(()=>{
   walk.current={position:[...config.spawn],yaw:config.look[0],pitch:config.look[1]};
   actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;
+  // The body stays protected while its camera is free/overview. Legacy walking
+  // has no maker actor, but still occupies a fixed-height body on the ground.
+  const body=actor.current??{position:[config.spawn[0],0,config.spawn[2]],radius:.22,height:1.72};runtime.playerBody=body;
   probe.arrivalReset={tick:homeTick,spawn:[...config.spawn],feet:actor.current?[...actor.current.position]:null};
   setPerson(config.possession?.camera??'first');
   const d=new THREE.Vector3(...config.overview).sub(new THREE.Vector3(...config.target));
   view.current={yaw:Math.atan2(d.x,d.z),pitch:Math.asin(d.y/d.length()),distance:d.length()};keys.current.clear();
- },[homeTick,cameraConfig,!!runtime.scene.terrain,!!runtime.scene.water]);
+  return()=>{if(runtime.playerBody===body)runtime.playerBody=null;};
+ },[runtime,homeTick,cameraConfig,!!runtime.scene.terrain,!!runtime.scene.water]);
  useLayoutEffect(()=>{
   // Geometry extents can change without a new spawn or possession config.
   // Update projection separately so a landscape edit does not respawn the maker.
@@ -130,7 +134,6 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',drop);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',drop);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
   return()=>{drop();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',drop);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',drop);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
  },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree,touch]);
- const settled=useRef(0);
  useFrame((_,dt)=>{
   let moving=false;const stick=touch?stickAxes(touch):NO_STICK,pad=touch?.pad;
   if(actor.current)actor.current.camera=person;
@@ -164,6 +167,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    moving=!!(f||r);const distance=Math.min(dt,.04)*(sprint?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
    // Small steps bound tunnelling through the narrowest supported blockers.
    const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.06));for(let i=0;i<steps;i++){if(!runtime.blocked(w.position[0]+dx/steps,w.position[2]))w.position[0]+=dx/steps;if(!runtime.blocked(w.position[0],w.position[2]+dz/steps))w.position[2]+=dz/steps;}
+   runtime.playerBody.position[0]=w.position[0];runtime.playerBody.position[2]=w.position[2];
    camera.position.set(...w.position);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
     probe.actorEye=null;
    }
@@ -188,7 +192,6 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const look=mode==='free'?free.current:walk.current;
   probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
-  const gate=compileGate(gl,settled.current);settled.current=gate.settled;probe.compiling=gate.compiling;probe.ready||=gate.ready;
  },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} walkable={walkable} firstPerson={mode==='walk'&&person==='first'}/>:null;
 }
 function Sun({runtime,environment,cameraMode}){
@@ -205,12 +208,17 @@ function Sun({runtime,environment,cameraMode}){
  },-.25);
  return <><primitive object={target}/><directionalLight ref={light} target={target} color={environment.sunColor} intensity={environment.sunIntensity} castShadow/></>;
 }
+function EnvironmentLighting({environment}){
+ const {gl}=useThree(),{hemisphere,exposure}=resolveLighting(environment);
+ useLayoutEffect(()=>applySceneExposure(gl,exposure),[gl,exposure]);
+ return <hemisphereLight args={[hemisphere.skyColor,hemisphere.groundColor,hemisphere.intensity]}/>;
+}
 export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
  const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
  const placed=useMemo(()=>placedObjects(s),[s]),models=useUnderwaterModels(bundle.models,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models),[placed,models]);
  return <WorldMaterialsProvider>
   <color attach="background" args={[e.fogColor]}/><fog attach="fog" args={[e.fogColor,e.fogNear??28,e.fogFar??85]}/>
-  <hemisphereLight args={['#f1eee2','#95806d',1.8]}/>
+  <EnvironmentLighting environment={e}/>
   <Sun runtime={runtime} environment={e} cameraMode={cameraMode}/>
   {(s.terrain||s.water)&&<><Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/><LandscapeSky environment={e} runtime={runtime}/></>}
   {!s.terrain&&(e.type==='construct'?<Construct/>:!s.water&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[180,180]}/><WorldSurfaceMaterial surface="soil" color={e.groundColor}/></mesh>)}

@@ -1,7 +1,7 @@
 // Keep the public debug object stable while clearing per-activation observations.
 // Position remains an array for existing consumers; ready/frameContext qualify it.
 export function resetWorldProbe(probe,contextKey){
- Object.assign(probe,{activationKey:contextKey,frameContext:null,frameRevision:null,ready:false,frames:[],position:[0,0,0],look:null,actor:null,actorEye:null,runtime:null,arrivalReset:null,backend:null,cameraMode:null,drawCalls:0,triangles:0,world:null,loadedRevision:undefined,assets:null,selected:null,cove:true,locked:false,session:null,activatedAt:performance.now(),firstFrameMs:null,skippedFrames:0});
+ Object.assign(probe,{activationKey:contextKey,frameContext:null,frameRevision:null,ready:false,renderReady:false,pendingCompiles:0,settledFrames:0,frames:[],position:[0,0,0],look:null,actor:null,actorEye:null,runtime:null,arrivalReset:null,backend:null,cameraMode:null,drawCalls:0,triangles:0,world:null,loadedRevision:undefined,assets:null,selected:null,cove:true,locked:false,session:null,activatedAt:performance.now(),firstFrameMs:null,skippedFrames:0});
 }
 export function completeWorldFrame(probe,contextKey,revision){
  if(probe.activationKey!==contextKey){probe.ready=false;probe.frameContext=null;probe.frameRevision=null;probe.frames=[];return false;}

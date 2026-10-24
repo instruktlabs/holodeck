@@ -1,5 +1,63 @@
 # Measuring a static world
 
+## Visible diagnostics
+
+Open a freshly built static export with `?benchmark=1` to use the **Viewer
+diagnostics** panel through ordinary browser controls. No console evaluation,
+agent connection or browser automation is needed. The ordinary player is
+unchanged when this parameter is absent. Benchmark mode reserves the canvas and
+keyboard for declared fixed-camera views; return to the normal player to walk.
+
+**Renderer initialization** retains the renderer's own primary WebGPU exception
+before Three falls back to WebGL2, plus any final initialization failure. It shows
+the requested and initialized backend, secure-context/API presence and whether
+WebGPU was attempted. Forced WebGL2 is labelled not attempted. Error names and
+messages are bounded; stacks are excluded. **Download initialization JSON** works
+without a camera or ready benchmark API, including total initialization failure
+and a captured primary error while fallback is still pending. Measurement reports
+also retain their initialization snapshot. The observer makes no additional GPU
+adapter/device requests and leaves normal fallback behavior intact. API presence
+does not establish adapter availability; the browser may not expose the underlying
+reason for an unavailable adapter. This cannot recover errors from earlier loads.
+
+1. Prepare the three camera records described below. Paste their JSON array into
+   the panel and choose **Load camera JSON**. Input is limited to 16,384 characters
+   and accepts only the existing bounded scenario schema, never executable code.
+2. Select a scenario and **Apply camera for framing**. Check the actual backend,
+   raw adapter/renderer fields, revision and presentation. Missing hardware fields
+   are shown as unverified. Use the reload links to prefer WebGPU or force WebGL2;
+   a requested WebGPU session that falls back to WebGL is rejected.
+3. Use a visible 1920×1080 browser viewport with device DPR1 and a 1920×1080 canvas.
+   The existing presentation gate is unchanged: canvas DPR1 alone does not change
+   device DPR or viewport size. An unsupported presentation cannot qualify.
+4. Optionally enter the SHA-256 of the externally verified export manifest. The
+   panel records this user-supplied identity; it does not verify the file inventory.
+   Choose **Warm up 10s and record 60s**. Camera readiness has a five-second bound;
+   the sampler retains its 75-second collection deadline. Keep the tab visible
+   and avoid resizing throughout warmup and recording. Reload ends the session.
+5. **Download result JSON** retains the declared scenario, start/end observations,
+   renderer proof, timestamps, raw frame rows, summaries, errors and limitations.
+   The result identifies its own scenario and camera, even after selecting or
+   applying another view. Its download link remains available while that result
+   is displayed, including during the next recording, until a new result replaces it.
+   Repeat each declared view on both backends using matching exports. Reloading
+   loses the pasted settings, so keep the camera JSON alongside the results.
+
+The panel does not label missing fallback or adapter evidence as hardware proof.
+Resolved samples containing errors are rejected and remain downloadable. Browser
+errors, GPU errors and presentation changes persist for the session; reload before
+retrying after an error. A rejected sampler promise has no completed frame rows.
+The panel refreshes at low frequency and overlays the viewport without resizing
+the canvas. Its collection and display overhead are part of these measurements.
+
+**Recorded** means this session met the panel's checks, not that the world passed
+final qualification. This workflow does not provide cold-profile startup or host
+admission/temperature evidence. Verify the complete export inventory and record
+quiet-host conditions separately. Earlier authoring captures are not qualified by
+a later static-viewer measurement. Review the timing limitations below as well.
+
+## Developer runner
+
 The developer checkout includes a bounded Linux/NVIDIA benchmark runner in
 `scripts/benchmark-world/`. It uses the existing Playwright development dependency
 and an explicitly selected installed Chrome; it does not install browsers, call

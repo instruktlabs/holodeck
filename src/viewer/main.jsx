@@ -11,14 +11,19 @@ import {probe} from '../prototype/scene.jsx';
 import {loadTerrainTextures} from '../world/terrain-textures.js';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
+import {Diagnostics,RenderReadiness} from './diagnostics.jsx';
+import {createInitializationEvidence} from './renderer-diagnostics.mjs';
 import {enableParallelCompile} from '../world/parallel-compile.js';
+import {DEFAULT_EXPOSURE} from '../world/lighting.mjs';
 import {validateScenario,scenarioCamera} from './benchmark-protocol.mjs';
 import {createTouchInput} from '../world/touch-input.mjs';
 import {TouchControls,useTouchMode} from '../world/touch.jsx';
 const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='1';
 const benchmarkCamera=benchmarkEnabled&&window.holodeckBenchmarkScenario?scenarioCamera(validateScenario(window.holodeckBenchmarkScenario)):{};
+const initialization=benchmarkEnabled?createInitializationEvidence({forceWebGL:new URLSearchParams(location.search).get('backend')==='webgl'}):null;
 
 const noop=()=>{};
+const readViewerErrors=()=>probe.errors;
 function disposeModels(models){
  const resources=new Set();for(const model of new Set(models))model.scene.traverse(o=>{if(o.geometry)resources.add(o.geometry);for(const m of [].concat(o.material||[])){resources.add(m);for(const v of Object.values(m))if(v?.isTexture)resources.add(v);}});
  for(const resource of resources)resource.dispose();
@@ -55,7 +60,9 @@ function Viewer(){
  const requestLook=useCallback(()=>{try{const canvas=document.querySelector('canvas');if(!canvas?.requestPointerLock){setNotice('Right-drag to look.');return;}canvas.requestPointerLock()?.catch(()=>setNotice('Right-drag to look.'));}catch{setNotice('Right-drag to look.');}},[]);
  const toggleHud=useCallback(()=>setHidden(v=>!v),[]),toggleFree=useCallback(()=>{setCameraMode(m=>m==='free'?'walk':'free');document.activeElement?.blur();},[]);
  const interact=useCallback(id=>{if(!runtime)return;const position=probe.actorEye??probe.position,query=runtime.interaction(id,position);setNotice(runtime.act(id,position)?query.label:query.reason==='out-of-reach'?'Move closer to interact.':'No action available here.');},[runtime]);
- useEffect(()=>{const timer=setInterval(()=>setObservation({ready:probe.ready,backend:probe.backend,position:probe.position,actor:probe.actor,errors:probe.errors}),500);return()=>clearInterval(timer);},[]);
+ // Legacy readiness still owns control availability; current render readiness
+ // can become false again without resetting the player or disabling movement.
+ useEffect(()=>{const timer=setInterval(()=>setObservation({ready:probe.ready,renderReady:probe.renderReady===true,pendingCompiles:probe.pendingCompiles,settledFrames:probe.settledFrames,backend:probe.backend,position:probe.position,actor:probe.actor,errors:probe.errors}),500);return()=>clearInterval(timer);},[]);
  useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),4000);return()=>clearTimeout(timer);},[notice]);
  useEffect(()=>{const fail=()=>setNotice('Mouse capture is unavailable. Right-drag to look.');document.addEventListener('pointerlockerror',fail);return()=>document.removeEventListener('pointerlockerror',fail);},[]);
  // The phone menu closes when a choice is made or the scene is touched.
@@ -68,16 +75,17 @@ function Viewer(){
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
  return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden&&inhabiting?'hud-hidden':''}`}>
-  <div className="viewer-scene"><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await renderer.init();enableParallelCompile(renderer);return renderer;}}>
+  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
    <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
-  <header className="viewer-toolbar"><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
-  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle||!observation.ready?<section className="viewer-card" role="status">Loading the scene…</section>:null}
+  {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
+  <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
+  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle?<section className="viewer-card" role="status">Loading the scene…</section>:!benchmarkEnabled&&!observation.renderReady?<section className="viewer-card" role="status">Preparing the current view…</section>:null}
   {inhabiting&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
-  <TouchControls touch={touch} active={touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} bottom={hidden&&inhabiting?24:150}>
+  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} bottom={hidden&&inhabiting?24:150}>
    {inhabiting&&<button type="button" className="touch-button quiet" aria-pressed={hidden} onClick={toggleHud}>{hidden?'Show controls':'Clear view'}</button>}
   </TouchControls>
-  <footer className="viewer-footer">
+  <footer className="viewer-footer" inert={benchmarkEnabled}>
    <div className={`viewer-view ${menu?'open':''}`}>
    <button className="viewer-view-toggle" aria-expanded={menu} aria-controls="viewer-controls" onClick={()=>setMenu(v=>!v)}>View · {view}</button>
    <div id="viewer-controls" className="viewer-controls" role="group" aria-label="Scene controls" onClick={e=>{if(e.target.closest('button'))setMenu(false);}}>
@@ -88,7 +96,7 @@ function Viewer(){
    </div>
    </div>
    <p role="status">{notice||hint}{inhabiting&&!locked&&!touchMode?' · Right-drag to look, or click the scene to capture the mouse.':''}</p>
-   <details><summary>{observation.backend??'Preparing renderer'} · Revision {bundle?.payload.world.revision??'…'} · Static scene</summary><p>Scene activity stays in this browser session. No agent or backend connection.</p><p>Camera: {effectiveMode}{possessed?` / ${person}`:''} · Feet: {observation.actor?.position?.map(n=>n.toFixed(2)).join(', ')??'—'} · State: {observation.actor?.mode??'—'}</p>{observation.errors?.length>0&&<p role="alert">{observation.errors.join(' · ')}</p>}</details>
+   <details><summary>{observation.backend??'Preparing renderer'} · Revision {bundle?.payload.world.revision??'…'} · Static scene</summary><RenderReadiness evidence={observation}/><p>Scene activity stays in this browser session. No agent or backend connection.</p><p>Camera: {effectiveMode}{possessed?` / ${person}`:''} · Feet: {observation.actor?.position?.map(n=>n.toFixed(2)).join(', ')??'—'} · State: {observation.actor?.mode??'—'}</p>{observation.errors?.length>0&&<p role="alert">{observation.errors.join(' · ')}</p>}</details>
   </footer>
  </main>;
 }
