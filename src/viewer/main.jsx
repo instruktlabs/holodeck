@@ -11,6 +11,7 @@ import {probe} from '../prototype/scene.jsx';
 import {loadTerrainTextures} from '../world/terrain-textures.js';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
+import {Diagnostics} from './diagnostics.jsx';
 import {enableParallelCompile} from '../world/parallel-compile.js';
 import {validateScenario,scenarioCamera} from './benchmark-protocol.mjs';
 import {createTouchInput} from '../world/touch-input.mjs';
@@ -19,6 +20,7 @@ const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='
 const benchmarkCamera=benchmarkEnabled&&window.holodeckBenchmarkScenario?scenarioCamera(validateScenario(window.holodeckBenchmarkScenario)):{};
 
 const noop=()=>{};
+const readViewerErrors=()=>probe.errors;
 function disposeModels(models){
  const resources=new Set();for(const model of new Set(models))model.scene.traverse(o=>{if(o.geometry)resources.add(o.geometry);for(const m of [].concat(o.material||[])){resources.add(m);for(const v of Object.values(m))if(v?.isTexture)resources.add(v);}});
  for(const resource of resources)resource.dispose();
@@ -68,16 +70,17 @@ function Viewer(){
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
  return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden&&inhabiting?'hud-hidden':''}`}>
-  <div className="viewer-scene"><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await renderer.init();enableParallelCompile(renderer);return renderer;}}>
+  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await renderer.init();enableParallelCompile(renderer);return renderer;}}>
    <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
-  <header className="viewer-toolbar"><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
+  {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors}/>}
+  <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
   {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle||!observation.ready?<section className="viewer-card" role="status">Loading the scene…</section>:null}
   {inhabiting&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
-  <TouchControls touch={touch} active={touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} bottom={hidden&&inhabiting?24:150}>
+  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} bottom={hidden&&inhabiting?24:150}>
    {inhabiting&&<button type="button" className="touch-button quiet" aria-pressed={hidden} onClick={toggleHud}>{hidden?'Show controls':'Clear view'}</button>}
   </TouchControls>
-  <footer className="viewer-footer">
+  <footer className="viewer-footer" inert={benchmarkEnabled}>
    <div className={`viewer-view ${menu?'open':''}`}>
    <button className="viewer-view-toggle" aria-expanded={menu} aria-controls="viewer-controls" onClick={()=>setMenu(v=>!v)}>View · {view}</button>
    <div id="viewer-controls" className="viewer-controls" role="group" aria-label="Scene controls" onClick={e=>{if(e.target.closest('button'))setMenu(false);}}>
