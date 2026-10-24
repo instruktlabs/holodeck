@@ -32,7 +32,9 @@ Kiln GLBs share the placement model. The capability registry covers camera and
 box collision, hinge and spin interactions, heightfields and ocean, maker
 possession, patrols, articulated gait, airborne boid flocks and seeded scatter.
 Terrain texture layers, surf and the gradient sky are optional fields of the
-terrain, water and environment records. Dependencies and
+terrain, water and environment records. Optional schema-v2 hemisphere fill and
+exposure use one shared renderer path for live revision adoption and static
+exports; omitted values preserve the existing appearance. Dependencies and
 bounded records are validated before accepting a revision. See
 [terrain and inhabitants](terrain-and-inhabitants.md),
 [gait](articulated-gait.md) and [flocks](flock-behavior.md).

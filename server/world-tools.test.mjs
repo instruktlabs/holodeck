@@ -57,6 +57,16 @@ test('world_read states proposal size limits and how to stage large scenes',asyn
   }
 });
 
+test('world_read advertises optional lighting defaults and bounds with a valid example',async()=>{
+ const {spatial}=await read(2);
+ for(const text of ['hemisphere','skyColor','groundColor','0..8','#f1eee2','#95806d','1.8','exposure','0.1..4','1.12','no shadows','schema2'])assert.ok(spatial.lighting.includes(text),text);
+ assert.doesNotMatch(spatial.sky,/fixed hemisphere/);
+ const {validateLighting,resolveLighting}=await import('../src/world/lighting.mjs');
+ assert.equal(validateLighting(spatial.examples.lighting),spatial.examples.lighting);
+ assert.deepEqual(resolveLighting({}),{hemisphere:{skyColor:'#f1eee2',groundColor:'#95806d',intensity:1.8},exposure:1.12});
+ assert.equal((await read(1)).spatial,null);
+});
+
 test('world_read gives a budget strategy for the 64-asset cap',async()=>{
   const {budgetStrategy}=await read(2);
   for(const fact of ['64-asset cap usually binds','two or three shaped variants per family','yaw','scale','lean'])assert.ok(budgetStrategy.includes(fact),fact);

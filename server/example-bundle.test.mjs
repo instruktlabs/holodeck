@@ -12,24 +12,26 @@ import {createExampleBundle,readExampleBundle,installExampleBundle,readExampleMa
 import {listExamples} from './example-catalog.mjs';
 import {scaffold as scaffoldBundle} from './scaffold.mjs';
 const digest=value=>createHash('sha256').update(value).digest('hex');
-async function fixture(t){
+async function fixture(t,{lighting=false}={}){
  const parent=await mkdtemp(path.join(os.tmpdir(),'holodeck-example-bundle-')),root=path.join(parent,'world');t.after(async()=>{assert.ok(path.resolve(parent).startsWith(path.resolve(os.tmpdir())+path.sep));await rm(parent,{recursive:true,force:true});});
  await scaffold(root,'construct');const store=await WorldStore.open(root),world=store.snapshot();world.bible.title='PRIVATE_TITLE';world.bible.intent='PRIVATE_INTENT';world.bible.rules='PRIVATE_RULES';world.references[0].notes='PRIVATE_NOTE';world.scene.moodboard.title='PRIVATE_BOARD';world.scene.assets.find(a=>a.id==='lamp').provenance.collection='C:\\PRIVATE\\assets';
+ if(lighting)Object.assign(world.scene.environment,{hemisphere:{skyColor:'#c9d9ed',groundColor:'#777982',intensity:0},exposure:.85});
  await store.commit({baseRevision:0,bible:world.bible,references:world.references,scene:world.scene});const accepted=JSON.parse(await readFile(path.join(root,'.holodeck/accepted-bundle.json'),'utf8'));await store.close();await writeFile(path.join(root,'.env'),'PRIVATE_SECRET');await writeFile(path.join(root,'.holodeck/session/private.json'),'PRIVATE_SESSION');return {root,parent,accepted};
 }
 const options=out=>({out,id:'portable-study',title:'Portable Study',description:'An independent scene fixture.',authoring:{intent:'Public sample intent.',rules:'Keep the arrival clear.'}});
 test('bundle projects an immutable accepted revision with exact GLBs and an empty physical board',async t=>{
- const {root,parent,accepted}=await fixture(t),out=path.join(parent,'bundle'),asset=accepted.world.scene.assets.find(a=>a.id==='lamp'),before=accepted.assets.lamp.hash;
+ const {root,parent,accepted}=await fixture(t,{lighting:true}),out=path.join(parent,'bundle'),asset=accepted.world.scene.assets.find(a=>a.id==='lamp'),before=accepted.assets.lamp.hash;
  await writeFile(path.join(root,asset.file),'OFFLINE_UNACCEPTED');await writeFile(path.join(root,'world/world.json'),'{invalid offline edit');
  const result=await createExampleBundle(root,{...options(out),revision:accepted.world.revision});assert.equal(result.sourceRevision,accepted.world.revision);
  const bundle=await readExampleBundle(out),w=bundle.world;assert.equal(w.revision,0);assert.equal(w.bible.title,'Portable Study');assert.equal(w.bible.intent,'Public sample intent.');assert.deepEqual(w.references,[]);assert.equal(w.bible.referenceIds,undefined);assert.deepEqual(w.scene.moodboard.position,accepted.world.scene.moodboard.position);assert.equal(w.scene.moodboard.title,'World board');assert.equal(w.scene.moodboard.page,0);
+ assert.deepEqual(w.scene.environment,accepted.world.scene.environment);
  assert.equal(bundle.assets.lamp.hash,before);assert.equal(digest(bundle.assets.lamp.bytes),before);assert.equal(w.scene.assets.find(a=>a.id==='lamp').provenance.collection,undefined);
  const files=await readdir(out,{recursive:true});for(const file of files){assert.doesNotMatch(file,/\.holodeck|\.env|session|references|source/);const target=path.join(out,file);if((await stat(target)).isFile()&&!file.endsWith('.glb')){const text=await readFile(target,'utf8');assert.doesNotMatch(text,/PRIVATE_|C:\\\\PRIVATE/);assert.ok(!text.includes(root));}}
  assert.equal((await readExampleManifest(out)).integrity,bundle.manifest.integrity);await assert.rejects(createExampleBundle(root,options(out)),/already exists/);
 });
 test('bundle install verifies all hashes before creating a fresh editable revision-zero workspace',async t=>{
- const {root,parent}=await fixture(t),out=path.join(parent,'bundle');await createExampleBundle(root,options(out));const workspace=path.join(parent,'installed'),world=await installExampleBundle(out,workspace);assert.equal(world.revision,0);assert.equal(world.bible.title,'Portable Study');{const guide=await readFile(path.join(workspace,'AGENTS.md'),'utf8');assert.ok(guide.includes('world_read'));assert.match(guide,/a Claude Code connection loads them as skills/);assert.match(guide,/assets\/source\/KILN_PROGRESS\.md/);assert.doesNotMatch(guide,/Configure a separate kiln_workspace/);}
- const store=await WorldStore.open(workspace);assert.equal(store.snapshot().revision,0);assert.deepEqual(store.current.scene,world.scene);await store.close();await assert.rejects(installExampleBundle(out,workspace),/already exists/);
+ const {root,parent}=await fixture(t,{lighting:true}),out=path.join(parent,'bundle');await createExampleBundle(root,options(out));const workspace=path.join(parent,'installed'),world=await installExampleBundle(out,workspace);assert.equal(world.revision,0);assert.equal(world.bible.title,'Portable Study');{const guide=await readFile(path.join(workspace,'AGENTS.md'),'utf8');assert.ok(guide.includes('world_read'));assert.match(guide,/a Claude Code connection loads them as skills/);assert.match(guide,/assets\/source\/KILN_PROGRESS\.md/);assert.doesNotMatch(guide,/Configure a separate kiln_workspace/);}
+ const store=await WorldStore.open(workspace);assert.equal(store.snapshot().revision,0);assert.deepEqual(store.snapshot().scene.environment.hemisphere,{skyColor:'#c9d9ed',groundColor:'#777982',intensity:0});assert.equal(store.snapshot().scene.environment.exposure,.85);assert.deepEqual(store.current.scene,world.scene);await store.close();await assert.rejects(installExampleBundle(out,workspace),/already exists/);
  const manifest=await readExampleManifest(out),file=path.join(out,manifest.assets[0].file);await writeFile(file,'corrupt');const bad=path.join(parent,'bad');await assert.rejects(installExampleBundle(out,bad),/hash|size|GLB/);await assert.rejects(stat(bad),{code:'ENOENT'});
 });
 test('tampered manifest, unlisted files and unsafe metadata never become installable bundles',async t=>{
