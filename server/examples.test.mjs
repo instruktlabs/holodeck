@@ -12,7 +12,7 @@ import {WorldRuntime} from '../src/world/runtime.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 test('the picker offers the starter templates and every shipped bundle, each intact',async()=>{
  const examples=await listExamples();
- assert.deepEqual(examples.map(entry=>entry.id),['construct','kinetic','courtyard','crescent-cove','tidemark']);
+ assert.deepEqual(examples.map(entry=>entry.id),['construct','kinetic','courtyard','crescent-cove','tidemark','winter-mountainside-cabin']);
  for(const entry of examples.filter(entry=>entry.kind==='bundle')){
   // Every receipt, GLB and terrain texture hash is checked, not just the manifest.
   const bundle=await readExampleBundle(path.join(packageRoot,'examples',entry.id));assert.equal(bundle.manifest.id,entry.id);assert.ok(entry.preview,`${entry.id} has a runtime preview`);

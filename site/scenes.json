@@ -42,11 +42,25 @@
     "gallery": "https://kilnstudio.tools/packs/holodeck/tidemark/"
   },
   {
+    "id": "winter-mountainside-cabin",
+    "example": "winter-mountainside-cabin",
+    "title": "Winter Mountainside Cabin",
+    "summary": "A snowy forest trail leads to a furnished timber cabin, with a sleeping loft, a mountain-facing deck and a stone seat overlooking the lake.",
+    "shots": [
+      {"src": "images/scenes/winter-mountainside-cabin-exterior.webp", "alt": "The timber cabin and its deck among snow-covered conifers, with mountains beyond."},
+      {"src": "images/scenes/winter-mountainside-cabin-living.webp", "alt": "The cabin's furnished living room, with a stone hearth, timber beams and warm practical lights."},
+      {"src": "images/scenes/winter-mountainside-cabin-loft.webp", "alt": "The sleeping loft with its bed, desk and view through the cabin's glazing."},
+      {"src": "images/scenes/winter-mountainside-cabin-vista.webp", "alt": "The lake and distant mountain ridges seen from the forest viewpoint."}
+    ],
+    "path": "worlds/winter-mountainside-cabin/",
+    "gallery": "https://kilnstudio.tools/packs/holodeck/winter-mountainside-cabin/"
+  },
+  {
     "id": "cove",
     "example": "construct",
     "kicker": "The maker space",
     "title": "The Cove",
-    "summary": "Every world starts from the cove and keeps it at its origin: a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent build.",
+    "summary": "The starter workspace is a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent begin building.",
     "shots": [
       {"src": "images/scenes/cove-side.webp", "alt": "The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns."},
       {"src": "images/scenes/cove-arrival.webp", "alt": "Inside the cove, the hearth stone on its round table under the canopy."},

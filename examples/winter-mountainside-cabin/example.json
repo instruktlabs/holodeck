@@ -1,0 +1,408 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "winter-mountainside-cabin",
+  "title": "Winter Mountainside Cabin",
+  "description": "A snowy forest trail leads to a furnished timber cabin, with a sleeping loft, a mountain-facing deck and a stone seat overlooking the lake.",
+  "sourceRevision": 2,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "inhabitant.maker@1",
+      "interaction.hinge@1",
+      "scatter.seeded@1",
+      "terrain.heightfield@1",
+      "water.ocean@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "403bc137f158f00508b5aabc5d311311c998f93203076b29fabfffe1dcf322a5",
+    "bytes": 452594
+  },
+  "assets": [
+    {
+      "id": "moodboard",
+      "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+      "sha256": "0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
+    },
+    {
+      "id": "wmc-armchair-oak",
+      "file": "assets/imports/07b8b0cfce29ff68def0291f1b1f6230bf5124f7b2f4dabc6e2cc477ca8d502a.glb",
+      "sha256": "07b8b0cfce29ff68def0291f1b1f6230bf5124f7b2f4dabc6e2cc477ca8d502a",
+      "bytes": 1167696
+    },
+    {
+      "id": "wmc-boulder",
+      "file": "assets/imports/64c3333e2bb6fc5ba734c417cd4e4f465e407ed162c4b1ca786da620bf3f47c8.glb",
+      "sha256": "64c3333e2bb6fc5ba734c417cd4e4f465e407ed162c4b1ca786da620bf3f47c8",
+      "bytes": 704368
+    },
+    {
+      "id": "wmc-chimney-masonry",
+      "file": "assets/imports/13d9eff2c75a0b090b06db398c2110c7fb0511889598efb605b1cd204e3b4daa.glb",
+      "sha256": "13d9eff2c75a0b090b06db398c2110c7fb0511889598efb605b1cd204e3b4daa",
+      "bytes": 1147316
+    },
+    {
+      "id": "wmc-coffee-table",
+      "file": "assets/imports/1930b8cfbfd19325dd477b855505009eb7d60280b3328682a7ddbc4f4ebadab9.glb",
+      "sha256": "1930b8cfbfd19325dd477b855505009eb7d60280b3328682a7ddbc4f4ebadab9",
+      "bytes": 306400
+    },
+    {
+      "id": "wmc-deck-tile",
+      "file": "assets/imports/4a13c23e6b7ced2213a3a7c48fff5d5ceaee8147ba771857a28239f3737a5026.glb",
+      "sha256": "4a13c23e6b7ced2213a3a7c48fff5d5ceaee8147ba771857a28239f3737a5026",
+      "bytes": 187144
+    },
+    {
+      "id": "wmc-desk",
+      "file": "assets/imports/161c21bbc664b675b6f6f7a7c10335b6d15b3f5b55b15bdce718bc0ce92c94eb.glb",
+      "sha256": "161c21bbc664b675b6f6f7a7c10335b6d15b3f5b55b15bdce718bc0ce92c94eb",
+      "bytes": 107496
+    },
+    {
+      "id": "wmc-dining-chair",
+      "file": "assets/imports/548033dfe41212ed713367d4f2cf071076b19ea65453b4e87e4264034e7d79d6.glb",
+      "sha256": "548033dfe41212ed713367d4f2cf071076b19ea65453b4e87e4264034e7d79d6",
+      "bytes": 329496
+    },
+    {
+      "id": "wmc-dining-table",
+      "file": "assets/imports/594d6c40df27995d7bc949c0ad2ae80b915d2cd27e574ff29c7d1f48464880f2.glb",
+      "sha256": "594d6c40df27995d7bc949c0ad2ae80b915d2cd27e574ff29c7d1f48464880f2",
+      "bytes": 390856
+    },
+    {
+      "id": "wmc-door-deck",
+      "file": "assets/imports/4e5cb5a7287b2e825ae5658f44fc16ab08e0f0bb047beb10dc43c35c6666e837.glb",
+      "sha256": "4e5cb5a7287b2e825ae5658f44fc16ab08e0f0bb047beb10dc43c35c6666e837",
+      "bytes": 169884
+    },
+    {
+      "id": "wmc-door-entry",
+      "file": "assets/imports/988bfcd1d0bfc15b4d743e123e9af12fea96b625e67d69fe67e364b44a403f43.glb",
+      "sha256": "988bfcd1d0bfc15b4d743e123e9af12fea96b625e67d69fe67e364b44a403f43",
+      "bytes": 167796
+    },
+    {
+      "id": "wmc-eave-storage",
+      "file": "assets/imports/a6a82947a98876547e5cb1dd4b04b08dafb3c9ab87ecaef5d0764e77b1618e94.glb",
+      "sha256": "a6a82947a98876547e5cb1dd4b04b08dafb3c9ab87ecaef5d0764e77b1618e94",
+      "bytes": 139188
+    },
+    {
+      "id": "wmc-entry-bench",
+      "file": "assets/imports/9edb1292dcd614d3bec97f122e76240022312ad61933539cbd98400aa26073d2.glb",
+      "sha256": "9edb1292dcd614d3bec97f122e76240022312ad61933539cbd98400aa26073d2",
+      "bytes": 1474736
+    },
+    {
+      "id": "wmc-fallen-log",
+      "file": "assets/imports/1c1050f2294eb6720ea6875e4a0d40e412b0d71bb6473f81bf913ff5084a3902.glb",
+      "sha256": "1c1050f2294eb6720ea6875e4a0d40e412b0d71bb6473f81bf913ff5084a3902",
+      "bytes": 423668
+    },
+    {
+      "id": "wmc-fir-background-a",
+      "file": "assets/imports/37f661f3e22281a291abf880e91340d9522aeb1bfec6e256b16336fc389e4e94.glb",
+      "sha256": "37f661f3e22281a291abf880e91340d9522aeb1bfec6e256b16336fc389e4e94",
+      "bytes": 174668
+    },
+    {
+      "id": "wmc-fir-hero-a",
+      "file": "assets/imports/bec22f468853e89955c4ba4a48e314adb228af2dd2c9ca5a88b7a93669a5e0c7.glb",
+      "sha256": "bec22f468853e89955c4ba4a48e314adb228af2dd2c9ca5a88b7a93669a5e0c7",
+      "bytes": 3435860
+    },
+    {
+      "id": "wmc-fir-middle-a",
+      "file": "assets/imports/744fcb27a715a380cf1aa7d33dcc38055349c9b655f6ce18dd48730118fa7e47.glb",
+      "sha256": "744fcb27a715a380cf1aa7d33dcc38055349c9b655f6ce18dd48730118fa7e47",
+      "bytes": 425676
+    },
+    {
+      "id": "wmc-fir-sapling-a",
+      "file": "assets/imports/553fec6081abf7e9efde030e1d8977f496e517b6c73704601d6bf26f6770c8da.glb",
+      "sha256": "553fec6081abf7e9efde030e1d8977f496e517b6c73704601d6bf26f6770c8da",
+      "bytes": 700308
+    },
+    {
+      "id": "wmc-floor-loft",
+      "file": "assets/imports/e217d936c4634eaa1bc5d823613dcc77101230bf9a69bfb717880b8ca5c256c6.glb",
+      "sha256": "e217d936c4634eaa1bc5d823613dcc77101230bf9a69bfb717880b8ca5c256c6",
+      "bytes": 853028
+    },
+    {
+      "id": "wmc-floor-main",
+      "file": "assets/imports/f65e5db84489c67705f3e63df9d14656ca34b7053af1266d2e39882385025a09.glb",
+      "sha256": "f65e5db84489c67705f3e63df9d14656ca34b7053af1266d2e39882385025a09",
+      "bytes": 1820492
+    },
+    {
+      "id": "wmc-floorlamp-tripod",
+      "file": "assets/imports/a937ad32b256bdae9e07100d449d172e97380a4d08467f943ac6e7b0d80a764a.glb",
+      "sha256": "a937ad32b256bdae9e07100d449d172e97380a4d08467f943ac6e7b0d80a764a",
+      "bytes": 256456
+    },
+    {
+      "id": "wmc-frame-post",
+      "file": "assets/imports/16c09a2ebd4fdc9cf03169652390226cf6171a50614c37ff43a268c7c99eadf1.glb",
+      "sha256": "16c09a2ebd4fdc9cf03169652390226cf6171a50614c37ff43a268c7c99eadf1",
+      "bytes": 83920
+    },
+    {
+      "id": "wmc-gable-glass",
+      "file": "assets/imports/fb267c4097fc1a9eb111d22a332df3f4f8a415d6fb4ee950a40a5e38deaf42c4.glb",
+      "sha256": "fb267c4097fc1a9eb111d22a332df3f4f8a415d6fb4ee950a40a5e38deaf42c4",
+      "bytes": 2424
+    },
+    {
+      "id": "wmc-ground-clump",
+      "file": "assets/imports/059f40b659070d9eb11d684505e08c79a88c2d48bfb8d6d30a5f1b78d3613307.glb",
+      "sha256": "059f40b659070d9eb11d684505e08c79a88c2d48bfb8d6d30a5f1b78d3613307",
+      "bytes": 99116
+    },
+    {
+      "id": "wmc-hearth-masonry",
+      "file": "assets/imports/6810ba00d23509597e452397d343d709b92c1ece80f854bb55e29ab1d42631c7.glb",
+      "sha256": "6810ba00d23509597e452397d343d709b92c1ece80f854bb55e29ab1d42631c7",
+      "bytes": 470728
+    },
+    {
+      "id": "wmc-kitchen-run",
+      "file": "assets/imports/9cc826394db01b32c1bc7d62a5053b657a53c1ed9305f46194e0baa081d9b288.glb",
+      "sha256": "9cc826394db01b32c1bc7d62a5053b657a53c1ed9305f46194e0baa081d9b288",
+      "bytes": 837244
+    },
+    {
+      "id": "wmc-lantern",
+      "file": "assets/imports/702a4e65447b5c750b63ca6e6a000fa3cddcb5bf2720ac3dd13903bef56fe0a1.glb",
+      "sha256": "702a4e65447b5c750b63ca6e6a000fa3cddcb5bf2720ac3dd13903bef56fe0a1",
+      "bytes": 17912
+    },
+    {
+      "id": "wmc-living-rug-wool",
+      "file": "assets/imports/26b742b9b2ccc0fe25efc6c7f4ebefa79c49f1c9b39a9199a1dda0043ae3b8d9.glb",
+      "sha256": "26b742b9b2ccc0fe25efc6c7f4ebefa79c49f1c9b39a9199a1dda0043ae3b8d9",
+      "bytes": 649692
+    },
+    {
+      "id": "wmc-loft-bed",
+      "file": "assets/imports/235c03dabaff62b16db447fc7d08ccaea5fb04e70b4b027a44a047582abd40c7.glb",
+      "sha256": "235c03dabaff62b16db447fc7d08ccaea5fb04e70b4b027a44a047582abd40c7",
+      "bytes": 3731352
+    },
+    {
+      "id": "wmc-mountain-massif",
+      "file": "assets/imports/5f378bc259bbae11a42d4ab06667213eab84322bf26274e8c6812489adccd39d.glb",
+      "sha256": "5f378bc259bbae11a42d4ab06667213eab84322bf26274e8c6812489adccd39d",
+      "bytes": 2313508
+    },
+    {
+      "id": "wmc-pendant",
+      "file": "assets/imports/4d146d856f18f306187fb052e718b1115870bedb3f4a479d377ce60b013c19c3.glb",
+      "sha256": "4d146d856f18f306187fb052e718b1115870bedb3f4a479d377ce60b013c19c3",
+      "bytes": 83588
+    },
+    {
+      "id": "wmc-rafter-frame",
+      "file": "assets/imports/db443e084f6674c221d4940acbc44151d414f29b753f717d3786c255a00e0a0d.glb",
+      "sha256": "db443e084f6674c221d4940acbc44151d414f29b753f717d3786c255a00e0a0d",
+      "bytes": 53964
+    },
+    {
+      "id": "wmc-rail-span",
+      "file": "assets/imports/610b49be8200c3259dc8e6ca66bee2ef53dccf52df46ac05c8bcfadd36386e3f.glb",
+      "sha256": "610b49be8200c3259dc8e6ca66bee2ef53dccf52df46ac05c8bcfadd36386e3f",
+      "bytes": 73496
+    },
+    {
+      "id": "wmc-ridge-band",
+      "file": "assets/imports/0940bd73fe92813d7ae168ebf194de4e935841b815a73f0442abff1ceb5cf500.glb",
+      "sha256": "0940bd73fe92813d7ae168ebf194de4e935841b815a73f0442abff1ceb5cf500",
+      "bytes": 1044932
+    },
+    {
+      "id": "wmc-rock-shelf",
+      "file": "assets/imports/e39ca7e6cf3a3e7c109a37469f6b2d3462b2abc57c6c0f5dcdae98b4fa2b1ead.glb",
+      "sha256": "e39ca7e6cf3a3e7c109a37469f6b2d3462b2abc57c6c0f5dcdae98b4fa2b1ead",
+      "bytes": 750792
+    },
+    {
+      "id": "wmc-roof-east",
+      "file": "assets/imports/426760d4f8c963729d6ca10f9aac697345cafe804d47edd2da3ddb5e0241d066.glb",
+      "sha256": "426760d4f8c963729d6ca10f9aac697345cafe804d47edd2da3ddb5e0241d066",
+      "bytes": 951996
+    },
+    {
+      "id": "wmc-roof-west",
+      "file": "assets/imports/d18380d2d2a5fa3a0d524076702f5497eff426367b255cd48947938f0fcf5c74.glb",
+      "sha256": "d18380d2d2a5fa3a0d524076702f5497eff426367b255cd48947938f0fcf5c74",
+      "bytes": 953224
+    },
+    {
+      "id": "wmc-side-table",
+      "file": "assets/imports/b38e325dcfb767c16d840e3987d669b05cf606a46efe72731681f790c8ec0318.glb",
+      "sha256": "b38e325dcfb767c16d840e3987d669b05cf606a46efe72731681f790c8ec0318",
+      "bytes": 184028
+    },
+    {
+      "id": "wmc-small-props",
+      "file": "assets/imports/36eb43ffd240300c10a2a7548681708576db54af903f05b94f564a5dacbc85f3.glb",
+      "sha256": "36eb43ffd240300c10a2a7548681708576db54af903f05b94f564a5dacbc85f3",
+      "bytes": 359460
+    },
+    {
+      "id": "wmc-snow-bank",
+      "file": "assets/imports/b92930b6d59cabcd8b1b12ff35519727d0d463046f53cbe63c8f586e8b926778.glb",
+      "sha256": "b92930b6d59cabcd8b1b12ff35519727d0d463046f53cbe63c8f586e8b926778",
+      "bytes": 733892
+    },
+    {
+      "id": "wmc-sofa-wool",
+      "file": "assets/imports/31208887ca28acce4b78d71814b2365922f79e0b9d5529e44955d4bc04659a44.glb",
+      "sha256": "31208887ca28acce4b78d71814b2365922f79e0b9d5529e44955d4bc04659a44",
+      "bytes": 3925956
+    },
+    {
+      "id": "wmc-spruce-background-a",
+      "file": "assets/imports/90e553f918c89b6e088a3de8f52bccec8cab1aed698d309f0b7b1d0123a96e2e.glb",
+      "sha256": "90e553f918c89b6e088a3de8f52bccec8cab1aed698d309f0b7b1d0123a96e2e",
+      "bytes": 184060
+    },
+    {
+      "id": "wmc-spruce-hero-a",
+      "file": "assets/imports/eeb1d8ca42993801fa2de373caf539f861cb167f650797265ce02c1fe351e89e.glb",
+      "sha256": "eeb1d8ca42993801fa2de373caf539f861cb167f650797265ce02c1fe351e89e",
+      "bytes": 3629236
+    },
+    {
+      "id": "wmc-spruce-middle-a",
+      "file": "assets/imports/aebf1f5ef565e398f073f667d46ce726abd376b90a14c26d707ab075fa9f059b.glb",
+      "sha256": "aebf1f5ef565e398f073f667d46ce726abd376b90a14c26d707ab075fa9f059b",
+      "bytes": 432708
+    },
+    {
+      "id": "wmc-stair-rail-exterior",
+      "file": "assets/imports/78b9bd4d0c2613d8b4d708b9a3a884a24b345c2f0075555479c6d7d6aa25e2f0.glb",
+      "sha256": "78b9bd4d0c2613d8b4d708b9a3a884a24b345c2f0075555479c6d7d6aa25e2f0",
+      "bytes": 115604
+    },
+    {
+      "id": "wmc-stair-rail-interior",
+      "file": "assets/imports/cf7ddfb5dc84041f8b2ffa86140cd81e8c61d51f659ee67ff4ba62f81e4bdf12.glb",
+      "sha256": "cf7ddfb5dc84041f8b2ffa86140cd81e8c61d51f659ee67ff4ba62f81e4bdf12",
+      "bytes": 136804
+    },
+    {
+      "id": "wmc-stone-pier",
+      "file": "assets/imports/66b1f288e84daf055b179d832b690bc863a03118b698aaed0adec0421d07fcec.glb",
+      "sha256": "66b1f288e84daf055b179d832b690bc863a03118b698aaed0adec0421d07fcec",
+      "bytes": 527744
+    },
+    {
+      "id": "wmc-stone-plinth-panel",
+      "file": "assets/imports/3774732adde6e8cc3c22c387d4b432188e71561f4d8f8fbee7c56416b0645cfa.glb",
+      "sha256": "3774732adde6e8cc3c22c387d4b432188e71561f4d8f8fbee7c56416b0645cfa",
+      "bytes": 290904
+    },
+    {
+      "id": "wmc-trail-marker",
+      "file": "assets/imports/be9a3042b84c29260944d6fadb5608fe69876b05a8a05497ea4c216c73a994cd.glb",
+      "sha256": "be9a3042b84c29260944d6fadb5608fe69876b05a8a05497ea4c216c73a994cd",
+      "bytes": 235424
+    },
+    {
+      "id": "wmc-tread-timber",
+      "file": "assets/imports/ed466a3865232ab707154674ab524220cfd0802ed010b4c575f01d73c2bf4c97.glb",
+      "sha256": "ed466a3865232ab707154674ab524220cfd0802ed010b4c575f01d73c2bf4c97",
+      "bytes": 74468
+    },
+    {
+      "id": "wmc-wall-east",
+      "file": "assets/imports/bec7b6538e0f61594607449088e44d847822a54b4afe06e740d35eb2a751a381.glb",
+      "sha256": "bec7b6538e0f61594607449088e44d847822a54b4afe06e740d35eb2a751a381",
+      "bytes": 1205672
+    },
+    {
+      "id": "wmc-wall-facade",
+      "file": "assets/imports/b53e834f0d8ea900736cf277e30c926b8c171844a934c9ec0ce89332fc04c782.glb",
+      "sha256": "b53e834f0d8ea900736cf277e30c926b8c171844a934c9ec0ce89332fc04c782",
+      "bytes": 1281148
+    },
+    {
+      "id": "wmc-wall-rear",
+      "file": "assets/imports/cf8b764038bea4437e6e7a46f6d9d7839e4e0b3e87303bd76bd5ba822d35d654.glb",
+      "sha256": "cf8b764038bea4437e6e7a46f6d9d7839e4e0b3e87303bd76bd5ba822d35d654",
+      "bytes": 827940
+    },
+    {
+      "id": "wmc-wall-west",
+      "file": "assets/imports/7a5d2bc1993fb74d6778227fa039ca7ed9cd63eb4881bca2763175dc29aeba33.glb",
+      "sha256": "7a5d2bc1993fb74d6778227fa039ca7ed9cd63eb4881bca2763175dc29aeba33",
+      "bytes": 1002436
+    },
+    {
+      "id": "wmc-window-tall",
+      "file": "assets/imports/bbf65f63cb729b6e6d51e0e4709ae2bd9305e5facd249058dc4f82cf7dd159e9.glb",
+      "sha256": "bbf65f63cb729b6e6d51e0e4709ae2bd9305e5facd249058dc4f82cf7dd159e9",
+      "bytes": 175068
+    },
+    {
+      "id": "wmc-window-test",
+      "file": "assets/imports/869d74335457eaf5437d55e7bc6cb83789fa4377b548b2f4ea39f5acc7923334.glb",
+      "sha256": "869d74335457eaf5437d55e7bc6cb83789fa4377b548b2f4ea39f5acc7923334",
+      "bytes": 175196
+    }
+  ],
+  "textures": [
+    {
+      "file": "assets/imports/terrain/446c07ee5ecca9fd2d5219595efbe9f167e08f6c03d2253f9ff38bcc007104b6.png",
+      "sha256": "446c07ee5ecca9fd2d5219595efbe9f167e08f6c03d2253f9ff38bcc007104b6",
+      "bytes": 252120,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/44e09112d2be855db0d7830860bd789ca564d4bfbe83caeda56003510a8d8025.png",
+      "sha256": "44e09112d2be855db0d7830860bd789ca564d4bfbe83caeda56003510a8d8025",
+      "bytes": 26359,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/dc1a299a492df8af4f06f69c5662d1a9463d84def217ba8a16300ab3dd255d40.png",
+      "sha256": "dc1a299a492df8af4f06f69c5662d1a9463d84def217ba8a16300ab3dd255d40",
+      "bytes": 1839,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/def0c60452fc6c8cf6fcb9026c1d6e13ef8e6d975d6d1502bcadbdc9e4379c17.png",
+      "sha256": "def0c60452fc6c8cf6fcb9026c1d6e13ef8e6d975d6d1502bcadbdc9e4379c17",
+      "bytes": 289993,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/f29c58e7bdc5e7b037750d256658ca3ba5f6e96924696c801c8b8e470d18d622.png",
+      "sha256": "f29c58e7bdc5e7b037750d256658ca3ba5f6e96924696c801c8b8e470d18d622",
+      "bytes": 28949,
+      "width": 512,
+      "height": 512
+    }
+  ],
+  "preview": {
+    "file": "preview.png",
+    "sha256": "0ab2a6d22d5d40a32223870230006c830418a42f4ba5b1ae553b5eb724625e37",
+    "bytes": 1219358,
+    "width": 1280,
+    "height": 720
+  },
+  "integrity": "3d4be1872340e2bc3289c4b437eee29a507150b1a0b6a1bb8f656e2ae2f40853"
+}

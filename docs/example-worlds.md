@@ -10,6 +10,10 @@ water, jungle vegetation, articulated patrols and flying boid flocks. Select it
 under **Start from an example** in the [world picker](world-library.md), or use
 the CLI below. Each copy has its own name, saved revisions and local agent session.
 
+Winter Mountainside Cabin (`winter-mountainside-cabin`) is a snowy conifer
+mountainside at dusk with a trailhead, woodland loop and lake viewpoint, and a
+furnished two-storey timber cabin with a sleeping loft, deck and hinged doors.
+
 The bundle contains the editable world document, exact pinned GLBs and curated
 public bible guidance. Its physical mood board starts empty. You can change
 placements, terrain, lighting and supported behavior, or replace an asset with a
@@ -29,6 +33,8 @@ node bin/holodeck.mjs check ../my-world
 node bin/holodeck.mjs dev ../my-world --port 4189
 node bin/holodeck.mjs init ../my-island --example tidemark
 node bin/holodeck.mjs dev ../my-island --port 4192
+node bin/holodeck.mjs init ../my-cabin --example winter-mountainside-cabin
+node bin/holodeck.mjs dev ../my-cabin --port 4193
 node bin/holodeck.mjs init ../my-courtyard --example courtyard
 node bin/holodeck.mjs check ../my-courtyard
 node bin/holodeck.mjs dev ../my-courtyard --port 4190
@@ -45,6 +51,9 @@ Agent connection retains the existing Kiln setup workflow.
 - Tidemark Island: Enter world to explore the beach and jungle. Maker possession
   supports first/third person, walking, running, jumping and swimming. Free camera
   lets you inspect the scene. Patrol joints and flock wings use procedural gait.
+- Winter Mountainside Cabin: Enter world at the trailhead and follow the trail
+  markers up to the cabin. Press E near a door to open it; the interior stair
+  leads to the loft, and the return path passes the lake viewpoint seat.
 - Courtyard: Enter world, approach and aim at the garden gate, then press E to
   open/close it within 3.5 metres of its current bounds. Follow the path to the basin.
 - Kinetic exhibit: independently Start / stop nearby mechanisms, pause/resume
