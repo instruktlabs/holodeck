@@ -253,9 +253,45 @@ of walk/run speed. Depth at least 1.25m enters swimming; depth at most 0.9m exit
 Swimming feet follow water height minus 1m, with height 1.35m and eye height 1.25m.
 Space jumps when grounded, with a 5.4m/s impulse and 18m/s² gravity. **V**
 switches first and third person. The maker is an optional built-in procedural
-body with a visual gait and basic foot IK. Arbitrary imported rigs, ragdolls,
+body; its motion is described below. Arbitrary imported rigs, ragdolls,
 moving-body push response and a general physics solver are not implemented by
 these records.
+
+### The maker's body and motion
+
+The maker is one 49-bone skeleton driving a skinned mesh per material, about a
+dozen draws in all. Its enamel shells stay rigid on their bones; the waist, neck,
+shawl and sash blend between bones. The pose is visual only: it reads the actor
+record each frame and never moves collision, support or cameras.
+
+- **Gait.** Below about 1.9m/s the maker walks, above 2.5m/s it runs, blending
+  between. Default walking speed (2.6m/s) is a jog; sprint is a run, and a
+  partly tilted touch stick walks. Stride and cadence follow speed, and the gait
+  phase advances with distance actually travelled.
+- **Feet.** Each foot is planted in world space for its stance, rolls from heel
+  strike to toe-off about its heel and ball, and swings on a path that leaves
+  and lands at zero ground speed. Two-bone IK places each ankle on the terrain or
+  a walkable collider top, eases the last few percent of reach so knees never
+  snap straight, and lowers the pelvis only as far as a supporting leg needs.
+- **Starts, stops and turns.** A stop finishes the step in flight, then settles
+  any foot that strayed from a comfortable stance, one at a time. Turning on the
+  spot in first person shuffles the feet; a turn past 90 degrees re-plants both.
+- **Jumps.** A standing jump tucks both knees; a running jump keeps the stride's
+  lead leg. Landing sinks the pelvis in proportion to the fall, then springs back.
+- **Water.** Wading lifts the knees higher and raises the arms with depth.
+  Swimming at rest treads water with an eggbeater kick and sculling hands, the
+  head above the surface and the feet clear of a shallow bed. Under way it is a
+  front crawl: alternating strokes with a high-elbow recovery, body roll toward
+  the pulling arm, a breath to the side and a six-beat flutter kick.
+- **Life.** At rest the maker breathes and shifts its weight. In third person
+  its head turns toward where the camera looks, and lets go when the camera
+  faces it. The eyes blink, the chest core pulses, and the shawl and sash swing
+  on damped springs driven by travel, acceleration, turning and gravity.
+
+First person hides the head and the shawl, which sit at the eye, while keeping
+their shadows. For development, `maker-lab.html` on the dev server
+(`npm run dev`) runs the same controller and pose on a small beach and lagoon;
+`window.makerLab` drives scripted input and fixed review cameras.
 
 ### Walkable colliders
 

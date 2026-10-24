@@ -58,7 +58,7 @@ const axis=v=>Math.max(-1,Math.min(1,v));
 const NO_STICK={forward:0,strafe:0,sprint:false};
 function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}){
  const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
- const actor=useRef(null),free=useRef(null),skipFrame=useRef(false);
+ const actor=useRef(null),free=useRef(null),skipFrame=useRef(false),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
  // A hidden page is throttled or paused; the first interval after it returns spans
  // the whole absence. Neither is a frame anyone saw, so neither is recorded.
  useEffect(()=>{const changed=()=>{skipFrame.current=true;};document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[]);
@@ -141,7 +141,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    const k=keys.current,f=axis(Number(k.has('KeyW'))-Number(k.has('KeyS'))+stick.forward),r=axis(Number(k.has('KeyD'))-Number(k.has('KeyA'))+stick.strafe),w=walk.current,len=Math.max(1,Math.hypot(f,r)),sprint=k.has('ShiftLeft')||k.has('ShiftRight')||stick.sprint;
    if(actor.current){
     const a=actor.current;a.camera=person;
-    stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space')||!!pad?.jump,sprint,yaw:w.yaw},dt,inhabitantContext(runtime,a.radius));
+    stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space')||!!pad?.jump,sprint,yaw:w.yaw},dt,inhabitantContext(runtime,a.radius));a.pitch=w.pitch;
     moving=a.speed>.01;
     const eye=new THREE.Vector3(a.position[0],a.position[1]+a.eyeHeight,a.position[2]);w.position=eye.toArray();
     camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
@@ -189,7 +189,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
   const gate=compileGate(gl,settled.current);settled.current=gate.settled;probe.compiling=gate.compiling;probe.ready||=gate.ready;
- },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} firstPerson={mode==='walk'&&person==='first'}/>:null;
+ },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} walkable={walkable} firstPerson={mode==='walk'&&person==='first'}/>:null;
 }
 function Sun({runtime,environment,cameraMode}){
  const {camera}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]),focus=useMemo(()=>new THREE.Vector3(),[]),last=useRef({});
