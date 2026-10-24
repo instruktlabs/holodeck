@@ -18,6 +18,10 @@ Dependencies are installed through package.json and package-lock.json and retain
 
 Speech model weights downloaded on first use retain their upstream terms and are not part of Holodeck's CC0 asset dedication. Generated ONNX runtime files under public/runtime/ come from installed dependencies and are excluded from the source repository.
 
+## Kiln library textures
+
+Some Winter Mountainside Cabin GLBs embed texture maps from Kiln's built-in material library, which derives them from CC0 1.0 Poly Haven textures: Bark Brown 01, Oak Veneer 01, Rock Face 03, Brown Planks 03 and Rough Concrete (polyhaven.com). CC0 requires no attribution; the source is recorded here for provenance.
+
 ## First-party provenance
 
 Cove asset source and revision metadata are in assets/cove/. Tidemark's manifest pins its delivered scene and asset bytes. Concept images were generated with Image Generator and are distinct from runtime captures. First-party licensing scope is defined in [LICENSING.md](LICENSING.md).
