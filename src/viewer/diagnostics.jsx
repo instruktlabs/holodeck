@@ -33,10 +33,17 @@ export function MeasurementResult({report,download}){
   {download&&<a href={download.href} download={download.filename}>Download result JSON</a>}
  </section>;
 }
+export function DiagnosticsPanel({collapsed,busy,onToggle,children}){
+ return <aside className={`viewer-diagnostics${collapsed?' is-collapsed':''}`} aria-label="Viewer diagnostics" onKeyDown={stop} onKeyUp={stop}>
+  <button className="diagnostics-toggle" aria-expanded={!collapsed} aria-controls="diagnostics-content" disabled={busy} onClick={()=>{if(!busy)onToggle();}}>{collapsed?'Show diagnostics':'Hide diagnostics'}</button>
+  <div id="diagnostics-content" hidden={collapsed}>{children}</div>
+ </aside>;
+}
 export function Diagnostics({readErrors,readInitialization}){
  const [status,setStatus]=useState(null),[text,setText]=useState(''),[scenarios,setScenarios]=useState([]),[selected,setSelected]=useState(''),[manifest,setManifest]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false),[progress,setProgress]=useState(null),[report,setReport]=useState(null);
  const [download,setDownload]=useState(null);
  const [initialization,setInitialization]=useState(null),[initializationDownload,setInitializationDownload]=useState(null);
+ const [collapsed,setCollapsed]=useState(false);
  const mounted=useRef(false),running=useRef(false),events=useRef([]),phaseStart=useRef(0);
  const expectedBackend=new URLSearchParams(location.search).get('backend')==='webgl'?'webgl':'webgpu';
  useEffect(()=>{
@@ -70,7 +77,7 @@ export function Diagnostics({readErrors,readInitialization}){
   running.current=false;if(mounted.current){setReport(result);setBusy(false);setProgress(null);}
  }
  const proof=status?.proof,view=proof?.viewport,hardware=hardwareEvidence(proof,expectedBackend),ready=!!status?.ready&&scenarios.length===3;
- return <aside className="viewer-diagnostics" aria-label="Viewer diagnostics" onKeyDown={stop} onKeyUp={stop}>
+ return <DiagnosticsPanel collapsed={collapsed} busy={busy} onToggle={()=>{if(!running.current)setCollapsed(value=>!value);}}>
   <h1>Viewer diagnostics</h1>
   <p>Fixed-camera measurements · {status?.protocol??'Waiting for renderer'} · Revision {status?.revision??'unverified'}</p>
   <InitializationEvidence evidence={initialization} download={initializationDownload?.evidence===initialization?initializationDownload:null}/>
@@ -93,5 +100,5 @@ export function Diagnostics({readErrors,readInitialization}){
   {(status?.errors?.length>0||allErrors().length>0)&&<p role="alert">Session errors: {[...(status?.errors??[]),...allErrors()].slice(0,50).join(' · ')}</p>}
   {report&&<MeasurementResult report={report} download={download?.report===report?download:null}/>}
   <details><summary>Evidence limits</summary>{DIAGNOSTIC_LIMITATIONS.map(t=><p key={t}>{t}</p>)}</details>
- </aside>;
+ </DiagnosticsPanel>;
 }
