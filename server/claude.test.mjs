@@ -351,6 +351,23 @@ test('a script run may discard its output and grep a file under assets/source th
   assert.equal(scriptRun('PowerShell',"node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt",root),null,'PowerShell keeps only the tail forms');
 });
 
+test('a read may follow the filters, and a bare grep pattern may not start with - (H95)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The form the agent used in turn 17: list pieces, then look up a function in the design script.
+  assert.equal(bash("node assets/source/design/list-objects.mjs assets/source/turn12/scene.json '^(parapet-arrival|arrival-terrace|found-arrival|planter-arrival|lip-arrival|coping-arrival)' | cut -c1-120; grep -n -e 'function shiftY' assets/source/design/sanctuary.mjs"),'assets/source/design/list-objects.mjs');
+  assert.equal(bash("node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/r.txt | head -5"),'assets/source/a.mjs');
+  assert.equal(bash("node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt | cut -c1-80; grep -c -e 'y' assets/source/s.txt"),'assets/source/a.mjs','one read on each side of the filters');
+  assert.equal(bash("node assets/source/a.mjs | grep -e '-re.'"),'assets/source/a.mjs','an -e pattern is always a pattern');
+  assert.equal(bash("node assets/source/a.mjs | grep -v 'x-ray'"),'assets/source/a.mjs');
+  // grep reads '-re.' as -r -e . (with no file, the whole working directory) and '-fFILE' as a pattern file.
+  for(const command of ["node assets/source/a.mjs | grep '-re.'",'node assets/source/a.mjs | grep "-re."',"node assets/source/a.mjs | grep -v '-fpatterns.txt'",
+   "node assets/source/a.mjs | grep -c '--file=/etc/passwd'","node assets/source/a.mjs | cut -c1-9 | grep '-d' | head -3",
+   "node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' /etc/passwd","node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/../../outside.txt",
+   "node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/r.txt; whoami","node assets/source/a.mjs | cut -c1-120; grep -r -e 'x' assets/source",
+   "node assets/source/a.mjs | cut -c1-120; grep -n 'x' assets/source/r.txt","node assets/source/a.mjs | grep 'a' | grep 'b' | grep 'c'; grep -e 'd' assets/source/r.txt | grep 'e' | grep 'f' | grep 'g' | grep 'h'"])assert.equal(bash(command),null,command);
+});
+
 test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{
   const root=path.resolve(os.tmpdir(),'world'),out=path.resolve(os.tmpdir(),'projects');
   const card=(tool,input)=>{const c=permissionCard(tool,input,root);return [c.title,c.command,c.outside];};

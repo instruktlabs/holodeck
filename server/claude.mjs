@@ -64,10 +64,10 @@ const QUOTED=String.raw`(?:'[^'\r\n]*'|"[^"$\x60\\!\r\n]*")`,GREP_FLAGS=String.r
 // pattern may not start with - (H95); -e patterns are always patterns.
 const BARE=String.raw`(?:'(?!-)[^'\r\n]*'|"(?!-)[^"$\x60\\!\r\n]*")`;
 const FILTER=String.raw`(?:grep${GREP_FLAGS}(?: ${BARE}|${PATTERNS})|sed -n '${SED_RANGE}(?:;${SED_RANGE})*'|sed(?: -E)?(?: -e)? '${SED_SUB}(?:; *${SED_SUB})*'|cut -c ?\d*-?\d*)`;
-const SINK=String.raw`(?: *> */dev/null)?`,READ=String.raw`(?: *; *grep${GREP_FLAGS}${PATTERNS} ((?:\.[\\/])?assets[\\/]source[\\/][\w.\-\\/]+))?`;
+const SINK=String.raw`(?: *> */dev/null)?`,READ=String.raw`(?: *; *grep${GREP_FLAGS}${PATTERNS} ((?:\.[\\/])?assets[\\/]source[\\/][\w.\-\\/]+))`;
 const PIPES=String.raw`(?: *\| *(?:${TRIM}|${FILTER})){0,3}`;
 // The read may come before the filters or after them (script | cut -c1-120; grep -n -e … assets/source/…, H95).
-const SCRIPT_RUN=new RegExp(String.raw`${RUN}(?: *\| *${TRIM})?\s*$`),SCRIPT_RUN_BASH=new RegExp(String.raw`${RUN_BASH}${SINK}${READ}${PIPES}${READ}${PIPES}\s*$`);
+const SCRIPT_RUN=new RegExp(String.raw`${RUN}(?: *\| *${TRIM})?\s*$`),SCRIPT_RUN_BASH=new RegExp(String.raw`${RUN_BASH}${SINK}${READ}?${PIPES}(?:${READ}${PIPES})?\s*$`);
 const SOURCE_CODE=/\.(?:py|mjs|cjs|js|ts|ps1|sh)$/i,MAX_SOURCE_FILES=4000,MAX_SOURCE_BYTES=64*1024*1024;
 const scriptKey=(tool,root,script,hash)=>'script:'+JSON.stringify([tool,root,script,hash]);
 export function scriptRun(tool,command,root){
