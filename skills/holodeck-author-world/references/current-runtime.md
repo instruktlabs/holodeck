@@ -50,9 +50,57 @@ The `capabilities` section returns each of these; the key is in brackets
   `water.surf` adds reef-break foam and beach swash over the terrain (visual
   only). Optional `environment.sky` gives a zenith/horizon gradient (the
   horizon defaults to `fogColor`), a sun disc and procedural clouds; without it
-  the analytic sky has no clouds. Placed objects under the water are tinted
+  the analytic sky has no clouds. Its `curve` is the exponent on elevation:
+  lower is bluer overhead, higher carries the horizon haze further up. Placed
+  objects under the water are tinted
   automatically like the seabed at their depth; do not bake underwater tint
-  into GLB albedo.
+  into GLB albedo. Only `water.bounds` holds water: below the level outside
+  it, terrain and placements stay dry.
+- **Sky light and cloud deck** (`spatial.sky`): optional `sky.light` captures
+  the world from one probe point (default the spawn) into an environment map
+  that lit materials reflect and are lit by, in place of the fixed hemisphere
+  fill: mirrors, metal and polished stone then show the sky and the
+  architecture around the probe. Author mirrors as metallic 1 with roughness
+  near 0. Optional `sky.cloudSea` puts a sunlit deck of cloud below the
+  horizon at a world height, so a world can float with nothing below; anything
+  that dips below the deck fades into it. Billows are about 85 m times `scale`
+  across: a deck just below the rim reads as a flat floor, while one 50–120 m
+  down at scale 0.5–0.8 reads as a sea of cloud. Optional `asset.reflection:
+  "sky"` makes floating mirrors reflect the sky dome alone rather than the
+  probe's view of the world; `asset.reflection: {probe: [x, y, z]}` gives an
+  asset a world capture of its own from a point in open air among its
+  placements, so mirrors above the courts reflect the architecture.
+  Optional `sky.cumulus {toward: [x, z], spread, height}` raises a bank of
+  towering cumulus on part of the horizon, in front of the sky: a far
+  destination for an axis or a gateway (20–30° fills a tall opening).
+- **Grade** (`lighting`): optional `environment.grade` picks ACES (default),
+  Neutral or AgX tone mapping and the exposure. Neutral keeps hue and
+  saturation and lets sunlit white reach white; retune warm colours after
+  switching.
+- **Shadow reach** (`lighting`): sun shadows cover 24 m either side of the
+  walker or view; optional `environment.shadow.extent` (12–120) widens the box
+  for long axial views, with softer shadows and more casters. A placement with
+  `castShadow: false` stays out of the shadow map: use it for floating or far
+  pieces that should not shade the walkable court below them.
+- **Bounce light** (`spatial.sky`): optional `sky.light.bounce` adds unshadowed
+  light rising from the ground in one colour, so shade on warm sunlit stone
+  reads warm. Keep it modest (about 0.2–0.6).
+- **Mirror water** (`spatial.waterRendering`): optional `water.reflection:
+  "planar"` mirrors the world itself in the water plane at half resolution,
+  so pools reflect the architecture crisply and in place. It roughly doubles
+  the draws of every view that shows the water; use it where mirror water is
+  the point.
+- **Screen-space effects** (`lighting`): optional `environment.effects` adds
+  `occlusion` (ambient occlusion: contact, creases and recesses darken; it
+  turns on `temporalAA`), `temporalAA` (settles shimmering bevels, inlays and
+  stair edges, slightly softer) and `sunShafts` (light shafts from the sun's
+  shadow map; beyond the shadow box they veil distant architecture, so use a
+  low intensity or none in long open views), and `bloom` tunes the glow every
+  world has (a lower `threshold` lets sunlit marble glow). Check both renderer
+  backends after enabling them.
+- **Flowing water** (`spatial.flow`): optional `asset.flow` scrolls the maps of
+  named mesh nodes along their UVs, for waterfalls, overflowing lips and
+  streams. Author UV.v along the fall and a texture that tiles along it.
 - **Proposal size** (`proposals`): the scene is always sent whole, capped at
   4 MiB. Inline `sceneJson` travels in one tool call, so your own output limit
   binds first. For more than a small change, write the complete scene to a JSON

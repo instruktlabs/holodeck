@@ -1,13 +1,14 @@
-import React,{useEffect,useMemo} from 'react';
-import {useFrame} from '@react-three/fiber';
+import React,{useEffect,useMemo,useRef} from 'react';
+import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {SkyMesh} from 'three/addons/objects/SkyMesh.js';
-import {Fn,abs,acos,cameraPosition,color,cos,dot,exp,float,floor,int,ivec2,materialColor,max,mix,modelViewProjection,normalMap,normalWorldGeometry,positionLocal,positionWorld,select,sin,smoothstep,step,texture,textureLoad,uniform,vec2,vec3,vec4} from 'three/tsl';
+import {Fn,If,Loop,abs,acos,asin,atan,reflector,cameraPosition,color,cos,dot,exp,float,floor,int,ivec2,materialColor,max,mix,modelViewProjection,normalMap,normalWorldGeometry,output,pmremTexture,positionLocal,positionWorld,rangeFogFactor,select,sin,smoothstep,step,texture,textureLoad,uniform,uv,vec2,vec3,vec4} from 'three/tsl';
 import {createTerrain} from './terrain.mjs';
 import {rasterizeLayerMasks} from './terrain-layers.mjs';
 import {SEABED_SHALLOW_COLOR,WATER_DEEP_COLOR,WATER_TRANSMISSION} from './water-optics.mjs';
 import {buildSurfMap,resolveSurf} from './surf.mjs';
-import {BELOW_HORIZON,CLOUD_FLOOR,resolveSky} from './sky.mjs';
+import {BELOW_HORIZON,CLOUD_FLOOR,CLOUD_SEA_HAZE,resolveSky} from './sky.mjs';
+import {probeKey,probeReflections,reflectionProbePoints,skyReflection} from './asset-reflection.mjs';
 
 // Two bounded surface draws. Geometry, walking and shoreline shading all read
 // the same terrain lattice; only material detail is evaluated per fragment.
@@ -157,8 +158,15 @@ function layerSample(arrays,index,layer,p,n){
 // twice and red is absorbed first (Beer-Lambert), so pale sand reads turquoise
 // in the shallows and blue with depth, as clear reef water does. The CPU mirror
 // is underwaterColor in water-optics.mjs.
+// Only the ocean's own rectangle holds water: below the level elsewhere (a
+// cliff under a raised pool, a foundation) a surface stays dry, as the walker's
+// water samples already say (sampleWater inBounds).
+function waterInside(p,water){
+ const [xmin,xmax,zmin,zmax]=water.bounds;
+ return step(xmin,p.x).mul(step(p.x,xmax)).mul(step(zmin,p.z)).mul(step(p.z,zmax));
+}
 function waterColumn({dry,bed,p,surface,water,clock,detail,environment}){
- const submerged=surface.sub(p.y).max(0);
+ const submerged=surface.sub(p.y).max(0).mul(waterInside(p,water));
  const transmit=exp(vec3(...WATER_TRANSMISSION).mul(submerged.mul(-2)));
  const scatter=mix(color(water.shallowColor??SEABED_SHALLOW_COLOR),color(water.color??WATER_DEEP_COLOR),smoothstep(1.5,9,submerged));
  // Cheap caustics: two drifting samples of the detail map form a bright net
@@ -192,7 +200,7 @@ function makeTerrainMaterial(terrain,water,clock,textures,environment,layerTextu
  const a=terrain.appearance??{},scale=a.textureScale??1,material=new THREE.MeshStandardNodeMaterial({roughness:.95});
  const p=positionWorld,coords=p.xz.mul(scale),grain=texture(textures.detail,coords.mul(.85)),broad=texture(textures.detail,coords.mul(.037)).r;
  const wetHeight=water?waveNodes(p.xz,water,clock).height.add(.13):float(-1000);
- const wet=smoothstep(wetHeight.sub(.05),wetHeight.add(.62),p.y).oneMinus();
+ const wet=water?smoothstep(wetHeight.sub(.05),wetHeight.add(.62),p.y).oneMinus().mul(waterInside(p,water)):float(0);
  const slope=normalWorldGeometry.y.clamp(0,1),rockStart=Math.cos(a.rockSlope??.72);
  const rock=smoothstep(rockStart-.12,rockStart+.04,slope).oneMinus();
  const grass=smoothstep(a.grassStart??1.8,a.grassEnd??3.6,p.y.add(broad.sub(.5).mul(.7))).mul(rock.oneMinus()).mul(wet.oneMinus());
@@ -248,16 +256,33 @@ function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures
   const p=positionLocal;
   return vec3(p.x,waveNodes(p.xz,water,clock).height,p.z);
  })();
- const surface=Fn(()=>{
+ const surface=Fn((_,builder)=>{
   const p=positionWorld,w=waveNodes(p.xz,water,clock,true),ground=groundNodes(p.xz,lattice,heightTexture,baseHeight),detail=oceanDetailNodes(p.xz,water,clock,textures.ocean);
-  const depth=p.y.sub(ground.height).max(0).toVar(),detailFade=smoothstep(.015,.3,depth);
+  // Still water is still: ripple detail follows the authored swell, so a pool
+  // with millimetre waves keeps a near-mirror face (seas of 10 cm and more are unchanged).
+  const swell=water.waves.reduce((sum,w)=>sum+w.amplitude,0),calm=Math.max(.06,swell>=.1?1:(t=>t*t*(3-2*t))(swell/.1));
+  const depth=p.y.sub(ground.height).max(0).toVar(),detailFade=smoothstep(.015,.3,depth).mul(calm);
   const dx=w.dx.add(detail.dx.mul(detailFade)),dz=w.dz.add(detail.dz.mul(detailFade));
   const normal=vec3(dx.negate(),1,dz.negate()).normalize().toVar(),view=cameraPosition.sub(p).normalize();
   const facing=normal.dot(view).clamp(0,1),fresnel=facing.oneMinus().pow(5).mul(.98).add(.02);
   // Reflect a blue sky gradient rather than the fog colour, which washed the
   // shallows to grey at grazing angles.
   const authored=resolveSky(environment),reflected=view.negate().reflect(normal);
-  const sky=authored?skyGradientNode(authored,reflected.y):mix(mix(color(environment.fogColor??'#c5d9dd'),color('#9cc9e6'),.6),color('#3f7fbf'),reflected.y.clamp(0,1).pow(.5));
+  // With a sky light the water reflects its probe (the sky, the cloud deck and
+  // the architecture around the probe) at full strength; the probe's intensity
+  // only balances how much it lights the world.
+  const probe=authored?.light?builder.scene?.environment:null;
+  // Optional planar reflection (water.reflection 'planar', H82): flat pools mirror
+  // the world itself, crisp and in place, from a second view of the scene mirrored
+  // in the water plane at half resolution, nudged by the ripples. The probe stays
+  // the lighting; a cube probe seen from one point blurs and shifts a mirror.
+  let mirror=null;
+  if(water.reflection==='planar'){
+   mirror=reflector({resolutionScale:.5,bounces:false});
+   mirror.target.rotation.x=-Math.PI/2;mirror.target.position.y=water.level;mirror.target.updateMatrixWorld(true);
+   mirror.uvNode=mirror.uvNode.add(normal.xz.mul(.04));
+  }
+  const sky=mirror?mirror.rgb:probe?pmremTexture(probe,reflected,float(.04)).rgb:authored?skyGradientNode(authored,reflected.y):mix(mix(color(environment.fogColor??'#c5d9dd'),color('#9cc9e6'),.6),color('#3f7fbf'),reflected.y.clamp(0,1).pow(.5));
   const deep=smoothstep(.1,5.5,depth),body=mix(color(water.shallowColor??'#68bcb2'),color(water.color??'#145a70'),deep);
   // The seabed already carries absorption, so shallow water stays clear and
   // its reflection softer until the bottom is out of sight.
@@ -267,7 +292,7 @@ function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures
   // no reflection camera or screen/depth target and stays stable on WebGL2.
   const normalVariance=normal.fwidth().length().mul(6).clamp(0,1);
   const light=sunFacing.pow(mix(float(220),float(55),normalVariance)).mul(mix(float(1.65),float(.65),normalVariance)).add(sunFacing.pow(34).mul(.12)).mul(environment.sunIntensity??2);
-  const reflectedLight=sky.mul(.78).add(color(environment.sunColor??'#fff1d0').mul(light));
+  const reflectedLight=sky.mul(mirror?1:.78).add(color(environment.sunColor??'#fff1d0').mul(light));
   const shoreDistance=depth.div(ground.slope.max(.09)),width=water.foamWidth??1.2;
   const shoreBand=smoothstep(0,width,shoreDistance).oneMinus();
   const shorePhase=shoreDistance.mul(2.3).add(clock.mul(1.45)).add(detail.patch.mul(3.2));
@@ -282,11 +307,22 @@ function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures
    foam=foam.max(surfFoam.clamp(0,.95));
   }
   foam=foam.toVar();
-  const waterColor=mix(body.mul(.83).add(body.mul(normal.y.max(0).mul(.17))),reflectedLight,reflectance);
-  const foamColor=color('#edf3df').mul(detail.foam.mul(.1).add(.9));
-  const result=mix(waterColor,foamColor,foam);
+  const lit=body.mul(.83).add(body.mul(normal.y.max(0).mul(.17))),foamColor=color('#edf3df').mul(detail.foam.mul(.1).add(.9));
   // Deep water is opaque, so the edge of the terrain lattice never shows through.
-  const alpha=mix(float(.16).add(smoothstep(0,6,depth).mul(.84)).add(reflectance.mul(.3)).clamp(0,1),float(.97),foam);
+  const opacity=float(.16).add(smoothstep(0,6,depth).mul(.84));
+  let waterColor,waterAlpha;
+  if(probe){
+   // A reflecting pool: Fresnel reflection over the body and the floor seen
+   // through it, composited exactly (out = R reflection + (1-R)(a body + (1-a) behind)),
+   // so still water turns to a mirror at grazing angles even when shallow.
+   waterAlpha=fresnel.add(opacity).sub(fresnel.mul(opacity)).max(.001);
+   waterColor=reflectedLight.mul(fresnel).add(lit.mul(fresnel.oneMinus()).mul(opacity)).div(waterAlpha);
+  }else{
+   waterColor=mix(lit,reflectedLight,reflectance);
+   waterAlpha=opacity.add(reflectance.mul(.3)).clamp(0,1);
+  }
+  const result=mix(waterColor,foamColor,foam);
+  const alpha=mix(waterAlpha,float(.97),foam);
   return vec4(result,alpha);
  })();
  material.colorNode=surface.rgb;material.opacityNode=surface.a;return material;
@@ -373,17 +409,129 @@ function cloudFbm(position,drift){
  for(let octave=0;octave<4;octave++){result=result.add(cloudNoise(p).mul(.5**octave));p=p.mul(2).add(drift);}
  return result;
 }
-function makeSkyMaterial(sky,environment,clock){
+// The cloud deck (sky.cloudSea): where a downward ray from the camera meets a
+// plane at the deck height, the fbm of the clouds above draws billows of tens
+// of metres, thinned in broad regions so the sea opens here and there. A second
+// sample a little toward the sun gives each billow a lit and a shaded side. Like
+// the dome it is drawn at infinity, so geometry always covers it.
+// Near the camera the billow heads also stand up as a heightfield up to 0.4
+// billow-widths tall (H81): the ray is marched through that layer, and the hit is
+// shaded by its real slope, so crowns face the sun, valleys sit in shade and
+// nearer billows hide farther ones. Past a few dozen billow widths, where relief
+// no longer shows, the plane shading takes over.
+const CLOUD_SEA_STEPS=16,CLOUD_SEA_RELIEF=.8;
+function cloudSeaNode({sea,sky,direction,cosine,clock,sun,sunColor,fog}){
+ const size=85*sea.scale,relief=CLOUD_SEA_RELIEF*size,down=direction.y.negate(),slope=down.max(.002),above=cameraPosition.y.sub(sea.height).max(.5);
+ const drift=vec2(clock.mul(sea.drift[0]),clock.mul(sea.drift[1])),swirl=clock.mul(.004);
+ const reach=above.div(slope).min(80000),ground=cameraPosition.xz.add(direction.xz.mul(reach)).add(drift);
+ const q=ground.div(size),flat=Math.hypot(sun.x,sun.z)||1,toward=vec2(sun.x/flat*.14,sun.z/flat*.14);
+ // Far away a pixel spans many billows: fade relief and gaps to their average.
+ // Derivatives are taken before the branches below, where WGSL forbids them.
+ const detail=smoothstep(.45,.05,q.fwidth().length());
+ // Near the horizon the deck dissolves into the haze it sits in; from under the
+ // deck there is only haze below.
+ const visible=smoothstep(0,CLOUD_SEA_HAZE,down).mul(step(sea.height,cameraPosition.y));
+ // Only pixels that can see the deck pay for it: the dome above the horizon,
+ // most of a frame and nearly all of the water's mirror view, takes the haze.
+ const result=vec3(fog).toVar();
+ If(visible.greaterThan(0),()=>{
+  // Billow heads of a few hundred metres carry the finer billows on their backs.
+  const headsAt=at=>cloudFbm(at.div(3.2),swirl.mul(.5)),billows=at=>headsAt(at).mul(.55).add(cloudFbm(at,swirl).mul(.45)).mul(.8).add(.5).clamp(0,1);
+  const field=billows(q),ahead=billows(q.add(toward));
+  const region=cloudNoise(q.div(11)).mul(.5).add(.5),threshold=float(1-sea.coverage).add(region.sub(.5).mul(.35));
+  const cover=mix(float(sea.coverage),smoothstep(threshold.sub(.04),threshold.add(.16),field),detail);
+  const facing=field.sub(ahead).mul(9).clamp(-1,1).mul(detail).mul(.5).add(.5),thick=mix(float(.5),smoothstep(threshold,threshold.add(.4),field),detail);
+  const palette=cloudSeaPalette({sky,sun,sunColor,fog}),shade=facing.mul(.7).add(thick.mul(.3));
+  const silver=cosine.max(0).pow(8).mul(.3).mul(facing);
+  const plane=mix(palette.gaps,palette.tops(shade).add(sunColor.mul(silver)),cover);
+  const deck=vec3(plane).toVar();
+  // Relief near the camera: march the ray down through the billow layer, only
+  // where it reaches the layer within the near band.
+  const t0=cameraPosition.y.sub(sea.height+relief).div(slope).max(0);
+  If(t0.lessThan(size*15),()=>{
+   const height=at=>billows(at),unit=t=>cameraPosition.xz.add(direction.xz.mul(t)).add(drift).div(size);
+   const t1=above.div(slope).min(t0.add(size*15));
+   const hit=t1.toVar(),found=float(0).toVar(),lastT=t0.toVar(),lastGap=cameraPosition.y.sub(slope.mul(t0)).sub(height(unit(t0)).mul(relief).add(sea.height)).toVar();
+   Loop(CLOUD_SEA_STEPS,({i})=>{
+    If(found.equal(0),()=>{
+     const t=mix(t0,t1,float(i).add(1).div(CLOUD_SEA_STEPS)),gap=cameraPosition.y.sub(slope.mul(t)).sub(height(unit(t)).mul(relief).add(sea.height));
+     If(gap.lessThan(0),()=>{hit.assign(lastT.add(t.sub(lastT).mul(lastGap.div(lastGap.sub(gap).max(1e-4)))));found.assign(1);});
+     lastT.assign(t);lastGap.assign(gap);
+    });
+   });
+   // Valley floors where the billows clamp to zero lie exactly at the bottom of the
+   // layer, where the last sample lands: rounding decided hit or miss pixel by pixel
+   // and speckled them. A ray that reaches the floor within the near band meets it,
+   // so floors shade on from the billow bases around them.
+   If(found.equal(0).and(above.div(slope).lessThanEqual(t0.add(size*15))),()=>{hit.assign(t1);found.assign(1);});
+   const at=unit(hit),e=.06,h=height(at),dx=height(at.add(vec2(e,0))).sub(height(at.sub(vec2(e,0)))),dz=height(at.add(vec2(0,e))).sub(height(at.sub(vec2(0,e))));
+   const normal=vec3(dx.mul(-relief/(2*e*size)),1,dz.mul(-relief/(2*e*size))).normalize(),lit=dot(normal,vec3(sun.x,sun.y,sun.z)).add(.25).div(1.25).clamp(0,1);
+   const texture=cloudFbm(at,swirl).mul(.08).add(1),shadeNear=lit.mul(mix(float(.65),float(1),h));
+   const near=palette.tops(shadeNear).mul(texture).add(sunColor.mul(cosine.max(0).pow(8).mul(.3).mul(normal.y.oneMinus().mul(2).clamp(0,1))));
+   deck.assign(mix(plane,near,found.mul(smoothstep(size*15,size*6,hit))));
+  });
+  result.assign(mix(fog,deck,visible));
+ });
+ return result;
+}
+// Billow tops by shade (0 the side away from the sun, 1 a sunlit crown) and
+// the haze seen through gaps, shared by the deck and the fog below it.
+// Sunlit cumulus tops are the brightest thing below the horizon, so the deck sits
+// in light rather than reading as a grey floor (H74): tops take most of the sun
+// and the gaps stay close to the haze, a little bluer.
+function cloudSeaPalette({sky,sun,sunColor,fog}){
+ const ambient=mix(color(sky.zenithColor),fog,.5),light=Math.min(1,Math.max(.25,sun.y*1.5));
+ return {tops:shade=>ambient.mul(mix(float(.62),float(.42),shade)).add(sunColor.mul(mix(float(.32),float(1.25),shade).mul(light))),gaps:mix(fog,color(sky.zenithColor),.3).mul(.85)};
+}
+// capture leaves out the sun disc: the sun light already gives each surface
+// its highlight, and a captured disc would add a second one.
+// Towering cumulus along part of the horizon (sky.cumulus, H92). In the bank's own
+// coordinates (angle from its middle and elevation, in radians) a row of towers of
+// varied height rises from the horizon, tallest near the middle, their outlines
+// broken by billows. The density field's slope, turned toward the viewer, gives
+// each pixel a normal: tops and flanks toward the sun light up while far sides
+// and bases sit in shade, and with the sun behind the bank its edges silver.
+// The towers sit in the horizon haze, more so at their bases.
+function cumulusNode({bank,sky,direction,cosine,clock,sun,sunColor}){
+ const flat=Math.hypot(...bank.toward),tx=bank.toward[0]/flat,tz=bank.toward[1]/flat;
+ const horizontal=direction.xz.div(direction.xz.length().max(1e-4));
+ const along=dot(horizontal,vec2(tx,tz)),across=dot(horizontal,vec2(-tz,tx));
+ const angle=atan(across,along),elevation=asin(direction.y.clamp(-1,1));
+ const spread=bank.spread*Math.PI/180,height=bank.height*Math.PI/180,size=height*.32*bank.scale,drift=vec2(clock.mul(.002),0);
+ const density=(a,e)=>{
+  const envelope=smoothstep(1,.35,a.abs().div(spread)),towers=cloudNoise(vec2(a.div(size*1.6),7.3)).mul(.5).add(.5).clamp(0,1);
+  const top=envelope.mul(towers.mul(.6).add(.4)).mul(height);
+  return top.sub(e).div(height).add(cloudFbm(vec2(a,e).div(size).add(drift),vec2(0,0)).mul(.22));
+ };
+ const d=density(angle,elevation),step_=size*.1;
+ const da=density(angle.add(step_),elevation).sub(density(angle.sub(step_),elevation)),de=density(angle,elevation.add(step_)).sub(density(angle,elevation.sub(step_)));
+ // Toward increasing angle along the horizon, up, and back toward the viewer.
+ const right=vec3(along.negate().mul(tz).sub(across.mul(tx)),0,along.mul(tx).sub(across.mul(tz)));
+ const normal=right.mul(da.negate()).add(vec3(0,1,0).mul(de.negate())).mul(2.4/step_*size).add(direction.negate()).normalize();
+ // Light scattered inside the cloud keeps even the side away from the sun bright.
+ const lit=dot(normal,vec3(sun.x,sun.y,sun.z)).mul(.35).add(.6).clamp(0,1);
+ const mask=smoothstep(0,.05,d).mul(smoothstep(-.03,.004,elevation));
+ // Cumulus shade by mass: bright crowns over greyer bodies and darker bases.
+ const base=smoothstep(0,height*.35,elevation).mul(.4).add(.6).mul(d.clamp(0,1).mul(-.35).add(1));
+ const shade=mix(color(sky.zenithColor),color(sky.horizonColor),.45).mul(.7);
+ const silver=float(.51).div(float(1.49).sub(cosine.mul(1.4)).pow(1.5)).clamp(0,3),edge=smoothstep(0,.05,d).mul(smoothstep(.05,0,d.sub(.05))).mul(1.6);
+ const body=mix(shade,sunColor.mul(1.15),lit.mul(base)).add(sunColor.mul(silver.mul(edge).mul(.5)));
+ const haze=smoothstep(height*.9,0,elevation).mul(.2).add(.06);
+ return {color:mix(body,color(sky.horizonColor),haze),alpha:mask};
+}
+function makeSkyMaterial(sky,environment,clock,{capture=false,deck=true}={}){
  const material=new THREE.MeshBasicNodeMaterial({side:THREE.BackSide,depthWrite:false});material.fog=false;
  // Pin the dome to the far plane, as SkyMesh does, so the camera's far
  // distance never clips it.
  material.vertexNode=Fn(()=>{const position=modelViewProjection;position.z.assign(position.w);return position;})();
- const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize(),sunColor=color(environment.sunColor??'#fff1d0');
+ const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize(),sunColor=color(environment.sunColor??'#fff1d0'),fog=color(environment.fogColor??sky.horizonColor);
  material.colorNode=Fn(()=>{
   const direction=positionWorld.sub(cameraPosition).normalize(),cosine=dot(direction,vec3(sun.x,sun.y,sun.z)).toVar();
-  // Below the horizon, meet fully fogged water (see BELOW_HORIZON in sky.mjs).
-  const base=mix(skyGradientNode(sky,direction.y),color(environment.fogColor??sky.horizonColor),smoothstep(0,BELOW_HORIZON,direction.y.negate()));
-  const disc=smoothstep(.99975,.9999,cosine).mul(8),glow=cosine.max(0).pow(400).mul(.6).add(cosine.max(0).pow(24).mul(.12));
+  // Below the horizon, meet fully fogged water (see BELOW_HORIZON in sky.mjs),
+  // or the cloud deck when there is one.
+  const below=sky.cloudSea&&deck?cloudSeaNode({sea:sky.cloudSea,sky,direction,cosine,clock,sun,sunColor,fog}):fog;
+  const base=mix(skyGradientNode(sky,direction.y),below,smoothstep(0,BELOW_HORIZON,direction.y.negate()));
+  const disc=capture?float(0):smoothstep(.99975,.9999,cosine).mul(8),glow=cosine.max(0).pow(400).mul(.6).add(cosine.max(0).pow(24).mul(.12));
   const result=base.add(sunColor.mul(disc.add(glow).mul(sky.sunDisc))).toVar();
   if(sky.clouds){
    const c=sky.clouds,plane=direction.xz.div(direction.y.mul(1-.9*c.height).max(CLOUD_FLOOR)).mul(1000),fadeStart=CLOUD_FLOOR/(1-.9*c.height);
@@ -400,6 +548,8 @@ function makeSkyMaterial(sky,environment,clock){
    const alpha=exp(depth.mul(-12*c.density)).oneMinus().mul(horizonFade);
    result.assign(mix(result,cloud,alpha));
   }
+  // A cumulus bank stands in front of the sky, the sun and the higher clouds (H92).
+  if(sky.cumulus){const bank=cumulusNode({bank:sky.cumulus,sky,direction,cosine,clock,sun,sunColor});result.assign(mix(result,bank.color,bank.alpha));}
   return result;
  })();
  return material;
@@ -407,12 +557,114 @@ function makeSkyMaterial(sky,environment,clock){
 
 export function LandscapeSky({environment={},runtime}){
  const sky=resolveSky(environment);
- return sky?<AuthoredSky sky={sky} environment={environment} runtime={runtime}/>:<AnalyticSky environment={environment}/>;
+ return sky?<><AuthoredSky sky={sky} environment={environment} runtime={runtime}/>{sky.light&&<SkyLight environment={environment} runtime={runtime}/>}{sky.cloudSea&&<CloudSeaFog environment={environment}/>}</>:<AnalyticSky environment={environment}/>;
 }
+// The deck is drawn at infinity, so geometry below it would draw over the
+// clouds. Seen from above the deck, anything below its height fades into the
+// deck's average colour over about a dozen metres, after the usual range fog:
+// a waterfall off the rim or a foundation sinks into the cloud.
+const DECK_FOG_TOP=2,DECK_FOG_BOTTOM=-10;
+function CloudSeaFog({environment}){
+ const {scene}=useThree();
+ useEffect(()=>{
+  const sky=resolveSky(environment),sea=sky.cloudSea,sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize(),fog=color(environment.fogColor??sky.horizonColor);
+  const palette=cloudSeaPalette({sky,sun,sunColor:color(environment.sunColor??'#fff1d0'),fog}),deck=mix(palette.gaps,palette.tops(float(.62)),sea.coverage);
+  const range=rangeFogFactor(environment.fogNear??28,environment.fogFar??85),sunk=smoothstep(sea.height+DECK_FOG_TOP,sea.height+DECK_FOG_BOTTOM,positionWorld.y).mul(step(sea.height,cameraPosition.y));
+  const previous=scene.fogNode;scene.fogNode=vec4(mix(mix(output.rgb,fog,range),deck,sunk),output.a);
+  return()=>{scene.fogNode=previous;};
+ },[scene,environment]);
+ return null;
+}
+// Sky light (sky.light): a probe at sky.light.probe (default the spawn)
+// captures the world into a PMREM environment that every lit material reflects
+// and is lit by, in place of the hemisphere fill (see RuntimeScene). Polished
+// stone and mirrors then show the sky, the cloud deck and the architecture
+// around the probe, and the floor below lights undersides.
+// The dome alone (without its sun disc) is captured first and bound, so metal
+// and mirrors in the world capture already show the sky. The world is then
+// captured twice, each lit by the last. The bound texture never changes, since
+// a new one rebuilds every lit material's program: each capture renders to a
+// scratch target and a quad draws it into the bound one. World captures leave
+// out anything marked userData.skyLightExclude (the cove, the maker, proposal
+// ghosts) and use the dome's disc-less material. With parallel compilation
+// (parallel-compile.js) an object whose pipeline is still compiling is skipped,
+// and a capture first compiles every material again for the probe's targets, so
+// a capture that left pipelines compiling is not drawn into the bound target
+// (it would light the world from black) but taken again. Assets that reflect a
+// probe point of their own (asset.reflection {probe}, H85) get one world capture
+// from each distinct point after the sky light's, lit by it; their targets start
+// as the dome. The page probe reports skyLight.pending until the last capture
+// lands, and ready waits for it.
+const PROBE_SIZE=256,PROBE_CAPTURES=2;
+function SkyLight({environment,runtime}){
+ const {gl,scene,camera}=useThree(),state=useRef(null),probe=JSON.stringify(resolveSky(environment).light.probe??runtime?.scene?.runtime?.spawn??[0,1.72,0]),points=JSON.stringify(reflectionProbePoints(runtime?.scene?.assets));
+ useEffect(()=>{
+  const sky=resolveSky(environment),generator=new THREE.PMREMGenerator(gl),position=new THREE.Vector3(...JSON.parse(probe));
+  const previous={environment:scene.environment,intensity:scene.environmentIntensity};
+  const domeMaterial=makeSkyMaterial(sky,environment,uniform(runtime?.time??0),{capture:true}),dome=new THREE.Mesh(new THREE.SphereGeometry(.5,48,24),domeMaterial);
+  dome.scale.setScalar(10000);dome.frustumCulled=false;const skyScene=new THREE.Scene();skyScene.add(dome);
+  const target=generator.fromScene(skyScene,0,.1,100,{size:PROBE_SIZE,position}),copy=new THREE.QuadMesh(new THREE.NodeMaterial());let scratch=null;
+  scene.environment=target.texture;scene.environmentIntensity=sky.light.intensity;
+  // The dome alone also stays in its own target for assets that reflect the sky
+  // rather than the world (asset.reflection 'sky', see asset-reflection.mjs).
+  const skyTarget=generator.fromScene(skyScene,0,.1,100,{size:PROBE_SIZE,position});skyReflection.set(skyTarget.texture);
+  const extras=JSON.parse(points).map(point=>{
+   const at=new THREE.Vector3(...point),key=probeKey(point),bound=generator.fromScene(skyScene,0,.1,100,{size:PROBE_SIZE,position:at});
+   bound.texture.name=`probe ${key}`;probeReflections.set(key,bound.texture);return {at,key,target:bound};
+  });
+  // Captures the dome alone or the world from a point into its bound targets, and
+  // reports whether it landed.
+  const capture=(world,from=position,destinations=world?[target]:[target,skyTarget])=>{
+   const restore=[];
+   if(world)scene.traverse(o=>{
+    if(o.userData.skyLightExclude&&o.visible){o.visible=false;restore.push(()=>{o.visible=true;});}
+    else if(o.userData.skyCaptureMaterial){const material=o.material;o.material=o.userData.skyCaptureMaterial;restore.push(()=>{o.material=material;});}
+   });
+   try{scratch=generator.fromScene(world?scene:skyScene,0,.1,world?camera.far:100,{size:PROBE_SIZE,position:from,renderTarget:scratch??undefined});}
+   finally{restore.forEach(undo=>undo());}
+   if(gl.pendingCompiles?.())return false;
+   if(!copy.material.fragmentNode){copy.material.fragmentNode=texture(scratch.texture,uv());copy.material.needsUpdate=true;}
+   const before=gl.getRenderTarget();
+   for(const destination of destinations){destination.viewport.set(0,0,destination.width,destination.height);destination.scissorTest=false;gl.setRenderTarget(destination);copy.render(gl);}
+   gl.setRenderTarget(before);
+   return !gl.pendingCompiles?.();
+  };
+  // The page probe (window.holodeckPrototype) reports captures for verification.
+  const report=window.holodeckPrototype?(window.holodeckPrototype.skyLight={captures:0,pending:true,position:position.toArray()}):{captures:0};
+  state.current={capture,extras,steps:PROBE_CAPTURES+1+extras.length,frames:0,report};
+  return()=>{state.current=null;report.pending=false;for(const extra of extras){if(probeReflections.get(extra.key)===extra.target.texture)probeReflections.set(extra.key,null);extra.target.dispose();}scene.environment=previous.environment;scene.environmentIntensity=previous.intensity;if(skyReflection.get()===skyTarget.texture)skyReflection.set(null);skyTarget.dispose();target.dispose();scratch?.dispose();copy.material.dispose();generator.dispose();dome.geometry.dispose();domeMaterial.dispose();};
+ },[gl,scene,camera,environment,probe,points]);
+ // Wait a frame for placements to mount and for pipelines to finish compiling,
+ // then capture the dome alone and the world PROBE_CAPTURES times, each lit by
+ // the last, taking again any capture that did not land.
+ useFrame(()=>{
+  const s=state.current;if(!s?.steps||++s.frames<2||gl.pendingCompiles?.())return;
+  // The extra probe points come last, one a frame, each lit by the finished sky light.
+  const extra=s.steps<=s.extras.length?s.extras[s.extras.length-s.steps]:null,world=s.steps<=PROBE_CAPTURES+s.extras.length;
+  if(extra?s.capture(true,extra.at,[extra.target]):s.capture(world)){s.steps--;if(world)s.report.captures++;}
+  s.report.pending=s.steps>0;
+ });
+ return null;
+}
+// With a cloud deck the dome is two half spheres (H93): the deck shader runs only
+// where the lower half rasterizes, below the horizon, and the upper half never
+// evaluates it. A branch inside one shader was not enough, since the WebGL2
+// compiler can run both sides of it.
+const HALVES=[[0,Math.PI],[0,Math.PI/2],[Math.PI/2,Math.PI/2]];
 function AuthoredSky({sky,environment,runtime}){
  const clock=useMemo(()=>uniform(0),[]);
- const mesh=useMemo(()=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.5,48,24),makeSkyMaterial(sky,environment,clock));m.scale.setScalar(10000);m.frustumCulled=false;m.renderOrder=-100;m.name='landscape-sky';return m;},[environment,clock]);
- useEffect(()=>()=>{mesh.geometry.dispose();mesh.material.dispose();},[mesh]);
+ const mesh=useMemo(()=>{
+  const dome=new THREE.Group();dome.name='landscape-sky';
+  for(const [start,length] of sky.cloudSea?HALVES.slice(1):HALVES.slice(0,1)){
+   const deck=start>0,m=new THREE.Mesh(new THREE.SphereGeometry(.5,48,length<Math.PI?12:24,0,Math.PI*2,start,length),makeSkyMaterial(sky,environment,clock,{deck}));
+   m.scale.setScalar(10000);m.frustumCulled=false;m.renderOrder=-100;m.name=deck?'landscape-sky-below':'landscape-sky-above';
+   // The sky light probe captures the dome without its sun disc (see SkyLight).
+   if(sky.light)m.userData.skyCaptureMaterial=makeSkyMaterial(sky,environment,clock,{capture:true,deck});
+   dome.add(m);
+  }
+  return dome;
+ },[environment,clock]);
+ useEffect(()=>()=>{for(const m of mesh.children){m.geometry.dispose();m.material.dispose();m.userData.skyCaptureMaterial?.dispose();}},[mesh]);
  useFrame(()=>{clock.value=runtime?.time??0;},-1);
  return <primitive object={mesh} dispose={null}/>;
 }

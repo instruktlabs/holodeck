@@ -33,8 +33,8 @@ async function containedBytes(root,file,limit){
  if(relative.startsWith('..')||path.isAbsolute(relative))fail('Example dependency escapes its directory');
  const info=await lstat(lexical);if(!info.isFile()||info.isSymbolicLink()||info.size>limit)fail('Example dependency is not a bounded regular file');return readFile(target);
 }
-function inspectGlb(bytes,foliage){
- const metrics=validateGlb(bytes,{foliage});const doc=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString('utf8'));portableMetadata(doc);return metrics;
+function inspectGlb(bytes,foliage,flow){
+ const metrics=validateGlb(bytes,{foliage,flow});const doc=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString('utf8'));portableMetadata(doc);return metrics;
 }
 function inspectPng(bytes){
  if(bytes.length<33||bytes.length>MAX_PREVIEW_BYTES||bytes.subarray(0,8).toString('hex')!=='89504e470d0a1a0a'||bytes.readUInt32BE(8)!==13||bytes.subarray(12,16).toString()!=='IHDR')fail('Example preview must be a bounded PNG');
@@ -88,7 +88,7 @@ export async function readExampleBundle(directory){
  for(const asset of world.scene.assets){
   const pinned=byId.get(asset.id);if(!pinned||asset.file!==pinned.file)fail('Example asset mapping mismatch');expected.add(pinned.file);
   let bytes=blobs.get(pinned.sha256);if(!bytes){bytes=await containedBytes(directory,pinned.file,MAX_ASSET_BYTES);if(bytes.length!==pinned.bytes||digest(bytes)!==pinned.sha256)fail('Example asset hash or size mismatch');blobs.set(pinned.sha256,bytes);}else if(bytes.length!==pinned.bytes)fail('Example asset size mismatch');
-  total+=bytes.length;if(total>128*1024*1024)fail('Example exceeds 128 MiB of assets');assets[asset.id]={hash:pinned.sha256,file:pinned.file,...inspectGlb(bytes,asset.foliage),bytes};
+  total+=bytes.length;if(total>128*1024*1024)fail('Example exceeds 128 MiB of assets');assets[asset.id]={hash:pinned.sha256,file:pinned.file,...inspectGlb(bytes,asset.foliage,asset.flow),bytes};
  }
  const wanted=terrainTextureFiles(world.scene.terrain),listed=new Map((manifest.textures||[]).map(t=>[t.file,t])),textures=Object.create(null);
  if(wanted.size!==listed.size||[...wanted.keys()].some(file=>!listed.has(file)))fail('Example terrain textures do not match its world');
@@ -118,7 +118,7 @@ export async function createExampleBundle(root,{out,revision,id,title,descriptio
  const textures=[...textureBlobs].map(([hash,t])=>({file:`assets/imports/terrain/${hash}.png`,sha256:hash,bytes:t.bytes.length,width:t.width,height:t.height})).sort((a,b)=>a.file.localeCompare(b.file));
  const needed=new Set([world.scene.origin,...world.scene.objects.map(item=>item.asset).filter(Boolean),...(world.scene.scatters||[]).flatMap(s=>s.variants.map(v=>v.asset)),...(world.scene.moodboard?[world.scene.moodboard.asset]:[])]),assets=[],blobs=new Map();
  world.scene.assets=world.scene.assets.filter(asset=>needed.has(asset.id)).map(asset=>{
-  const hash=accepted.assets[asset.id].hash,file=`assets/imports/${hash}.glb`,provenance=publicProvenance(asset.provenance);assets.push({id:asset.id,file,sha256:hash,bytes:accepted.assets[asset.id].bytes});return {id:asset.id,file,...(provenance?{provenance}:{}),...(asset.foliage?{foliage:structuredClone(asset.foliage)}:{})};
+  const hash=accepted.assets[asset.id].hash,file=`assets/imports/${hash}.glb`,provenance=publicProvenance(asset.provenance);assets.push({id:asset.id,file,sha256:hash,bytes:accepted.assets[asset.id].bytes});return {id:asset.id,file,...(provenance?{provenance}:{}),...(asset.foliage?{foliage:structuredClone(asset.foliage)}:{}),...(asset.flow?{flow:structuredClone(asset.flow)}:{}),...(asset.reflection?{reflection:asset.reflection}:{})};
  });
  validateWorld(world);portableMetadata(world);const worldBytes=Buffer.from(JSON.stringify(world,null,2)+'\n');
  let previewBytes,previewReceipt;if(preview!==undefined){if(typeof preview!=='string'||!preview)fail('Choose a local runtime preview PNG');const info=await lstat(preview);if(!info.isFile()||info.size>MAX_PREVIEW_BYTES)fail('Example preview must be a bounded PNG file');previewBytes=await readFile(preview);previewReceipt={file:'preview.png',sha256:digest(previewBytes),bytes:previewBytes.length,...inspectPng(previewBytes)};}

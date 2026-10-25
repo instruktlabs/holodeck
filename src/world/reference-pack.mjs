@@ -1,9 +1,13 @@
 // Reference packs: a dropped folder or .zip of images and notes, with an optional
 // manifest.json giving titles, categories, notes and status. Pure data; the board
 // uploads each planned file through the existing import routes, which hash it.
+// A dogfood input proposal (input-manifest.json) lists its images under `images`
+// with provenance and SHA-256, and names the user's brief in `userBriefFile`.
 export const DEFAULT_CATEGORIES=['Scene','Layout','Kit','Asset','Material','Atmosphere','Architecture','Rules'];
 export const PACK_LIMIT=200;
 const IMAGE=/\.(png|jpe?g|webp)$/i,FILE=/\.(md|txt|json|pdf|glb)$/i,STATUS={approved:'approved',exploring:'exploring',rejected:'rejected',avoid:'rejected'};
+const MANIFESTS=['manifest.json','input-manifest.json'],SHA256=/^[0-9a-f]{64}$/i;
+const hex=buffer=>[...new Uint8Array(buffer)].map(b=>b.toString(16).padStart(2,'0')).join('');
 
 // Mirrors the host's readable default title: no extension, no leading number.
 export function packTitle(path){
@@ -41,11 +45,13 @@ export async function planPack(entries,{packName='pack'}={}){
   // A common top folder (zipping a folder) is not part of the manifest's paths.
   const top=files.length&&files.every(f=>f.path.includes('/')&&f.path.split('/')[0]===files[0].path.split('/')[0])?files[0].path.split('/')[0]+'/':'';
   const rel=f=>top&&f.path.startsWith(top)?f.path.slice(top.length):f.path;
-  const manifestEntry=files.find(f=>rel(f).toLowerCase()==='manifest.json');
+  const manifestEntry=files.find(f=>MANIFESTS.includes(rel(f).toLowerCase()));
   let manifest=[];
   if(manifestEntry){
-    let parsed;try{parsed=JSON.parse(new TextDecoder().decode(await manifestEntry.read()));}catch{throw new Error('manifest.json is not valid JSON');}
-    manifest=Array.isArray(parsed)?parsed:Array.isArray(parsed?.references)?parsed.references:[];
+    let parsed;try{parsed=JSON.parse(new TextDecoder().decode(await manifestEntry.read()));}catch{throw new Error(`${rel(manifestEntry)} is not valid JSON`);}
+    manifest=Array.isArray(parsed)?parsed:Array.isArray(parsed?.references)?parsed.references:Array.isArray(parsed?.images)?parsed.images:[];
+    // The brief is the user's own direction, so it lands approved under its own category.
+    if(typeof parsed?.userBriefFile==='string'&&!manifest.some(m=>m?.file===parsed.userBriefFile))manifest=[...manifest,{file:parsed.userBriefFile,title:typeof parsed.title==='string'?`${parsed.title}: brief`:'Brief',category:'Brief',status:'approved'}];
   }
   const byFile=new Map(manifest.filter(m=>typeof m?.file==='string').map(m=>[clean(m.file),m]));
   const items=[],skipped=[];
@@ -54,8 +60,13 @@ export async function planPack(entries,{packName='pack'}={}){
     const kind=IMAGE.test(path)?'image':FILE.test(path)?'file':null;
     if(!kind){skipped.push({path,reason:'unsupported type'});continue;}
     if(items.length>=PACK_LIMIT){skipped.push({path,reason:'over the pack limit'});continue;}
-    const m=byFile.get(path)||{},notes=String(m.notes||'').slice(0,1800);
-    items.push({path,read:f.read,kind,title:String(m.title||packTitle(path)).slice(0,160),group:String(m.category||m.group||'').slice(0,64)||null,status:STATUS[String(m.status||'').toLowerCase()]||'exploring',
+    const m=byFile.get(path)||{};
+    if(typeof m.sha256==='string'&&SHA256.test(m.sha256)&&hex(await crypto.subtle.digest('SHA-256',await f.read()))!==m.sha256.toLowerCase()){skipped.push({path,reason:'differs from its manifest hash'});continue;}
+    // Provenance (a user photo, a generated concept) stays on the card, apart from measured evidence.
+    const notes=[m.notes,m.provenance&&`Provenance: ${m.provenance}`].filter(v=>typeof v==='string'&&v).join('\n\n').slice(0,1800);
+    // A category that only differs in case from a default joins it, so the filter shows one Scene.
+    const group=String(m.category||m.group||'').slice(0,64),known=DEFAULT_CATEGORIES.find(c=>c.toLowerCase()===group.toLowerCase());
+    items.push({path,read:f.read,kind,title:String(m.title||packTitle(path)).slice(0,160),group:known||group||null,status:STATUS[String(m.status||'').toLowerCase()]||'exploring',
       // The schema has no provenance field; the pack and original path stay readable in the notes.
       notes:`${notes}${notes?'\n\n':''}From ${packName}: ${path}`});
   }

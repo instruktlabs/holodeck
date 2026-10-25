@@ -8,6 +8,16 @@ import {validateTerrainLayerReferences} from './terrain-layers.mjs';
 // Authored data stays immutable. These built-ins own only transient runtime state.
 const hinge={requires:['collision.boxes@1'],init:()=>({angle:0,open:false}),tick:(s,b,dt)=>{const target=s.open?b.angle:0,d=target-s.angle;s.angle+=Math.sign(d)*Math.min(Math.abs(d),b.speed*dt);},act:s=>{s.open=!s.open;}};
 const spin={requires:[],init:()=>({angle:0,running:true}),tick:(s,b,dt)=>{if(s.running)s.angle=(s.angle+b.speed*dt)%(Math.PI*2);},act:s=>{s.running=!s.running;}};
+// Drift (motion.drift@1): a slow bob, spin and sway for floating things, from a
+// clock of its own and a phase taken from the placement ID, so copies drift out
+// of step. Visual only: drifting placements carry no collider.
+export const DRIFT_DEFAULTS={bob:0,period:30,spin:0,sway:0};
+export function driftPhase(id){let h=2166136261;for(const c of id)h=Math.imul(h^c.charCodeAt(0),16777619);return (h>>>0)/4294967296*Math.PI*2;}
+export function driftPose(behavior,clock,phase){
+ const b={...DRIFT_DEFAULTS,...behavior},w=Math.PI*2/b.period;
+ return {lift:b.bob*Math.sin(w*clock+phase),angle:b.spin?((b.spin*clock+phase)%(Math.PI*2)):0,tilt:[b.sway*Math.sin(w*.73*clock+phase*1.7),b.sway*Math.sin(w*.59*clock+phase*2.3)]};
+}
+const drift={requires:[],init:o=>({clock:0,running:true,phase:driftPhase(o.id)}),tick:(s,b,dt)=>{if(s.running)s.clock+=dt;},act:s=>{s.running=!s.running;}};
 const patrol={
  requires:['collision.boxes@1'],
  // Authored Y is the starting feet, so a patrol placed on a walkable deck starts on it.
@@ -17,7 +27,7 @@ const patrol={
   s.previousPosition=[...s.position];s.previousAngle=s.angle;s.previousDistance=s.distance;
   s.speed=0;s.blockedBy=null;const offset=b.heightOffset??0;
   // Patrols share the walker's support: terrain or a walkable top within one step of the current feet.
-  const groundAt=(x,z)=>{const ground=runtime.terrain?.sample(x,z)||{height:s.baseHeight,slope:0,inBounds:true},top=runtime.walkableAt(x,z,s.position[1]-offset+INHABITANT_LIMITS.maxStep);return top&&top.height>ground.height?{height:top.height,slope:0,inBounds:ground.inBounds}:ground;};
+  const groundAt=(x,z)=>{const ground=runtime.terrain?.sample(x,z)||{height:s.baseHeight,slope:0,inBounds:true},top=runtime.walkableAt(x,z,s.position[1]-offset+INHABITANT_LIMITS.maxStep);return top&&top.height>ground.height?{height:top.height,slope:0,inBounds:true}:ground;};
   s.position[1]=groundAt(s.position[0],s.position[2]).height+offset;
   if(!s.running){s.mode='paused';return;}
   if(s.waitRemaining>0){s.waitRemaining=Math.max(0,s.waitRemaining-dt);s.mode='waiting';return;}
@@ -38,18 +48,26 @@ const patrol={
 };
 export const MODULES=Object.freeze({
  'collision.boxes@1':{requires:[]},'camera.walk-orbit@1':{requires:['collision.boxes@1']},
- 'interaction.hinge@1':hinge,'motion.spin@1':spin,
+ 'interaction.hinge@1':hinge,'motion.spin@1':spin,'motion.drift@1':drift,
  'motion.patrol@1':patrol,'motion.gait@1':{requires:[]},
  'motion.boids@1':{requires:[],init:createFlock,tick:stepFlock,act:s=>{s.running=!s.running;}},
  'terrain.heightfield@1':{requires:[]},'water.ocean@1':{requires:[]},
  'inhabitant.maker@1':{requires:['camera.walk-orbit@1','collision.boxes@1']},
  'scatter.seeded@1':{requires:['terrain.heightfield@1']},
 });
-const behaviorModule={hinge:'interaction.hinge@1',spin:'motion.spin@1',patrol:'motion.patrol@1',flock:'motion.boids@1'};
+const behaviorModule={hinge:'interaction.hinge@1',spin:'motion.spin@1',drift:'motion.drift@1',patrol:'motion.patrol@1',flock:'motion.boids@1'};
 const assert=(ok,message)=>{if(!ok)throw new Error(message);};
 const exact=(value,keys,label)=>assert(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(k=>keys.includes(k)),`Invalid ${label} fields`);
 const vector=(v,n=3)=>Array.isArray(v)&&v.length===n&&v.every(x=>Number.isFinite(x)&&Math.abs(x)<=1000);
 export const INTERACTION_REACH=3.5;
+// The camera's far plane covers the terrain, the water and every explicit
+// placement, so far monoliths and floating forms are fogged, not clipped.
+export function viewFar(scene){
+ const xs=[],zs=[];for(const b of [scene.terrain?.bounds,scene.water?.bounds])if(b){xs.push(b[0],b[1]);zs.push(b[2],b[3]);}
+ for(const o of scene.objects??[]){const r=Math.max(...(o.scale??[1,1,1]).map(Math.abs))*8;xs.push(o.position[0]-r,o.position[0]+r);zs.push(o.position[2]-r,o.position[2]+r);}
+ if(!xs.length)return 160;
+ return Math.max(160,(Math.max(...xs)-Math.min(...xs)+Math.max(...zs)-Math.min(...zs))*1.5);
+}
 // A collider box marked walkable lends its top to the walker and patrols as
 // support. Its footprint grows by this margin so seams between adjacent deck or
 // stair pieces do not drop the walker through.
@@ -111,11 +129,16 @@ export function validateRuntimeScene(scene){
   if(o.collider)assert(o.rotation[0]===0&&o.rotation[2]===0,'Box collision supports yaw rotation only');
   if(o.behavior&&boxesOf(o.collider).some(b=>b.walkable))throw new Error('Walkable colliders cannot move; remove walkable or the behavior');
   if(!o.behavior)continue;const b=o.behavior;assert(Object.hasOwn(behaviorModule,b.type),'Unknown behavior');
-  exact(b,b.type==='hinge'?['type','angle','speed']:b.type==='patrol'?['type','path','speed','waitSeconds','waterPolicy','heightOffset','radius','height','gait']:b.type==='flock'?['type','count','bounds','speed','neighborRadius','separationRadius','terrainClearance','seed','gait']:['type','speed'],'behavior');
+  exact(b,b.type==='hinge'?['type','angle','speed']:b.type==='patrol'?['type','path','speed','waitSeconds','waterPolicy','heightOffset','radius','height','gait']:b.type==='flock'?['type','count','bounds','speed','neighborRadius','separationRadius','terrainClearance','seed','gait']:b.type==='drift'?['type','bob','period','spin','sway']:['type','speed'],'behavior');
   assert(r.modules.includes(behaviorModule[b.type]),`Behavior requires ${behaviorModule[b.type]}`);
   if(b.type==='flock'){
    validateFlock(b);flockCount+=b.count;assert(flockCount<=96,'A scene allows at most 96 flock agents');
    assert(o.asset&&!o.shape&&o.materialStyle!=='cove'&&!o.collider,'Flock requires an imported unbatched asset without a collider');
+  }else if(b.type==='drift'){
+   for(const [key,min,max] of [['bob',0,10],['period',4,600],['spin',-.5,.5],['sway',0,.35]])if(b[key]!==undefined)assert(Number.isFinite(b[key])&&b[key]>=min&&b[key]<=max,`Drift ${key} must be ${min} to ${max}`);
+   assert(b.bob||b.spin||b.sway,'Drift needs a bob, spin or sway');
+   assert(!o.collider&&o.materialStyle!=='cove','Drifting placements carry no collider and no cove material derivation');
+   continue;
   }else assert(Number.isFinite(b.speed)&&b.speed>0&&b.speed<=4,'Behavior speed must be greater than zero and at most four');
   if(b.gait!==undefined){assert(r.modules.includes('motion.gait@1'),'Behavior gait requires motion.gait@1');assert(o.asset&&!o.shape&&o.materialStyle!=='cove','Behavior gait requires an imported unbatched asset');validateGait(b.gait);}
   if(b.type==='hinge')assert(Number.isFinite(b.angle)&&Math.abs(b.angle)>=.1&&Math.abs(b.angle)<=Math.PI&&o.collider,'Hinge requires a box collider and bounded opening angle');
@@ -146,7 +169,10 @@ export class WorldRuntime{
  visible(o){return o.layer!=='origin'||this.originVisible;}
  position(o){return this.states.get(o.id)?.position||o.position;}
  renderMotion(o){
-  const s=this.states.get(o.id);if(o.behavior?.type!=='patrol'||!s)return null;
+  const s=this.states.get(o.id);if(!s)return null;
+  // Drift continues between fixed ticks, so the render pose reads the leftover time too.
+  if(o.behavior?.type==='drift'){const p=driftPose(o.behavior,s.clock+(s.running&&!this.paused?this.accumulator:0),s.phase);return {position:[o.position[0],o.position[1]+p.lift,o.position[2]],angle:p.angle,tilt:p.tilt};}
+  if(o.behavior?.type!=='patrol')return null;
   const t=Math.min(1,Math.max(0,this.accumulator*60)),previous=s.previousPosition??s.position,a=s.previousAngle??s.angle;
   const delta=Math.atan2(Math.sin(s.angle-a),Math.cos(s.angle-a));
   return {...s,position:s.position.map((v,i)=>previous[i]+(v-previous[i])*t),angle:a+delta*t,distance:(s.previousDistance??s.distance)+(s.distance-(s.previousDistance??s.distance))*t};

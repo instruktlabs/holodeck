@@ -79,7 +79,7 @@ export function ProposalLine({proposal,accepted,preview,setPreview,ghosted,onRev
 
 export function Composer({inputRef,text,setText,onSend,onEscape,onFocus,onBlur,voice,agent,active,canSend,writeDisabled,onConnect,onStop,placeholder}){
   return <form className="hd-compose" onSubmit={e=>{e.preventDefault();onSend();}}>
-    <textarea ref={inputRef} rows={1} aria-label={`Message ${providerName(agent.provider)}`} value={text} maxLength={12000}
+    <textarea ref={inputRef} rows={1} aria-label={agent.provider?`Message ${providerName(agent.provider)}`:'Message your agent'} value={text} maxLength={12000}
       onChange={e=>setText(e.target.value)} onFocus={onFocus} onBlur={onBlur}
       onKeyDown={e=>{
         if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();e.stopPropagation();e.currentTarget.form.requestSubmit();}

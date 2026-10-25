@@ -101,7 +101,7 @@ export async function exportStaticWorld(root,{out,revision,page}={}){
  const needed=new Set([scene.origin,...scene.objects.map(o=>o.asset).filter(Boolean),...(scene.scatters||[]).flatMap(s=>s.variants.map(v=>v.asset))]),assets={},blobs=new Map();
  scene.assets=scene.assets.filter(asset=>needed.has(asset.id)).map(asset=>{
   const hash=receipt.assets[asset.id].hash,file=`assets/imports/${hash}.glb`,provenance=publicProvenance(asset.provenance);
-  assets[asset.id]={hash,url:`./${file}`};return {id:asset.id,file,...(provenance?{provenance}:{}),...(asset.foliage?{foliage:asset.foliage}:{})};
+  assets[asset.id]={hash,url:`./${file}`};return {id:asset.id,file,...(provenance?{provenance}:{}),...(asset.foliage?{foliage:asset.foliage}:{}),...(asset.flow?{flow:asset.flow}:{}),...(asset.reflection?{reflection:asset.reflection}:{})};
  });
  // Terrain textures move to content-addressed paths beside the GLBs.
  const textures={},textureBlobs=new Map();

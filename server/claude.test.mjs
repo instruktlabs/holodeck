@@ -39,6 +39,7 @@ function mcp(){
   return {request,close:()=>child.stdin.end()};
 }
 if(scenario==='text'){say('msg-1','Hello from ');say('msg-1','Claude');finish();}
+if(scenario==='expired'){out({type:'result',subtype:'success',is_error:true,result:'Failed to authenticate: OAuth session expired and could not be refreshed',session_id:session,num_turns:1});process.exit(1);}
 if(scenario==='apikey'||scenario==='hold'){
   say('msg-1','Working');
   process.on('SIGINT',()=>{out({type:'result',subtype:'error_during_execution',is_error:true,session_id:session,errors:['interrupted']});process.exit(130);});
@@ -293,11 +294,60 @@ test('only a plain run of one script inside assets/source qualifies for a script
   assert.equal(script('node assets/source/plan.mjs --seed 3 | tail -n 20'),'assets/source/plan.mjs');
   assert.equal(script('uv run assets/source/turn12/turn12.py bedmask 2>&1 | Select-Object -First 60'),'assets/source/turn12/turn12.py');
   assert.equal(script('node assets/source/plan.mjs | head -n 5'),'assets/source/plan.mjs');
+  assert.equal(script('node assets/source/design/sanctuary.mjs --turn 2 | head -40'),'assets/source/design/sanctuary.mjs','the classic head -N form trims output too');
+  assert.equal(script('node assets/source/plan.mjs | tail -20'),'assets/source/plan.mjs');
+  assert.equal(script('node assets/source/plan.mjs | head -40 > out.txt'),null,'a redirect after the trim still never qualifies');
   assert.equal(script('python ./assets/source/a.py'),'assets/source/a.py');
+  assert.equal(script("node assets/source/design/tonemap.mjs sky '#f3e5cc' '#1468d0' 0.3"),'assets/source/design/tonemap.mjs','quoted colours are plain words');
+  assert.equal(script('node assets/source/a.mjs "#f3e5cc" --label "south pool" | head -20'),'assets/source/a.mjs');
   for(const command of ['uv run assets/source/a.py; Remove-Item world -Recurse','uv run assets/source/a.py > world/world.json','uv run assets/source/a.py $(whoami)',
-   'uv run assets/source/a.py "quoted arg"','uv run assets/source/../../outside.py','uv run assets/imports/a.py','uv run --with requests assets/source/a.py',
+   'uv run assets/source/a.py "$(whoami)"','uv run assets/source/a.py "`whoami`"','uv run assets/source/a.py "$env:USERPROFILE"',"uv run assets/source/a.py '#fff'; whoami",
+   "uv run assets/source/a.py 'it''s'","uv run assets/source/a.py '#fff\u2019; whoami; \u2018'",'uv run assets/source/a.py "a\\" b"','uv run assets/source/a.py #comment',
+   'uv run assets/source/../../outside.py','uv run assets/imports/a.py','uv run --with requests assets/source/a.py',
    'uv run assets/source/a.py | Out-File x.txt','uv run assets/source/a.py && echo done','pwsh assets/source/a.ps1'])assert.equal(script(command),null,command);
   assert.equal(scriptRun('Read',{file_path:'assets/source/a.py'},root),null,'only shell tools');
+});
+
+test('in Bash a script run may pass its output through read-only grep and sed -n filters (H70)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 5 | grep -v -E '^ [a-z0-9-]+: [0-9]+$'"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 5 | sed -n '1,5p;/^routes/,/^families/p' | grep -v -E '^ (cove-out|F1|T1)'"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/design/glb-audit.mjs 2>&1 | sed -n '120,400p' | grep -v '^ images\\|^ extensions' | head -40"),'assets/source/design/glb-audit.mjs');
+  assert.equal(bash('node assets/source/a.mjs | grep -c "ivy curtain"'),'assets/source/a.mjs');
+  assert.equal(scriptRun('PowerShell',"node assets/source/a.mjs | grep 'x'",root),null,'PowerShell keeps only the tail forms');
+  for(const command of ["node assets/source/a.mjs | sed -n '1p;w out.txt'","node assets/source/a.mjs | sed -n '1e whoami'","node assets/source/a.mjs | sed -n '/a/Ip'",
+   "node assets/source/a.mjs | sed '1,5p'","node assets/source/a.mjs | sed -n '1,5p' x.txt","node assets/source/a.mjs | grep -f patterns.txt","node assets/source/a.mjs | grep -r 'x' /",
+   'node assets/source/a.mjs | grep "$(whoami)"','node assets/source/a.mjs | grep "`whoami`"','node assets/source/a.mjs | grep "a\\" | grep "; rm -rf ~; echo "',
+   "node assets/source/a.mjs | grep 'a'' ; whoami ; '","node assets/source/a.mjs | grep 'a' > out.txt","node assets/source/a.mjs | xargs rm",
+   "node assets/source/a.mjs | grep 'a' | grep 'b' | grep 'c' | grep 'd'","node assets/source/a.mjs | grep 'a'; whoami"])assert.equal(bash(command),null,command);
+});
+
+test('a script run may discard its output and grep a file under assets/source through read-only filters (H91)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The forms the agent used in turn 10, re-running its design script and reading the report it writes.
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 10 > /dev/null; grep -E -e '^placements|over the route|within 1.5 m of' assets/source/turn10/report.txt | sed -e 's/; /\\n    /g' | grep -v -e 'h8-back\\|h4-side' | cut -c1-300"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 10 > /dev/null; grep -o -e '03-head-f1 sky[^;]*' assets/source/turn10/report.txt | head -30"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash('node assets/source/a.mjs | cut -c1-200'),'assets/source/a.mjs');
+  assert.equal(bash("node assets/source/design/draws.mjs assets/source/turn11/scene.json --hub all | sed 's/assets\\/source\\/turn11\\/scene.json //' | cut -c1-150"),'assets/source/design/draws.mjs','sed without -e');
+  assert.equal(bash("node assets/source/design/draws.mjs assets/source/turn9/scene.json --hub all 2>&1 | sed -E 's/ \\(new engine.*groups/ groups/; s/assets\\/source\\/turn9\\/scene.json //'"),'assets/source/design/draws.mjs','substitutions joined by ;');
+  assert.equal(bash("time node assets/source/design/sanctuary.mjs --turn 12 > /dev/null; grep -A 20 -e '^turn 12 (the destination' assets/source/turn12/report.txt | sed 's/; /\\n      /g' | cut -c1-260"),'assets/source/design/sanctuary.mjs','timed, with a context count');
+  assert.equal(bash("node assets/source/design/list-objects.mjs assets/source/turn12/scene.json '^(parapet-(t[123]-front|F[123])|planter-landing)' | cut -c1-120"),'assets/source/design/list-objects.mjs','a single-quoted regular expression is an inert argument in Bash');
+  assert.equal(scriptRun('PowerShell',"node assets/source/a.mjs '^(a|b)'",root),null,'PowerShell keeps the plain-word quoting');
+  for(const command of ["node assets/source/a.mjs 'x''; whoami; ''y'","node assets/source/a.mjs 'a\nwhoami'"])assert.equal(bash(command),null,command);
+  for(const command of ["time rm -rf assets","time node assets/source/a.mjs; rm -rf assets","node assets/source/a.mjs | grep -A 2 -f patterns.txt",
+   "node assets/source/a.mjs > /dev/null; grep -A x -e 'a' assets/source/r.txt"])assert.equal(bash(command),null,command);
+  for(const command of ["node assets/source/a.mjs | sed -E 's/a/b/; w out.txt'","node assets/source/a.mjs | sed 's/a/b/;e whoami'","node assets/source/a.mjs | sed 's|a|b|w out.txt'",
+   "node assets/source/a.mjs | sed -E 's/a/b/gw out.txt'","node assets/source/a.mjs | sed 's/a/b/' assets/source/a.mjs"])assert.equal(bash(command),null,command);
+  for(const command of ["node assets/source/a.mjs > /dev/null; grep -e 'x' /etc/passwd","node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/../../outside.txt",
+   "node assets/source/a.mjs > /dev/null; grep -r -e 'x' assets/source","node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt; whoami",
+   "node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt assets/source/s.txt","node assets/source/a.mjs > out.txt; grep -e 'x' assets/source/r.txt",
+   "node assets/source/a.mjs > /dev/null; grep -e 'x' -f patterns.txt assets/source/r.txt","node assets/source/a.mjs | sed -e 's/a/b/w out.txt'",
+   "node assets/source/a.mjs | sed -e 's/a/b/e'","node assets/source/a.mjs | sed -e '1d'","node assets/source/a.mjs | sed -e 's/a/b/g;w out.txt'",
+   "node assets/source/a.mjs | sed -i -e 's/a/b/g' assets/source/a.mjs","node assets/source/a.mjs | cut -c1-5 /etc/passwd","node assets/source/a.mjs | cut -f1 -d,",
+   'node assets/source/a.mjs | grep -e "$(whoami)"'])assert.equal(bash(command),null,command);
+  assert.equal(scriptRun('PowerShell',"node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt",root),null,'PowerShell keeps only the tail forms');
 });
 
 test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{
@@ -396,9 +446,24 @@ test('a turn that reports an API key source is stopped before billing changes',a
   assert.equal(done.status,'error');assert.match(done.error,/API key/);
 });
 
+test('a sign-in that lapses mid-session ends the turn disconnected, with the way back',async t=>{
+  const {agent}=await fixture(t,{scenario:'expired'});
+  await agent.connect();await agent.startTurn({text:'Plan the world',model:'opus'});
+  const done=await settled(agent);
+  assert.equal(done.connected,false);assert.equal(done.status,'disconnected');
+  assert.match(done.error,/^Failed to authenticate: OAuth session expired and could not be refreshed\. Claude Code needs you to sign in again: run `claude` in a terminal/);
+  assert.equal(done.sessionStarted,true,'the session is kept for the next turn');
+});
+
 test('claudeEnv strips Anthropic API and provider credentials but keeps unrelated variables',()=>{
-  const env=claudeEnv({PATH:'x',HOME:'h',ANTHROPIC_API_KEY:'k',ANTHROPIC_AUTH_TOKEN:'t',ANTHROPIC_BASE_URL:'u',ANTHROPIC_VERTEX_PROJECT_ID:'v',CLAUDE_CODE_USE_VERTEX:'1',CLAUDE_CODE_USE_FOUNDRY:'1',AWS_BEARER_TOKEN_BEDROCK:'b',CLAUDE_CODE_SIMPLE:'1'});
-  assert.deepEqual(env,{PATH:'x',HOME:'h',CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR:'1'});
+  const env=claudeEnv({PATH:'x',HOME:'h',ANTHROPIC_API_KEY:'k',ANTHROPIC_AUTH_TOKEN:'t',ANTHROPIC_BASE_URL:'u',ANTHROPIC_VERTEX_PROJECT_ID:'v',CLAUDE_CODE_USE_VERTEX:'1',CLAUDE_CODE_USE_FOUNDRY:'1',AWS_BEARER_TOKEN_BEDROCK:'b',CLAUDE_CODE_SIMPLE:'1',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'64000'});
+  assert.deepEqual(env,{PATH:'x',HOME:'h',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'64000',CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR:'1'});
+});
+
+test('a Holodeck launched inside a Claude Code session does not hand that session to the CLI',()=>{
+  // As observed when the desktop app's agent started the host: the child then waited on a host auth refresh.
+  const env=claudeEnv({PATH:'x',HOME:'h',CLAUDE_CONFIG_DIR:'c',CLAUDECODE:'1',CLAUDE_CODE_ENTRYPOINT:'claude-desktop',CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH:'1',CLAUDE_CODE_SESSION_ID:'s',CLAUDE_CODE_OAUTH_SCOPES:'o',CLAUDE_CODE_MESSAGING_TOKEN:'m',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'64000',CLAUDE_AGENT_SDK_VERSION:'1',CLAUDE_PID:'2',CLAUDE_EFFORT:'max',USE_STAGING_OAUTH:'',MCP_CONNECTION_NONBLOCKING:'1'});
+  assert.deepEqual(env,{PATH:'x',HOME:'h',CLAUDE_CONFIG_DIR:'c',CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR:'1'});
 });
 
 test('claude command is the installed CLI and nothing else',()=>{

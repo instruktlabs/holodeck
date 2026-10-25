@@ -56,7 +56,7 @@ export function MoodBoardEditor({world,run,agent,model,effort,drafts,draftFocus,
       <label className="board-upload">Import pack<input disabled={writeDisabled} type="file" aria-label="Import a reference pack (.zip)" accept=".zip,application/zip" onChange={e=>{const f=e.target.files[0];e.target.value='';if(f)run(async()=>importPack(await readZip(new Uint8Array(await f.arrayBuffer())),f.name));}}/></label>
       <label className="board-upload">Import folder<input disabled={writeDisabled} type="file" webkitdirectory="" multiple aria-label="Import a reference pack folder" onChange={e=>{const files=[...e.target.files];e.target.value='';if(files.length)run(()=>importPack(files.map(f=>({path:f.webkitRelativePath||f.name,read:async()=>new Uint8Array(await f.arrayBuffer())})),(files[0].webkitRelativePath||'folder').split('/')[0]));}}/></label>
       <select aria-label="Filter board category" value={group} onChange={e=>setGroup(e.target.value)}>{['All',...new Set(refs.map(r=>r.group||'Inspiration'))].map(g=><option key={g}>{g}</option>)}</select>
-      <button className="primary" disabled={writeDisabled||!dirty||base!==world.revision} onClick={()=>run(async()=>{await api('world',{baseRevision:base,...draft} );markSaved();})}>Save board</button>
+      <button className="primary" disabled={writeDisabled||!dirty||base!==world.revision} onClick={()=>run(async()=>{await api('world',{baseRevision:base,...draft} );markSaved();setPackReport('');})}>Save board</button>
     </div>
     {packReport&&<p className="hd-meta board-pack-report" role="status">{packReport} <button className="b sm q" onClick={()=>setPackReport('')}>Dismiss</button></p>}
     {studio&&<ImageStudio {...{agent,model,effort,world,dirty,run,drafts,writeDisabled}} onAdd={add}/>}

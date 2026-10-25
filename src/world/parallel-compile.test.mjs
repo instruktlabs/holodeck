@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {SETTLE,compileGate,enableParallelCompile} from './parallel-compile.js';
 
-// A stand-in for three's WebGL backend: createRenderPipeline pushes one link promise per
-// new program into the array it is given (three's compileAsync path) or links synchronously.
+// A stand-in for three's backends: createRenderPipeline pushes one compile promise per
+// new pipeline into the array it is given (three's compileAsync path) or compiles synchronously.
 function fakeRenderer({webgpu=false,parallel=true}={}){
  const links=[],calls=[];
  const backend={isWebGPUBackend:webgpu,parallel:parallel?{}:null,
@@ -12,17 +12,15 @@ function fakeRenderer({webgpu=false,parallel=true}={}){
 }
 const tick=()=>new Promise(r=>setTimeout(r,0));
 
-test('WebGPU and WebGL2 without KHR_parallel_shader_compile keep three\'s own pipeline path',()=>{
- for(const options of [{webgpu:true},{parallel:false}]){
-  const {renderer,backend}=fakeRenderer(options),original=backend.createRenderPipeline;
-  enableParallelCompile(renderer);
-  assert.equal(backend.createRenderPipeline,original);assert.equal(renderer.pendingCompiles,undefined);
-  assert.deepEqual(compileGate(renderer),{ready:true,settled:0,compiling:0});
- }
+test('WebGL2 without KHR_parallel_shader_compile keeps three\'s own pipeline path',()=>{
+ const {renderer,backend}=fakeRenderer({parallel:false}),original=backend.createRenderPipeline;
+ enableParallelCompile(renderer);
+ assert.equal(backend.createRenderPipeline,original);assert.equal(renderer.pendingCompiles,undefined);
+ assert.deepEqual(compileGate(renderer),{ready:true,settled:0,compiling:0});
 });
 
-test('new WebGL2 programs link through the async path and are counted until they finish',async()=>{
- const {renderer,backend,links,calls}=fakeRenderer();
+for(const [name,options] of [['WebGL2 programs link',{}],['WebGPU pipelines compile (H68)',{webgpu:true,parallel:false}]])test(`new ${name} through the async path and are counted until they finish`,async()=>{
+ const {renderer,backend,links,calls}=fakeRenderer(options);
  enableParallelCompile(renderer);
  backend.createRenderPipeline({id:'a'});backend.createRenderPipeline({id:'b'});
  assert.ok(calls.every(c=>Array.isArray(c.promises)),'each draw-time pipeline starts an async link');

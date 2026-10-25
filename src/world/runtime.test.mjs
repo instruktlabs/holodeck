@@ -96,3 +96,29 @@ test('maker permits authored vertical spawn while legacy walker retains its fixe
  const scene=terrainScene();scene.runtime.spawn[1]=8;assert.doesNotThrow(()=>validateRuntimeScene(scene));
  const legacy=fixture();legacy.runtime.spawn[1]=8;assert.throws(()=>validateRuntimeScene(legacy),/eye height/);
 });
+test('drift bobs, spins and sways floating things out of step, without colliders and at any authored rotation',async()=>{
+ const {driftPose,driftPhase}=await import('./runtime.mjs');
+ const s=fixture();s.runtime.modules.push('motion.drift@1');
+ s.objects=[object('cube-a',{rotation:[.6,0,.3],behavior:{type:'drift',bob:.8,period:24,spin:.05,sway:.06}}),object('cube-b',{rotation:[Math.PI,0,0],behavior:{type:'drift',bob:.8,period:24}})];
+ validateRuntimeScene(s);
+ const r=new WorldRuntime(s);for(let i=0;i<300;i++)r.step(1/60);
+ const a=r.renderMotion(s.objects[0]),b=r.renderMotion(s.objects[1]);
+ assert.ok(Math.abs(a.position[1]-1)<=.8+1e-9&&Math.abs(b.position[1]-1)<=.8+1e-9,'the bob stays within its height');
+ assert.notEqual(a.position[1],b.position[1],'copies drift out of step');
+ assert.ok(Math.abs(a.tilt[0])<=.06&&Math.abs(a.tilt[1])<=.06);assert.ok(b.tilt.every(v=>v===0),'no sway without a sway');assert.equal(b.angle,0,'no spin without a spin rate');
+ assert.deepEqual(driftPose({bob:1,period:20},5,0),driftPose({bob:1,period:20},5,0));assert.ok(Math.abs(driftPose({bob:1,period:20},5,0).lift-1)<1e-12,'a quarter period lifts by the full bob');
+ assert.equal(driftPhase('cube-a'),driftPhase('cube-a'));assert.notEqual(driftPhase('cube-a'),driftPhase('cube-b'));
+ r.act('cube-a',[0,1,0]);const held=r.renderMotion(s.objects[0]).position[1];for(let i=0;i<30;i++)r.step(1/60);assert.equal(r.renderMotion(s.objects[0]).position[1],held,'E stops the drift');
+ for(const [change,message] of [[{collider:{type:'box',size:[1,1,1],offset:[0,0,0]},rotation:[0,0,0]},/no collider/],[{behavior:{type:'drift'}},/needs a bob, spin or sway/],[{behavior:{type:'drift',bob:20}},/Drift bob/],[{behavior:{type:'drift',spin:2}},/Drift spin/],[{behavior:{type:'drift',bob:1,speed:1}},/behavior fields/]]){
+  const bad=structuredClone(s);Object.assign(bad.objects[0],change);assert.throws(()=>validateRuntimeScene(bad),message);
+ }
+ const missing=structuredClone(s);missing.runtime.modules=missing.runtime.modules.filter(m=>m!=='motion.drift@1');assert.throws(()=>validateRuntimeScene(missing),/requires motion.drift@1/);
+ const spinning=structuredClone(fixture());spinning.objects.push(object('tilted',{rotation:[.4,0,0],behavior:{type:'spin',speed:.2}}));assert.throws(()=>validateRuntimeScene(spinning),/yaw rotation only/,'spin stays yaw-only');
+});
+test('the far plane covers the landscape and every explicit placement',async()=>{
+ const {viewFar}=await import('./runtime.mjs');
+ assert.equal(viewFar({objects:[]}),160,'an empty construct keeps the near default');
+ assert.equal(viewFar({terrain:{bounds:[-1000,1000,-1000,1000]},objects:[]}),6000,'a 2 km island as before');
+ const far=viewFar({terrain:{bounds:[-60,60,-80,80]},objects:[object('monolith',{position:[900,120,-1200],scale:[30,30,30]})]});
+ assert.ok(far>=Math.hypot(900,1200),'a far monolith is inside the far plane');
+});

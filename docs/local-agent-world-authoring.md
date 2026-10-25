@@ -14,7 +14,11 @@ pins, replacement and removal. **Import pack** and **Import folder** add a `.zip
 or folder of PNG/JPEG/WebP images and MD/TXT/JSON/PDF/GLB files in one step. An
 optional `manifest.json` (an array, or `{references:[...]}`) gives each `file` a
 title, category, notes and status; each card's notes keep the pack name and
-original path. A pack adds at most 200 cards, within the board's 200-card limit,
+original path. A dogfood input pack's `input-manifest.json` lists `{images:[...]}`
+the same way: each image's `provenance` is kept in its notes, a file whose
+`sha256` differs is skipped, and the `userBriefFile` lands as an approved
+**Brief** card. A category that differs from a default only in case joins it.
+A pack adds at most 200 cards, within the board's 200-card limit,
 and the board must still be saved. Zips must be stored or deflated, without ZIP64
 or encryption. The physical frame is movable; editing uses HTML while the
 in-world board uses a lit canvas texture.

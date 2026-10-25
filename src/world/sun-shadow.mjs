@@ -4,17 +4,31 @@ import {Fn,PCFShadowFilter,min,mix,smoothstep} from 'three/tsl';
 import {terrainRayDistance} from './aim.mjs';
 
 // One existing-size PCF map; edge fading adds arithmetic, not another shadow pass.
-export const SUN_SHADOW=Object.freeze({mapSize:2048,halfExtent:24,near:.1,far:90,normalBias:.03,fadeWidth:6,lightDistance:40,focusDistance:160});
+export const SUN_SHADOW=Object.freeze({mapSize:2048,halfExtent:24,near:.1,far:90,normalBias:.03,fadeWidth:6,lightDistance:40,focusDistance:160,lead:0});
+// environment.shadow.extent (H75) widens the box for long views. The whole volume
+// scales with it, so depth range, bias and edge fade keep their proportions on the
+// same map (a wider box gives softer shadows), and the box is centred half an
+// extent ahead of the view so what lies ahead keeps its shadows.
+export function sunShadowConfig(environment){
+ const extent=environment?.shadow?.extent??SUN_SHADOW.halfExtent,k=extent/SUN_SHADOW.halfExtent,c=SUN_SHADOW;
+ if(k===1)return c;
+ return Object.freeze({...c,halfExtent:extent,far:c.far*k,normalBias:c.normalBias*k,fadeWidth:c.fadeWidth*k,lightDistance:c.lightDistance*k,lead:extent/2});
+}
 // Objects only on this layer render into the sun shadow map and never into the view.
 export const SHADOW_ONLY_LAYER=1;
-export function configureSunShadow(light){
- const c=SUN_SHADOW,s=light.shadow;s.camera.layers.enable(SHADOW_ONLY_LAYER);s.mapSize.set(c.mapSize,c.mapSize);s.normalBias=c.normalBias;
+export function configureSunShadow(light,c=SUN_SHADOW){
+ const s=light.shadow;s.camera.layers.enable(SHADOW_ONLY_LAYER);s.mapSize.set(c.mapSize,c.mapSize);s.normalBias=c.normalBias;
  Object.assign(s.camera,{left:-c.halfExtent,right:c.halfExtent,bottom:-c.halfExtent,top:c.halfExtent,near:c.near,far:c.far});s.camera.updateProjectionMatrix();
  s.filterNode=Fn(({depthTexture,shadowCoord,shadow,depthLayer})=>{
   const q=shadowCoord,xy=min(min(q.x,q.x.oneMinus()),min(q.y,q.y.oneMinus())).mul(c.halfExtent*2),z=min(q.z,q.z.oneMinus()).mul(c.far-c.near);
   return mix(1,PCFShadowFilter({depthTexture,shadowCoord,shadow,depthLayer}),smoothstep(0,c.fadeWidth,min(xy,z)));
  });
 }
+// Render the sun's shadow map once a frame, whichever camera renders first (H84).
+// three otherwise redraws it for every camera that renders the scene, so the
+// water's mirror view and each face of a sky light capture repeat the pass,
+// although the box follows the walker or the view, not the camera rendering.
+export function scheduleSunShadow(light){const s=light.shadow;s.autoUpdate=false;s.needsUpdate=true;}
 // Sibling meshes with baked geometry stop casting; one position-only merge per face side casts for them on the
 // shadow-only layer. The shadow pass draws every caster with one override material, so the map is unchanged.
 export function shadowProxies(meshes){
@@ -27,11 +41,17 @@ export function shadowProxies(meshes){
  return [...sides].map(([side,shapes])=>{const proxy=new Mesh(mergeGeometries(shapes),new MeshBasicMaterial({side}));proxy.castShadow=true;proxy.layers.set(SHADOW_ONLY_LAYER);proxy.raycast=()=>{};return proxy;});
 }
 // CPU equivalent of the fragment weight for boundary/continuity qualification.
-export function shadowFadeAt([x,y,z]){
- const c=SUN_SHADOW,edge=Math.min(x,1-x,y,1-y)*c.halfExtent*2,depth=Math.min(z,1-z)*(c.far-c.near),t=Math.max(0,Math.min(1,Math.min(edge,depth)/c.fadeWidth));return t*t*(3-2*t);
+export function shadowFadeAt([x,y,z],c=SUN_SHADOW){
+ const edge=Math.min(x,1-x,y,1-y)*c.halfExtent*2,depth=Math.min(z,1-z)*(c.far-c.near),t=Math.max(0,Math.min(1,Math.min(edge,depth)/c.fadeWidth));return t*t*(3-2*t);
 }
 const viewRay=new Ray(),direction=new Vector3();
-export function shadowViewFocus({mode,actor,camera,terrain,groundHeight=0},out=new Vector3()){
+export function shadowViewFocus({mode,actor,camera,terrain,groundHeight=0,lead=0},out=new Vector3()){
+ if(lead>0){
+  // Ahead of the view along the ground by lead metres.
+  shadowViewFocus({mode,actor,camera,terrain,groundHeight},out);camera.getWorldDirection(direction);
+  const flat=Math.hypot(direction.x,direction.z);if(flat>1e-6){out.x+=direction.x/flat*lead;out.z+=direction.z/flat*lead;}
+  return out;
+ }
  if(mode==='walk'&&actor)return out.fromArray(actor.position);
  camera.getWorldPosition(viewRay.origin);camera.getWorldDirection(direction);viewRay.direction.copy(direction);
  if(mode!=='walk'){

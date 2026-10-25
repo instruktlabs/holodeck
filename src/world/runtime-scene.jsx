@@ -13,15 +13,17 @@ import {createInhabitant,stepInhabitant,inhabitantContext} from './inhabitant.mj
 import {Maker} from './inhabitant.jsx';
 import {pickWorldAim} from './aim.mjs';
 import {planStaticBatches} from './static-batches.mjs';
+import {viewFar} from './runtime.mjs';
 import {placedObjects} from './scatter.mjs';
 import {StaticAssetBatch} from './static-batches.jsx';
 import {FlockAsset} from './flock.jsx';
-import {SUN_SHADOW,configureSunShadow,shadowViewFocus} from './sun-shadow.mjs';
+import {configureSunShadow,scheduleSunShadow,shadowViewFocus,sunShadowConfig} from './sun-shadow.mjs';
+import {resolveGrade} from './grade.mjs';
 import {compileGate} from './parallel-compile.js';
 
-function Shape({shape,id}){
+function Shape({shape,id,castShadow=true}){
  if(shape.type==='tree')return <group position={shape.offset}><Tree size={shape.size} color={shape.color} seed={id}/></group>;
- return <mesh position={shape.offset} scale={shape.size} castShadow receiveShadow>
+ return <mesh position={shape.offset} scale={shape.size} castShadow={castShadow} receiveShadow>
   {shape.type==='box'?<boxGeometry/>:shape.type==='cylinder'?<cylinderGeometry args={[.5,.5,1,32]}/>:shape.type==='sphere'?<sphereGeometry args={[.5,24,16]}/>:<torusGeometry args={[.38,.1,12,48]}/>}
   {shape.surface?<WorldSurfaceMaterial surface={shape.surface} color={shape.color}/>:<meshStandardMaterial color={shape.color} roughness={.65} metalness={shape.type==='torus'?.3:0}/>}
  </mesh>;
@@ -29,9 +31,9 @@ function Shape({shape,id}){
 function Entity({item,runtime,model,select}){
  // Scatter instances select their scatter record; their tilt is fixed at expansion.
  const group=useRef(),target=item.scatter??item.id;
- useFrame(()=>{const motion=runtime.renderMotion?.(item);group.current.rotation.y=motion?item.rotation[1]+motion.angle:item.behavior?runtime.yaw(item):item.rotation[1];group.current.position.set(...(motion?.position??runtime.position?.(item)??item.position));},-1);
+ useFrame(()=>{const motion=runtime.renderMotion?.(item);group.current.rotation.y=motion?item.rotation[1]+motion.angle:item.behavior?runtime.yaw(item):item.rotation[1];if(motion?.tilt){group.current.rotation.x=item.rotation[0]+motion.tilt[0];group.current.rotation.z=item.rotation[2]+motion.tilt[1];}group.current.position.set(...(motion?.position??runtime.position?.(item)??item.position));},-1);
  return <group ref={group} position={item.position} rotation={item.rotation} scale={item.scale} visible={runtime.visible(item)} userData={{target}} onClick={e=>{e.stopPropagation();select(target,{additive:e.shiftKey});}}>
-  {item.shape?<Shape shape={item.shape} id={item.id}/>:<PlacedAsset model={model} item={{...item,id:target,position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}} select={select} runtime={runtime} gaitScale={item.scale[0]} asset={runtime.scene.assets.find(a=>a.id===item.asset)}/>}
+  {item.shape?<Shape shape={item.shape} id={item.id} castShadow={item.castShadow!==false}/>:<PlacedAsset model={model} item={{...item,id:target,position:[0,0,0],rotation:[0,0,0],scale:[1,1,1]}} select={select} runtime={runtime} gaitScale={item.scale[0]} asset={runtime.scene.assets.find(a=>a.id===item.asset)}/>}
  </group>;
 }
 // Assets with a placement that can reach below the water render from a copy
@@ -57,14 +59,14 @@ function Driver({runtime}){useFrame((_,dt)=>runtime.step(dt),-2);return null;}
 const axis=v=>Math.max(-1,Math.min(1,v));
 const NO_STICK={forward:0,strafe:0,sprint:false};
 function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}){
- const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
+ const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),lastPick=useRef({time:-Infinity,pose:[]}),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
  const actor=useRef(null),free=useRef(null),skipFrame=useRef(false);
  // A hidden page is throttled or paused; the first interval after it returns spans
  // the whole absence. Neither is a frame anyone saw, so neither is recorded.
  useEffect(()=>{const changed=()=>{skipFrame.current=true;};document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[]);
  const config=runtime.scene.runtime;
  const cameraConfig=JSON.stringify([config.spawn,config.look,config.overview,config.target,config.possession]);
- const landscapeBounds=[runtime.scene.terrain?.bounds,runtime.scene.water?.bounds].filter(Boolean),landscapeBoundsKey=JSON.stringify(landscapeBounds);
+ const far=viewFar(runtime.scene);
  useLayoutEffect(()=>{
   walk.current={position:[...config.spawn],yaw:config.look[0],pitch:config.look[1]};
   actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;
@@ -76,10 +78,8 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
  useLayoutEffect(()=>{
   // Geometry extents can change without a new spawn or possession config.
   // Update projection separately so a landscape edit does not respawn the maker.
-  const width=landscapeBounds.length?Math.max(...landscapeBounds.map(b=>b[1]))-Math.min(...landscapeBounds.map(b=>b[0])):0;
-  const depth=landscapeBounds.length?Math.max(...landscapeBounds.map(b=>b[3]))-Math.min(...landscapeBounds.map(b=>b[2])):0;
-  camera.far=Math.max(160,(width+depth)*1.5);camera.updateProjectionMatrix();
- },[camera,landscapeBoundsKey]);
+  camera.far=far;camera.updateProjectionMatrix();
+ },[camera,far]);
  useLayoutEffect(()=>{
   if(mode==='free'){
    const orientation=new THREE.Euler().setFromQuaternion(camera.quaternion,'YXZ');
@@ -177,9 +177,15 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    }
   }
   if(moving!==lastMoving.current){setMoving(moving);lastMoving.current=moving;}
-  camera.updateMatrixWorld();ray.setFromCamera({x:0,y:0},camera);
-  const target=pickWorldAim(ray,scene,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time});
-  if(aim.current!==target){aim.current=target;setAim(target);}
+  camera.updateMatrixWorld();
+  // Aim when the view moves, and at least every 100 ms for things that drift
+  // under a still reticle: picking walks and raycasts the scene (H94).
+  const now=performance.now(),pose=camera.matrixWorld.elements,last=lastPick.current;
+  if(now-last.time>=100||pose.some((value,index)=>value!==last.pose[index])){
+   last.time=now;last.pose=[...pose];ray.setFromCamera({x:0,y:0},camera);
+   const target=pickWorldAim(ray,scene,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time});
+   if(aim.current!==target){aim.current=target;setAim(target);}
+  }
   const a=actor.current,b=config.bounds;
   // A geometry/bounds edit may strand the existing pose. Report it instead of
   // silently teleporting; the host can offer the explicit Recall action.
@@ -188,33 +194,53 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const look=mode==='free'?free.current:walk.current;
   probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
-  const gate=compileGate(gl,settled.current);settled.current=gate.settled;probe.compiling=gate.compiling;probe.ready||=gate.ready;
+  const gate=compileGate(gl,settled.current);settled.current=gate.settled;probe.compiling=gate.compiling;probe.ready||=gate.ready&&!probe.skyLight?.pending;
  },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} firstPerson={mode==='walk'&&person==='first'}/>:null;
+}
+// environment.grade (H77): the world's tone mapping and exposure while it is shown.
+const TONE_MAPPING={aces:THREE.ACESFilmicToneMapping,neutral:THREE.NeutralToneMapping,agx:THREE.AgXToneMapping};
+function WorldGrade({environment}){
+ const {gl}=useThree(),grade=resolveGrade(environment);
+ useEffect(()=>{
+  const previous={toneMapping:gl.toneMapping,exposure:gl.toneMappingExposure};
+  gl.toneMapping=TONE_MAPPING[grade.toneMapping];gl.toneMappingExposure=grade.exposure;
+  return()=>{gl.toneMapping=previous.toneMapping;gl.toneMappingExposure=previous.exposure;};
+ },[gl,grade.toneMapping,grade.exposure]);
+ return null;
 }
 function Sun({runtime,environment,cameraMode}){
  const {camera}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]),focus=useMemo(()=>new THREE.Vector3(),[]),last=useRef({});
- const direction=useMemo(()=>new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize().multiplyScalar(SUN_SHADOW.lightDistance),[environment]);
- useLayoutEffect(()=>configureSunShadow(light.current),[]);
+ const shadow=useMemo(()=>sunShadowConfig(environment),[environment]);
+ const direction=useMemo(()=>new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize().multiplyScalar(shadow.lightDistance),[environment,shadow]);
+ useLayoutEffect(()=>configureSunShadow(light.current,shadow),[shadow]);
  useFrame(()=>{
   const matrix=camera.matrixWorld.elements,previous=last.current,groundHeight=runtime.scene.water?.level??0;
   if(cameraMode==='walk'||previous.mode!==cameraMode||previous.terrain!==runtime.terrain||previous.groundHeight!==groundHeight||matrix.some((value,index)=>value!==previous.matrix?.[index])){
-   shadowViewFocus({mode:cameraMode,actor:runtime.actor,camera,terrain:runtime.terrain,groundHeight},focus);
+   shadowViewFocus({mode:cameraMode,actor:runtime.actor,camera,terrain:runtime.terrain,groundHeight,lead:shadow.lead},focus);
    last.current={mode:cameraMode,terrain:runtime.terrain,groundHeight,matrix:[...matrix]};
   }
   target.position.copy(focus);light.current.position.copy(focus).add(direction);target.updateMatrixWorld();
+  scheduleSunShadow(light.current);
  },-.25);
  return <><primitive object={target}/><directionalLight ref={light} target={target} color={environment.sunColor} intensity={environment.sunIntensity} castShadow/></>;
 }
 export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
  const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
+ // The world's compile gate and sky light decide when the page is ready (see the
+ // frame loop below), not the cove kit mounting, which can finish before the world
+ // has drawn at all. Layout effects run before the cove's own effect.
+ useLayoutEffect(()=>{probe.runtimeGate=true;return()=>{probe.runtimeGate=false;};},[]);
  const placed=useMemo(()=>placedObjects(s),[s]),models=useUnderwaterModels(bundle.models,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models),[placed,models]);
  return <WorldMaterialsProvider>
   <color attach="background" args={[e.fogColor]}/><fog attach="fog" args={[e.fogColor,e.fogNear??28,e.fogFar??85]}/>
-  <hemisphereLight args={['#f1eee2','#95806d',1.8]}/>
-  <Sun runtime={runtime} environment={e} cameraMode={cameraMode}/>
+  {/* The sky light (environment.sky.light) replaces this fixed fill with the captured dome. */}
+  {!(e.sky?.light&&(s.terrain||s.water))&&<hemisphereLight args={['#f1eee2','#95806d',1.8]}/>}
+  {/* Optional sky.light.bounce (H76): light rising from sunlit ground, which a probe low over water does not see. */}
+  {e.sky?.light?.bounce&&(s.terrain||s.water)&&<hemisphereLight args={['#000000',e.sky.light.bounce.color,e.sky.light.bounce.intensity]}/>}
+  <Sun runtime={runtime} environment={e} cameraMode={cameraMode}/><WorldGrade environment={e}/>
   {(s.terrain||s.water)&&<><Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/><LandscapeSky environment={e} runtime={runtime}/></>}
   {!s.terrain&&(e.type==='construct'?<Construct/>:!s.water&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[180,180]}/><WorldSurfaceMaterial surface="soil" color={e.groundColor}/></mesh>)}
-  <group visible={cove}><Cove gltf={bundle.models[s.origin]}/>{s.moodboard&&<MoodBoard model={bundle.models[s.moodboard.asset]} board={s.moodboard} references={bundle.payload.world.references||[]} pins={bundle.payload.world.bible.referenceIds||[]} select={controls.select}/>}</group>
+  <group visible={cove} userData={{skyLightExclude:true}}><Cove gltf={bundle.models[s.origin]}/>{s.moodboard&&<MoodBoard model={bundle.models[s.moodboard.asset]} board={s.moodboard} references={bundle.payload.world.references||[]} pins={bundle.payload.world.bible.referenceIds||[]} select={controls.select}/>}</group>
   {staticPlan.batches.map(batch=><StaticAssetBatch key={batch.key} batch={batch} model={models[batch.asset]} asset={s.assets.find(a=>a.id===batch.asset)} runtime={runtime} select={controls.select}/>)}
   {staticPlan.individual.map(item=>item.behavior?.type==='flock'?<FlockAsset key={item.id} item={item} model={models[item.asset]} runtime={runtime} select={controls.select}/>:<Entity key={item.id} item={item} model={models[item.asset]} runtime={runtime} select={controls.select}/>)}
   <Driver runtime={runtime}/><ViewController runtime={runtime} mode={cameraMode} {...controls}/>

@@ -22,25 +22,30 @@ export function underwaterColor(albedo,depth,water={}){
 // The highest the water surface reaches, plus a margin for the waterline band.
 export const waterCeiling=water=>water.level+water.waves.reduce((sum,w)=>sum+w.amplitude,0)+.15;
 
-// Lowest world Y of a local bounding box under a placement's position,
-// rotation (three.js Euler XYZ, radians) and scale.
-export function placedBottom(box,{position,rotation=[0,0,0],scale=[1,1,1]}){
+// World axis-aligned extent of a local bounding box under a placement's
+// position, rotation (three.js Euler XYZ, radians) and scale.
+export function placedExtent(box,{position,rotation=[0,0,0],scale=[1,1,1]}){
   const [x,y,z]=rotation,[cx,sx]=[Math.cos(x),Math.sin(x)],[cy,sy]=[Math.cos(y),Math.sin(y)],[cz,sz]=[Math.cos(z),Math.sin(z)];
-  // Row 2 of Rx·Ry·Rz, the world Y of a rotated local point.
-  const row=[cx*sz+sx*sy*cz,cx*cz-sx*sy*sz,-sx*cy];
-  let bottom=Infinity;
+  // The rows of Rx·Ry·Rz.
+  const rows=[[cy*cz,-cy*sz,sy],[cx*sz+sx*sy*cz,cx*cz-sx*sy*sz,-sx*cy],[sx*sz-cx*sy*cz,sx*cz+cx*sy*sz,cx*cy]];
+  const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];
   for(const px of [box.min[0],box.max[0]])for(const py of [box.min[1],box.max[1]])for(const pz of [box.min[2],box.max[2]])
-    bottom=Math.min(bottom,position[1]+row[0]*px*scale[0]+row[1]*py*scale[1]+row[2]*pz*scale[2]);
-  return bottom;
+    rows.forEach((row,i)=>{const v=position[i]+row[0]*px*scale[0]+row[1]*py*scale[1]+row[2]*pz*scale[2];min[i]=Math.min(min[i],v);max[i]=Math.max(max[i],v);});
+  return {min,max};
 }
+// Lowest world Y of a local bounding box under a placement.
+export const placedBottom=(box,placement)=>placedExtent(box,placement).min[1];
 
 // Asset IDs with at least one placement (scatter instances included) that can
-// reach below the highest wave crest. `bounds` maps asset ID to {min,max}.
+// reach below the highest wave crest inside the ocean's bounds. Only that
+// rectangle holds water: a foundation or cliff below the level elsewhere stays
+// dry. `bounds` maps asset ID to {min,max}.
 export function underwaterAssets(placements,bounds,water){
-  const ceiling=waterCeiling(water),out=new Set();
+  const ceiling=waterCeiling(water),[xmin,xmax,zmin,zmax]=water.bounds??[-Infinity,Infinity,-Infinity,Infinity],out=new Set();
   for(const item of placements){
     if(!item.asset||out.has(item.asset)||!bounds[item.asset])continue;
-    if(placedBottom(bounds[item.asset],item)<ceiling)out.add(item.asset);
+    const {min,max}=placedExtent(bounds[item.asset],item);
+    if(min[1]<ceiling&&max[0]>=xmin&&min[0]<=xmax&&max[2]>=zmin&&min[2]<=zmax)out.add(item.asset);
   }
   return out;
 }

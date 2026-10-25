@@ -83,3 +83,8 @@ test('ocean schema rejects invalid directions, unbounded waves and nonfinite que
  for(const config of [water({waves:Array(5).fill(wave)}),water({waves:[{...wave,direction:[0,0]}]}),water({waves:[{...wave,direction:[2,0]}]}),water({waves:[{...wave,wavelength:0}]}),water({waves:[{...wave,amplitude:-1}]}),water({foamWidth:0}),water({unknown:true})])assert.throws(()=>validateWater(config));
  assert.throws(()=>sampleWater(water(),0,0,Infinity),/coordinates|time/);
 });
+
+test('water may opt into a planar reflection, and nothing else (H82)',()=>{
+ assert.equal(validateWater(water({reflection:'planar'})).reflection,'planar');
+ for(const reflection of ['probe','mirror',true])assert.throws(()=>validateWater(water({reflection})),/Water reflection must be "planar"/);
+});

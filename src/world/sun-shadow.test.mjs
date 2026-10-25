@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {BoxGeometry,DirectionalLight,DoubleSide,FrontSide,Mesh,MeshStandardMaterial,PerspectiveCamera,PlaneGeometry,Vector3} from 'three/webgpu';
 import {createTerrain} from './terrain.mjs';
-import {SHADOW_ONLY_LAYER,SUN_SHADOW,configureSunShadow,shadowFadeAt,shadowProxies,shadowViewFocus} from './sun-shadow.mjs';
+import {SHADOW_ONLY_LAYER,SUN_SHADOW,configureSunShadow,scheduleSunShadow,shadowFadeAt,shadowProxies,shadowViewFocus,sunShadowConfig} from './sun-shadow.mjs';
+import {validateShadow} from './shadow-contract.mjs';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
 const terrain=createTerrain({type:'heightfield',bounds:[-40,40,-40,40],segments:[8,8],baseHeight:2,stamps:[]});
 const view=(position,target)=>{const camera=new PerspectiveCamera(63,1,.05,200);camera.position.set(...position);camera.lookAt(...target);camera.updateMatrixWorld();return camera;};
@@ -41,4 +42,20 @@ test('shadow proxies replace casting batches per face side and only the sun shad
  assert.deepEqual(Object.keys(proxies[0].geometry.attributes),['position']);
  for(const proxy of proxies){assert.ok(proxy.castShadow);assert.equal(proxy.layers.mask,1<<SHADOW_ONLY_LAYER);assert.ok(light.shadow.camera.layers.test(proxy.layers));assert.ok(!new PerspectiveCamera().layers.test(proxy.layers));}
  assert.ok(light.shadow.camera.layers.isEnabled(0));assert.deepEqual(shadowProxies(meshes),[]);
+});
+test('a wider shadow extent scales the whole volume and leads the view, and the default is unchanged (H75)',()=>{
+ assert.equal(sunShadowConfig({}),SUN_SHADOW);assert.equal(sunShadowConfig({shadow:{extent:24}}),SUN_SHADOW);
+ const wide=sunShadowConfig({shadow:{extent:60}});
+ assert.deepEqual([wide.halfExtent,wide.mapSize,wide.lead],[60,2048,30]);near(wide.far,225);near(wide.lightDistance,100);near(wide.normalBias,.075);near(wide.fadeWidth,15);
+ const light=new DirectionalLight();configureSunShadow(light,wide);
+ assert.deepEqual([light.shadow.camera.left,light.shadow.camera.top],[-60,60]);near(light.shadow.camera.far,225);
+ near(shadowFadeAt([7.5/120,.5,.5],wide),.5);
+ const actor={position:[3,2,5]},walker=view([3,3.72,5],[3,3.72,-5]),ahead=shadowViewFocus({mode:'walk',actor,camera:walker,terrain,lead:30});
+ near(ahead.x,3);near(ahead.y,2);near(ahead.z,-25);
+ const free=shadowViewFocus({mode:'free',camera:view([10,12,10],[10,2,-10]),terrain,lead:30});near(free.x,10);near(free.z,-40);
+ assert.throws(()=>validateShadow({extent:6}),/12–120/);assert.throws(()=>validateShadow({radius:30}),/Unknown shadow field/);assert.deepEqual(validateShadow({extent:60}),{extent:60});
+});
+test('the sun shadow renders once a frame, not once per camera',()=>{
+ const light=new DirectionalLight();configureSunShadow(light);light.shadow.needsUpdate=false;
+ scheduleSunShadow(light);assert.equal(light.shadow.autoUpdate,false);assert.equal(light.shadow.needsUpdate,true);
 });

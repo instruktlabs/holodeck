@@ -90,8 +90,10 @@ export function waterRayDistance(ray,water,near=0,far=30,time=0){
 
 export function pickWorldAim(raycaster,scene,{terrain=null,water=null,time=0,maxDistance=30}={}){
  raycaster.far=Math.min(30,maxDistance);
- // Entity movement runs before aiming; do not use last render's matrices.
- scene.updateMatrixWorld(true);
+ // Entity movement runs before aiming; do not use last render's matrices. Moving
+ // objects update their own matrices; a forced update would recompute every
+ // static matrix in the scene a second time each frame (H94).
+ scene.updateMatrixWorld();
  const hit=raycaster.intersectObjects(collectAimMeshes(scene),false)[0];if(!hit)return null;
  const far=hit.distance-1e-5;
  if(terrain&&terrainRayDistance(raycaster.ray,terrain,raycaster.near,far)!==null)return null;

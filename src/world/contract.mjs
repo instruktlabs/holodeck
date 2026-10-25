@@ -1,5 +1,9 @@
 import {validateRuntimeScene} from './runtime.mjs';
 import {validateFoliage,validateFoliageBinding} from './foliage-contract.mjs';
+import {validateFlow,validateFlowBinding} from './flow-contract.mjs';
+import {validateShadow} from './shadow-contract.mjs';
+import {validateGrade} from './grade.mjs';
+import {validateEffects} from './effects-contract.mjs';
 import {MAX_PLACEMENTS} from './asset-budget.mjs';
 import {expandScatters} from './scatter.mjs';
 import {validateSky} from './sky.mjs';
@@ -45,9 +49,11 @@ export function validateWorld(w){
   }
   if(w.bible.referenceIds&&(!Array.isArray(w.bible.referenceIds)||w.bible.referenceIds.some(x=>!refIds.has(x))))fail('Pinned bible references must exist on the board');
   const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water','scatters']:[])],'scene');
-  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','sky']:[])],'environment');
+  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','sky','shadow','grade','effects']:[])],'environment');
   if(s.environment.sky!==undefined)validateSky(s.environment.sky);
-  if(!['construct','meadow','woodland'].includes(s.environment.type))fail('Unsupported environment capability');
+  if(s.environment.shadow!==undefined)try{validateShadow(s.environment.shadow);}catch(error){fail(error.message);}
+  if(s.environment.grade!==undefined)try{validateGrade(s.environment.grade);}catch(error){fail(error.message);}
+  if(s.environment.effects!==undefined)try{validateEffects(s.environment.effects);}catch(error){fail(error.message);}  if(!['construct','meadow','woodland'].includes(s.environment.type))fail('Unsupported environment capability');
   if(typeof s.environment.clearPath!=='boolean')fail('clearPath must be a boolean');
   for(const k of ['groundColor','fogColor','sunColor'])if(!/^#[0-9a-f]{6}$/i.test(s.environment[k]))fail(`Invalid ${k}`);
   if(!Number.isFinite(s.environment.sunIntensity)||s.environment.sunIntensity<0||s.environment.sunIntensity>8)fail('Sun intensity must be 0–8');
@@ -58,19 +64,23 @@ export function validateWorld(w){
   const placementLimit=w.schemaVersion===2?MAX_PLACEMENTS:200;
   if(!Array.isArray(s.assets)||s.assets.length>64||!Array.isArray(s.objects)||s.objects.length>placementLimit)fail(`Scene exceeds 64 assets or ${placementLimit} placements`);
   const ids=new Set();for(const a of s.assets){
-    exact(a,['id','file','provenance','foliage'],'asset');id(a.id);if(ids.has(a.id))fail('Duplicate asset ID');ids.add(a.id);
+    exact(a,['id','file','provenance','foliage','flow','reflection'],'asset');id(a.id);if(ids.has(a.id))fail('Duplicate asset ID');ids.add(a.id);
     if(a.foliage!==undefined){if(w.schemaVersion!==2)fail('Foliage requires schema version 2');validateFoliage(a.foliage);if(a.id===s.origin||a.id===s.moodboard?.asset)fail('Foliage is only supported on ordinary imported placements');}
+    if(a.flow!==undefined){if(w.schemaVersion!==2)fail('Flow requires schema version 2');validateFlow(a.flow);if(a.id===s.origin||a.id===s.moodboard?.asset)fail('Flow is only supported on ordinary imported placements');if(a.foliage?.nodes.some(n=>a.flow.nodes.includes(n)))fail('A mesh node cannot be both foliage and flow');}
+    if(a.reflection!==undefined){if(w.schemaVersion!==2)fail('Asset reflection requires schema version 2');if(a.reflection!=='sky'){const probe=a.reflection?.probe;if(!a.reflection||typeof a.reflection!=='object'||Array.isArray(a.reflection)||Object.keys(a.reflection).some(k=>k!=='probe')||!Array.isArray(probe)||probe.length!==3||!probe.every(v=>Number.isFinite(v)&&Math.abs(v)<=2000))fail('Asset reflection must be "sky" or {probe:[x,y,z]} within 2000 m');if(!s.environment.sky?.light)fail('An asset reflection probe needs environment.sky.light');}if(a.id===s.origin||a.id===s.moodboard?.asset)fail('Sky reflection is only supported on ordinary imported placements');if(a.foliage||a.flow)fail('Sky reflection cannot be combined with foliage or flow');}
     if(typeof a.file!=='string'||!/^assets\/imports\/[-a-zA-Z0-9_/.]+\.glb$/.test(a.file)||a.file.split('/').some(p=>p==='..'||p===''))fail('Asset must be a GLB inside assets/imports');
     if(a.provenance!==undefined){exact(a.provenance,['assetId','revisionId','collection'],'provenance');for(const v of Object.values(a.provenance))str(v,160,'provenance');}
   }
   if(!ids.has(s.origin))fail('Origin asset is missing');
   const objects=new Set();for(const o of s.objects){
-    exact(o,['id','asset','position','rotation','scale','collider','layer','materialStyle','light',...(w.schemaVersion===2?['shape','behavior','label']:[])],'placement');id(o.id);if(objects.has(o.id))fail('Duplicate placement ID');objects.add(o.id);
+    exact(o,['id','asset','position','rotation','scale','collider','layer','materialStyle','light',...(w.schemaVersion===2?['shape','behavior','label','castShadow']:[])],'placement');if(o.castShadow!==undefined&&typeof o.castShadow!=='boolean')fail('castShadow must be a boolean');id(o.id);if(objects.has(o.id))fail('Duplicate placement ID');objects.add(o.id);
     if(o.light){exact(o.light,['color','intensity','distance','offset'],'light');if(!/^#[a-f0-9]{6}$/i.test(o.light.color)||!Number.isFinite(o.light.intensity)||o.light.intensity<0||o.light.intensity>20||!Number.isFinite(o.light.distance)||o.light.distance<=0||o.light.distance>20)fail('Invalid local light');vec(o.light.offset,'light offset');}
     if(o.layer!==undefined&&!['origin','world'].includes(o.layer))fail('Unknown scene layer');
     if(o.materialStyle!==undefined&&!['kiln','cove'].includes(o.materialStyle))fail('Unknown material style');
     if(o.materialStyle==='cove'&&s.assets.find(a=>a.id===o.asset)?.foliage)fail('Foliage cannot be combined with cove material derivation');
     if(o.behavior?.type==='flock'&&s.assets.find(a=>a.id===o.asset)?.foliage)fail('Foliage is not supported by the flock renderer');
+    if(s.assets.find(a=>a.id===o.asset)?.flow&&(o.materialStyle==='cove'||o.behavior?.type==='flock'))fail('Flow cannot be combined with cove material derivation or the flock renderer');
+    if(s.assets.find(a=>a.id===o.asset)?.reflection&&(o.materialStyle==='cove'||o.behavior?.type==='flock'))fail('Sky reflection cannot be combined with cove material derivation or the flock renderer');
     if(o.shape&&w.schemaVersion===2){
       if(o.asset!==undefined)fail('Choose either asset or shape');
       exact(o.shape,['type','size','color','offset','surface'],'shape');
@@ -93,7 +103,7 @@ export function validateWorld(w){
   return w;
 }
 
-export function validateGlb(bytes,{foliage}={}){
+export function validateGlb(bytes,{foliage,flow}={}){
   if(bytes.byteLength<20||bytes.byteLength>MAX_ASSET_BYTES)fail('GLB is empty or exceeds 32 MiB');
   const data=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
   if(data.getUint32(0,true)!==0x46546c67||data.getUint32(4,true)!==2||data.getUint32(8,true)!==bytes.byteLength)fail('Invalid GLB header or incomplete write');
@@ -124,7 +134,7 @@ export function validateGlb(bytes,{foliage}={}){
   const active=new Set(),done=new Set();
   function visit(i,depth=0){if(!Number.isInteger(i)||!nodes[i]||depth>64||active.has(i))fail('Invalid, cyclic or overly deep GLB hierarchy');if(done.has(i))return;active.add(i);for(const c of nodes[i].children||[])visit(c,depth+1);active.delete(i);done.add(i);}
   nodes.forEach((_,i)=>visit(i));
-  validateFoliageBinding(doc,foliage);
+  validateFoliageBinding(doc,foliage);validateFlowBinding(doc,flow,foliage);
   const meshTriangles=(doc.meshes||[]).map(m=>{let n=0;for(const p of m.primitives||[]){if(p.mode!==undefined&&p.mode!==4)fail('Only triangle meshes are supported');const a=doc.accessors?.[p.indices??p.attributes?.POSITION];if(!a||!Number.isSafeInteger(a.count)||a.count<0)fail('Invalid primitive accessor');n+=a.count/3;}return n;});
   let triangles=0;for(const node of nodes){if(node.mesh===undefined)continue;if(meshTriangles[node.mesh]===undefined)fail('Invalid mesh index');const attrs=node.extensions?.EXT_mesh_gpu_instancing?.attributes;let instances=1;if(attrs){const counts=Object.values(attrs).map(i=>doc.accessors?.[i]?.count);if(!counts.length||counts.some(n=>!Number.isSafeInteger(n)||n<0||n!==counts[0]))fail('Invalid instance count');instances=counts[0];}triangles+=meshTriangles[node.mesh]*instances;}
   if(triangles>1000000)fail('Asset exceeds one million triangles');

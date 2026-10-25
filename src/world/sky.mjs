@@ -5,6 +5,15 @@ import {linearHex} from './water-optics.mjs';
 
 export const SKY_DEFAULTS={curve:.45,sunDisc:1};
 export const CLOUD_DEFAULTS={coverage:.35,density:.5,height:.5,scale:1,drift:[.6,.2]};
+// Sky light: the dome is captured once into an environment map that lit
+// materials reflect and are lit by, in place of the fixed hemisphere fill.
+// A single unoccluded probe overfills shadowed faces, hence less than 1.
+export const SKY_LIGHT_DEFAULTS={intensity:.6};
+// A sunlit deck of cloud at a world height, seen below the horizon from above it.
+export const CLOUD_SEA_DEFAULTS={coverage:.8,scale:1,drift:[1,.3]};
+// Below this ray elevation the deck dissolves into the horizon haze; wide enough
+// that the deck and the sky meet in haze rather than at a line (H74).
+export const CLOUD_SEA_HAZE=.3;
 // Below the horizon the dome turns to the fog colour over this much elevation:
 // a finite ocean seen from above ends in fully fogged water, which is fogColor,
 // so the dome past its edge must match it rather than the horizon colour.
@@ -12,7 +21,12 @@ export const BELOW_HORIZON=.02;
 // The cloud plane divides by elevation, floored here; under the floor clouds
 // smear into vertical streaks, so they fade in only above it.
 export const CLOUD_FLOOR=.02;
-const SKY_KEYS=['zenithColor','horizonColor','curve','sunDisc','clouds'],CLOUD_KEYS=Object.keys(CLOUD_DEFAULTS);
+// A bank of towering cumulus along part of the horizon (H92), drawn in the dome
+// like the rest of the sky: toward [x,z] is the horizontal direction of its middle,
+// spread its half-width and height the elevation of its tallest tops, in degrees;
+// scale sizes the towers and billows.
+export const CUMULUS_DEFAULTS={spread:30,height:12,scale:1};
+const SKY_KEYS=['zenithColor','horizonColor','curve','sunDisc','clouds','light','cloudSea','cumulus'],CLOUD_KEYS=Object.keys(CLOUD_DEFAULTS),LIGHT_KEYS=['probe','bounce',...Object.keys(SKY_LIGHT_DEFAULTS)],SEA_KEYS=['height',...Object.keys(CLOUD_SEA_DEFAULTS)],CUMULUS_KEYS=['toward',...Object.keys(CUMULUS_DEFAULTS)];
 const HEX=/^#[0-9a-f]{6}$/i;
 const fail=message=>{throw new Error(message);};
 const finite=(v,min,max,label)=>{if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max)fail(`${label} must be a number from ${min} to ${max}`);};
@@ -32,12 +46,50 @@ export function validateSky(sky){
     if(c.scale!==undefined)finite(c.scale,.25,4,'clouds scale');
     if(c.drift!==undefined){if(!Array.isArray(c.drift)||c.drift.length!==2)fail('clouds drift must be [x,z] metres per second');c.drift.forEach(v=>finite(v,-5,5,'clouds drift'));}
   }
+  if(sky.light!==undefined){
+    record(sky.light,'sky light');
+    for(const key of Object.keys(sky.light))if(!LIGHT_KEYS.includes(key))fail(`Unknown sky light field ${key}`);
+    if(sky.light.intensity!==undefined)finite(sky.light.intensity,0,3,'sky light intensity');
+    if(sky.light.probe!==undefined){if(!Array.isArray(sky.light.probe)||sky.light.probe.length!==3)fail('sky light probe must be [x,y,z] metres');sky.light.probe.forEach(v=>finite(v,-1000,1000,'sky light probe'));}
+    if(sky.light.bounce!==undefined){
+      const b=sky.light.bounce;record(b,'sky light bounce');
+      for(const key of Object.keys(b))if(!['color','intensity'].includes(key))fail(`Unknown sky light bounce field ${key}`);
+      if(!HEX.test(b.color??''))fail('sky light bounce color must be a #rrggbb colour');
+      finite(b.intensity,0,2,'sky light bounce intensity');
+    }
+  }
+  if(sky.cloudSea!==undefined){
+    const s=sky.cloudSea;record(s,'sky cloudSea');
+    for(const key of Object.keys(s))if(!SEA_KEYS.includes(key))fail(`Unknown sky cloudSea field ${key}`);
+    finite(s.height,-1000,1000,'cloudSea height');
+    if(s.coverage!==undefined)finite(s.coverage,0,1,'cloudSea coverage');
+    if(s.scale!==undefined)finite(s.scale,.25,4,'cloudSea scale');
+    if(s.drift!==undefined){if(!Array.isArray(s.drift)||s.drift.length!==2)fail('cloudSea drift must be [x,z] metres per second');s.drift.forEach(v=>finite(v,-5,5,'cloudSea drift'));}
+  }
+  if(sky.cumulus!==undefined){
+    const c=sky.cumulus;record(c,'sky cumulus');
+    for(const key of Object.keys(c))if(!CUMULUS_KEYS.includes(key))fail(`Unknown sky cumulus field ${key}`);
+    if(!Array.isArray(c.toward)||c.toward.length!==2)fail('cumulus toward must be a horizontal direction [x,z]');
+    c.toward.forEach(v=>finite(v,-1000,1000,'cumulus toward'));if(Math.hypot(...c.toward)<1e-6)fail('cumulus toward must not be [0,0]');
+    if(c.spread!==undefined)finite(c.spread,3,90,'cumulus spread');
+    if(c.height!==undefined)finite(c.height,2,45,'cumulus height');
+    if(c.scale!==undefined)finite(c.scale,.25,4,'cumulus scale');
+  }
   return sky;
 }
 
 export function resolveSky(environment){
   const sky=environment.sky;if(!sky)return null;
-  return {...SKY_DEFAULTS,...sky,horizonColor:sky.horizonColor??environment.fogColor,clouds:sky.clouds?{...CLOUD_DEFAULTS,...sky.clouds}:null};
+  return {...SKY_DEFAULTS,...sky,horizonColor:sky.horizonColor??environment.fogColor,clouds:sky.clouds?{...CLOUD_DEFAULTS,...sky.clouds}:null,
+    light:sky.light?{...SKY_LIGHT_DEFAULTS,...sky.light}:null,cloudSea:sky.cloudSea?{...CLOUD_SEA_DEFAULTS,...sky.cloudSea}:null,
+    cumulus:sky.cumulus?{...CUMULUS_DEFAULTS,...sky.cumulus}:null};
+}
+
+// Metres along a view ray from a camera at cameraY to the cloud deck, or
+// Infinity when the ray never meets it (level or rising, or the camera is under it).
+export function cloudSeaReach(cameraY,height,directionY){
+  if(!(directionY<0)||!(cameraY>height))return Infinity;
+  return (cameraY-height)/-directionY;
 }
 
 // Linear sky colour at an elevation (sine of the angle above the horizon),

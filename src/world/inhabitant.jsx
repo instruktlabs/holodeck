@@ -4,7 +4,8 @@ import {createMakerModel} from './maker-model.mjs';
 import {createMakerMotion,updateMakerPose} from './maker-pose.mjs';
 
 export function Maker({actor,firstPerson=false,terrain=null}){
- const model=useMemo(createMakerModel,[]),motion=useRef(createMakerMotion());
+ // The sky light probe leaves the maker out of its capture.
+ const model=useMemo(()=>{const m=createMakerModel();m.root.userData.skyLightExclude=true;return m;},[]),motion=useRef(createMakerMotion());
  useEffect(()=>()=>model.dispose(),[model]);
  useLayoutEffect(()=>model.setFirstPerson(firstPerson),[model,firstPerson]);
  useFrame((_,seconds)=>{

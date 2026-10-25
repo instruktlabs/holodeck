@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {BELOW_HORIZON,CLOUD_FLOOR,cloudHorizonFade,resolveSky,skyBase,skyGradient,validateSky} from './sky.mjs';
+import {BELOW_HORIZON,CLOUD_FLOOR,CLOUD_SEA_DEFAULTS,CUMULUS_DEFAULTS,cloudHorizonFade,cloudSeaReach,resolveSky,skyBase,skyGradient,validateSky} from './sky.mjs';
 import {linearHex} from './water-optics.mjs';
 import {validateWorld} from './contract.mjs';
 
@@ -54,10 +54,61 @@ test('clouds fade in only above the plane floor, where they would smear into str
   }
 });
 
+test('sky light and the cloud sea validate their fields and take defaults',()=>{
+  const sky={zenithColor:'#2f6fc0',light:{intensity:1.4},cloudSea:{height:-60,coverage:.85,scale:1.5,drift:[1.2,-.4]}};
+  assert.equal(validateSky(sky),sky);
+  assert.doesNotThrow(()=>validateSky({zenithColor:'#2f6fc0',light:{},cloudSea:{height:-60}}));
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',light:true}),/sky light must be an object/);
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',light:{intensity:4}}),/sky light intensity/);
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',light:{ground:'#ffffff'}}),/Unknown sky light field ground/);
+  assert.doesNotThrow(()=>validateSky({zenithColor:'#2f6fc0',light:{probe:[0,1.7,-20]}}));
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',light:{probe:[0,1.7]}}),/sky light probe/);
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{}}),/cloudSea height/);
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,coverage:1.2}}),/cloudSea coverage/);
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,drift:[0]}}),/cloudSea drift/);
+  assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,color:'#ffffff'}}),/Unknown sky cloudSea field color/);
+  const resolved=resolveSky({...environment,sky:{zenithColor:'#2f6fc0',light:{},cloudSea:{height:-60}}});
+  assert.deepEqual(resolved.light,{intensity:.6});
+  assert.deepEqual(resolved.cloudSea,{...CLOUD_SEA_DEFAULTS,height:-60});
+  const plain=resolveSky({...environment,sky:{zenithColor:'#2f6fc0'}});
+  assert.equal(plain.light,null);assert.equal(plain.cloudSea,null,'without the records the sky is unchanged');
+});
+
+test('a view ray meets the cloud deck only looking down from above it',()=>{
+  assert.equal(cloudSeaReach(20,-60,-1),80,'straight down from 80 m above the deck');
+  assert.ok(Math.abs(cloudSeaReach(20,-60,-.5)-160)<1e-9,'a 30 degree ray travels twice as far');
+  assert.equal(cloudSeaReach(20,-60,0),Infinity,'level rays never meet it');
+  assert.equal(cloudSeaReach(20,-60,.3),Infinity);
+  assert.equal(cloudSeaReach(-80,-60,-1),Infinity,'from under the deck there is no deck below');
+});
+
 test('worlds accept environment.sky on schema 2 only',()=>{
   const world=v=>({schemaVersion:v,revision:1,bible:{title:'T',intent:'I',rules:'R'},references:[],scene:{environment:{...environment,sky:{zenithColor:'#3d7fc4'}},bridge:null,origin:'cove',assets:[{id:'cove',file:'assets/imports/hearth-cove.glb'}],objects:[],moodboard:null,...(v===2?{runtime:{modules:['scene.static@1','collision.boxes@1','camera.walk-orbit@1'],spawn:[0,0,0],look:[0,0],overview:[0,10,10],target:[0,0,0],blockers:[]}}:{})}});
   assert.throws(()=>validateWorld(world(1)),/environment/);
   try{validateWorld(world(2));}catch(e){assert.doesNotMatch(e.message,/sky|environment/i,'any failure is unrelated to the sky');}
   const bad=world(2);bad.scene.environment.sky={zenithColor:'nope'};
   assert.throws(()=>validateWorld(bad),/zenithColor/);
+});
+
+test('a sky light may add a warm ground bounce, validated and resolved (H76)',()=>{
+  const sky={zenithColor:'#1a72d4',light:{intensity:.5,bounce:{color:'#e8c9a0',intensity:.4}}};
+  assert.equal(validateSky(sky),sky);
+  assert.deepEqual(resolveSky({fogColor:'#f2efe8',sky}).light.bounce,{color:'#e8c9a0',intensity:.4});
+  for(const bounce of [{color:'warm',intensity:.4},{color:'#e8c9a0'},{color:'#e8c9a0',intensity:3},{color:'#e8c9a0',intensity:.4,spread:1},[1]])assert.throws(()=>validateSky({zenithColor:'#1a72d4',light:{bounce}}),/bounce/);
+});
+
+test('a world grade picks the tone mapping and exposure, and the default is unchanged (H77)',async()=>{
+  const {GRADE_DEFAULTS,resolveGrade,validateGrade}=await import('./grade.mjs');
+  assert.deepEqual(resolveGrade({}),{toneMapping:'aces',exposure:1.12});assert.deepEqual(GRADE_DEFAULTS,{toneMapping:'aces',exposure:1.12});
+  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral'}}),{toneMapping:'neutral',exposure:1.12});
+  assert.deepEqual(validateGrade({toneMapping:'agx',exposure:1.3}),{toneMapping:'agx',exposure:1.3});
+  for(const grade of [{toneMapping:'reinhard'},{exposure:3},{exposure:'1'},{contrast:1},[]])assert.throws(()=>validateGrade(grade),/[Gg]rade/);
+});
+test('a cumulus bank stands on part of the horizon, validated and resolved with defaults (H92)',()=>{
+  const sky={zenithColor:'#1f8ad8',cumulus:{toward:[0,-1]}};
+  assert.deepEqual(validateSky(sky),sky);
+  assert.deepEqual(resolveSky({fogColor:'#f4ecdc',sky}).cumulus,{...CUMULUS_DEFAULTS,toward:[0,-1]});
+  assert.equal(resolveSky({fogColor:'#f4ecdc',sky:{zenithColor:'#1f8ad8'}}).cumulus,null);
+  for(const cumulus of [{},{toward:[0,0]},{toward:[1]},{toward:[0,-1],spread:1},{toward:[0,-1],height:60},{toward:[0,-1],scale:9},{toward:[0,-1],colour:'#fff'},'north'])
+    assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus}),/cumulus/);
 });
