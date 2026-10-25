@@ -159,8 +159,12 @@ The board has a local collider {size,offset} following its placement.
 
 Stable IDs preserve transient activity across appearance and placement changes.
 Changing behavior configuration resets its state; removal drops it. Pause/reset
-does not save a revision. Legacy movement is ground-plane walking. The optional
-maker follows shared terrain triangles, wades and swims with the shared water
+does not save a revision. New worlds and bundled examples include the maker
+(`runtime.possession` {preset:"maker",camera:"first"} with inhabitant.maker@1).
+Without it, the legacy walk is the fallback: a bodyless ground-plane camera at a
+fixed 1.72m eye height. Never add or remove possession silently; when
+`world_check` reports `inhabitant-upgrade`, offer the user a proposal that adds
+the record, then check spawn, routes and walkable tops again. The maker follows shared terrain triangles, wades and swims with the shared water
 clock; first and third person use the same actor feet anchor. Overview is an
 observation camera. There is no rigid-body solver or moving-body push response.
 Runtime proposals use the same world tools and revision checks as v1.

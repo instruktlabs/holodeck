@@ -1,6 +1,6 @@
 import {WorldRuntime} from '../src/world/runtime.mjs';
 import {expandScatters} from '../src/world/scatter.mjs';
-import {createInhabitant,sampleInhabitantSupport,INHABITANT_LIMITS} from '../src/world/inhabitant.mjs';
+import {createInhabitant,sampleInhabitantSupport,withMaker,INHABITANT_LIMITS} from '../src/world/inhabitant.mjs';
 
 const vec=v=>Array.isArray(v)&&v.length===3&&v.every(n=>Number.isFinite(n)&&Math.abs(n)<=1000);
 const validId=id=>typeof id==='string'&&/^[-\w]{1,64}$/.test(id);
@@ -81,6 +81,12 @@ export function checkWorld(world,{observation=null,assets={},routes=[],now=Date.
  result.driver=probe.driver;result.time=clock;result.limits=probeLimits(probe.driver);
  const spawn=probe.sample(world.scene.runtime.spawn);
  result.checks.push({id:'spawn-clearance',status:spawn.issues.length?'attention':'clear',evidence:{...spawn,position:spawn.eyePosition,originVisible:runtime.originVisible,poseSource},message:spawn.issues.length?'The declared spawn has a reported support or blocker constraint. Inspect the intended entry sequence.':'No support or blocker constraint was found at the declared spawn in this query.'});
+ // A world without possession still walks bodyless. Suggest the maker; never add it.
+ if(probe.driver==='legacy-ground-plane'){
+  const {modules,possession}=withMaker(world.scene).runtime;
+  result.checks.push({id:'inhabitant-upgrade',status:'suggestion',evidence:{driver:probe.driver,addModule:'inhabitant.maker@1',modules,possession},message:'This world uses the legacy bodyless walk. Adding the maker is a new revision: add inhabitant.maker@1 and runtime.possession, then walk the spawn, routes and walkable tops again. Nothing is migrated automatically.'});
+  result.next.push('To walk this world as the maker, propose (or use Add the maker in Observe) a revision with inhabitant.maker@1 and runtime.possession {preset:"maker",camera:"first"}, then check it again.');
+ }
  for(const route of routes){
   if(probe.driver==='legacy-ground-plane'&&(route.from[1]!==1.72||route.to[1]!==1.72)){result.checks.push({id:`route:${route.id}`,status:'unsupported',evidence:{from:route.from,to:route.to},message:'This driver only samples a 1.72 metre eye height on flat ground; no terrain support is present.'});continue;}
   const length=Math.hypot(route.to[0]-route.from[0],route.to[2]-route.from[2]),segments=Math.max(1,Math.min(64,Math.ceil(length/.1)));

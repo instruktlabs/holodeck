@@ -23,7 +23,10 @@ The query uses a 0.22 metre walker radius at the fixed 1.72 metre eye height.
 In worlds with terrain or maker possession, routes instead follow supported feet,
 including walkable collider tops, with the shared slope, step and water rules, and
 flag a `drop` issue where the feet fall more than one step between samples; see
-[terrain and inhabitants](terrain-and-inhabitants.md). The inventory reports
+[terrain and inhabitants](terrain-and-inhabitants.md). A world still on the
+legacy bodyless walk gets an `inhabitant-upgrade` check with status `suggestion`
+and the possession record and module list to add; the check never adds them.
+The inventory reports
 target, placed and removed counts for each scatter.
 
 Fresh matching browser activity poses inform moving blockers. Observations older
