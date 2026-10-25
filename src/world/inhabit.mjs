@@ -14,6 +14,11 @@ export function resolveWorldKey({code,repeat=false,editable=false,mode='author',
  if(movementKeys.has(code)||cameraMode==='free'&&['KeyQ','KeyE'].includes(code))return ['walk','free'].includes(cameraMode)?{type:'move',code}:null;
  if(repeat)return null;
  if(code==='Space'&&possessed&&cameraMode==='walk')return {type:'jump'};
+ // T holds the emote wheel open; 1-9 play its slots directly.
+ if(possessed&&cameraMode==='walk'){
+  if(code==='KeyT')return {type:'emote-wheel'};
+  const slot=/^(?:Digit|Numpad)([1-9])$/.exec(code);if(slot)return {type:'emote',slot:Number(slot[1])-1};
+ }
  if(code==='KeyG')return {type:'toggle-free'};
  if(code==='KeyV'&&possessed&&cameraMode==='walk')return {type:'toggle-person'};
  if(code==='KeyH'&&mode==='inhabit')return {type:'toggle-hud'};

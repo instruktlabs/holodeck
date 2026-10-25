@@ -1,5 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import {subscribeTouch,stickKnob} from './touch-input.mjs';
+import {EmoteButton} from './emote-wheel.jsx';
 import './touch.css';
 
 // Touch mode follows the last pointer used, so a laptop with a touchscreen
@@ -28,8 +29,8 @@ function Hold({label,set,children}){
 }
 
 // Buttons appear only when their action applies: Interact when the reticle finds
-// something, Jump while walking as the inhabitant, Up and Down in the free camera.
-export function TouchControls({touch,active,mode,possessed,interaction,onInteract,bottom=150,children}){
+// something, Jump and Emote while walking as the inhabitant, Up and Down in the free camera.
+export function TouchControls({touch,active,mode,possessed,interaction,onInteract,emotes=null,bottom=150,children}){
  if(!active)return null;
  const moving=mode==='walk'||mode==='free';
  return <div className="touch-layer" style={{'--touch-bottom':`${bottom}px`}}>
@@ -38,7 +39,7 @@ export function TouchControls({touch,active,mode,possessed,interaction,onInterac
    {children}
    {mode==='walk'&&interaction?.action&&<button type="button" className="touch-button" onClick={onInteract}>{interaction.available?interaction.label:'Move closer'}</button>}
    {mode==='free'&&<div className="touch-pair"><Hold label="Down" set={v=>{touch.pad.up=v?-1:0;}}>Down</Hold><Hold label="Up" set={v=>{touch.pad.up=v?1:0;}}>Up</Hold></div>}
-   {mode==='walk'&&possessed&&<Hold label="Jump" set={v=>{touch.pad.jump=v;}}>Jump</Hold>}
+   {mode==='walk'&&possessed&&<div className="touch-pair">{emotes&&<EmoteButton input={emotes}/>}<Hold label="Jump" set={v=>{touch.pad.jump=v;}}>Jump</Hold></div>}
   </div>
  </div>;
 }

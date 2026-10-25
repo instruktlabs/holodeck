@@ -165,7 +165,12 @@ Without it, the legacy walk is the fallback: a bodyless ground-plane camera at a
 fixed 1.72m eye height. Never add or remove possession silently; when
 `world_check` reports `inhabitant-upgrade`, offer the user a proposal that adds
 the record, then check spawn, routes and walkable tops again. The maker follows shared terrain triangles, wades and swims with the shared water
-clock; first and third person use the same actor feet anchor. Overview is an
+clock; first and third person use the same actor feet anchor. The player can play
+maker emotes (T wheel or 1–9: wave, dance, clap, bow, point, shrug, cheer, sit,
+lie down); they are transient like a door swing and never saved. Sit uses any
+static collider box top 0.25–0.7m above the feet within 0.8m as a seat, so a
+bench or chair needs a box collider at seat height for the maker to sit on it.
+Overview is an
 observation camera. There is no rigid-body solver or moving-body push response.
 Runtime proposals use the same world tools and revision checks as v1.
 Use only construct/meadow environments in v2; the legacy woodland crossing is v1.

@@ -100,6 +100,25 @@ test('freecam input is normalized, sprint is faster, and elapsed time is bounded
  const before=[...capped.position];stepFreeCamera(capped,{forward:1},NaN);assert.deepEqual(capped.position,before);
 });
 
+test('T opens the emote wheel and 1-9 play slots, only while walking as the inhabitant',()=>{
+ assert.deepEqual(resolveWorldKey({code:'KeyT',mode:'inhabit',possessed:true}),{type:'emote-wheel'});
+ assert.deepEqual(resolveWorldKey({code:'KeyT',mode:'author',possessed:true}),{type:'emote-wheel'});
+ for(let n=1;n<=9;n++){
+  assert.deepEqual(resolveWorldKey({code:`Digit${n}`,mode:'inhabit',possessed:true}),{type:'emote',slot:n-1});
+  assert.deepEqual(resolveWorldKey({code:`Numpad${n}`,mode:'inhabit',possessed:true}),{type:'emote',slot:n-1});
+ }
+ for(const code of ['KeyT','Digit1','Digit9'])for(const extra of [{editable:true},{repeat:true},{cameraMode:'free'},{cameraMode:'overview'},{possessed:false}])
+  assert.equal(resolveWorldKey({code,mode:'inhabit',possessed:true,...extra}),null,`${code} ${JSON.stringify(extra)}`);
+ assert.equal(resolveWorldKey({code:'Digit0',mode:'inhabit',possessed:true}),null);
+ // The emote keys leave every existing binding where it was.
+ const target={id:'gate',action:'open',available:true,reason:null};
+ assert.deepEqual(resolveWorldKey({code:'KeyE',mode:'inhabit',possessed:true,target}),{type:'interact',id:'gate'});
+ assert.deepEqual(resolveWorldKey({code:'KeyF',mode:'author',possessed:true,target}),{type:'select',id:'gate'});
+ for(const [code,type] of [['KeyG','toggle-free'],['KeyV','toggle-person'],['KeyH','toggle-hud'],['Enter','compose'],['Tab','compose'],['Space','jump']])assert.equal(resolveWorldKey({code,mode:'inhabit',possessed:true})?.type,type,code);
+ assert.deepEqual(resolveWorldKey({code:'KeyE',cameraMode:'free',possessed:true}),{type:'move',code:'KeyE'});
+ assert.deepEqual(resolveWorldKey({code:'KeyQ',cameraMode:'free',possessed:true}),{type:'move',code:'KeyQ'});
+});
+
 const BOOM={yaw:.3,pitch:-.12,distance:3.6,height:1.3};
 const run=(state,eye,seconds,dt,options={})=>{const path=[];for(let t=0;t<seconds-1e-9;t+=dt)path.push([...stepFollowCamera(state,{...BOOM,eye,...options},dt).position]);return path;};
 const kink=path=>Math.max(0,...path.slice(1,-1).map((p,i)=>Math.hypot(...p.map((v,k)=>path[i+2][k]-2*v+path[i][k]))));
