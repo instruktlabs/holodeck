@@ -1,3 +1,5 @@
+import {spring} from 'math/time';
+
 const movementKeys=new Set(['KeyW','KeyA','KeyS','KeyD','ShiftLeft','ShiftRight']);
 const lookKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown']);
 
@@ -41,6 +43,31 @@ export function firstPersonEyePosition(position,eyeHeight,yaw,pitch,blocked=()=>
   eye[0]=x;eye[2]=z;
  }
  return eye;
+}
+
+// Third-person follow camera. The boom pivots on a sprung copy of the eye: critically
+// damped springs, exact for any frame time, ease steps, collider tops and the swim eye
+// height vertically and barely trail horizontally. The boom retracts at once before
+// terrain or a box and eases back out. A fresh state, or an eye that jumps several
+// metres (spawn, recall), snaps instead of sweeping across the world.
+export const FOLLOW_SMOOTHING=Object.freeze({horizontal:.04,vertical:.14,extend:.3,snap:3});
+export const createFollowCamera=()=>({pivot:null,extend:null,position:[0,0,0],focus:[0,0,0]});
+export const resetFollowCamera=state=>{state.pivot=null;state.extend=null;return state;};
+export function stepFollowCamera(state,{eye,yaw,pitch,distance,height,ground=()=>null,blocked=()=>false},seconds){
+ const dt=Number.isFinite(seconds)?Math.max(0,Math.min(seconds,.1)):0,S=FOLLOW_SMOOTHING;
+ if(!state.pivot||Math.hypot(...eye.map((v,i)=>v-state.pivot[i].value))>S.snap){state.pivot=eye.map(v=>spring.create(v));state.extend=null;}
+ else state.pivot.forEach((s,i)=>spring.update(s,eye[i],i===1?S.vertical:S.horizontal,1,dt));
+ const pivot=state.pivot.map(s=>s.value),cp=Math.cos(pitch),sp=Math.sin(pitch),cy=Math.cos(yaw),sy=Math.sin(yaw);
+ const back=height*sp+distance*cp,offset=[back*sy,height*cp-distance*sp,back*cy],steps=Math.ceil(Math.hypot(...offset)/.08);
+ // Clear fraction of the boom: march to the first terrain or box obstruction, then bisect it.
+ const clear=t=>{const x=pivot[0]+offset[0]*t,y=pivot[1]+offset[1]*t,z=pivot[2]+offset[2]*t,g=ground(x,z);return !(g&&y<g.height+.18)&&!blocked(x,z,.14,y-.14,.28);};
+ let safe=1;
+ for(let i=1;i<=steps;i++)if(!clear(i/steps)){let lo=(i-1)/steps,hi=i/steps;for(let k=0;k<5;k++){const mid=(lo+hi)/2;if(clear(mid))lo=mid;else hi=mid;}safe=lo;break;}
+ if(!state.extend||safe<state.extend.value)state.extend=spring.create(safe);else spring.update(state.extend,safe,S.extend,1,dt);
+ for(let i=0;i<3;i++)state.position[i]=pivot[i]+offset[i]*state.extend.value;
+ // Frame the full inhabitant while keeping a forward point for looking.
+ state.focus[0]=pivot[0]-1.4*cp*sy;state.focus[1]=pivot[1]-.6+1.4*sp;state.focus[2]=pivot[2]-1.4*cp*cy;
+ return state;
 }
 
 // A free camera owns a copied pose, never the inhabitant's position array.

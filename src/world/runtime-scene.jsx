@@ -3,7 +3,7 @@ import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {Cove,PlacedAsset,Construct,probe} from '../prototype/scene.jsx';
 import {MoodBoard} from './moodboard.jsx';
-import {resolveWorldKey,createFreeCamera,stepFreeCamera,isWorldInputTarget,stepCameraLook,firstPersonEyePosition} from './inhabit.mjs';
+import {resolveWorldKey,createFreeCamera,stepFreeCamera,isWorldInputTarget,stepCameraLook,firstPersonEyePosition,createFollowCamera,resetFollowCamera,stepFollowCamera} from './inhabit.mjs';
 import {touchDown,touchMove,touchUp,resetTouch,stickAxes} from './touch-input.mjs';
 import {WorldMaterialsProvider,WorldSurfaceMaterial} from './world-materials.js';
 import {Tree} from './vegetation.jsx';
@@ -58,7 +58,7 @@ const axis=v=>Math.max(-1,Math.min(1,v));
 const NO_STICK={forward:0,strafe:0,sprint:false};
 function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}){
  const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
- const actor=useRef(null),free=useRef(null),skipFrame=useRef(false),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
+ const actor=useRef(null),free=useRef(null),follow=useRef(createFollowCamera()),skipFrame=useRef(false),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
  // A hidden page is throttled or paused; the first interval after it returns spans
  // the whole absence. Neither is a frame anyone saw, so neither is recorded.
  useEffect(()=>{const changed=()=>{skipFrame.current=true;};document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[]);
@@ -67,7 +67,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
  const landscapeBounds=[runtime.scene.terrain?.bounds,runtime.scene.water?.bounds].filter(Boolean),landscapeBoundsKey=JSON.stringify(landscapeBounds);
  useLayoutEffect(()=>{
   walk.current={position:[...config.spawn],yaw:config.look[0],pitch:config.look[1]};
-  actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;
+  actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;resetFollowCamera(follow.current);
   // The body stays protected while its camera is free/overview. Legacy walking
   // has no maker actor, but still occupies a fixed-height body on the ground.
   const body=actor.current??{position:[config.spawn[0],0,config.spawn[2]],radius:.22,height:1.72};runtime.playerBody=body;
@@ -150,18 +150,10 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
     camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
     if(person==='first')camera.position.set(...firstPersonEyePosition(a.position,a.eyeHeight,w.yaw,w.pitch,(...args)=>runtime.blocked(...args)));
     if(person==='third'){
-     const follow=a.config.thirdPerson,distance=follow.distance,height=follow.height;
-     const offset=new THREE.Vector3(0,height,distance).applyEuler(new THREE.Euler(w.pitch,w.yaw,0,'YXZ'));
-     // Retract a single follow camera before the first terrain or box obstruction.
-     const steps=Math.ceil(offset.length()/.08);let safe=0;
-     for(let i=1;i<=steps;i++){
-      const t=i/steps,p=eye.clone().addScaledVector(offset,t),ground=runtime.terrain?.sample(p.x,p.z);
-      if((ground&&p.y<ground.height+.18)||runtime.blocked(p.x,p.z,.14,p.y-.14,.28))break;safe=t;
-     }
-     camera.position.copy(eye).addScaledVector(offset,safe);
-     // Frame the full inhabitant while retaining a forward point for looking.
-     const focus=eye.clone().add(new THREE.Vector3(0,-.6,0)).add(new THREE.Vector3(0,0,-1.4).applyEuler(new THREE.Euler(w.pitch,w.yaw,0,'YXZ')));camera.lookAt(focus);
-    }
+     // A sprung follow boom: it eases steps and swim height, retracts before terrain or a box, and snaps on spawn or recall.
+     const view=stepFollowCamera(follow.current,{eye:eye.toArray(),yaw:w.yaw,pitch:w.pitch,...a.config.thirdPerson,ground:(x,z)=>runtime.terrain?.sample(x,z),blocked:(x,z,radius,feetY,height)=>runtime.blocked(x,z,radius,feetY,height)},dt);
+     camera.position.set(...view.position);camera.lookAt(...view.focus);
+    }else resetFollowCamera(follow.current);
     probe.actorEye=eye.toArray();
    }else{
    moving=!!(f||r);const distance=Math.min(dt,.04)*(sprint?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
@@ -172,6 +164,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
     probe.actorEye=null;
    }
   }else{
+   resetFollowCamera(follow.current);
    if(actor.current){const a=actor.current;stepInhabitant(a,{stop:true},dt,inhabitantContext(runtime,a.radius));probe.actorEye=[a.position[0],a.position[1]+a.eyeHeight,a.position[2]];}else probe.actorEye=null;
    if(mode==='free'){
     const k=keys.current,v=free.current,input={forward:axis(Number(k.has('KeyW'))-Number(k.has('KeyS'))+stick.forward),strafe:axis(Number(k.has('KeyD'))-Number(k.has('KeyA'))+stick.strafe),up:axis(Number(k.has('KeyE'))-Number(k.has('KeyQ'))+(pad?.up??0)),sprint:k.has('ShiftLeft')||k.has('ShiftRight')||stick.sprint};
