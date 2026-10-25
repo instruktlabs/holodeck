@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+import {SHADOW_ONLY_LAYER} from './sun-shadow.mjs';
 
 const hash=(x,y)=>{const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);};
 const smooth=t=>t*t*(3-2*t);

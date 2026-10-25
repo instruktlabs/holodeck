@@ -1,7 +1,7 @@
 import {useEffect,useLayoutEffect,useMemo,useState} from 'react';
 import {useFrame,useThree} from '@react-three/fiber';
 import {BlendMode,Color,MaterialBlending,RenderPipeline,UnsignedByteType} from 'three/webgpu';
-import {convertToTexture,float,mix,mrt,normalView,output,pass,uniform,vec4,velocity} from 'three/tsl';
+import {convertToTexture,dot,float,mix,mrt,normalView,output,pass,renderOutput,screenCoordinate,uniform,vec2,vec4,velocity} from 'three/tsl';
 import {bloom} from 'three/addons/tsl/display/BloomNode.js';
 import {ao} from 'three/addons/tsl/display/GTAONode.js';
 import {traa} from 'three/addons/tsl/display/TRAANode.js';
@@ -15,6 +15,12 @@ import {completeRenderFrame,resetRenderReadiness} from './render-readiness.mjs';
 
 // The sun is the shadow-casting directional light the runtime places.
 const findSun=scene=>{let sun=null;scene.traverse(o=>{if(!sun&&o.isDirectionalLight&&o.castShadow)sun=o;});return sun;};
+// The display frame has 8 bits a channel, so a slow gradient such as the sky's falls into
+// visible bands of one level each. Interleaved gradient noise (Jimenez 2014) at two
+// offsets gives a fixed, triangular dither of up to one level, added after tone
+// mapping and encoding, where the quantising happens (H110).
+const gradientNoise=p=>dot(p,vec2(.06711056,.00583715)).fract().mul(52.9829189).fract();
+export const ditherNode=()=>gradientNoise(screenCoordinate.xy).add(gradientNoise(screenCoordinate.xy.add(vec2(47,17)))).sub(1).div(255);
 // One scene pass and a half-resolution glow, shared by WebGPU and WebGL2. A world
 // may tune the glow and add screen-space passes through environment.effects (H83,
 // H87): ambient occlusion from the pass's depth and normals, light shafts from
@@ -52,7 +58,8 @@ export function CoveEffects({effects}={}){
    }
    if(settings.temporalAA){const current=color,temporal=traa(color,depth,scenePass.getTextureNode('velocity'),camera);owned.push(temporal);color=mix(temporal,current,marks.r);}
    const {strength,radius,threshold}=settings.bloom,glow=bloom(color,strength,radius,threshold);glow.setResolutionScale(.5);owned.push(glow);
-   pipeline.outputNode=color.add(glow);
+   // The pipeline still supplies the grade's tone mapping and colour space to renderOutput.
+   const grain=ditherNode();pipeline.outputColorTransform=false;pipeline.outputNode=renderOutput(color.add(glow)).add(vec4(grain,grain,grain,0));
    return {pipeline,owned};
   },[gl,scene,camera,signature,sun]);
   useEffect(()=>()=>{fx.pipeline.dispose();for(const node of fx.owned)node.dispose?.();},[fx]);

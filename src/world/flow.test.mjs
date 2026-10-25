@@ -32,7 +32,7 @@ test('the texture moves the authored way and the offset stays in [0,1)',()=>{
 test('only named meshes scroll, placements share one scrolling copy, and cleanup restores the source',()=>{
  const material=new MeshStandardMaterial({color:'#9fd9df',map:new Texture(),transparent:true,opacity:.8}),lip=new MeshBasicMaterial({color:'#ffffff'}),source=new Group();
  const sheet=new Mesh(new PlaneGeometry(1,4),material);sheet.name='falls_sheet';source.add(sheet);
- const stone=new Mesh(new PlaneGeometry(),lip);stone.name='lip';source.add(stone);
+ const stone=new Mesh(new PlaneGeometry(),lip);stone.name='lip';source.add(stone);sheet.castShadow=stone.castShadow=true;
  const a=source.clone(true),b=source.clone(true),first=bindAssetFlow(a,config()),second=bindAssetFlow(b,config());
  const flowing=a.getObjectByName('falls_sheet').material;
  assert.notEqual(flowing,material);assert.equal(b.getObjectByName('falls_sheet').material,flowing,'one copy per source material and speed');
@@ -42,9 +42,10 @@ test('only named meshes scroll, placements share one scrolling copy, and cleanup
  assert.equal(typeof flowing.receivedShadowNode,'function','flowing water takes the sun shadow softened (H89)');assert.ok(!material.receivedShadowNode,'the source keeps full shadows');
  assert.ok(isReactive(flowing),'flowing water marks itself reactive for world effects (H90)');assert.ok(!isReactive(material)&&!flowing.mrtNode,'unmarked materials read 0, and no per-material MRT');
  assert.equal(reactiveNode().getValueFromReference(flowing),1);assert.equal(reactiveNode().getValueFromReference(material),0);assert.equal(translucentNode().getValueFromReference(flowing),1,'the transparent sheet is translucent');assert.equal(translucentNode().getValueFromReference({transparent:false}),0);
+ assert.equal(a.getObjectByName('falls_sheet').castShadow,false,'water casts no sun shadow (H97)');assert.equal(a.getObjectByName('lip').castShadow,true,'unlisted meshes still cast');assert.equal(source.getObjectByName('falls_sheet').castShadow,true);
  assert.equal(a.getObjectByName('lip').material,lip,'unlisted meshes keep their material');assert.equal(source.getObjectByName('falls_sheet').material,material,'the loader-owned source is untouched');
  first.update(.25);const offset=[...flowing.contextNode.getFlowContextData().getUV({getDefaultUV:()=>({add:node=>node})}).value];assert.deepEqual(offset.map(v=>+v.toFixed(6)),[0,.7]);
- first.dispose();assert.equal(a.getObjectByName('falls_sheet').material,material);assert.equal(b.getObjectByName('falls_sheet').material,flowing,'the copy lives while another placement holds it');
+ first.dispose();assert.equal(a.getObjectByName('falls_sheet').material,material);assert.equal(a.getObjectByName('falls_sheet').castShadow,true,'cleanup restores casting');assert.equal(b.getObjectByName('falls_sheet').material,flowing,'the copy lives while another placement holds it');
  second.dispose();assert.equal(b.getObjectByName('falls_sheet').material,material);
  const bare=new Group(),noUv=new Mesh(new BufferGeometry().setAttribute('position',new BufferAttribute(new Float32Array(9),3)),material);noUv.name='falls_sheet';bare.add(noUv);
  assert.throws(()=>bindAssetFlow(bare,config()),/missing the UVs/);

@@ -11,7 +11,7 @@ export function collectAimMeshes(root){
  const visit=(object,target=null)=>{
   if(!object.visible)return;
   target=target??object.userData?.target??null;
-  if((target||object.userData?.instanceTargets)&&object.isMesh)meshes.push(object);
+  if((target||object.userData?.instanceTargets||object.userData?.partTargets)&&object.isMesh)meshes.push(object);
   for(const child of object.children)visit(child,target);
  };
  visit(root);return meshes;
@@ -103,6 +103,7 @@ export function pickWorldAim(raycaster,scene,{terrain=null,water=null,time=0,max
 
 export function worldHitTarget(hit){
  if(hit.object.userData?.instanceTargets)return hit.object.userData.instanceTargets[hit.instanceId]??null;
+ if(hit.object.userData?.partTargets)return hit.object.userData.partTargets[hit.partId]??null;
  let target=null;for(let object=hit.object;object;object=object.parent)if(object.userData?.target)target=object.userData.target;
  return target;
 }

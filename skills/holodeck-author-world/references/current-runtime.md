@@ -74,14 +74,31 @@ The `capabilities` section returns each of these; the key is in brackets
   horizon at a world height, so a world can float with nothing below; anything
   that dips below the deck fades into it. Billows are about 85 m times `scale`
   across: a deck just below the rim reads as a flat floor, while one 50–120 m
-  down at scale 0.5–0.8 reads as a sea of cloud. Optional `asset.reflection:
+  down at scale 0.5–0.8 reads as a sea of cloud. `contrast` (0.5) sets how far
+  the shaded sides of the billows fall from their sunlit crowns: toward 1 they
+  keep only the cool sky light. `haze` (0.3) is the downward ray slope below
+  which the deck dissolves into the horizon haze: lower keeps billows visible
+  nearer the horizon. Optional `asset.reflection:
   "sky"` makes floating mirrors reflect the sky dome alone rather than the
   probe's view of the world; `asset.reflection: {probe: [x, y, z]}` gives an
   asset a world capture of its own from a point in open air among its
   placements, so mirrors above the courts reflect the architecture.
   Optional `sky.cumulus {toward: [x, z], spread, height}` raises a bank of
   towering cumulus on part of the horizon, in front of the sky: a far
-  destination for an axis or a gateway (20–30° fills a tall opening).
+  destination for an axis or a gateway (20–30° fills a tall opening). A list
+  of up to six banks stands towers on several parts of the horizon, such as
+  a ring of cumulus heads rising from a cloud deck.
+  Clouds of every layer are lit in `sky.cloudLight` (default `sunColor`): a
+  whiter `cloudLight` keeps a golden sun on the stone and off the clouds.
+- **Haze** (`lighting`): the fog is a smoothstep between `fogNear` and
+  `fogFar`, not linear. From 0 to 1300 m it hazes about 1% at 80 m, 4% at
+  165 m, 23% at 400 m, half at 650 m and 86% at 1 km, so it barely touches a
+  court and nearly hides forms a kilometre out. Optional
+  `environment.fogSky` (0–1, needs `environment.sky`) gives the haze the
+  colour of the sky behind each surface instead of `fogColor`: a far form
+  seen against the zenith fades toward blue, one at the horizon into the
+  horizon haze and one below it into the cloud deck. 1 is the sky's colour;
+  between, it mixes with `fogColor`.
 - **Grade** (`lighting`): optional `environment.grade` picks ACES (default),
   Neutral or AgX tone mapping and the exposure. Neutral keeps hue and
   saturation and lets sunlit white reach white; retune warm colours after
@@ -250,6 +267,17 @@ both WebGPU and forced WebGL2. Shader detail and foam do not supply physics.
   64 assets, 1200 placements and two million placed source triangles (including
   every bird in a flock). Repeated compatible opaque static GLBs are rendered
   through instanced batches while keeping placement IDs and collision data.
+  Each set of one asset (and one castShadow choice) is one draw per mesh part; a
+  set of more than 32 placements spread beyond 96 m splits into 96 m cells only
+  when it carries more than 200,000 triangles in all. Each draw is drawn again by
+  the water mirror and the sun shadow, and costs the CPU far more than the GPU's
+  extra vertex work, so fewer, larger sets are cheaper than many small ones.
+  Static parts of different assets whose materials are identical (the same
+  parameters and byte-identical texture images) bake into one mesh per material,
+  one draw per pass for the whole kit, so a kit that reuses one saved material
+  across its pieces draws far less than one with a variant per piece. Foliage,
+  flow and reflection nodes, transparent materials and instance colours keep
+  their own draws.
   Instancing reduces draw calls, not triangles or shader cost. These are
   admission limits, not performance guarantees or targets for every world.
 - Bible: title, intent, rules, optional pinned reference IDs. Rules are text;

@@ -26,6 +26,12 @@ test('the horizon defaults to the fog colour, and clouds take their defaults',()
   assert.equal(resolveSky({...environment,sky:{zenithColor:'#3d7fc4'}}).clouds,null);
 });
 
+test('clouds are lit in the sun colour unless cloudLight sets their own (H109)',()=>{
+  assert.equal(resolveSky({...environment,sky:{zenithColor:'#3d7fc4'}}).cloudLight,'#fff0d6');
+  assert.equal(resolveSky({...environment,sky:{zenithColor:'#3d7fc4',cloudLight:'#fbf8f2'}}).cloudLight,'#fbf8f2');
+  for(const cloudLight of ['white','#fff',null,7])assert.throws(()=>validateSky({zenithColor:'#3d7fc4',cloudLight}),/cloudLight must be a #rrggbb colour/);
+});
+
 test('the gradient meets the fog at the horizon and reaches the zenith colour overhead',()=>{
   const sky=resolveSky({...environment,sky:{zenithColor:'#3d7fc4'}});
   assert.deepEqual(skyGradient(sky,0),linearHex('#d6e5ec'));assert.deepEqual(skyGradient(sky,-.3),linearHex('#d6e5ec'));
@@ -67,6 +73,10 @@ test('sky light and the cloud sea validate their fields and take defaults',()=>{
   assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,coverage:1.2}}),/cloudSea coverage/);
   assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,drift:[0]}}),/cloudSea drift/);
   assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,color:'#ffffff'}}),/Unknown sky cloudSea field color/);
+  // Contrast and haze tune the deck (H103); the defaults are the H81 look.
+  assert.doesNotThrow(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,contrast:1,haze:.05}}));
+  for(const change of [{contrast:-.1},{contrast:1.5},{haze:0},{haze:1.2},{contrast:'1'}])assert.throws(()=>validateSky({zenithColor:'#2f6fc0',cloudSea:{height:-60,...change}}),/cloudSea (contrast|haze)/,JSON.stringify(change));
+  assert.equal(CLOUD_SEA_DEFAULTS.contrast,.5);assert.equal(CLOUD_SEA_DEFAULTS.haze,.3);
   const resolved=resolveSky({...environment,sky:{zenithColor:'#2f6fc0',light:{},cloudSea:{height:-60}}});
   assert.deepEqual(resolved.light,{intensity:.6});
   assert.deepEqual(resolved.cloudSea,{...CLOUD_SEA_DEFAULTS,height:-60});
@@ -112,8 +122,17 @@ test('a world grade picks the tone mapping, and the default is unchanged (H77)',
 test('a cumulus bank stands on part of the horizon, validated and resolved with defaults (H92)',()=>{
   const sky={zenithColor:'#1f8ad8',cumulus:{toward:[0,-1]}};
   assert.deepEqual(validateSky(sky),sky);
-  assert.deepEqual(resolveSky({fogColor:'#f4ecdc',sky}).cumulus,{...CUMULUS_DEFAULTS,toward:[0,-1]});
+  assert.deepEqual(resolveSky({fogColor:'#f4ecdc',sky}).cumulus,[{...CUMULUS_DEFAULTS,toward:[0,-1]}],'one bank resolves to a list of one');
   assert.equal(resolveSky({fogColor:'#f4ecdc',sky:{zenithColor:'#1f8ad8'}}).cumulus,null);
   for(const cumulus of [{},{toward:[0,0]},{toward:[1]},{toward:[0,-1],spread:1},{toward:[0,-1],height:60},{toward:[0,-1],scale:9},{toward:[0,-1],colour:'#fff'},'north'])
     assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus}),/cumulus/);
+});
+
+test('up to six cumulus banks stand on different parts of the horizon (H114)',()=>{
+  const ring=[{toward:[0,-1],spread:20,height:30},{toward:[1,0],spread:12},{toward:[-1,.3],height:20,scale:1.4}];
+  assert.doesNotThrow(()=>validateSky({zenithColor:'#1f8ad8',cumulus:ring}));
+  assert.deepEqual(resolveSky({fogColor:'#f4ecdc',sky:{zenithColor:'#1f8ad8',cumulus:ring}}).cumulus,ring.map(bank=>({...CUMULUS_DEFAULTS,...bank})));
+  assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus:[]}),/one bank or a list of 1 to 6/);
+  assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus:Array.from({length:7},()=>({toward:[0,-1]}))}),/one bank or a list of 1 to 6/);
+  assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus:[{toward:[0,-1]},{toward:[0,0]}]}),/cumulus toward must not be/,'every bank is checked');
 });

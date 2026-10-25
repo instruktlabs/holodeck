@@ -360,12 +360,57 @@ test('a read may follow the filters, and a bare grep pattern may not start with 
   assert.equal(bash("node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt | cut -c1-80; grep -c -e 'y' assets/source/s.txt"),'assets/source/a.mjs','one read on each side of the filters');
   assert.equal(bash("node assets/source/a.mjs | grep -e '-re.'"),'assets/source/a.mjs','an -e pattern is always a pattern');
   assert.equal(bash("node assets/source/a.mjs | grep -v 'x-ray'"),'assets/source/a.mjs');
+  // The form the agent used in turn 18: a bare head keeps ten lines.
+  assert.equal(bash("node assets/source/design/list-objects.mjs assets/source/turn13/scene.json '^(rim-spill|lip-|overflow|basin|falls-|tower-falls|cascade-)' | cut -c1-120; grep -n -e \"rim-spill\" assets/source/design/sanctuary.mjs | cut -c1-180 | head"),'assets/source/design/list-objects.mjs');
+  assert.equal(bash('node assets/source/a.mjs | tail'),'assets/source/a.mjs');
+  // Unquoted plain words, as in the agent's turn 18 draw estimate.
+  assert.equal(bash("node assets/source/design/draws.mjs assets/source/turn13/scene.json --hub all --extent 40 | grep -e estimate | sed 's/assets\\/source\\/turn13\\/scene.json //; s/ (new engine.*//' | head -14"),'assets/source/design/draws.mjs');
+  assert.equal(bash('node assets/source/a.mjs | grep -v draws'),'assets/source/a.mjs');
+  // A read may follow the run with && as well as ;, as in the agent's turn 18.
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 14 > /dev/null && grep -e \"brushing the grounded\" -e \"^assets:\" assets/source/turn14/report.txt | cut -c1-700"),'assets/source/design/sanctuary.mjs');
+  for(const command of ['node assets/source/a.mjs && rm -rf assets','node assets/source/a.mjs > /dev/null && grep -e x /etc/passwd','node assets/source/a.mjs || grep -e x assets/source/r.txt'])assert.equal(bash(command),null,command);assert.equal(bash('node assets/source/a.mjs | grep -e -r'),'assets/source/a.mjs','-e takes -r as the pattern');
+  for(const command of ['node assets/source/a.mjs | grep -r','node assets/source/a.mjs | grep foo*','node assets/source/a.mjs | grep $HOME','node assets/source/a.mjs | grep ~/x','node assets/source/a.mjs | grep -e {a,b}','node assets/source/a.mjs | grep -e a;whoami'])assert.equal(bash(command),null,command);
+  for(const command of ['node assets/source/a.mjs | head /etc/passwd','node assets/source/a.mjs | tail -f /var/log/x','node assets/source/a.mjs | head; whoami'])assert.equal(bash(command),null,command);
   // grep reads '-re.' as -r -e . (with no file, the whole working directory) and '-fFILE' as a pattern file.
   for(const command of ["node assets/source/a.mjs | grep '-re.'",'node assets/source/a.mjs | grep "-re."',"node assets/source/a.mjs | grep -v '-fpatterns.txt'",
    "node assets/source/a.mjs | grep -c '--file=/etc/passwd'","node assets/source/a.mjs | cut -c1-9 | grep '-d' | head -3",
    "node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' /etc/passwd","node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/../../outside.txt",
    "node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/r.txt; whoami","node assets/source/a.mjs | cut -c1-120; grep -r -e 'x' assets/source",
    "node assets/source/a.mjs | cut -c1-120; grep -n 'x' assets/source/r.txt","node assets/source/a.mjs | grep 'a' | grep 'b' | grep 'c'; grep -e 'd' assets/source/r.txt | grep 'e' | grep 'f' | grep 'g' | grep 'h'"])assert.equal(bash(command),null,command);
+});
+
+test('a script grant covers running the same script again with other arguments (H107)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The form the agent used in revision 19's turn: one search at two settings.
+  assert.equal(bash('node assets/source/design/sanctuary.mjs --turn 15 --sanctum-search 2 2>&1 | tail -24; node assets/source/design/sanctuary.mjs --turn 15 --sanctum-search 2.5 2>&1 | tail -24'),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/a.mjs --x 1 > /dev/null && time node assets/source/a.mjs --x 2 | grep -e 'y' | head -3; node assets/source/a.mjs '^(a|b)'"),'assets/source/a.mjs');
+  assert.equal(bash("node assets/source/a.mjs | cut -c1-80; grep -n -e 'x' assets/source/r.txt; node assets/source/a.mjs --y"),'assets/source/a.mjs','a run may follow the read');
+  for(const command of ['node assets/source/a.mjs; node assets/source/b.mjs','node assets/source/a.mjs; python3 assets/source/a.mjs','node assets/source/a.mjs; node ./assets/source/a.mjs',
+   'node assets/source/a.mjs; node assets/source/a.mjs $(whoami)','node assets/source/a.mjs; node assets/source/a.mjs `id`','node assets/source/a.mjs || node assets/source/a.mjs',
+   'node assets/source/a.mjs; node assets/source/a.mjs; whoami','node assets/source/a.mjs & node assets/source/a.mjs','node assets/source/a.mjs; NODE_OPTIONS=x node assets/source/a.mjs',
+   'node assets/source/a.mjs;node assets/source/a.mjs;node assets/source/a.mjs;node assets/source/a.mjs;node assets/source/a.mjs'])assert.equal(bash(command),null,command);
+  // A double-quoted list of views, as in the same turn; only $, backquote, backslash and ! stay out.
+  assert.equal(bash('node assets/source/design/sanctuary.mjs --turn 15 --sanctum-strict "01|h1|h2|02" --sanctum-yaw -0.7,-0.8 2>&1 | head -12'),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash('node assets/source/a.mjs --pick "^(a|b)[0-9]*" --note "rim; spill > 4%"'),'assets/source/a.mjs');
+  for(const command of ['node assets/source/a.mjs "$HOME"','node assets/source/a.mjs "`id`"','node assets/source/a.mjs "a\\\\b"','node assets/source/a.mjs "!x"','node assets/source/a.mjs "a" "b'])assert.equal(bash(command),null,command);
+  assert.equal(scriptRun('PowerShell','node assets/source/a.mjs "01|h1"',root),null,'PowerShell keeps the plain-word quoting');
+  assert.equal(scriptRun('PowerShell','node assets/source/a.mjs; node assets/source/a.mjs',root),null,'PowerShell keeps one run');
+});
+
+test('a script grant covers a sweep over plain values with a safe loop variable (H107)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The form the agent used in revision 19's turn.
+  assert.equal(bash('for a in 2.5 2.5,0,6 3,0,6; do node assets/source/design/sanctuary.mjs --turn 15 --sanctum-search $a 2>&1 | head -12; done'),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash('for seed in 1 2 3; do echo "== $seed"; node assets/source/a.mjs --seed=$seed | tail -3; done | head -40'),'assets/source/a.mjs');
+  assert.equal(bash("for v in -x low,high; do node assets/source/a.mjs \"${v}\" '$HOME' > /dev/null; done"),'assets/source/a.mjs','single quotes keep a dollar literal');
+  for(const command of ['for a in $(ls); do node assets/source/a.mjs $a; done','for a in *; do node assets/source/a.mjs $a; done','for a in ~ x; do node assets/source/a.mjs $a; done','for a in {1..3}; do node assets/source/a.mjs $a; done',
+   'for a in 1; do node assets/source/a.mjs $b; done','for a in 1; do node assets/source/a.mjs $ab; done','for a in 1; do node assets/source/a.mjs ${a:-x}; done','for a in 1; do node assets/source/a.mjs $a; rm x; done',
+   'for a in 1; do node assets/source/a.mjs $a; done; whoami','for a in 1; do node /etc/x.mjs; done','for a in 1 2; do node assets/source/a.mjs $a & done','for a in 1; do NODE_OPTIONS=x node assets/source/a.mjs; done',
+   'for path in assets/source/bin; do node assets/source/a.mjs; done','for PATH in assets/source/bin; do node assets/source/a.mjs; done','for IFS in x; do node assets/source/a.mjs; done','for a in 1; do echo $(id); node assets/source/a.mjs; done',
+   'for a in 1; do node assets/source/a.mjs "$a`id`"; done','for a in 1; do node assets/source/a.mjs | grep $a; done','for a in 1; do node assets/source/../../x.mjs; done'])assert.equal(bash(command),null,command);
+  assert.equal(scriptRun('PowerShell','for a in 1; do node assets/source/a.mjs $a; done',root),null,'Bash only');
 });
 
 test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{

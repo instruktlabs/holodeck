@@ -15,7 +15,9 @@ import {pickWorldAim} from './aim.mjs';
 import {planStaticBatches} from './static-batches.mjs';
 import {viewFar} from './runtime.mjs';
 import {placedObjects} from './scatter.mjs';
-import {StaticAssetBatch} from './static-batches.jsx';
+import {StaticAssetBatch,StaticMergedMesh} from './static-batches.jsx';
+import {shareMaterials} from './material-share.mjs';
+import {planStaticMerge} from './static-merge.mjs';
 import {FlockAsset} from './flock.jsx';
 import {configureSunShadow,scheduleSunShadow,shadowViewFocus,sunShadowConfig} from './sun-shadow.mjs';
 import {resolveGrade} from './grade.mjs';
@@ -239,7 +241,10 @@ export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
  // frame loop below), not the cove kit mounting, which can finish before the world
  // has drawn at all. Layout effects run before the cove's own effect.
  useLayoutEffect(()=>{probe.runtimeGate=true;return()=>{probe.runtimeGate=false;};},[]);
- const placed=useMemo(()=>placedObjects(s),[s]),models=useUnderwaterModels(bundle.models,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models),[placed,models]);
+ // Identical materials become one instance across assets, and static pieces in a
+ // shared material bake into one mesh per material (H100).
+ const placed=useMemo(()=>placedObjects(s),[s]),shared=useMemo(()=>shareMaterials(bundle.models).models,[bundle.models]),models=useUnderwaterModels(shared,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models),[placed,models]);
+ const merge=useMemo(()=>planStaticMerge(staticPlan.batches,models,s.assets),[staticPlan,models,s.assets]);
  return <WorldMaterialsProvider>
   <color attach="background" args={[e.fogColor]}/><fog attach="fog" args={[e.fogColor,e.fogNear??28,e.fogFar??85]}/>
   <EnvironmentLighting environment={e} fill={!(e.sky?.light&&(s.terrain||s.water))}/>
@@ -249,7 +254,8 @@ export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
   {(s.terrain||s.water)&&<><Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/><LandscapeSky environment={e} runtime={runtime}/></>}
   {!s.terrain&&(e.type==='construct'?<Construct/>:!s.water&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[180,180]}/><WorldSurfaceMaterial surface="soil" color={e.groundColor}/></mesh>)}
   <group visible={cove} userData={{skyLightExclude:true}}><Cove gltf={bundle.models[s.origin]}/>{s.moodboard&&<MoodBoard model={bundle.models[s.moodboard.asset]} board={s.moodboard} references={bundle.payload.world.references||[]} pins={bundle.payload.world.bible.referenceIds||[]} select={controls.select}/>}</group>
-  {staticPlan.batches.map(batch=><StaticAssetBatch key={batch.key} batch={batch} model={models[batch.asset]} asset={s.assets.find(a=>a.id===batch.asset)} runtime={runtime} select={controls.select}/>)}
+  {merge.buckets.map(bucket=><StaticMergedMesh key={bucket.key} bucket={bucket} runtime={runtime} select={controls.select}/>)}
+  {staticPlan.batches.map(batch=><StaticAssetBatch key={batch.key} batch={batch} model={models[batch.asset]} asset={s.assets.find(a=>a.id===batch.asset)} runtime={runtime} select={controls.select} skip={merge.skip.get(batch.key)??null}/>)}
   {staticPlan.individual.map(item=>item.behavior?.type==='flock'?<FlockAsset key={item.id} item={item} model={models[item.asset]} runtime={runtime} select={controls.select}/>:<Entity key={item.id} item={item} model={models[item.asset]} runtime={runtime} select={controls.select}/>)}
   <Driver runtime={runtime}/><ViewController runtime={runtime} mode={cameraMode} {...controls}/>
  </WorldMaterialsProvider>;

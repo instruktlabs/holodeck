@@ -50,17 +50,21 @@ function acquire(source,capture){
 }
 // Applies only to the caller-owned placement clone; the loader keeps its materials.
 // Lit PBR meshes take the capture; anything else keeps its material.
-export function bindAssetReflection(object,reflection,capture){
+// A probe mirror seen by a world capture would sample a probe while captures are
+// still being made, and drew black in them (H104); captures draw it reflecting the
+// sky capture, which is made first and never rewritten by world captures.
+export function bindAssetReflection(object,reflection,capture,sky=skyReflection.get()){
  if(!reflection||!capture)return {dispose(){}};
  const bindings=[];
  object.traverse(mesh=>{
   if(!mesh.isMesh)return;
   const original=mesh.material,list=[].concat(original);
   if(!list.length||!list.every(m=>m?.isMeshStandardMaterial))return;
-  const leases=list.map(m=>acquire(m,capture));
+  const leases=list.map(m=>acquire(m,capture)),still=sky&&sky!==capture&&!Array.isArray(original)?acquire(original,sky):null;
   mesh.material=Array.isArray(original)?leases.map(l=>l.entry.material):leases[0].entry.material;
-  bindings.push({mesh,original,leases});
+  if(still)mesh.userData.skyCaptureMaterial=still.entry.material;
+  bindings.push({mesh,original,leases,still});
  });
  let disposed=false;
- return {dispose(){if(disposed)return;disposed=true;for(const b of bindings){b.mesh.material=b.original;b.leases.forEach(l=>l.release());}}};
+ return {dispose(){if(disposed)return;disposed=true;for(const b of bindings){b.mesh.material=b.original;b.leases.forEach(l=>l.release());if(b.still){if(b.mesh.userData.skyCaptureMaterial===b.still.entry.material)delete b.mesh.userData.skyCaptureMaterial;b.still.release();}}}};
 }

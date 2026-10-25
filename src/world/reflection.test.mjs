@@ -54,6 +54,16 @@ test('a probe reflection binds the capture published for its point, one per dist
  assert.equal(placed.children[0].material.envNode.value,capture);binding.dispose();assert.equal(placed.children[0].material,mirror);
  probeReflections.set(key,null);off();assert.deepEqual(seen,[capture,null]);
 });
+
+test('captures see a probe mirror reflecting the sky capture, not a probe still being made (H104)',()=>{
+ const mirror=new MeshStandardMaterial({metalness:1,roughness:.02}),source=new Group();source.add(new Mesh(new PlaneGeometry(),mirror));
+ const probe=new Texture(),sky=new Texture(),placed=source.clone(true),binding=bindAssetReflection(placed,{probe:[14,20,-32]},probe,sky),face=placed.children[0];
+ assert.equal(face.material.envNode.value,probe,'it renders with its probe');
+ assert.equal(face.userData.skyCaptureMaterial.envNode.value,sky,'captures swap in the sky reflection');
+ binding.dispose();assert.equal(face.material,mirror);assert.equal(face.userData.skyCaptureMaterial,undefined,'cleanup removes it');
+ const skyOnly=source.clone(true),own=bindAssetReflection(skyOnly,'sky',sky,sky);
+ assert.equal(skyOnly.children[0].userData.skyCaptureMaterial,undefined,'a sky mirror already reflects what captures never rewrite');own.dispose();
+});
 test('worlds carry a reflection probe point only with a sky light',()=>{
  const world=(reflection,light=true)=>({schemaVersion:2,revision:1,bible:{title:'T',intent:'I',rules:'R'},references:[],scene:{environment:{type:'construct',clearPath:true,groundColor:'#c9b994',fogColor:'#d6e5ec',sunColor:'#fff0d6',sunIntensity:3.3,...(light?{sky:{zenithColor:'#3d7fc4',light:{}}}:{})},bridge:null,origin:'cove',assets:[{id:'cove',file:'assets/imports/cove.glb'},{id:'cube',file:'assets/imports/cube.glb',reflection}],objects:[{id:'cube-1',asset:'cube',position:[0,30,0],rotation:[0,0,0],scale:[1,1,1],collider:null}],moodboard:null,runtime:{version:1,modules:['collision.boxes@1','camera.walk-orbit@1'],spawn:[0,1.72,4],look:[0,0],overview:[0,10,10],target:[0,0,0],bounds:[-20,20,-20,20],blockers:[]}}});
  validateWorld(world({probe:[0,32,4]}));

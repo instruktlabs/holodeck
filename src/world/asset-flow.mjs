@@ -51,13 +51,17 @@ export function bindAssetFlow(object,config){
   selected.push(matches[0]);
  }
  const bindings=selected.map(mesh=>{
-  const original=mesh.material,leases=[].concat(original).map(m=>acquire(m,config.speed));
+  const original=mesh.material,casts=mesh.castShadow,leases=[].concat(original).map(m=>acquire(m,config.speed));
   mesh.material=Array.isArray(original)?leases.map(l=>l.entry.material):leases[0].entry.material;
-  return {mesh,original,leases};
+  // Water casts no sun shadow: the shadow pass draws a translucent sheet or basin
+  // surface as solid, so the wall behind a fall or the floor under a basin went
+  // fully dark, and each placement cost a shadow draw (H97).
+  mesh.castShadow=false;mesh.userData.flowing=true;
+  return {mesh,original,leases,casts};
  });
  let disposed=false;
  return {
   update(time){if(disposed)return;const [u,v]=flowOffset(config.speed,Number.isFinite(time)?time:0);for(const b of bindings)for(const l of b.leases)l.entry.offset.value.set(u,v);},
-  dispose(){if(disposed)return;disposed=true;for(const b of bindings){b.mesh.material=b.original;b.leases.forEach(l=>l.release());}},
+  dispose(){if(disposed)return;disposed=true;for(const b of bindings){b.mesh.material=b.original;b.mesh.castShadow=b.casts;delete b.mesh.userData.flowing;b.leases.forEach(l=>l.release());}},
  };
 }

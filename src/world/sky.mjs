@@ -4,13 +4,18 @@
 import {linearHex} from './water-optics.mjs';
 
 export const SKY_DEFAULTS={curve:.45,sunDisc:1};
+// Clouds, the cumulus bank and the cloud deck are lit in cloudLight, sunColor unless
+// set: a whiter cloudLight keeps a golden sun on the stone and off the clouds (H109).
 export const CLOUD_DEFAULTS={coverage:.35,density:.5,height:.5,scale:1,drift:[.6,.2]};
 // Sky light: the dome is captured once into an environment map that lit
 // materials reflect and are lit by, in place of the fixed hemisphere fill.
 // A single unoccluded probe overfills shadowed faces, hence less than 1.
 export const SKY_LIGHT_DEFAULTS={intensity:.6};
 // A sunlit deck of cloud at a world height, seen below the horizon from above it.
-export const CLOUD_SEA_DEFAULTS={coverage:.8,scale:1,drift:[1,.3]};
+// contrast scales the light and shade across the billows (.5 is the H81 look,
+// 1 sinks the shaded sides to sky-lit lavender); haze is the ray elevation below
+// which the deck dissolves into the horizon haze (H103).
+export const CLOUD_SEA_DEFAULTS={coverage:.8,scale:1,drift:[1,.3],contrast:.5,haze:.3};
 // Below this ray elevation the deck dissolves into the horizon haze; wide enough
 // that the deck and the sky meet in haze rather than at a line (H74).
 export const CLOUD_SEA_HAZE=.3;
@@ -26,7 +31,9 @@ export const CLOUD_FLOOR=.02;
 // spread its half-width and height the elevation of its tallest tops, in degrees;
 // scale sizes the towers and billows.
 export const CUMULUS_DEFAULTS={spread:30,height:12,scale:1};
-const SKY_KEYS=['zenithColor','horizonColor','curve','sunDisc','clouds','light','cloudSea','cumulus'],CLOUD_KEYS=Object.keys(CLOUD_DEFAULTS),LIGHT_KEYS=['probe','bounce',...Object.keys(SKY_LIGHT_DEFAULTS)],SEA_KEYS=['height',...Object.keys(CLOUD_SEA_DEFAULTS)],CUMULUS_KEYS=['toward',...Object.keys(CUMULUS_DEFAULTS)];
+// Up to six banks, each on its own part of the horizon (H114); resolved as a list.
+export const MAX_CUMULUS_BANKS=6;
+const SKY_KEYS=['zenithColor','horizonColor','curve','sunDisc','cloudLight','clouds','light','cloudSea','cumulus'],CLOUD_KEYS=Object.keys(CLOUD_DEFAULTS),LIGHT_KEYS=['probe','bounce',...Object.keys(SKY_LIGHT_DEFAULTS)],SEA_KEYS=['height',...Object.keys(CLOUD_SEA_DEFAULTS)],CUMULUS_KEYS=['toward',...Object.keys(CUMULUS_DEFAULTS)];
 const HEX=/^#[0-9a-f]{6}$/i;
 const fail=message=>{throw new Error(message);};
 const finite=(v,min,max,label)=>{if(typeof v!=='number'||!Number.isFinite(v)||v<min||v>max)fail(`${label} must be a number from ${min} to ${max}`);};
@@ -39,6 +46,7 @@ export function validateSky(sky){
   if(sky.horizonColor!==undefined&&!HEX.test(sky.horizonColor))fail('sky horizonColor must be a #rrggbb colour');
   if(sky.curve!==undefined)finite(sky.curve,.1,2,'sky curve');
   if(sky.sunDisc!==undefined)finite(sky.sunDisc,0,2,'sky sunDisc');
+  if(sky.cloudLight!==undefined&&!HEX.test(sky.cloudLight))fail('sky cloudLight must be a #rrggbb colour');
   if(sky.clouds!==undefined){
     const c=sky.clouds;record(c,'sky clouds');
     for(const key of Object.keys(c))if(!CLOUD_KEYS.includes(key))fail(`Unknown sky clouds field ${key}`);
@@ -65,24 +73,27 @@ export function validateSky(sky){
     if(s.coverage!==undefined)finite(s.coverage,0,1,'cloudSea coverage');
     if(s.scale!==undefined)finite(s.scale,.25,4,'cloudSea scale');
     if(s.drift!==undefined){if(!Array.isArray(s.drift)||s.drift.length!==2)fail('cloudSea drift must be [x,z] metres per second');s.drift.forEach(v=>finite(v,-5,5,'cloudSea drift'));}
+    if(s.contrast!==undefined)finite(s.contrast,0,1,'cloudSea contrast');
+    if(s.haze!==undefined)finite(s.haze,.02,1,'cloudSea haze');
   }
   if(sky.cumulus!==undefined){
-    const c=sky.cumulus;record(c,'sky cumulus');
+    if(Array.isArray(sky.cumulus)&&(sky.cumulus.length<1||sky.cumulus.length>MAX_CUMULUS_BANKS))fail(`sky cumulus must be one bank or a list of 1 to ${MAX_CUMULUS_BANKS}`);
+    for(const c of [].concat(sky.cumulus)){record(c,'sky cumulus');
     for(const key of Object.keys(c))if(!CUMULUS_KEYS.includes(key))fail(`Unknown sky cumulus field ${key}`);
     if(!Array.isArray(c.toward)||c.toward.length!==2)fail('cumulus toward must be a horizontal direction [x,z]');
     c.toward.forEach(v=>finite(v,-1000,1000,'cumulus toward'));if(Math.hypot(...c.toward)<1e-6)fail('cumulus toward must not be [0,0]');
     if(c.spread!==undefined)finite(c.spread,3,90,'cumulus spread');
     if(c.height!==undefined)finite(c.height,2,45,'cumulus height');
     if(c.scale!==undefined)finite(c.scale,.25,4,'cumulus scale');
-  }
+  }}
   return sky;
 }
 
 export function resolveSky(environment){
   const sky=environment.sky;if(!sky)return null;
-  return {...SKY_DEFAULTS,...sky,horizonColor:sky.horizonColor??environment.fogColor,clouds:sky.clouds?{...CLOUD_DEFAULTS,...sky.clouds}:null,
+  return {...SKY_DEFAULTS,...sky,horizonColor:sky.horizonColor??environment.fogColor,cloudLight:sky.cloudLight??environment.sunColor,clouds:sky.clouds?{...CLOUD_DEFAULTS,...sky.clouds}:null,
     light:sky.light?{...SKY_LIGHT_DEFAULTS,...sky.light}:null,cloudSea:sky.cloudSea?{...CLOUD_SEA_DEFAULTS,...sky.cloudSea}:null,
-    cumulus:sky.cumulus?{...CUMULUS_DEFAULTS,...sky.cumulus}:null};
+    cumulus:sky.cumulus?[].concat(sky.cumulus).map(bank=>({...CUMULUS_DEFAULTS,...bank})):null};
 }
 
 // Metres along a view ray from a camera at cameraY to the cloud deck, or

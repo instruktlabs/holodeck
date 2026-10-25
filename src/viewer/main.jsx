@@ -9,6 +9,7 @@ import {validateWorld} from '../world/contract.mjs';
 import {CoveEffects} from '../world/effects.jsx';
 import {probe} from '../prototype/scene.jsx';
 import {loadTerrainTextures} from '../world/terrain-textures.js';
+import {tagGltfTextures} from '../world/material-share.mjs';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
 import {Diagnostics,RenderReadiness} from './diagnostics.jsx';
@@ -38,7 +39,7 @@ function useStaticBundle(){
    const loader=new GLTFLoader(),byUrl=new Map();
    const entries=await Promise.all(payload.world.scene.assets.map(async asset=>{
     const entry=payload.assets[asset.id];if(!entry||!/^\.\/assets\/imports\/[a-f0-9]{64}\.glb$/.test(entry.url)||entry.url!==`./assets/imports/${entry.hash}.glb`)throw new Error('Invalid exported asset path');
-    if(!byUrl.has(entry.url))byUrl.set(entry.url,loader.loadAsync(entry.url).then(model=>{loaded.add(model);if(stopped)disposeModels([model]);return model;}));
+    if(!byUrl.has(entry.url))byUrl.set(entry.url,loader.loadAsync(entry.url).then(tagGltfTextures).then(model=>{loaded.add(model);if(stopped)disposeModels([model]);return model;}));
     return [asset.id,await byUrl.get(entry.url)];
    }));
    for(const [file,entry] of Object.entries(payload.textures||{}))if(!/^\.\/assets\/imports\/terrain\/[a-f0-9]{64}\.png$/.test(entry?.url)||entry.url!==`./${file}`)throw new Error('Invalid exported terrain texture path');

@@ -50,7 +50,7 @@ export function validateWorld(w){
   }
   if(w.bible.referenceIds&&(!Array.isArray(w.bible.referenceIds)||w.bible.referenceIds.some(x=>!refIds.has(x))))fail('Pinned bible references must exist on the board');
   const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water','scatters']:[])],'scene');
-  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','sky','shadow','grade','effects','hemisphere','exposure']:[])],'environment');
+  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','fogSky','sky','shadow','grade','effects','hemisphere','exposure']:[])],'environment');
   if(s.environment.sky!==undefined)validateSky(s.environment.sky);
   if(s.environment.shadow!==undefined)try{validateShadow(s.environment.shadow);}catch(error){fail(error.message);}
   if(s.environment.grade!==undefined)try{validateGrade(s.environment.grade);}catch(error){fail(error.message);}
@@ -65,6 +65,8 @@ export function validateWorld(w){
   if(s.environment.sunPosition!==undefined){vec(s.environment.sunPosition,'sun position');if(Math.hypot(...s.environment.sunPosition)===0)fail('Sun position must be nonzero');}
   const fogNear=s.environment.fogNear===undefined?28:s.environment.fogNear,fogFar=s.environment.fogFar===undefined?85:s.environment.fogFar;
   if(!Number.isFinite(fogNear)||!Number.isFinite(fogFar)||fogNear<0||fogFar>2000||fogNear>=fogFar)fail('Invalid fog distances');
+  // How far the fog takes the colour of the sky behind each surface, rather than fogColor (H108).
+  if(s.environment.fogSky!==undefined){const k=s.environment.fogSky;if(typeof k!=='number'||!Number.isFinite(k)||k<0||k>1)fail('fogSky must be a number from 0 to 1');if(!s.environment.sky)fail('fogSky needs environment.sky');}
   if(![null,'low','high'].includes(s.bridge)||s.bridge&&s.environment.type!=='woodland')fail('Bridge requires the woodland crossing');
   const placementLimit=w.schemaVersion===2?MAX_PLACEMENTS:200;
   if(!Array.isArray(s.assets)||s.assets.length>64||!Array.isArray(s.objects)||s.objects.length>placementLimit)fail(`Scene exceeds 64 assets or ${placementLimit} placements`);
