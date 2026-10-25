@@ -187,6 +187,20 @@ export class WorldRuntime{
  // Walkable tops over x/z, highest first, and the highest one not above maxTop.
  walkableLevels(x,z){return walkableTops(this.walkable,x,z,this.originVisible).sort((a,b)=>b.height-a.height);}
  walkableAt(x,z,maxTop){return walkableTop(this.walkable,x,z,maxTop,this.originVisible);}
+ // Collider box tops near x/z in the walkable frame, for an emote choosing a seat.
+ // Moving objects are never seats.
+ colliderTops(x,z,radius=1.5){
+  const tops=[];
+  for(const o of this.placed){
+   if(!o.collider||o.behavior||!this.visible(o))continue;const p=this.position(o),yaw=this.yaw(o),c=Math.cos(yaw),s=Math.sin(yaw);
+   for(const box of boxesOf(o.collider)){
+    const off=box.offset||[0,0,0],hx=Math.abs(box.size[0]*o.scale[0])/2,hz=Math.abs(box.size[2]*o.scale[2])/2,cx=off[0]*o.scale[0],cz=off[2]*o.scale[2];
+    if(Math.hypot(x-p[0],z-p[2])>radius+Math.hypot(hx,hz)+Math.hypot(cx,cz))continue;
+    tops.push({id:o.id,x:p[0],z:p[2],c,s,cx,cz,hx,hz,height:p[1]+(off[1]+box.size[1]/2)*o.scale[1]});
+   }
+  }
+  return tops;
+ }
  blocked(x,z,radius=.22,feetY=0,height=1.72,ignoreId=null,stepUp=0){return this.collisionAt(x,z,radius,feetY,height,ignoreId,stepUp)!==null;}
  collisionAt(x,z,radius=.22,feetY=0,height=1.72,ignoreId=null,stepUp=0){
   const b=this.scene.runtime.bounds;if(x-radius<b[0]||x+radius>b[1]||z-radius<b[2]||z+radius>b[3])return 'movement-bounds';

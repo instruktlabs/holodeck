@@ -16,6 +16,11 @@ The v2 prototype separates using an object from discussing it with an agent.
 - **Escape** while walking, or **Return to making**, leaves habitation and
   releases the mouse. **H** hides/restores every remaining HUD element while
   inhabiting; a request waiting for your answer still shows.
+- **T** while walking as the maker holds an emote wheel open at the reticle. The
+  mouse (captured or not) or the arrow keys highlight a slice; releasing T plays
+  it, and releasing at the centre or Escape cancels. A click on a slice also
+  plays it. **1–9** play the wheel's slots directly. See
+  [emotes](terrain-and-inhabitants.md#emotes).
 - Mouse lock is requested from the Enter world action or a click in the world. If
   the browser denies it, the interface reports that and retains right-drag look.
 - In authoring, **click or F** selects a whole placed entity. **Shift-click or
@@ -65,6 +70,7 @@ Buttons for keyboard-only actions appear only when they apply:
 | --- | --- |
 | Interact | E, when the reticle finds something |
 | Jump | Space, while walking as the inhabitant |
+| Emote | T and 1–9: press and drag toward a slice, then lift to play it; or tap to open the wheel and tap a slice |
 | Up and Down | E and Q, in the free camera |
 | Talk | Enter, which opens the message box while inhabiting |
 | Clear view | H; tap Show controls to bring the HUD back |

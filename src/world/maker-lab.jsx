@@ -1,7 +1,7 @@
 // Development page for reviewing the Maker's motion: the real controller and pose
 // solver on a small synthetic beach and lagoon, driven by scripted input and
 // viewed from fixed review cameras. Not part of the production build.
-import React,{useLayoutEffect,useMemo,useRef} from 'react';
+import React,{useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Canvas,useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
@@ -12,6 +12,8 @@ import {createInhabitant,stepInhabitant} from './inhabitant.mjs';
 import {firstPersonEyePosition} from './inhabit.mjs';
 import {createMakerModel} from './maker-model.mjs';
 import {createMakerMotion,updateMakerPose} from './maker-pose.mjs';
+import {createMakerEmoteLayer,updateMakerEmote} from './maker-emotes.mjs';
+import {requestEmote,chooseSeat} from './emotes.mjs';
 import {configureSunShadow} from './sun-shadow.mjs';
 import {enableParallelCompile} from './parallel-compile.js';
 
@@ -28,27 +30,34 @@ const context={terrain:lattice,water,get time(){return runtime.time;},walkable:n
 const DT=1/60;
 
 // window.makerLab: reset({position,yaw,camera}), play([{seconds,input}],{auto}),
-// advance(seconds) for deterministic stepping, and camera({mode:'orbit'|'follow'|'first',...}).
+// advance(seconds) for deterministic stepping, camera({mode:'orbit'|'follow'|'first',...}),
+// seat({center,size,yaw}) to place a box seat on the ground, and emote(id) to play an
+// emote; sit chooses a placed seat within reach as the world does.
 const lab={
- actor:null,motion:createMakerMotion(),model:null,script:[],cursor:0,elapsed:0,playing:true,auto:true,
+ actor:null,motion:createMakerMotion(),emotes:createMakerEmoteLayer(),seats:[],model:null,script:[],cursor:0,elapsed:0,playing:true,auto:true,
  view:{mode:'orbit',azimuth:Math.PI/2,elevation:.12,distance:3.2,height:.95,relative:true,yaw:-Math.PI/2,pitch:-.12},
  reset({position=[-6,0],yaw=-Math.PI/2,camera='third'}={}){
   runtime.scene.runtime.spawn=[position[0],2.4,position[1]];runtime.scene.runtime.look=[yaw,0];runtime.scene.runtime.possession.camera=camera;
-  lab.actor=createInhabitant(runtime);lab.actor.camera=camera;lab.motion=createMakerMotion();lab.script=[];lab.cursor=0;lab.elapsed=0;
+  lab.actor=createInhabitant(runtime);lab.actor.camera=camera;lab.motion=createMakerMotion();lab.emotes=createMakerEmoteLayer();if(lab.seats.length)lab.showSeats?.([]);lab.seats=[];lab.script=[];lab.cursor=0;lab.elapsed=0;
   updateMakerPose(lab.model,lab.actor,lattice,lab.motion,0);return lab.state();
  },
  // [{seconds, input}] segments, input as stepInhabitant receives it.
  play(script,{auto=true}={}){lab.script=script.map(s=>({seconds:s.seconds,input:{...s.input}}));lab.cursor=0;lab.elapsed=0;lab.auto=auto;lab.playing=true;return lab.state();},
  input(){let t=lab.elapsed;for(const s of lab.script){if(t<s.seconds)return s.input;t-=s.seconds;}return lab.script.at(-1)?.input??{};},
- tick(){const a=lab.actor;stepInhabitant(a,lab.input(),DT,context);runtime.time+=DT;lab.elapsed+=DT;updateMakerPose(lab.model,a,lattice,lab.motion,DT);},
+ tick(){const a=lab.actor;stepInhabitant(a,lab.input(),DT,context);runtime.time+=DT;lab.elapsed+=DT;updateMakerPose(lab.model,a,lattice,lab.motion,DT);updateMakerEmote(lab.model,a,lab.emotes,{terrain:lattice,facing:lab.motion.facingYaw});},
+ emote(id){return requestEmote(lab.actor,id,{seat:id==='sit'?chooseSeat(lab.seats,lab.actor):null});},
+ seat({center=[-6,.6],size=[1.8,.45,.5],yaw=0}={}){
+  const [x,z]=center,ground=lattice.sample(x,z).height,top={id:`seat-${lab.seats.length}`,x,z,c:Math.cos(yaw),s:Math.sin(yaw),cx:0,cz:0,hx:size[0]/2,hz:size[2]/2,height:ground+size[1],size,yaw,ground};
+  lab.seats.push(top);lab.showSeats?.([...lab.seats]);return top;
+ },
  advance(seconds){const n=Math.round(seconds/DT);for(let i=0;i<n;i++)lab.tick();return lab.state();},
  camera(view){Object.assign(lab.view,view);lab.model.setFirstPerson(lab.view.mode==='first');return lab.view;},
- state(){const a=lab.actor;return {position:[...a.position],mode:a.mode,speed:a.speed,depth:a.waterDepth,surface:a.surfaceHeight,yaw:a.yaw,facing:lab.motion.facingYaw,elapsed:lab.elapsed};},
+ state(){const a=lab.actor;return {position:[...a.position],mode:a.mode,speed:a.speed,depth:a.waterDepth,surface:a.surfaceHeight,yaw:a.yaw,facing:lab.motion.facingYaw,elapsed:lab.elapsed,emote:a.emote?{id:a.emote.id,stage:a.emote.stage,time:a.emote.time,weight:lab.emotes.weight}:null};},
 };
 window.makerLab=lab;
 
 function Rig(){
- const {camera}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]);
+ const {camera}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]),[seats,setSeats]=useState([]);lab.showSeats=setSeats;
  const model=useMemo(()=>{const m=createMakerModel();lab.model=m;lab.reset();return m;},[]);
  useLayoutEffect(()=>{configureSunShadow(light.current);light.current.target=target;},[target]);
  useFrame((_,seconds)=>{
@@ -69,6 +78,7 @@ function Rig(){
  return <>
   <primitive object={model.root} dispose={null}/>
   <primitive object={target}/>
+  {seats.map(s=><mesh key={s.id} position={[s.x,s.ground+s.size[1]/2,s.z]} rotation={[0,s.yaw,0]} castShadow receiveShadow><boxGeometry args={s.size}/><meshStandardMaterial color="#8a6a4a" roughness={.8}/></mesh>)}
   <directionalLight ref={light} color={environment.sunColor} intensity={environment.sunIntensity} castShadow/>
  </>;
 }
