@@ -57,6 +57,7 @@ export function validateWorld(w){
   if(s.environment.effects!==undefined)try{validateEffects(s.environment.effects);}catch(error){fail(error.message);}
   validateLighting(s.environment);
   if(s.environment.hemisphere!==undefined&&s.environment.sky?.light!==undefined)fail('environment.sky.light replaces the hemisphere fill; set one or the other');
+  if(s.environment.exposure!==undefined&&s.environment.grade?.exposure!==undefined)fail('Set exposure once, with environment.exposure');
   if(!['construct','meadow','woodland'].includes(s.environment.type))fail('Unsupported environment capability');
   if(typeof s.environment.clearPath!=='boolean')fail('clearPath must be a boolean');
   for(const k of ['groundColor','fogColor','sunColor'])if(!/^#[0-9a-f]{6}$/i.test(s.environment[k]))fail(`Invalid ${k}`);

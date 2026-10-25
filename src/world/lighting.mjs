@@ -15,9 +15,10 @@ export function validateLighting(environment){
  return environment;
 }
 
+// grade.exposure is the legacy home of exposure (see grade.mjs).
 export function resolveLighting(environment){
  const h=environment.hemisphere;
- return {hemisphere:{skyColor:h?.skyColor??HEMISPHERE_DEFAULTS.skyColor,groundColor:h?.groundColor??HEMISPHERE_DEFAULTS.groundColor,intensity:h?.intensity??HEMISPHERE_DEFAULTS.intensity},exposure:environment.exposure??DEFAULT_EXPOSURE};
+ return {hemisphere:{skyColor:h?.skyColor??HEMISPHERE_DEFAULTS.skyColor,groundColor:h?.groundColor??HEMISPHERE_DEFAULTS.groundColor,intensity:h?.intensity??HEMISPHERE_DEFAULTS.intensity},exposure:environment.exposure??environment.grade?.exposure??DEFAULT_EXPOSURE};
 }
 
 // Exposure belongs to the renderer, not the scene. Release it on replacement or

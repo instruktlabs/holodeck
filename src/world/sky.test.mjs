@@ -102,9 +102,12 @@ test('a world grade picks the tone mapping, and the default is unchanged (H77)',
   assert.deepEqual(resolveGrade({}),{toneMapping:'aces'});assert.deepEqual(GRADE_DEFAULTS,{toneMapping:'aces'});
   assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral'}}),{toneMapping:'neutral'});
   assert.deepEqual(validateGrade({toneMapping:'agx'}),{toneMapping:'agx'});
-  for(const grade of [{toneMapping:'reinhard'},{contrast:1},[]])assert.throws(()=>validateGrade(grade),/[Gg]rade/);
-  // Exposure has one home, environment.exposure.
-  for(const grade of [{exposure:1.3},{toneMapping:'agx',exposure:1}])assert.throws(()=>validateGrade(grade),/environment\.exposure/);
+  for(const grade of [{toneMapping:'reinhard'},{exposure:3},{exposure:'1'},{contrast:1},[]])assert.throws(()=>validateGrade(grade),/[Gg]rade/);
+  // Saved revisions with the legacy grade.exposure still read; environment.exposure wins and is the documented field.
+  assert.deepEqual(validateGrade({toneMapping:'neutral',exposure:1.05}),{toneMapping:'neutral',exposure:1.05});
+  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral',exposure:1.05}}),{toneMapping:'neutral'});
+  const {resolveLighting}=await import('./lighting.mjs');
+  assert.equal(resolveLighting({grade:{exposure:1.05}}).exposure,1.05);assert.equal(resolveLighting({}).exposure,1.12);assert.equal(resolveLighting({exposure:.9}).exposure,.9);
 });
 test('a cumulus bank stands on part of the horizon, validated and resolved with defaults (H92)',()=>{
   const sky={zenithColor:'#1f8ad8',cumulus:{toward:[0,-1]}};

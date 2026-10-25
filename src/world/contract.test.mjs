@@ -49,3 +49,8 @@ test('optional hemisphere and exposure validate only on schema two without norma
  }
  for(const change of [{hemisphere:{}},{exposure:1.12}]){const legacy=structuredClone(DEFAULT_WORLD);Object.assign(legacy.scene.environment,change);assert.throws(()=>validateWorld(legacy),/environment fields/);}
 });
+test('exposure is set once, and a sky light replaces the hemisphere fill rather than joining it',()=>{
+ const graded=world();graded.scene.environment.grade={toneMapping:'neutral',exposure:1.05};assert.equal(validateWorld(graded),graded);
+ const twice=world();Object.assign(twice.scene.environment,{grade:{exposure:1.05},exposure:1.05});assert.throws(()=>validateWorld(twice),/exposure once/);
+ const both=world();Object.assign(both.scene.environment,{hemisphere:{intensity:1},sky:{zenithColor:'#3d7fc4',light:{intensity:.6}}});assert.throws(()=>validateWorld(both),/replaces the hemisphere/);
+});
