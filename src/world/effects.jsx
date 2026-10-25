@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useLayoutEffect,useMemo,useState} from 'react';
 import {useFrame,useThree} from '@react-three/fiber';
 import {BlendMode,Color,MaterialBlending,RenderPipeline,UnsignedByteType} from 'three/webgpu';
 import {convertToTexture,float,mix,mrt,normalView,output,pass,uniform,vec4,velocity} from 'three/tsl';
@@ -10,6 +10,8 @@ import {bilateralBlur} from 'three/addons/tsl/display/BilateralBlurNode.js';
 import {depthAwareBlend} from 'three/addons/tsl/display/depthAwareBlend.js';
 import {resolveEffects} from './effects-contract.mjs';
 import {reactiveNode,translucentNode} from './reactive.mjs';
+import {probe} from '../prototype/scene.jsx';
+import {completeRenderFrame,resetRenderReadiness} from './render-readiness.mjs';
 
 // The sun is the shadow-casting directional light the runtime places.
 const findSun=scene=>{let sun=null;scene.traverse(o=>{if(!sun&&o.isDirectionalLight&&o.castShadow)sun=o;});return sun;};
@@ -54,9 +56,10 @@ export function CoveEffects({effects}={}){
    return {pipeline,owned};
   },[gl,scene,camera,signature,sun]);
   useEffect(()=>()=>{fx.pipeline.dispose();for(const node of fx.owned)node.dispose?.();},[fx]);
+  useLayoutEffect(()=>{resetRenderReadiness(gl,probe);return()=>resetRenderReadiness(gl,probe);},[gl,scene]);
   // Every render of the scene (the main pass, the water's mirror view, the sun's
   // shadow map) would walk its matrices again: update them once a frame, after
   // everything that moves has moved, and let the passes reuse them (H94).
   useEffect(()=>{const previous=scene.matrixWorldAutoUpdate;scene.matrixWorldAutoUpdate=false;return()=>{scene.matrixWorldAutoUpdate=previous;};},[scene]);
-  useFrame(()=>{scene.updateMatrixWorld();fx.pipeline.render();},1);return null;
+  useFrame(()=>{scene.updateMatrixWorld();fx.pipeline.render();completeRenderFrame(gl,probe);},1);return null;
 }

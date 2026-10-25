@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
 import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {createServer} from 'node:http';
+import net from 'node:net';
 import path from 'node:path';
 import os from 'node:os';
 import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,scriptGrant,scriptRun,sessionGrant,INSTRUCTIONS} from './claude.mjs';
@@ -426,6 +427,31 @@ test('stop sends SIGINT first and denies a pending approval',async t=>{
   const done=await settled(agent);
   assert.equal(signals[0],'SIGINT');
   assert.equal(done.status,'interrupted');assert.deepEqual(done.requests,[]);
+});
+
+test('a bridge reset during a pending approval preserves stop and drops the disconnected reply',async t=>{
+  const {agent}=await fixture(t,{scenario:'hold'});
+  await agent.connect();await agent.startTurn({text:'Wait',model:'default'});
+  let response;
+  const onBridge=agent.onBridge.bind(agent);
+  agent.onBridge=async request=>{response=await onBridge(request);return response;};
+  const connected=new Promise(resolve=>agent.bridge.server.once('connection',resolve));
+  const client=net.connect(agent.bridge.file);
+  client.on('error',()=>{});t.after(()=>client.destroy());
+  const socket=await connected;
+  client.write(JSON.stringify({id:1,token:agent.token,method:'tools/call',params:{name:'permission_prompt',arguments:{tool_name:'Bash',input:{command:'node -e 0'}}}})+'\n');
+  await requested(agent);
+  let writes=0;const write=socket.write.bind(socket);
+  socket.write=(...args)=>{writes++;return write(...args);};
+  const closed=new Promise(resolve=>socket.once('close',resolve));
+  // Inject the transport reset on the real accepted pipe, after its approval
+  // is pending. This avoids relying on platform-specific peer-close timing.
+  socket.destroy(Object.assign(new Error('read ECONNRESET'),{code:'ECONNRESET'}));
+  await closed;
+  await agent.stop();const done=await settled(agent);
+  assert.equal(done.status,'interrupted');assert.deepEqual(done.requests,[]);
+  assert.equal(JSON.parse(response.content[0].text).behavior,'deny');
+  assert.equal(writes,0,'a disconnected requester must not receive the resumed approval response');
 });
 
 test('stop falls back to SIGTERM when the process ignores SIGINT',async t=>{

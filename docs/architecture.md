@@ -32,7 +32,9 @@ Kiln GLBs share the placement model. The capability registry covers camera and
 box collision, hinge and spin interactions, heightfields and ocean, maker
 possession, patrols, articulated gait, airborne boid flocks and seeded scatter.
 Terrain texture layers, surf and the gradient sky are optional fields of the
-terrain, water and environment records. Dependencies and
+terrain, water and environment records. Optional schema-v2 hemisphere fill and
+exposure use one shared renderer path for live revision adoption and static
+exports; omitted values preserve the existing appearance. Dependencies and
 bounded records are validated before accepting a revision. See
 [terrain and inhabitants](terrain-and-inhabitants.md),
 [gait](articulated-gait.md) and [flocks](flock-behavior.md).
@@ -55,8 +57,11 @@ triangles, water time and one actor support anchor across first/third person.
 Collider boxes marked `walkable` add their tops to that support, so the walker and
 patrols can cross a jetty deck or climb stair treads; walkable boxes are static and
 yaw-only. See [terrain and inhabitants](terrain-and-inhabitants.md) for their strict records.
-Gate motion rotates its collider, but moving objects do not push actors
-or simulate rigid-body forces. Interaction is limited to nearby objects in walk mode.
+Gate motion rotates its collider. A hinge waits before its swept collider reaches
+the player's body, in either direction, and continues when the player moves clear.
+The maker or legacy walking body remains protected in free camera and overview.
+Moving objects do not push actors or simulate rigid-body forces. Interaction is
+limited to nearby objects in walk mode.
 
 Origin visibility controls the cove meshes, lights, blockers and activity together.
 New worlds carry shell blockers in data. The v1 demo retains its legacy collision.
@@ -85,6 +90,14 @@ There is no distance LOD, automatic source-GLB LOD selection, per-instance GPU
 culling or occlusion culling. Terrain and ocean remain whole meshes; each flock
 has a bound covering its authored flight volume. Performance claims need a
 specific scene, viewpoint and renderer measurement.
+
+Current render readiness is separate from loaded-world/frame identity. After each
+completed scene-and-bloom render, three consecutive frames with no pending shader
+links mark the view settled. New links clear that state. Static-player status and
+diagnostics expose the state and pending count; applying a diagnostic camera resets
+settling, and compilation during a recording invalidates that evidence. This does
+not prewarm unseen views or certify visual completeness or performance. A later
+settled recording can retry; the prior failed result retains its raw evidence.
 
 ## Local world activation
 

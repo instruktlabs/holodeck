@@ -8,22 +8,24 @@ import {scaffold} from './scaffold.mjs';
 import {WorldStore} from './world-store.mjs';
 import {exportStaticWorld} from './static-export.mjs';
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
-async function fixture(t){
+async function fixture(t,{lighting=false}={}){
  const parent=await mkdtemp(path.join(os.tmpdir(),'holodeck-export-')),root=path.join(parent,'world');
  t.after(async()=>{const resolved=path.resolve(parent);assert.ok(resolved.startsWith(path.resolve(os.tmpdir())+path.sep));await rm(resolved,{recursive:true,force:true});});
  await scaffold(root,'construct');const store=await WorldStore.open(root);
  const world=store.snapshot();world.bible.intent='PRIVATE_BIBLE_SENTINEL';world.bible.rules='PRIVATE_RULE_SENTINEL';world.references[0].notes='PRIVATE_REFERENCE_SENTINEL';
- await store.commit({baseRevision:world.revision,bible:world.bible,references:world.references});
+ if(lighting)Object.assign(world.scene.environment,{hemisphere:{skyColor:'#c9d9ed',groundColor:'#777982',intensity:0},exposure:.85});
+ await store.commit({baseRevision:world.revision,bible:world.bible,references:world.references,scene:world.scene});
  const receipt=JSON.parse(await readFile(path.join(root,'.holodeck/accepted-bundle.json'),'utf8'));await store.close();
  await writeFile(path.join(root,'.env'),'PRIVATE_CREDENTIAL_SENTINEL');await writeFile(path.join(root,'.holodeck/session/secret.json'),'PRIVATE_AGENT_SENTINEL');
  return {root,parent,receipt};
 }
 test('static export builds relative scene-only files with exact pinned GLBs and a complete hash manifest',async t=>{
- const {root,parent,receipt}=await fixture(t),out=path.join(parent,'site');
+ const {root,parent,receipt}=await fixture(t,{lighting:true}),out=path.join(parent,'site');
  const staged=structuredClone(receipt.world);staged.revision=999;staged.bible.title='PRIVATE_STAGED_SENTINEL';await writeFile(path.join(root,'world/world.json'),JSON.stringify(staged));
  const result=await exportStaticWorld(root,{out});assert.equal(result.revision,receipt.world.revision);
  const scene=JSON.parse(await readFile(path.join(out,'scene.json'),'utf8')),manifest=JSON.parse(await readFile(path.join(out,'manifest.json'),'utf8'));
  assert.equal(scene.world.bible.intent,'');assert.equal(scene.world.bible.rules,'');assert.deepEqual(scene.world.references,[]);assert.equal(scene.world.scene.moodboard,undefined);
+ assert.deepEqual(scene.world.scene.environment,receipt.world.scene.environment);
  assert.equal(scene.world.revision,receipt.world.revision);assert.equal(manifest.format,'holodeck-static-v1');assert.equal(manifest.revision,receipt.world.revision);
  const needed=new Set([scene.world.scene.origin,...scene.world.scene.objects.map(o=>o.asset).filter(Boolean)]);
  assert.deepEqual(new Set(scene.world.scene.assets.map(a=>a.id)),needed);

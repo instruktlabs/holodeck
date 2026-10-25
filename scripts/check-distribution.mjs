@@ -12,8 +12,9 @@ for(const file of candidates){
  }
 }
 if(!process.env.npm_execpath)throw new Error('Run through npm run check:distribution');
-// npm 11 prints an array of packs; npm 12 an object keyed by package name.
-const packed=JSON.parse(execFileSync(process.execPath,[process.env.npm_execpath,'pack','--dry-run','--json','--ignore-scripts'],{encoding:'utf8',maxBuffer:8*1024*1024})),[pack]=Array.isArray(packed)?packed:Object.values(packed);
+// npm 11 prints an array of pack results; npm 12 prints them keyed by package name.
+const packed=JSON.parse(execFileSync(process.execPath,[process.env.npm_execpath,'pack','--dry-run','--json','--ignore-scripts'],{encoding:'utf8',maxBuffer:8*1024*1024}));
+const [pack]=Array.isArray(packed)?packed:Object.values(packed);
 for(const {path:file} of pack.files){if(forbidden.test(file)||file.endsWith('.test.mjs')||file.startsWith('scripts/')&&file!=='scripts/prepare-runtime.mjs')throw new Error(`Unexpected package file: ${file}`);}
 for(const file of ['bin/holodeck.mjs','examples/courtyard/example.json','examples/crescent-cove/example.json','examples/kinetic.json','examples/tidemark/example.json','examples/tidemark/world/world.json','examples/tidemark/preview.png','src/world/runtime.mjs','skills/holodeck-author-world/SKILL.md'])if(!pack.files.some(f=>f.path===file))throw new Error(`Missing package file: ${file}`);
 console.log(`Checked ${candidates.length} source candidates and ${pack.files.length} package files (${pack.unpackedSize} bytes unpacked). No private/local artifact paths found. Source and license review remain separate.`);

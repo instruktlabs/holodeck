@@ -97,12 +97,14 @@ test('a sky light may add a warm ground bounce, validated and resolved (H76)',()
   for(const bounce of [{color:'warm',intensity:.4},{color:'#e8c9a0'},{color:'#e8c9a0',intensity:3},{color:'#e8c9a0',intensity:.4,spread:1},[1]])assert.throws(()=>validateSky({zenithColor:'#1a72d4',light:{bounce}}),/bounce/);
 });
 
-test('a world grade picks the tone mapping and exposure, and the default is unchanged (H77)',async()=>{
+test('a world grade picks the tone mapping, and the default is unchanged (H77)',async()=>{
   const {GRADE_DEFAULTS,resolveGrade,validateGrade}=await import('./grade.mjs');
-  assert.deepEqual(resolveGrade({}),{toneMapping:'aces',exposure:1.12});assert.deepEqual(GRADE_DEFAULTS,{toneMapping:'aces',exposure:1.12});
-  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral'}}),{toneMapping:'neutral',exposure:1.12});
-  assert.deepEqual(validateGrade({toneMapping:'agx',exposure:1.3}),{toneMapping:'agx',exposure:1.3});
-  for(const grade of [{toneMapping:'reinhard'},{exposure:3},{exposure:'1'},{contrast:1},[]])assert.throws(()=>validateGrade(grade),/[Gg]rade/);
+  assert.deepEqual(resolveGrade({}),{toneMapping:'aces'});assert.deepEqual(GRADE_DEFAULTS,{toneMapping:'aces'});
+  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral'}}),{toneMapping:'neutral'});
+  assert.deepEqual(validateGrade({toneMapping:'agx'}),{toneMapping:'agx'});
+  for(const grade of [{toneMapping:'reinhard'},{contrast:1},[]])assert.throws(()=>validateGrade(grade),/[Gg]rade/);
+  // Exposure has one home, environment.exposure.
+  for(const grade of [{exposure:1.3},{toneMapping:'agx',exposure:1}])assert.throws(()=>validateGrade(grade),/environment\.exposure/);
 });
 test('a cumulus bank stands on part of the horizon, validated and resolved with defaults (H92)',()=>{
   const sky={zenithColor:'#1f8ad8',cumulus:{toward:[0,-1]}};

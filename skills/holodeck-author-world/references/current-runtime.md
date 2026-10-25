@@ -45,6 +45,15 @@ The `capabilities` section returns each of these; the key is in brackets
 - **Environment types** (`environmentTypes`): `type` only picks the ground when
   there is no terrain. `construct` is a gridded floor and `meadow` a soil plane.
   With terrain, both render the same terrain, ocean and analytic sky.
+- **Lighting** (`spatial.lighting`): optional schema-v2 `environment.hemisphere`
+  has `skyColor`, `groundColor` and `intensity` (0–8), defaulting to
+  `#f1eee2`, `#95806d` and 1.8. It is global fill without shadows or indoor
+  occlusion, independent of the visible sky. Optional `environment.exposure`
+  (0.1–4, default 1.12) scales scene radiance before final ACES tone mapping,
+  including the composed sky, emissions and bloom. Omitted settings keep the old appearance; accepted
+  updates and static exports use the same values. Inspect both backends and
+  indoor/outdoor materials before accepting a lighting change. These fields
+  require an updated toolchain; bible prose alone does not apply them.
 - **Water and sky** (`spatial.waterRendering`, `spatial.surf`, `spatial.sky`):
   water colour, shallow colour and foam width are the base look. Optional
   `water.surf` adds reef-break foam and beach swash over the terrain (visual

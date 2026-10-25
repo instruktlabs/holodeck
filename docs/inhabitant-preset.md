@@ -2,10 +2,10 @@
 
 This page preserves the original visual and architecture proposal; implementation
 status and planned steps below describe that earlier study. The current optional
-Maker preset has a rendered body, procedural pose and first/third-person cameras
-with walking, jumping and swimming. See [terrain and inhabitants](terrain-and-inhabitants.md)
-for the implemented contract. General imported-avatar possession, skinning and
-ragdoll support remain unimplemented.
+Maker preset is a procedurally built, skinned skeleton with procedural locomotion,
+swimming, foot IK and first/third-person cameras. See [terrain and inhabitants](terrain-and-inhabitants.md)
+for the implemented contract. General imported-avatar possession (including
+imported skinned rigs) and ragdoll support remain unimplemented.
 
 The default inhabitant should give the construct a recognizable presence while
 remaining replaceable. It is one optional character preset, not the required body

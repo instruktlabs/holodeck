@@ -16,7 +16,9 @@ test('WebGL2 without KHR_parallel_shader_compile keeps three\'s own pipeline pat
  const {renderer,backend}=fakeRenderer({parallel:false}),original=backend.createRenderPipeline;
  enableParallelCompile(renderer);
  assert.equal(backend.createRenderPipeline,original);assert.equal(renderer.pendingCompiles,undefined);
- assert.deepEqual(compileGate(renderer),{ready:true,settled:0,compiling:0});
+ let gate=compileGate(renderer);assert.deepEqual(gate,{ready:false,settled:1,compiling:0});
+ for(let i=1;i<SETTLE;i++)gate=compileGate(renderer,gate.settled);
+ assert.equal(gate.ready,true);
 });
 
 for(const [name,options] of [['WebGL2 programs link',{}],['WebGPU pipelines compile (H68)',{webgpu:true,parallel:false}]])test(`new ${name} through the async path and are counted until they finish`,async()=>{

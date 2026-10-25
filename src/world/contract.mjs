@@ -7,6 +7,7 @@ import {validateEffects} from './effects-contract.mjs';
 import {MAX_PLACEMENTS} from './asset-budget.mjs';
 import {expandScatters} from './scatter.mjs';
 import {validateSky} from './sky.mjs';
+import {validateLighting} from './lighting.mjs';
 export const MAX_ASSET_BYTES=32*1024*1024;
 // Describes current host delivery, not every feature an authoring tool can export.
 export const ASSET_DELIVERY_PROFILE=Object.freeze({
@@ -49,11 +50,14 @@ export function validateWorld(w){
   }
   if(w.bible.referenceIds&&(!Array.isArray(w.bible.referenceIds)||w.bible.referenceIds.some(x=>!refIds.has(x))))fail('Pinned bible references must exist on the board');
   const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water','scatters']:[])],'scene');
-  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','sky','shadow','grade','effects']:[])],'environment');
+  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','sky','shadow','grade','effects','hemisphere','exposure']:[])],'environment');
   if(s.environment.sky!==undefined)validateSky(s.environment.sky);
   if(s.environment.shadow!==undefined)try{validateShadow(s.environment.shadow);}catch(error){fail(error.message);}
   if(s.environment.grade!==undefined)try{validateGrade(s.environment.grade);}catch(error){fail(error.message);}
-  if(s.environment.effects!==undefined)try{validateEffects(s.environment.effects);}catch(error){fail(error.message);}  if(!['construct','meadow','woodland'].includes(s.environment.type))fail('Unsupported environment capability');
+  if(s.environment.effects!==undefined)try{validateEffects(s.environment.effects);}catch(error){fail(error.message);}
+  validateLighting(s.environment);
+  if(s.environment.hemisphere!==undefined&&s.environment.sky?.light!==undefined)fail('environment.sky.light replaces the hemisphere fill; set one or the other');
+  if(!['construct','meadow','woodland'].includes(s.environment.type))fail('Unsupported environment capability');
   if(typeof s.environment.clearPath!=='boolean')fail('clearPath must be a boolean');
   for(const k of ['groundColor','fogColor','sunColor'])if(!/^#[0-9a-f]{6}$/i.test(s.environment[k]))fail(`Invalid ${k}`);
   if(!Number.isFinite(s.environment.sunIntensity)||s.environment.sunIntensity<0||s.environment.sunIntensity>8)fail('Sun intensity must be 0–8');

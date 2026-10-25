@@ -6,7 +6,11 @@ import {validateScatters,placedObjects} from './scatter.mjs';
 import {validateTerrainLayerReferences} from './terrain-layers.mjs';
 
 // Authored data stays immutable. These built-ins own only transient runtime state.
-const hinge={requires:['collision.boxes@1'],init:()=>({angle:0,open:false}),tick:(s,b,dt)=>{const target=s.open?b.angle:0,d=target-s.angle;s.angle+=Math.sign(d)*Math.min(Math.abs(d),b.speed*dt);},act:s=>{s.open=!s.open;}};
+const hinge={requires:['collision.boxes@1'],init:()=>({angle:0,open:false}),tick:(s,b,dt,runtime,o)=>{
+ const target=s.open?b.angle:0,d=target-s.angle;if(!d)return;
+ const next=s.angle+Math.sign(d)*Math.min(Math.abs(d),b.speed*dt);
+ if(!hingeSweepBlocked(o,runtime.playerBody,s.angle,next))s.angle=next;
+},act:s=>{s.open=!s.open;}};
 const spin={requires:[],init:()=>({angle:0,running:true}),tick:(s,b,dt)=>{if(s.running)s.angle=(s.angle+b.speed*dt)%(Math.PI*2);},act:s=>{s.running=!s.running;}};
 // Drift (motion.drift@1): a slow bob, spin and sway for floating things, from a
 // clock of its own and a phase taken from the placement ID, so copies drift out
@@ -73,6 +77,19 @@ export function viewFar(scene){
 // stair pieces do not drop the walker through.
 export const WALKABLE_MARGIN=.1;
 const boxesOf=collider=>collider?(collider.type==='compound'?collider.boxes:[collider]):[];
+function boxHitsBody(p,yaw,scale,box,x,z,radius,feetY,height){
+ const dx=x-p[0],dz=z-p[2],c=Math.cos(yaw),s=Math.sin(yaw),lx=c*dx-s*dz,lz=s*dx+c*dz,off=box.offset||[0,0,0];
+ return p[1]+(off[1]+box.size[1]/2)*scale[1]>feetY+.05&&p[1]+(off[1]-box.size[1]/2)*scale[1]<feetY+height&&Math.abs(lx-off[0]*scale[0])<=box.size[0]*scale[0]/2+radius&&Math.abs(lz-off[2]*scale[2])<=box.size[2]*scale[2]/2+radius;
+}
+function hingeSweepBlocked(o,body,from,to){
+ if(!body)return false;
+ const [x,y,z]=body.position,distance=Math.hypot(x-o.position[0],z-o.position[2]);
+ // In the leaf's frame the body follows an arc. Enclose that entire arc
+ // around its midpoint, not just the next pose: even a thin, fast leaf must
+ // wait before crossing the player. This conservative bound needs no sampling.
+ const sweep=2*distance*Math.sin(Math.abs(to-from)/4),yaw=(o.yaw??o.rotation[1])+(from+to)/2;
+ return boxesOf(o.collider).some(box=>boxHitsBody(o.position,yaw,o.scale,box,x,z,body.radius+sweep,y,body.height));
+}
 // Walkable boxes never move (validation refuses them with a behavior), so their
 // frames are fixed at reconcile.
 function walkableBoxes(placed){
@@ -199,7 +216,7 @@ export class WorldRuntime{
  blocked(x,z,radius=.22,feetY=0,height=1.72,ignoreId=null,stepUp=0){return this.collisionAt(x,z,radius,feetY,height,ignoreId,stepUp)!==null;}
  collisionAt(x,z,radius=.22,feetY=0,height=1.72,ignoreId=null,stepUp=0){
   const b=this.scene.runtime.bounds;if(x-radius<b[0]||x+radius>b[1]||z-radius<b[2]||z+radius>b[3])return 'movement-bounds';
-  const hit=(p,yaw,scale,box)=>{const dx=x-p[0],dz=z-p[2],c=Math.cos(yaw),s=Math.sin(yaw),lx=c*dx-s*dz,lz=s*dx+c*dz,off=box.offset||[0,0,0];return p[1]+(off[1]+box.size[1]/2)*scale[1]>feetY+.05&&p[1]+(off[1]-box.size[1]/2)*scale[1]<feetY+height&&Math.abs(lx-off[0]*scale[0])<=box.size[0]*scale[0]/2+radius&&Math.abs(lz-off[2]*scale[2])<=box.size[2]*scale[2]/2+radius;};
+  const hit=(p,yaw,scale,box)=>boxHitsBody(p,yaw,scale,box,x,z,radius,feetY,height);
   // A walkable top within stepUp of the feet is a tread to climb, not a wall.
   for(const o of this.placed){if(o.id===ignoreId||!this.visible(o)||!o.collider)continue;const p=this.position(o);for(const box of boxesOf(o.collider)){if(box.walkable&&p[1]+((box.offset?.[1]??0)+box.size[1]/2)*o.scale[1]<=feetY+stepUp)continue;if(hit(p,this.yaw(o),o.scale,box))return o.id;}}
   const board=this.scene.moodboard;if(this.originVisible&&board&&hit(board.position,board.rotation[1],[1,1,1],board.collider))return 'moodboard';
