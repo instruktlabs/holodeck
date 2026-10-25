@@ -6,12 +6,13 @@
   "environment": {"type":"construct","clearPath":true,"groundColor":"#abb492","fogColor":"#eee2c9","sunColor":"#ffd6a0","sunIntensity":3.3},
   "runtime": {
     "version": 1,
-    "modules": ["collision.boxes@1","camera.walk-orbit@1"],
+    "modules": ["collision.boxes@1","camera.walk-orbit@1","inhabitant.maker@1"],
     "spawn": [1.25,1.72,2.35],
     "look": [0.46,-0.14],
     "overview": [10,12,14],
     "target": [0,0,0],
     "bounds": [-29,29,-41,20],
+    "possession": {"preset":"maker","camera":"first"},
     "blockers": [
       {"id":"cove-shell-0","position":[3.619535,0.725,0.636077],"rotation":[0,-1.744755,0],"size":[0.66,1.45,1.2],"layer":"origin"},
       {"id":"cove-shell-1","position":[3.486266,0.725,1.162571],"rotation":[0,-1.892671,0],"size":[0.66,1.45,1.2],"layer":"origin"},

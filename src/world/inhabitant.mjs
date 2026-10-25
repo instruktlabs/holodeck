@@ -4,6 +4,13 @@ export const INHABITANT_DEFAULTS=Object.freeze({preset:'maker',camera:'first',wa
 const EYE_HEIGHT=1.72,HEIGHT=1.82,SWIM_EYE_HEIGHT=1.25,SWIM_HEIGHT=1.35;
 const MAX_SLOPE=Math.PI/4,MAX_STEP=.35,MAX_DELTA=.1,MOVE_STEP=.06,GRAVITY=18,JUMP_SPEED=5.4;
 export const INHABITANT_LIMITS=Object.freeze({maxSlope:MAX_SLOPE,maxStep:MAX_STEP,maxDelta:MAX_DELTA,moveStep:MOVE_STEP,gravity:GRAVITY,jumpSpeed:JUMP_SPEED,eyeHeight:EYE_HEIGHT});
+// The maker stays an explicit, versioned record in each world. New worlds start
+// with it; an older world gains it only through a revision that adds it here.
+export const MAKER_POSSESSION=Object.freeze({preset:'maker',camera:'first'});
+export function withMaker(scene){
+ const r=scene.runtime;if(r.possession)return scene;
+ return {...scene,runtime:{...r,modules:r.modules.includes('inhabitant.maker@1')?r.modules:[...r.modules,'inhabitant.maker@1'],possession:{...MAKER_POSSESSION}}};
+}
 const inputAxis=value=>Number.isFinite(value)?Math.max(-1,Math.min(1,value)):0;
 
 // Support is the terrain or the highest walkable collider top (context.walkable)

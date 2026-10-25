@@ -51,8 +51,9 @@ at measured hot paths while preserving semantic identity and source mappings.
 
 Define routes, destinations, support, clearance and sightlines before decoration.
 Rendering, collision and interaction share placement frames. The current box query
-supports yaw and scale; pitch/roll collision is rejected. Legacy walking uses a fixed-height
-ground plane. Optional heightfield, ocean and maker possession share terrain
+supports yaw and scale; pitch/roll collision is rejected. New worlds and bundled
+examples walk as the maker; a world without possession falls back to the legacy
+fixed-height ground-plane walk. Optional heightfield, ocean and maker possession share terrain
 triangles, water time and one actor support anchor across first/third person.
 Collider boxes marked `walkable` add their tops to that support, so the walker and
 patrols can cross a jetty deck or climb stair treads; walkable boxes are static and
