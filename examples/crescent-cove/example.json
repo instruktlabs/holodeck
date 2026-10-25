@@ -3,7 +3,7 @@
   "id": "crescent-cove",
   "title": "Crescent Cove",
   "description": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
-  "sourceRevision": 16,
+  "sourceRevision": 17,
   "capabilities": {
     "schemaVersion": 2,
     "runtimeVersion": 1,
@@ -18,15 +18,15 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "73c473eba0718808b17212954141efa0aafb8eb4fdf4f8fd9a70c379cb0ae12c",
-    "bytes": 507189
+    "sha256": "0c1efbe7740e698ad79e00c83d5a6d3ed86414087ecdee3a5a4c6eca78a66573",
+    "bytes": 507541
   },
   "assets": [
     {
       "id": "canopy",
-      "file": "assets/imports/8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec.glb",
-      "sha256": "8cfee26b2e74b2f0fb54834569ef74bc280fbed5f50bfa6961d4039fa8c20aec",
-      "bytes": 91072
+      "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+      "sha256": "0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0",
+      "bytes": 929100
     },
     {
       "id": "coral-brain-heads",
@@ -84,9 +84,9 @@
     },
     {
       "id": "hearth",
-      "file": "assets/imports/d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4.glb",
-      "sha256": "d29ccf60fa7ea5cf13c04412fd69c9d0f0c3d508680f0ec246645856130137b4",
-      "bytes": 228096
+      "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+      "sha256": "07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba",
+      "bytes": 1656308
     },
     {
       "id": "jetty-deck",
@@ -108,15 +108,15 @@
     },
     {
       "id": "lamp",
-      "file": "assets/imports/3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c.glb",
-      "sha256": "3e0afee4869ea70ad60d9d87434c64bb6dd8d21533bfd2f06e382976bea9c55c",
-      "bytes": 34576
+      "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+      "sha256": "c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808",
+      "bytes": 254364
     },
     {
       "id": "moodboard",
-      "file": "assets/imports/d8705827571824ca392790a714c12443ff9433fab77d8192e89be53f0ea7f378.glb",
-      "sha256": "d8705827571824ca392790a714c12443ff9433fab77d8192e89be53f0ea7f378",
-      "bytes": 17852
+      "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+      "sha256": "0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
     },
     {
       "id": "palm-arch",
@@ -210,9 +210,9 @@
     },
     {
       "id": "planting",
-      "file": "assets/imports/3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28.glb",
-      "sha256": "3967bf7462fa6e3971d96c0f1f134f21f3a903047007190afc3543d9858e1a28",
-      "bytes": 436248
+      "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+      "sha256": "cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8",
+      "bytes": 1053324
     },
     {
       "id": "rock-beach-a",
@@ -288,9 +288,9 @@
     },
     {
       "id": "rug",
-      "file": "assets/imports/8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1.glb",
-      "sha256": "8a82ee493b432e303ac872de6fe80e16bdbba657dc6429b8a8fbf73243d0c9a1",
-      "bytes": 18760
+      "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+      "sha256": "4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857",
+      "bytes": 121880
     },
     {
       "id": "seagrass",
@@ -300,9 +300,9 @@
     },
     {
       "id": "seating",
-      "file": "assets/imports/de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0.glb",
-      "sha256": "de5cf98f5b722f1332bbeb5682cea47cbe16305463e66c0664dfdac82d12eef0",
-      "bytes": 7752
+      "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
+      "sha256": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
+      "bytes": 890148
     },
     {
       "id": "shelter",
@@ -312,9 +312,9 @@
     },
     {
       "id": "structure",
-      "file": "assets/imports/4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4.glb",
-      "sha256": "4646d1dbb7f872ca5223e8d43306d74b1b693b3c3a506dec1f3525b751769ef4",
-      "bytes": 741484
+      "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+      "sha256": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "bytes": 1398268
     }
   ],
   "textures": [
@@ -382,5 +382,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "5edb5b06219d767b782aa8de6ec1fdbf3b4d6c8c6209258528d0e5da30cb60c3"
+  "integrity": "83e272e0ed98b16372760187bdbf89874fc7d8b94c85f2cda65851ede446245c"
 }
