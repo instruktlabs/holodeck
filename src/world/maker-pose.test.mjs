@@ -180,3 +180,118 @@ test('the head turns toward the third-person camera look and lets go when the ca
  a.yaw=Math.PI;for(let i=0;i<120;i++)updateMakerPose(model,a,null,m,1/60);
  assert.ok(Math.abs(m.lookYaw.value)<.35,'does not wrench around to face a camera in front of it');
 });
+
+// ---- Scripted drives: the real controller and pose over a scenario, sampled per frame ----
+const slope=deg=>{const k=Math.tan(deg*Math.PI/180),n=new Vector3(k,1,0).normalize().toArray();return {sample:x=>({height:-k*x,normal:n,slope:Math.atan(k),inBounds:true})};};
+const ripples=(()=>{const h=(x,z)=>.07*Math.sin(x*2.1+.3)*Math.cos(z*1.7)+.05*Math.sin(x*4.3-z*3.1)+.05*Math.cos(z*3.7+x*.6);
+ return {sample(x,z){const e=.01,n=new Vector3(-(h(x+e,z)-h(x-e,z))/(2*e),1,-(h(x,z+e)-h(x,z-e))/(2*e)).normalize();return {height:h(x,z),normal:n.toArray(),slope:Math.acos(n.y),inBounds:true};}};})();
+// Five 0.18 m treads up to a deck, and a lone 0.3 m crate: walkable box tops over flat ground.
+const BOXES=[...Array.from({length:5},(_,i)=>({x:[-1,1],z:[-2-(i+1)*.3,-2-i*.3],top:.18*(i+1)})),{x:[-1,1],z:[-12,-3.5],top:.9},{x:[2.5,3.3],z:[-3,-2.2],top:.3}];
+const tops=(x,z,maxTop)=>{let best=null;for(const b of BOXES)if(x>=b.x[0]&&x<=b.x[1]&&z>=b.z[0]&&z<=b.z[1]&&b.top<=maxTop&&b.top>(best?.height??-Infinity))best={height:b.top,id:'box'};return best;};
+const boxBlocked=(x,z,feetY,height,stepUp=0)=>BOXES.some(b=>x+.22>b.x[0]&&x-.22<b.x[1]&&z+.22>b.z[0]&&z-.22<b.z[1]&&b.top>feetY+stepUp+1e-6&&feetY<b.top);
+// script: [[seconds,input]]; input.yaw turns the camera toward it at 6 rad/s, like a quick mouse.
+function drive(script,{terrain=flat(),walkable=null,camera='third',start=[0,0],yaw=0,height=terrain.sample(start[0],start[1]).height}={}){
+ const a=createInhabitant({terrain,walkableAt:walkable,scene:{runtime:{spawn:[start[0],height+1.72,start[1]],look:[yaw,0],possession:{camera}}}});
+ const model=rig(),m=createMakerMotion(),frames=[],context={terrain,walkable,blocked:walkable?boxBlocked:null};let view=yaw;
+ for(const [seconds,input] of script)for(let i=0;i<Math.round(seconds*60);i++){
+  if(Number.isFinite(input.yaw))view+=clamp(angleDifference(input.yaw,view),-.1,.1);
+  stepInhabitant(a,{...input,yaw:view},1/60,context);updateMakerPose(model,a,terrain,m,1/60,walkable);
+  const pelvis=model.body.getWorldPosition(new Vector3()),inverse=model.body.matrixWorld.clone().invert(),f={mode:a.mode,pelvis};
+  for(const side of ['left','right'])f[side]={hip:world(model,side+'Hip'),knee:world(model,side+'Knee'),ankle:ankle(model,side)};
+  for(const side of ['left','right'])f[side].local=f[side].ankle.clone().applyMatrix4(inverse);
+  frames.push(f);
+ }
+ return frames;
+}
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+// Closest approach of two segments.
+function segmentGap(p1,q1,p2,q2){
+ const d1=q1.clone().sub(p1),d2=q2.clone().sub(p2),r=p1.clone().sub(p2),a=d1.dot(d1),e=d2.dot(d2),f=d2.dot(r),c=d1.dot(r),b=d1.dot(d2),den=a*e-b*b;
+ let s=den>1e-9?clamp((b*f-c*e)/den,0,1):0,t=(b*s+f)/e;if(t<0){t=0;s=clamp(-c/a,0,1);}else if(t>1){t=1;s=clamp((b-c)/a,0,1);}
+ return p1.clone().addScaledVector(d1,s).distanceTo(p2.clone().addScaledVector(d2,t));
+}
+// Second difference: how sharply a joint's path changes velocity between frames.
+const jerk=(frames,get)=>Math.max(0,...frames.slice(1,-1).map((f,i)=>get(frames[i+2]).clone().sub(get(f).clone().multiplyScalar(2)).add(get(frames[i])).length()));
+const SCENARIOS={
+ 'turns on the spot':[[[.5,{}],...[1,2,3,4,5,6].flatMap(k=>[[.28,{forward:1,yaw:k*Math.PI*.75}],[.7,{yaw:k*Math.PI*.75}]])]],
+ 'walking and running reversals':[[[.3,{}],[1.5,{forward:1}],[1.5,{forward:1,yaw:Math.PI}],[1.5,{forward:1,sprint:true,yaw:Math.PI/2}],[1.5,{forward:1,sprint:true,yaw:-Math.PI/2}],[1,{}]]],
+ 'a zigzag run':[[[.3,{}],...Array.from({length:8},(_,i)=>[.5,{forward:1,sprint:true,yaw:i%2?1.2:-1.2}]),[1,{}]]],
+ 'first-person strafes':[[[.3,{}],[1.5,{strafe:1}],[1.5,{strafe:-1}],[1.2,{strafe:1,sprint:true}],[1,{}]],{camera:'first'}],
+ 'a side slope':[[[.3,{}],[2,{forward:1}],[1,{forward:1,yaw:Math.PI}],[1,{forward:1,sprint:true,yaw:Math.PI}],[.8,{}],[.3,{forward:1,yaw:Math.PI/2}],[.8,{}]],{terrain:slope(22)}],
+ 'rough ground':[[[.3,{}],[2,{forward:1}],[1.5,{forward:1,sprint:true,yaw:1}],[1,{forward:1,yaw:-1.5}],[.6,{}],[.3,{forward:1,yaw:2}],[.8,{}]],{terrain:ripples}],
+ 'up and down stairs':[[[.3,{}],[2.6,{forward:1}],[.6,{}],[2,{forward:1,yaw:Math.PI}],[.6,{}]],{walkable:tops}],
+ 'onto and off a crate':[[[.3,{}],[1,{forward:1}],[.5,{}],[.4,{forward:1,yaw:Math.PI/2}],[.4,{yaw:Math.PI}],[.6,{forward:1,yaw:Math.PI}],[.6,{}]],{walkable:tops,start:[2.9,0]}],
+};
+
+test('legs keep clear of each other and to their own side through turns, strafes, slopes and collider tops',()=>{
+ for(const [name,[script,options]] of Object.entries(SCENARIOS)){
+  let thigh=Infinity,leg=Infinity,side=Infinity;
+  for(const f of drive(script,options)){
+   if(f.mode==='airborne')continue;
+   const [l,r]=[f.left,f.right];thigh=Math.min(thigh,segmentGap(l.hip,l.knee,r.hip,r.knee));
+   leg=Math.min(leg,...[[l.hip,l.knee],[l.knee,l.ankle]].flatMap(([a,b])=>[[r.hip,r.knee],[r.knee,r.ankle]].map(([c,d])=>segmentGap(a,b,c,d))));
+   side=Math.min(side,-l.local.x,r.local.x);
+  }
+  // Hip joints sit 0.21 m apart; thighs are ~0.18 m across at the top and shins ~0.13 m at the calf.
+  assert.ok(thigh>.17,`${name}: thighs came within ${thigh.toFixed(3)} m`);
+  assert.ok(leg>.12,`${name}: legs came within ${leg.toFixed(3)} m`);
+  assert.ok(side>.05,`${name}: an ankle reached ${side.toFixed(3)} m from the pelvis midline`);
+ }
+});
+
+test('knees point along the pelvis however far a planted foot is turned',()=>{
+ for(const [name,[script,options]] of Object.entries(SCENARIOS)){
+  let worst=0;
+  for(const f of drive(script,options)){
+   if(f.mode!=='grounded')continue;
+   const across=f.right.hip.clone().sub(f.left.hip).setY(0).normalize(),ahead=new Vector3(across.z,0,-across.x);
+   for(const side of ['left','right']){
+    // Where the knee points: from the hip-ankle line out to the knee, seen from above.
+    const {hip,knee,ankle:foot}=f[side],line=foot.clone().sub(hip),out=knee.clone().sub(hip),front=out.addScaledVector(line,-out.dot(line)/line.lengthSq()).setY(0);
+    if(front.length()>.04)worst=Math.max(worst,Math.acos(clamp(front.normalize().dot(ahead),-1,1)));
+   }
+  }
+  assert.ok(worst<.9,`${name}: a knee pointed ${worst.toFixed(3)} rad away from the pelvis's heading`);
+ }
+});
+
+test('steps, treads and collider tops move nothing in a jump',()=>{
+ for(const [name,[script,options]] of Object.entries({
+  'up and down stairs':SCENARIOS['up and down stairs'],'onto and off a crate':SCENARIOS['onto and off a crate'],
+  'running up stairs':[[[.3,{}],[1.7,{forward:1,sprint:true}],[1,{}]],{walkable:tops}],
+ })){
+  const frames=drive(script,options);
+  const pelvis=jerk(frames,f=>f.pelvis),feet=Math.max(...['left','right'].flatMap(s=>[jerk(frames,f=>f[s].ankle),jerk(frames,f=>f[s].knee)]));
+  // A tread snapped the pelvis 0.18-0.33 m, and the feet and knees with it.
+  assert.ok(pelvis<.045,`${name}: pelvis path kinked ${pelvis.toFixed(3)} m in a frame`);
+  assert.ok(feet<.25,`${name}: a knee or ankle path kinked ${feet.toFixed(3)} m in a frame`);
+ }
+});
+
+test('a walk that breaks into a run lifts every stance foot within its cycle',()=>{
+ const a=walker(flat()),model=rig(),m=createMakerMotion(),script=[[.3,{}],[.8,{forward:1}],[.6,{}],[.73,{forward:1,sprint:true}],[.8,{}]];let behind=0;
+ for(const [seconds,input] of script)for(let i=0;i<Math.round(seconds*60);i++){
+  stepInhabitant(a,input,1/60,{terrain:flat()});updateMakerPose(model,a,flat(),m,1/60);
+  for(const side of ['left','right'])if(m.feet[side].planted)behind=Math.max(behind,Math.hypot(m.feet[side].anchor[0]-a.position[0],m.feet[side].anchor[2]-a.position[2]));
+ }
+ // The stance shortening into a run skipped a foot's lift point; it stayed down for a whole extra cycle, 2 m behind.
+ assert.ok(behind<.9,`a planted foot trailed ${behind.toFixed(3)} m from the body`);
+});
+
+test('a stop late in a stride eases the rest of the step instead of covering it in a frame',()=>{
+ let worst=0;
+ for(const walk of [.8,.83,.87,.9,.93]){
+  const frames=drive([[.3,{}],[walk,{forward:1}],[1,{}]]);
+  for(const side of ['left','right'])worst=Math.max(worst,jerk(frames,f=>f[side].ankle));
+ }
+ // The settle step kept the swing's nearly finished easing and jumped the last 0.25 m at once.
+ assert.ok(worst<.08,`an ankle path kinked ${worst.toFixed(3)} m in a frame`);
+});
+
+test('stepping off a ledge carries the feet with the body until the air pose takes over',()=>{
+ const frames=drive([[.3,{}],[1.2,{forward:1}],[.8,{}]],{walkable:(x,z,maxTop)=>z>-1.5&&maxTop>=1?{height:1,id:'ledge'}:null,height:1});
+ const jump=Math.max(...['left','right'].map(s=>Math.max(...frames.slice(1).map((f,i)=>f[s].ankle.distanceTo(frames[i][s].ankle)))));
+ assert.ok(frames.some(f=>f.mode==='airborne'),'the walk leaves the ledge');
+ // Re-planting at the ground a metre below moved an ankle ~0.8 m in one frame.
+ assert.ok(jump<.15,`an ankle moved ${jump.toFixed(3)} m in one frame`);
+});
