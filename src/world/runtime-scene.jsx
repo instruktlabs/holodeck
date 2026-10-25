@@ -19,7 +19,7 @@ import {StaticAssetBatch,StaticMergedMesh} from './static-batches.jsx';
 import {shareMaterials} from './material-share.mjs';
 import {planStaticMerge} from './static-merge.mjs';
 import {FlockAsset} from './flock.jsx';
-import {configureSunShadow,scheduleSunShadow,shadowViewFocus,sunShadowConfig} from './sun-shadow.mjs';
+import {configureSunShadow,scheduleSunShadow,shadowViewFocus,stableShadowKeys,sunShadowConfig} from './sun-shadow.mjs';
 import {resolveGrade} from './grade.mjs';
 import {applySceneExposure,resolveLighting} from './lighting.mjs';
 
@@ -214,8 +214,9 @@ function WorldGrade({environment}){
  return null;
 }
 function Sun({runtime,environment,cameraMode}){
- const {camera}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]),focus=useMemo(()=>new THREE.Vector3(),[]),last=useRef({});
+ const {camera,gl}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]),focus=useMemo(()=>new THREE.Vector3(),[]),last=useRef({});
  const shadow=useMemo(()=>sunShadowConfig(environment),[environment]);
+ useLayoutEffect(()=>stableShadowKeys(gl),[gl]);
  const direction=useMemo(()=>new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize().multiplyScalar(shadow.lightDistance),[environment,shadow]);
  useLayoutEffect(()=>configureSunShadow(light.current,shadow),[shadow]);
  useFrame(()=>{
@@ -237,10 +238,6 @@ function EnvironmentLighting({environment,fill=true}){
 }
 export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
  const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
- // The world's compile gate and sky light decide when the page is ready (see the
- // frame loop below), not the cove kit mounting, which can finish before the world
- // has drawn at all. Layout effects run before the cove's own effect.
- useLayoutEffect(()=>{probe.runtimeGate=true;return()=>{probe.runtimeGate=false;};},[]);
  // Identical materials become one instance across assets, and static pieces in a
  // shared material bake into one mesh per material (H100).
  const placed=useMemo(()=>placedObjects(s),[s]),shared=useMemo(()=>shareMaterials(bundle.models).models,[bundle.models]),models=useUnderwaterModels(shared,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models),[placed,models]);

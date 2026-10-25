@@ -78,7 +78,13 @@ The `capabilities` section returns each of these; the key is in brackets
   the shaded sides of the billows fall from their sunlit crowns: toward 1 they
   keep only the cool sky light. `haze` (0.3) is the downward ray slope below
   which the deck dissolves into the horizon haze: lower keeps billows visible
-  nearer the horizon. Optional `asset.reflection:
+  nearer the horizon. `cloudSea.model: "cumulus"` builds the deck from rounded lobes
+  at three scales instead of noise billows that read as dunes, lights it
+  through its own depth toward the sun, opens its gaps onto a darker, bluer
+  layer below and hazes it with clear-air distance haze (`environment.aerial`
+  when set), so it keeps its own colour almost to the horizon; `haze` then
+  sets only the thin horizon band. `towers` (0–1) raises a few sparse taller
+  domes that shadow and hide the deck behind them. Optional `asset.reflection:
   "sky"` makes floating mirrors reflect the sky dome alone rather than the
   probe's view of the world; `asset.reflection: {probe: [x, y, z]}` gives an
   asset a world capture of its own from a point in open air among its
@@ -90,6 +96,15 @@ The `capabilities` section returns each of these; the key is in brackets
   a ring of cumulus heads rising from a cloud deck.
   Clouds of every layer are lit in `sky.cloudLight` (default `sunColor`): a
   whiter `cloudLight` keeps a golden sun on the stone and off the clouds.
+  `sky.radiance: "sun"` lights the whole sky with the sun: the gradient,
+  clouds, cumulus, cloud deck, sun disc and glow, the fog and haze and the
+  water's sky take `sunIntensity / π` times their colours. A `#ffffff` sky is
+  then as bright as white stone facing the sun and sunlit cloud tops a little
+  brighter, so openings onto lit cloud can outshine the stone around them and
+  bloom can fire; raising `sunIntensity` raises sky and stone together. The
+  sky light's capture brightens with it, so lower `sky.light.intensity`. The
+  default `"display"` draws the colours as they are, near a linear 1 however
+  strong the sun.
 - **Haze** (`lighting`): the fog is a smoothstep between `fogNear` and
   `fogFar`, not linear. From 0 to 1300 m it hazes about 1% at 80 m, 4% at
   165 m, 23% at 400 m, half at 650 m and 86% at 1 km, so it barely touches a
@@ -99,15 +114,40 @@ The `capabilities` section returns each of these; the key is in brackets
   seen against the zenith fades toward blue, one at the horizon into the
   horizon haze and one below it into the cloud deck. 1 is the sky's colour;
   between, it mixes with `fogColor`.
+  Optional `environment.aerial {visibility, base, falloff, blue, glow}`
+  (needs `environment.sky`) replaces the smoothstep with clear-air haze that
+  never reaches full opacity: light from a surface is attenuated per colour
+  channel by `exp(-depth)` and the air adds its own light (`fogColor`, or the
+  sky behind with `fogSky`) plus a glow toward the sun. `visibility` (metres)
+  is the distance over which contrast falls to 2% in level air at `base`; the
+  air thins by e every `falloff` metres above `base`. `blue` (0–1) makes blue
+  scatter more than red, so distant shade lifts toward the blue air while lit
+  faces stay warm. At visibility 20000 a level form 4 km out keeps about 45%
+  of its contrast and one 1 km out about 82%, shading intact. `fogNear` and
+  `fogFar` are ignored when `aerial` is set.
 - **Grade** (`lighting`): optional `environment.grade` picks ACES (default),
   Neutral or AgX tone mapping and the exposure. Neutral keeps hue and
   saturation and lets sunlit white reach white; retune warm colours after
   switching.
+  With Neutral, `grade.highlights` (0–3, default 0.15, the Khronos value)
+  sets how strongly the curve desaturates what it compresses. At 0.15 warm
+  sunlit stone keeps its hue all the way up and reaches L* 99 only near 38
+  times its mid-tone input; at 1 it rolls to white near 8.6 times (L* 97
+  near 3), with mid-tones unchanged.
 - **Shadow reach** (`lighting`): sun shadows cover 24 m either side of the
   walker or view; optional `environment.shadow.extent` (12–120) widens the box
   for long axial views, with softer shadows and more casters. A placement with
   `castShadow: false` stays out of the shadow map: use it for floating or far
   pieces that should not shade the walkable court below them.
+- **Probe grid** (`spatial.sky`): optional `sky.light.grid {min, max,
+  spacing, bounces, intensity}` bakes a box of light probes over the courts
+  after the sky light's captures, with bounces between surfaces. Lit surfaces
+  inside it take their diffuse fill from the probes around them, so shade
+  facing sunlit stone is lit warm and recesses darken; the sky light's capture
+  then serves reflections only. Its `intensity` is relative to the sky
+  light's: 1 fills shade as brightly as the capture did. At most 1200 probes (one every `spacing`
+  metres); the bake runs a few probes a frame before the view counts as ready.
+  Lower or drop `bounce` with a grid, since it adds to it.
 - **Bounce light** (`spatial.sky`): optional `sky.light.bounce` adds unshadowed
   light rising from the ground in one colour, so shade on warm sunlit stone
   reads warm. Keep it modest (about 0.2–0.6).

@@ -5,6 +5,7 @@ import {validateShadow} from './shadow-contract.mjs';
 import {validateGrade} from './grade.mjs';
 import {validateEffects} from './effects-contract.mjs';
 import {MAX_PLACEMENTS} from './asset-budget.mjs';
+import {validateAerial} from './aerial.mjs';
 import {expandScatters} from './scatter.mjs';
 import {validateSky} from './sky.mjs';
 import {validateLighting} from './lighting.mjs';
@@ -50,7 +51,7 @@ export function validateWorld(w){
   }
   if(w.bible.referenceIds&&(!Array.isArray(w.bible.referenceIds)||w.bible.referenceIds.some(x=>!refIds.has(x))))fail('Pinned bible references must exist on the board');
   const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water','scatters']:[])],'scene');
-  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','fogSky','sky','shadow','grade','effects','hemisphere','exposure']:[])],'environment');
+  exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','fogSky','aerial','sky','shadow','grade','effects','hemisphere','exposure']:[])],'environment');
   if(s.environment.sky!==undefined)validateSky(s.environment.sky);
   if(s.environment.shadow!==undefined)try{validateShadow(s.environment.shadow);}catch(error){fail(error.message);}
   if(s.environment.grade!==undefined)try{validateGrade(s.environment.grade);}catch(error){fail(error.message);}
@@ -66,6 +67,7 @@ export function validateWorld(w){
   const fogNear=s.environment.fogNear===undefined?28:s.environment.fogNear,fogFar=s.environment.fogFar===undefined?85:s.environment.fogFar;
   if(!Number.isFinite(fogNear)||!Number.isFinite(fogFar)||fogNear<0||fogFar>2000||fogNear>=fogFar)fail('Invalid fog distances');
   // How far the fog takes the colour of the sky behind each surface, rather than fogColor (H108).
+  if(s.environment.aerial!==undefined){validateAerial(s.environment.aerial);if(!s.environment.sky)fail('aerial needs environment.sky');}
   if(s.environment.fogSky!==undefined){const k=s.environment.fogSky;if(typeof k!=='number'||!Number.isFinite(k)||k<0||k>1)fail('fogSky must be a number from 0 to 1');if(!s.environment.sky)fail('fogSky needs environment.sky');}
   if(![null,'low','high'].includes(s.bridge)||s.bridge&&s.environment.type!=='woodland')fail('Bridge requires the woodland crossing');
   const placementLimit=w.schemaVersion===2?MAX_PLACEMENTS:200;

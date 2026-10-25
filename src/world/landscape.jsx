@@ -2,13 +2,16 @@ import React,{useEffect,useMemo,useRef} from 'react';
 import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {SkyMesh} from 'three/addons/objects/SkyMesh.js';
-import {Fn,If,Loop,abs,acos,asin,atan,cameraPosition,color,cos,dot,exp,float,floor,int,ivec2,materialColor,max,mix,modelViewProjection,normalMap,normalWorldGeometry,output,pmremTexture,positionLocal,positionWorld,rangeFogFactor,select,sin,smoothstep,step,texture,textureLoad,uniform,uv,vec2,vec3,vec4} from 'three/tsl';
+import {Fn,If,Loop,abs,acos,asin,atan,cameraPosition,color,cos,dot,exp,float,floor,int,ivec2,materialColor,max,mix,modelViewProjection,normalMap,normalWorldGeometry,output,pmremTexture,positionLocal,positionWorld,rangeFogFactor,select,sin,smoothstep,step,texture,textureLoad,uniform,uv,vec2,vec3,vec4,screenCoordinate,frameId} from 'three/tsl';
 import {windowedMirror} from './water-mirror.mjs';
 import {createTerrain} from './terrain.mjs';
 import {rasterizeLayerMasks} from './terrain-layers.mjs';
 import {SEABED_SHALLOW_COLOR,WATER_DEEP_COLOR,WATER_TRANSMISSION} from './water-optics.mjs';
 import {buildSurfMap,resolveSurf} from './surf.mjs';
-import {BELOW_HORIZON,CLOUD_FLOOR,CLOUD_SEA_HAZE,resolveSky} from './sky.mjs';
+import {BELOW_HORIZON,CLOUD_FLOOR,CLOUD_SEA_HAZE,resolveSky,skyRadianceScale} from './sky.mjs';
+import {AERIAL_GLOW_G,KOSCHMIEDER,aerialWeights,resolveAerial} from './aerial.mjs';
+import {cumulusDeckNode} from './cloud-deck.js';
+import {probeGridBake} from './probe-grid.js';
 import {probeKey,probeReflections,reflectionProbePoints,skyReflection} from './asset-reflection.mjs';
 
 // Two bounded surface draws. Geometry, walking and shoreline shading all read
@@ -283,7 +286,7 @@ function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures
    mirror=windowedMirror({bounds:water.bounds,level:water.level,resolutionScale:.5});
    mirror.uvNode=mirror.uvNode.add(normal.xz.mul(.04));
   }
-  const sky=mirror?mirror.rgb:probe?pmremTexture(probe,reflected,float(.04)).rgb:authored?skyGradientNode(authored,reflected.y):mix(mix(color(environment.fogColor??'#c5d9dd'),color('#9cc9e6'),.6),color('#3f7fbf'),reflected.y.clamp(0,1).pow(.5));
+  const sky=mirror?mirror.rgb:probe?pmremTexture(probe,reflected,float(.04)).rgb:authored?skyGradientNode(authored,reflected.y).mul(skyRadianceScale(environment)):mix(mix(color(environment.fogColor??'#c5d9dd'),color('#9cc9e6'),.6),color('#3f7fbf'),reflected.y.clamp(0,1).pow(.5));
   const deep=smoothstep(.1,5.5,depth),body=mix(color(water.shallowColor??'#68bcb2'),color(water.color??'#145a70'),deep);
   // The seabed already carries absorption, so shallow water stays clear and
   // its reflection softer until the bottom is out of sight.
@@ -410,11 +413,13 @@ const cloudNoise=Fn(([p])=>{
  return mix(mix(a,b,u.x),mix(c,d,u.x),u.y).mul(1.6);
 });
 // Four octaves unrolled here rather than a shader loop.
-function cloudFbm(position,drift){
+function cloudFbm(position,drift,octaves=4){
  let p=position,result=float(0);
- for(let octave=0;octave<4;octave++){result=result.add(cloudNoise(p).mul(.5**octave));p=p.mul(2).add(drift);}
+ for(let octave=0;octave<octaves;octave++){result=result.add(cloudNoise(p).mul(.5**octave));p=p.mul(2).add(drift);}
  return result;
 }
+// Interleaved gradient noise in [0, 1), a different pattern each frame (64-frame cycle).
+const frameNoise=()=>{const p=screenCoordinate.xy.add(float(frameId).mod(64).mul(5.588238));return dot(p,vec2(.06711056,.00583715)).fract().mul(52.9829189).fract();};
 // The cloud deck (sky.cloudSea): where a downward ray from the camera meets a
 // plane at the deck height, the fbm of the clouds above draws billows of tens
 // of metres, thinned in broad regions so the sea opens here and there. A second
@@ -425,6 +430,11 @@ function cloudFbm(position,drift){
 // shaded by its real slope, so crowns face the sun, valleys sit in shade and
 // nearer billows hide farther ones. Past a few dozen billow widths, where relief
 // no longer shows, the plane shading takes over.
+// The march steps tens of metres at a time, coarser than the billows' finest octaves,
+// so rays from neighbouring pixels met them at different steps and crests and shade
+// edges came out stair-stepped (H122). The march follows the field's two broad
+// octaves, the hit is shaded from the full field, and each pixel starts its steps at a
+// fresh offset every frame, which temporal anti-aliasing averages into smooth edges.
 const CLOUD_SEA_STEPS=16,CLOUD_SEA_RELIEF=.8;
 function cloudSeaNode({sea,sky,direction,cosine,clock,sun,sunColor,fog}){
  const size=85*sea.scale,relief=CLOUD_SEA_RELIEF*size,down=direction.y.negate(),slope=down.max(.002),above=cameraPosition.y.sub(sea.height).max(.5);
@@ -442,7 +452,8 @@ function cloudSeaNode({sea,sky,direction,cosine,clock,sun,sunColor,fog}){
  const result=vec3(fog).toVar();
  If(visible.greaterThan(0),()=>{
   // Billow heads of a few hundred metres carry the finer billows on their backs.
-  const headsAt=at=>cloudFbm(at.div(3.2),swirl.mul(.5)),billows=at=>headsAt(at).mul(.55).add(cloudFbm(at,swirl).mul(.45)).mul(.8).add(.5).clamp(0,1);
+  const headsAt=(at,octaves)=>cloudFbm(at.div(3.2),swirl.mul(.5),octaves),fieldOf=octaves=>at=>headsAt(at,octaves).mul(.55).add(cloudFbm(at,swirl,octaves).mul(.45)).mul(.8).add(.5).clamp(0,1);
+  const billows=fieldOf(4),broad=fieldOf(2);
   const field=billows(q),ahead=billows(q.add(toward));
   const region=cloudNoise(q.div(11)).mul(.5).add(.5),threshold=float(1-sea.coverage).add(region.sub(.5).mul(.35));
   const cover=mix(float(sea.coverage),smoothstep(threshold.sub(.04),threshold.add(.16),field),detail);
@@ -455,12 +466,12 @@ function cloudSeaNode({sea,sky,direction,cosine,clock,sun,sunColor,fog}){
   // where it reaches the layer within the near band.
   const t0=cameraPosition.y.sub(sea.height+relief).div(slope).max(0);
   If(t0.lessThan(size*15),()=>{
-   const height=at=>billows(at),unit=t=>cameraPosition.xz.add(direction.xz.mul(t)).add(drift).div(size);
-   const t1=above.div(slope).min(t0.add(size*15));
-   const hit=t1.toVar(),found=float(0).toVar(),lastT=t0.toVar(),lastGap=cameraPosition.y.sub(slope.mul(t0)).sub(height(unit(t0)).mul(relief).add(sea.height)).toVar();
+   const height=at=>billows(at),march=at=>broad(at),unit=t=>cameraPosition.xz.add(direction.xz.mul(t)).add(drift).div(size);
+   const t1=above.div(slope).min(t0.add(size*15)),start=frameNoise();
+   const hit=t1.toVar(),found=float(0).toVar(),lastT=t0.toVar(),lastGap=cameraPosition.y.sub(slope.mul(t0)).sub(march(unit(t0)).mul(relief).add(sea.height)).toVar();
    Loop(CLOUD_SEA_STEPS,({i})=>{
     If(found.equal(0),()=>{
-     const t=mix(t0,t1,float(i).add(1).div(CLOUD_SEA_STEPS)),gap=cameraPosition.y.sub(slope.mul(t)).sub(height(unit(t)).mul(relief).add(sea.height));
+     const t=mix(t0,t1,float(i).add(start).div(CLOUD_SEA_STEPS)),gap=cameraPosition.y.sub(slope.mul(t)).sub(march(unit(t)).mul(relief).add(sea.height));
      If(gap.lessThan(0),()=>{hit.assign(lastT.add(t.sub(lastT).mul(lastGap.div(lastGap.sub(gap).max(1e-4)))));found.assign(1);});
      lastT.assign(t);lastGap.assign(gap);
     });
@@ -544,12 +555,12 @@ function makeSkyMaterial(sky,environment,clock,{capture=false,deck=true}={}){
  material.vertexNode=Fn(()=>{const position=modelViewProjection;position.z.assign(position.w);return position;})();
  const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize(),sunColor=color(environment.sunColor??'#fff1d0'),fog=color(environment.fogColor??sky.horizonColor);
  // Clouds of every layer are lit in cloudLight; the disc and its glow stay sunColor (H109).
- const cloudLight=color(sky.cloudLight??environment.sunColor??'#fff1d0');
+ const cloudLight=color(sky.cloudLight??environment.sunColor??'#fff1d0'),radiance=skyRadianceScale(environment);
  material.colorNode=Fn(()=>{
   const direction=positionWorld.sub(cameraPosition).normalize(),cosine=dot(direction,vec3(sun.x,sun.y,sun.z)).toVar();
   // Below the horizon, meet fully fogged water (see BELOW_HORIZON in sky.mjs),
   // or the cloud deck when there is one.
-  const below=sky.cloudSea&&deck?cloudSeaNode({sea:sky.cloudSea,sky,direction,cosine,clock,sun,sunColor:cloudLight,fog}):fog;
+  const below=sky.cloudSea&&deck?(sky.cloudSea.model==='cumulus'?cumulusDeckNode({sea:sky.cloudSea,sky,environment,direction,cosine,clock,sun,cloudLight}):cloudSeaNode({sea:sky.cloudSea,sky,direction,cosine,clock,sun,sunColor:cloudLight,fog})):fog;
   const base=mix(skyGradientNode(sky,direction.y),below,smoothstep(0,BELOW_HORIZON,direction.y.negate()));
   const disc=capture?float(0):smoothstep(.99975,.9999,cosine).mul(8),glow=cosine.max(0).pow(400).mul(.6).add(cosine.max(0).pow(24).mul(.12));
   const result=base.add(sunColor.mul(disc.add(glow).mul(sky.sunDisc))).toVar();
@@ -570,14 +581,15 @@ function makeSkyMaterial(sky,environment,clock,{capture=false,deck=true}={}){
   }
   // A cumulus bank stands in front of the sky, the sun and the higher clouds (H92).
   if(sky.cumulus)for(const bank of sky.cumulus){const tower=cumulusNode({bank,sky,direction,cosine,clock,sun,sunColor:cloudLight});result.assign(mix(result,tower.color,tower.alpha));}
-  return result;
+  // sky.radiance 'sun' lights the whole dome with the sun (H123).
+  return radiance===1?result:result.mul(radiance);
  })();
  return material;
 }
 
 export function LandscapeSky({environment={},runtime}){
  const sky=resolveSky(environment);
- return sky?<><AuthoredSky sky={sky} environment={environment} runtime={runtime}/>{sky.light&&<SkyLight environment={environment} runtime={runtime}/>}{(sky.cloudSea||environment.fogSky>0)&&<SkyFog environment={environment}/>}</>:<AnalyticSky environment={environment}/>;
+ return sky?<><AuthoredSky sky={sky} environment={environment} runtime={runtime}/>{sky.light&&<SkyLight environment={environment} runtime={runtime}/>}{(sky.cloudSea||environment.fogSky>0||sky.radiance==='sun'||environment.aerial)&&<SkyFog environment={environment}/>}</>:<AnalyticSky environment={environment}/>;
 }
 // The deck is drawn at infinity, so geometry below it would draw over the
 // clouds. Seen from above the deck, anything below its height fades into the
@@ -601,8 +613,23 @@ function SkyFog({environment}){
    const behind=mix(skyGradientNode(sky,direction.y),below,smoothstep(0,BELOW_HORIZON,down)).add(color(environment.sunColor??'#fff1d0').mul(glow.mul(sky.sunDisc)));
    haze=mix(fog,behind,environment.fogSky);
   }
-  let result=mix(output.rgb,haze,range);
-  if(sea)result=mix(result,deck,smoothstep(sea.height+DECK_FOG_TOP,sea.height+DECK_FOG_BOTTOM,positionWorld.y).mul(aboveDeck));
+  // With sky.radiance 'sun' the haze and the deck are sunlit like the sky behind them (H123).
+  const radiance=skyRadianceScale(environment);if(radiance!==1)haze=haze.mul(radiance);
+  // environment.aerial (H124): per-channel exponential transmittance through air that
+  // thins with height, the air's own light in its place, and a forward-scatter glow
+  // toward the sun. It never reaches full opacity; without it, the smoothstep range fog.
+  const aerial=resolveAerial(environment);let result;
+  if(aerial){
+   const ray=positionWorld.sub(cameraPosition),distance=ray.length().max(1e-3),toward=ray.div(distance);
+   const slope=distance.mul(toward.y).div(aerial.falloff).clamp(-60,60);
+   const mean=select(slope.abs().lessThan(1e-3),float(1).sub(slope.mul(.5)),float(1).sub(exp(slope.negate())).div(slope));
+   const depth=distance.mul(KOSCHMIEDER/aerial.visibility).mul(exp(cameraPosition.y.sub(aerial.base).div(-aerial.falloff))).mul(mean);
+   const transmittance=exp(vec3(...aerialWeights(aerial.blue)).mul(depth).negate());
+   const g=AERIAL_GLOW_G,lobe=float(.05*(1-g*g)).div(float(1+g*g).sub(dot(toward,vec3(sun.x,sun.y,sun.z)).mul(2*g)).pow(1.5));
+   const air=haze.add(color(environment.sunColor??'#fff1d0').mul(lobe.mul(aerial.glow*radiance)));
+   result=output.rgb.mul(transmittance).add(air.mul(transmittance.oneMinus()));
+  }else result=mix(output.rgb,haze,range);
+  if(sea)result=mix(result,radiance===1?deck:deck.mul(radiance),smoothstep(sea.height+DECK_FOG_TOP,sea.height+DECK_FOG_BOTTOM,positionWorld.y).mul(aboveDeck));
   const previous=scene.fogNode;scene.fogNode=vec4(result,output.a);
   return()=>{scene.fogNode=previous;};
  },[scene,environment]);
@@ -626,8 +653,9 @@ function SkyFog({environment}){
 // (it would light the world from black) but taken again. Assets that reflect a
 // probe point of their own (asset.reflection {probe}, H85) get one world capture
 // from each distinct point after the sky light's, lit by it; their targets start
-// as the dome. The page probe reports skyLight.pending until the last capture
-// lands, and ready waits for it.
+// as the dome. With sky.light.grid (H127) the probe grid bakes after the dome's
+// capture and before the world's, so they show the world lit by the grid. The page
+// probe reports skyLight.pending until the last capture lands, and ready waits for it.
 const PROBE_SIZE=256,PROBE_CAPTURES=2;
 function SkyLight({environment,runtime}){
  const {gl,scene,camera}=useThree(),state=useRef(null),probe=JSON.stringify(resolveSky(environment).light.probe??runtime?.scene?.runtime?.spawn??[0,1.72,0]),points=JSON.stringify(reflectionProbePoints(runtime?.scene?.assets));
@@ -664,18 +692,28 @@ function SkyLight({environment,runtime}){
   };
   // The page probe (window.holodeckPrototype) reports captures for verification.
   const report=window.holodeckPrototype?(window.holodeckPrototype.skyLight={captures:0,pending:true,position:position.toArray()}):{captures:0};
-  state.current={capture,extras,steps:PROBE_CAPTURES+1+extras.length,frames:0,report};
-  return()=>{state.current=null;report.pending=false;for(const extra of extras){if(probeReflections.get(extra.key)===extra.target.texture)probeReflections.set(extra.key,null);extra.target.dispose();}scene.environment=previous.environment;scene.environmentIntensity=previous.intensity;if(skyReflection.get()===skyTarget.texture)skyReflection.set(null);skyTarget.dispose();target.dispose();scratch?.dispose();copy.material.dispose();generator.dispose();dome.geometry.dispose();domeMaterial.dispose();};
+  // sky.light.grid (H127): a probe grid, in the scene from the start, bakes a few probes a frame.
+  const bake=sky.light.grid?probeGridBake({gl,scene,grid:sky.light.grid,capture:target.texture,intensity:sky.light.intensity}):null;
+  state.current={capture,extras,steps:PROBE_CAPTURES+1+extras.length,frames:0,report,bake,baked:!bake};
+  return()=>{state.current=null;report.pending=false;bake?.dispose();for(const extra of extras){if(probeReflections.get(extra.key)===extra.target.texture)probeReflections.set(extra.key,null);extra.target.dispose();}scene.environment=previous.environment;scene.environmentIntensity=previous.intensity;if(skyReflection.get()===skyTarget.texture)skyReflection.set(null);skyTarget.dispose();target.dispose();scratch?.dispose();copy.material.dispose();generator.dispose();dome.geometry.dispose();domeMaterial.dispose();};
  },[gl,scene,camera,environment,probe,points]);
  // Wait a frame for placements to mount and for pipelines to finish compiling,
  // then capture the dome alone and the world PROBE_CAPTURES times, each lit by
  // the last, taking again any capture that did not land.
  useFrame(()=>{
-  const s=state.current;if(!s?.steps||++s.frames<2||gl.pendingCompiles?.())return;
+  const s=state.current;if(!s)return;
+  if(++s.frames<2||gl.pendingCompiles?.())return;
+  // A probe grid bakes between the dome's capture and the world's.
+  if(!s.baked&&s.steps<=PROBE_CAPTURES+s.extras.length){
+   s.baked=s.bake.step();s.report.grid=Math.round(s.bake.progress*100);
+   if(s.baked)s.report.reflectionsOnly=scene.environmentNode?.constructor?.type==='ReflectionEnvironmentNode';
+   return;
+  }
+  if(!s.steps)return;
   // The extra probe points come last, one a frame, each lit by the finished sky light.
   const extra=s.steps<=s.extras.length?s.extras[s.extras.length-s.steps]:null,world=s.steps<=PROBE_CAPTURES+s.extras.length;
   if(extra?s.capture(true,extra.at,[extra.target]):s.capture(world)){s.steps--;if(world)s.report.captures++;}
-  s.report.pending=s.steps>0;
+  s.report.pending=s.steps>0||!s.baked;
  });
  return null;
 }

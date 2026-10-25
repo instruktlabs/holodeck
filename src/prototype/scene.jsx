@@ -74,7 +74,7 @@ export function Cove({gltf,target='cove'}) {
     group.userData.materials=materials;
     return group;
   },[gltf,target]);
-  useEffect(()=>{if(!probe.activationKey&&!probe.runtimeGate)probe.ready=true; return()=>{kit.traverse(m=>{if(m.isMesh){m.geometry.dispose();m.material.dispose();}});kit.userData.materials.dispose();};},[kit]);
+  useEffect(()=>{if(!probe.activationKey)probe.ready=true; return()=>{kit.traverse(m=>{if(m.isMesh){m.geometry.dispose();m.material.dispose();}});kit.userData.materials.dispose();};},[kit]);
   return <primitive object={kit} dispose={null}/>;
 }
 function ReferencePlacards(){

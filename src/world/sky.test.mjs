@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {BELOW_HORIZON,CLOUD_FLOOR,CLOUD_SEA_DEFAULTS,CUMULUS_DEFAULTS,cloudHorizonFade,cloudSeaReach,resolveSky,skyBase,skyGradient,validateSky} from './sky.mjs';
+import {BELOW_HORIZON,CLOUD_FLOOR,CLOUD_SEA_DEFAULTS,CUMULUS_DEFAULTS,MAX_GRID_PROBES,cloudHorizonFade,cloudSeaReach,gridResolution,resolveSky,skyBase,skyGradient,skyRadianceScale,validateSky} from './sky.mjs';
 import {linearHex} from './water-optics.mjs';
 import {validateWorld} from './contract.mjs';
 
@@ -109,13 +109,13 @@ test('a sky light may add a warm ground bounce, validated and resolved (H76)',()
 
 test('a world grade picks the tone mapping, and the default is unchanged (H77)',async()=>{
   const {GRADE_DEFAULTS,resolveGrade,validateGrade}=await import('./grade.mjs');
-  assert.deepEqual(resolveGrade({}),{toneMapping:'aces'});assert.deepEqual(GRADE_DEFAULTS,{toneMapping:'aces'});
-  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral'}}),{toneMapping:'neutral'});
+  assert.deepEqual(resolveGrade({}),{toneMapping:'aces',highlights:null});assert.deepEqual(GRADE_DEFAULTS,{toneMapping:'aces'});
+  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral'}}),{toneMapping:'neutral',highlights:null});
   assert.deepEqual(validateGrade({toneMapping:'agx'}),{toneMapping:'agx'});
   for(const grade of [{toneMapping:'reinhard'},{exposure:3},{exposure:'1'},{contrast:1},[]])assert.throws(()=>validateGrade(grade),/[Gg]rade/);
   // Saved revisions with the legacy grade.exposure still read; environment.exposure wins and is the documented field.
   assert.deepEqual(validateGrade({toneMapping:'neutral',exposure:1.05}),{toneMapping:'neutral',exposure:1.05});
-  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral',exposure:1.05}}),{toneMapping:'neutral'});
+  assert.deepEqual(resolveGrade({grade:{toneMapping:'neutral',exposure:1.05}}),{toneMapping:'neutral',highlights:null});
   const {resolveLighting}=await import('./lighting.mjs');
   assert.equal(resolveLighting({grade:{exposure:1.05}}).exposure,1.05);assert.equal(resolveLighting({}).exposure,1.12);assert.equal(resolveLighting({exposure:.9}).exposure,.9);
 });
@@ -135,4 +135,36 @@ test('up to six cumulus banks stand on different parts of the horizon (H114)',()
   assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus:[]}),/one bank or a list of 1 to 6/);
   assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus:Array.from({length:7},()=>({toward:[0,-1]}))}),/one bank or a list of 1 to 6/);
   assert.throws(()=>validateSky({zenithColor:'#1f8ad8',cumulus:[{toward:[0,-1]},{toward:[0,0]}]}),/cumulus toward must not be/,'every bank is checked');
+});
+
+test('sky radiance sun lights the sky with the sun (H123)',()=>{
+ const sky={zenithColor:'#3d7fc4'};
+ assert.equal(skyRadianceScale({sunIntensity:3.6,sky}),1,'display by default: colours drawn as they are');
+ assert.equal(skyRadianceScale({sunIntensity:3.6,sky:{...sky,radiance:'display'}}),1);
+ assert.ok(Math.abs(skyRadianceScale({sunIntensity:Math.PI,sky:{...sky,radiance:'sun'}})-1)<1e-12,'a #ffffff sky matches white stone facing the sun');
+ assert.ok(Math.abs(skyRadianceScale({sunIntensity:6,sky:{...sky,radiance:'sun'}})-6/Math.PI)<1e-12,'and rises with the sun');
+ assert.equal(skyRadianceScale({sunIntensity:6}),1,'the analytic sky is unchanged');
+ assert.equal(resolveSky({fogColor:'#d6e5ec',sky:{...sky,radiance:'sun'}}).radiance,'sun');
+ validateSky({...sky,radiance:'sun'});
+ assert.throws(()=>validateSky({...sky,radiance:'hdr'}),/sky radiance must be one of display, sun/);
+});
+
+test('cloudSea model cumulus and its towers validate (H125)',()=>{
+ const sky=sea=>({zenithColor:'#3d7fc4',cloudSea:{height:-80,...sea}});
+ validateSky(sky({model:'cumulus',towers:.5}));validateSky(sky({model:'billows'}));
+ assert.throws(()=>validateSky(sky({model:'volume'})),/cloudSea model must be one of billows, cumulus/);
+ assert.throws(()=>validateSky(sky({towers:.5})),/towers needs model cumulus/);
+ assert.throws(()=>validateSky(sky({model:'cumulus',towers:2})),/cloudSea towers/);
+ assert.equal(resolveSky({fogColor:'#d6e5ec',sky:sky({model:'cumulus'})}).cloudSea.model,'cumulus');
+});
+
+test('the sky light probe grid validates its box, spacing, bounces and probe count (H127)',()=>{
+ const sky=grid=>({zenithColor:'#3d7fc4',light:{grid}});
+ validateSky(sky({min:[-20,-2,-140],max:[48,30,6],spacing:8,bounces:2,intensity:1.2}));
+ assert.deepEqual(gridResolution({min:[-20,-2,-140],max:[48,30,6],spacing:8}),[10,5,19],'one probe every spacing metres');
+ assert.deepEqual(gridResolution({min:[0,0,0],max:[1,1,1],spacing:8}),[2,2,2],'at least two per axis');
+ assert.throws(()=>validateSky(sky({min:[0,0,0],max:[0,10,10]})),/min must be below max/);
+ assert.throws(()=>validateSky(sky({min:[0,0,0],max:[10,10,10],bounces:3})),/bounces must be 0, 1 or 2/);
+ assert.throws(()=>validateSky(sky({min:[-500,-50,-500],max:[500,50,500],spacing:4})),new RegExp(`at most ${MAX_GRID_PROBES}`));
+ assert.throws(()=>validateSky(sky({min:[0,0,0],max:[10,10,10],step:2})),/Unknown sky light grid field step/);
 });

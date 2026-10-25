@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {BoxGeometry,DirectionalLight,DoubleSide,FrontSide,Mesh,MeshStandardMaterial,PerspectiveCamera,PlaneGeometry,Vector3} from 'three/webgpu';
+import {BoxGeometry,DirectionalLight,DoubleSide,FrontSide,Mesh,MeshStandardMaterial,NodeMaterial,PerspectiveCamera,PlaneGeometry,Scene,Vector3} from 'three/webgpu';
 import {createTerrain} from './terrain.mjs';
-import {SHADOW_ONLY_LAYER,SUN_SHADOW,configureSunShadow,scheduleSunShadow,shadowFadeAt,shadowProxies,shadowViewFocus,sunShadowConfig} from './sun-shadow.mjs';
+import {SHADOW_ONLY_LAYER,SUN_SHADOW,configureSunShadow,scheduleSunShadow,shadowFadeAt,shadowProxies,shadowViewFocus,stableShadowKeys,sunShadowConfig} from './sun-shadow.mjs';
 import {validateShadow} from './shadow-contract.mjs';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
 const terrain=createTerrain({type:'heightfield',bounds:[-40,40,-40,40],segments:[8,8],baseHeight:2,stamps:[]});
@@ -58,4 +58,24 @@ test('a wider shadow extent scales the whole volume and leads the view, and the 
 test('the sun shadow renders once a frame, not once per camera',()=>{
  const light=new DirectionalLight();configureSunShadow(light);light.shadow.needsUpdate=false;
  scheduleSunShadow(light);assert.equal(light.shadow.autoUpdate,false);assert.equal(light.shadow.needsUpdate,true);
+});
+test('the shadow pass keeps its shared material version while leaves and stone alternate (H121)',()=>{
+ // three copies each caster's alphaTest onto the shared shadow material before looking up the
+ // caster's render object; the fake renderer records the version each lookup would compare.
+ const seen=[],renderer={renderObject(object,scene,camera,geometry,material){if(scene.overrideMaterial&&material.allowOverride===true)scene.overrideMaterial.alphaTest=material.alphaTest;seen.push(scene.overrideMaterial?.version??null);}};
+ stableShadowKeys(renderer);stableShadowKeys(renderer);
+ const shared=new NodeMaterial();shared.isShadowPassMaterial=true;const pass=new Scene();pass.overrideMaterial=shared;
+ const stone=new Mesh(new BoxGeometry(),new MeshStandardMaterial()),leaf=new Mesh(new BoxGeometry(),new MeshStandardMaterial({alphaTest:.5})),casters=[stone,leaf,stone.clone(),leaf.clone()];
+ const frame=()=>{seen.length=0;for(const mesh of casters)renderer.renderObject(mesh,pass,null,mesh.geometry,mesh.material);return [...seen];};
+ frame();const settled=frame();
+ assert.ok(settled.every(v=>v===settled[0]),`one version through the frame: ${settled}`);
+ assert.deepEqual(frame(),settled,'and from frame to frame');
+ assert.equal(shared.alphaTest,.5,'three still copies each caster\'s alpha test');
+ // A caster whose material is swapped re-keys once.
+ leaf.material=new MeshStandardMaterial({alphaTest:.3});const swapped=frame();
+ assert.ok(swapped[1]>settled[1]);assert.deepEqual(frame(),Array(4).fill(swapped.at(-1)));
+ // Other passes and materials that refuse the override are left alone.
+ const plain=new Scene(),before=shared.version;renderer.renderObject(leaf,plain,null,leaf.geometry,leaf.material);
+ const refusing=new MeshStandardMaterial();refusing.allowOverride=false;renderer.renderObject(stone,pass,null,stone.geometry,refusing);
+ assert.equal(shared.version,before);
 });

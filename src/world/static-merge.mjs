@@ -6,9 +6,10 @@ import * as THREE from 'three/webgpu';
 // three spends about 35-50 µs of CPU on each. Once identical materials are one
 // instance (material-share.mjs), every static part in the same material bakes
 // into one mesh in world space: one draw per material and pass. Each piece keeps
-// its placement ID through a per-piece raycast. Parts with foliage, flow or
-// reflection bindings, transparency or instance colours keep the instanced path,
-// as do materials only one asset uses, which instancing already draws once.
+// its placement ID through a per-piece raycast. Foliage and flow nodes, every part
+// of an asset with a reflection binding, transparent parts and instance colours keep
+// the instanced path, as do materials only one asset uses, which instancing already
+// draws once. The stone around a waterfall's sheet merges like any other (H118).
 export const MAX_MERGED_VERTICES=3000000;
 
 function attributeKey(geometry){return Object.keys(geometry.attributes).sort().map(name=>`${name}:${geometry.attributes[name].itemSize}`).join(',');}
@@ -22,13 +23,14 @@ function vertexCount(source){return source.part.geometry.attributes.position.cou
 // Plans merges over planned static batches. Returns the buckets to bake and, per
 // batch key, the indices (in traverseVisible order) of the parts they take over.
 export function planStaticMerge(batches,models,assets=[],{maxVertices=MAX_MERGED_VERTICES}={}){
- const bound=new Set(assets.filter(a=>a.foliage||a.flow||a.reflection).map(a=>a.id)),candidates=new Map();
+ const reflecting=new Set(assets.filter(a=>a.reflection).map(a=>a.id)),candidates=new Map();
+ const bindings=new Map(assets.filter(a=>a.foliage||a.flow).map(a=>[a.id,new Set([...(a.foliage?.nodes??[]),...(a.flow?.nodes??[])])]));
  for(const batch of batches){
-  if(bound.has(batch.asset))continue;
+  if(reflecting.has(batch.asset))continue;const nodes=bindings.get(batch.asset);
   const source=models[batch.asset]?.scene;if(!source)continue;
   source.updateMatrixWorld(true);let index=-1;
   source.traverseVisible(part=>{
-   if(!part.isMesh)return;index++;if(!mergeable(part))return;
+   if(!part.isMesh)return;index++;if(!mergeable(part)||nodes?.has(part.name))return;
    const key=`${batch.layer}|${batch.castShadow?'cast':'still'}|${part.material.uuid}|${attributeKey(part.geometry)}`;
    let bucket=candidates.get(key);if(!bucket)candidates.set(key,bucket={key,layer:batch.layer,castShadow:batch.castShadow,material:part.material,sources:[]});
    bucket.sources.push({batch:batch.key,asset:batch.asset,part,index,items:batch.items});

@@ -40,6 +40,26 @@ export function shadowProxies(meshes){
  }
  return [...sides].map(([side,shapes])=>{const proxy=new Mesh(mergeGeometries(shapes),new MeshBasicMaterial({side}));proxy.castShadow=true;proxy.layers.set(SHADOW_ONLY_LAYER);proxy.raycast=()=>{};return proxy;});
 }
+// three's shadow pass draws every caster through one shared override material and copies each
+// caster's alphaTest onto it. Crossing zero bumps that material's version, and every caster whose
+// render object last saw another version re-derives its full cache key. With alpha-cut leaves
+// among the stone that was every caster on every frame: 5.5% of revision 19's frame at the
+// arrival. Each caster keeps its own render object, built with its own alpha test, so the shared
+// material takes the caster's value before three copies it, and its version moves only when a
+// caster's own material is swapped, which re-keys that caster as before (H121).
+const stabilized=new WeakSet();
+export function stableShadowKeys(renderer){
+ if(stabilized.has(renderer))return;stabilized.add(renderer);
+ const render=renderer.renderObject,sources=new WeakMap();
+ renderer.renderObject=function(object,scene,camera,geometry,material,...rest){
+  const shared=scene.overrideMaterial;
+  if(shared?.isShadowPassMaterial&&material.allowOverride===true){
+   shared._alphaTest=material.alphaTest;
+   if(!Array.isArray(object.material)&&sources.get(object)!==material){sources.set(object,material);shared.version++;}
+  }
+  return render.call(this,object,scene,camera,geometry,material,...rest);
+ };
+}
 // CPU equivalent of the fragment weight for boundary/continuity qualification.
 export function shadowFadeAt([x,y,z],c=SUN_SHADOW){
  const edge=Math.min(x,1-x,y,1-y)*c.halfExtent*2,depth=Math.min(z,1-z)*(c.far-c.near),t=Math.max(0,Math.min(1,Math.min(edge,depth)/c.fadeWidth));return t*t*(3-2*t);

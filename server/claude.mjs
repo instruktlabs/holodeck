@@ -85,6 +85,24 @@ const SCRIPT_RUN=new RegExp(String.raw`${RUN}(?: *\| *${TRIM})?\s*$`),SCRIPT_RUN
 const LOOP_NAME=String.raw`([a-z]|arg|val|value|seed|step|size|turn|opt|mode|view|shot)`,VAR=String.raw`(?:\$\1(?!\w)|\$\{\1\})`;
 const LOOP_ARGS=String.raw`(?: +(?:(?:[\w.,=:@%+\-\\/]|${VAR})+|${SINGLE_BASH}|"(?:[\w.,=:@%+\-/# ]|${VAR})*"))*`;
 const SCRIPT_LOOP_BASH=new RegExp(String.raw`^for ${LOOP_NAME} in(?: +[\w.,:%+=@-]+)+ *; *do +(?:echo${LOOP_ARGS} *(?:;|&&) *)?(?:time )?(uv run|python3?|py|node) +((?:\.[\\/])?assets[\\/]source[\\/][\w.\-\\/]+\.(?:py|mjs|js))(${LOOP_ARGS})(?: +2>&1)?${SINK}${PIPES} *; *done${PIPES}\s*$`);
+// A read-only search of the world's own files (H115): grep, sed printing or substituting,
+// cut, head, tail, wc, ls or cat over files under assets/source or world, through the same
+// filters as a script run plus tr, sort, uniq, paste and fold, up to six joined by ; or &&.
+// A double-quoted pattern may hold a backslash before anything but ", \, $ or backquote,
+// which bash leaves as typed (\s, \[, \.), so this parse and the shell's agree. Bash only.
+const READ_FILE=String.raw`((?:\.\/)?(?:assets\/source|world)(?:\/[\w.\-]+)*\/?)`,READ_QUOTED=String.raw`(?:'(?!-)[^'\r\n]*'|"(?!-)(?:[^"$\x60\\!\r\n]|\\[^"$\x60\\\r\n])*"|${WORD})`;
+const READ_PATTERNS=String.raw`(?: -e (?:'[^'\r\n]*'|"(?:[^"$\x60\\!\r\n]|\\[^"$\x60\\\r\n])*"|[\w.,:%+=@-]+))+`;
+const READ_FILES=String.raw`(?: ${READ_FILE})+`,READ_SOURCE=String.raw`(?:grep${GREP_FLAGS}(?: ${READ_QUOTED}|${READ_PATTERNS})|sed -n '${SED_RANGE}(?:;${SED_RANGE})*'|sed(?: -E)?(?: -e)? '${SED_SUB}(?:; *${SED_SUB})*'|cut -c ?\d*-?\d*|(?:head|tail)(?: (?:-n ?\d+|-\d+))?|wc(?: -[lcwm]+)?|ls(?: -[la1hAtrS]+)?|cat)${READ_FILES}`;
+const READ_FILTER=String.raw`(?:${TRIM}|grep${GREP_FLAGS}(?: ${READ_QUOTED}|${READ_PATTERNS})|sed -n '${SED_RANGE}(?:;${SED_RANGE})*'|sed(?: -E)?(?: -e)? '${SED_SUB}(?:; *${SED_SUB})*'|cut -c ?\d*-?\d*|tr(?: -[ds]+)? '[^'\r\n]*'(?: '[^'\r\n]*')?|sort(?: -[nrut]+)?(?: -k ?\d+(?:,\d+)?)?|uniq(?: -c)?|paste -s ?-?d ?'[^'\r\n]*'|fold -w ?\d+|wc(?: -[lcwm]+)?)`;
+const READ_LINE=String.raw`${READ_SOURCE}(?: *\| *${READ_FILTER}){0,6}`,READ_SEARCH=new RegExp(String.raw`^${READ_LINE}(?: *(?:;|&&) *${READ_LINE}){0,5}\s*$`),READS_GRANT='reads:assets/source,world';
+export function readSearch(tool,command,root){
+  if(tool!=='Bash'||typeof command!=='string')return false;
+  const text=command.trim();if(!READ_SEARCH.test(text))return false;
+  // Every file argument must stay inside assets/source or world once resolved.
+  const allowed=[path.join(root,'assets','source'),path.join(root,'world')];
+  for(const m of text.matchAll(/(?:^|\s)((?:\.\/)?(?:assets\/source|world)(?:\/[\w.\-]+)*\/?)(?=\s|$|;|&|\|)/g)){const file=path.resolve(root,m[1]);if(!allowed.some(dir=>inside(dir,file)))return false;}
+  return true;
+}
 const SOURCE_CODE=/\.(?:py|mjs|cjs|js|ts|ps1|sh)$/i,MAX_SOURCE_FILES=4000,MAX_SOURCE_BYTES=64*1024*1024;
 const scriptKey=(tool,root,script,hash)=>'script:'+JSON.stringify([tool,root,script,hash]);
 export function scriptRun(tool,command,root){
@@ -117,7 +135,7 @@ export async function scriptGrant(tool,input,root){
   try{if(!(await stat(run.file)).isFile())return null;return scriptKey(tool,root,run.script,await sourceCodeHash(root));}catch{return null;}
 }
 function isGrant(grant,root){
-  if(SESSION_GRANTABLE.test(grant)||grant===SOURCE_GRANT||grant===KILN_GRANT)return true;
+  if(SESSION_GRANTABLE.test(grant)||grant===SOURCE_GRANT||grant===KILN_GRANT||grant===READS_GRANT)return true;
   if(typeof grant!=='string')return false;
   if(grant.startsWith('script:')){try{const [tool,folder,script,hash]=JSON.parse(grant.slice(7));return SHELL_TOOLS.has(tool)&&folder===root&&typeof script==='string'&&/^[a-f0-9]{64}$/.test(hash)&&grant===scriptKey(tool,root,script,hash);}catch{return false;}}
   if(!grant.startsWith('shell:'))return false;
@@ -275,16 +293,17 @@ export class ClaudeAgent extends EventEmitter{
   async requestPermission({tool_name:tool='a tool',input={}}){
     const reply=decision=>({content:[{type:'text',text:JSON.stringify(decision)}]});
     if(!this.turn||this.stopRequested)return reply({behavior:'deny',message:'No active Holodeck turn.'});
-    const grant=sessionGrant(tool,input,this.store.root),script=await scriptGrant(tool,input,this.store.root);
+    const grant=sessionGrant(tool,input,this.store.root),script=await scriptGrant(tool,input,this.store.root),reads=readSearch(tool,input?.command,this.store.root)?READS_GRANT:null;
     if(!this.turn||this.stopRequested)return reply({behavior:'deny',message:'No active Holodeck turn.'});
-    if(this.granted(grant)||this.granted(script)||pluginRead(tool,input,this.plugin?.directory))return reply({behavior:'allow',updatedInput:input});
+    if(this.granted(grant)||this.granted(script)||this.granted(reads)||pluginRead(tool,input,this.plugin?.directory))return reply({behavior:'allow',updatedInput:input});
     const id=`claude-permission-${++this.requestSeq}`,card=permissionCard(tool,input,this.store.root);
     const kiln=SESSION_GRANTABLE.test(tool),label=grant===SOURCE_GRANT?'Allow edits in assets/source for this session':grant?.startsWith('shell:')?'Allow this exact command for the session':kiln?'Allow this Kiln tool for this session':'Allow for this session';
     const scriptOption=script?[{optionId:'allow-script',label:`Allow ${path.posix.basename(scriptRun(tool,input.command,this.store.root).script)} with any arguments until code changes`}]:[];
-    const options=grant?[OPTIONS[0],...scriptOption,{optionId:'allow-session',label},...(kiln?[{optionId:'allow-kiln-session',label:'Allow all Kiln workspace tools for this session'}]:[]),OPTIONS[1]]:OPTIONS;
+    const readsOption=reads?[{optionId:'allow-reads',label:'Allow read-only searches of assets/source and world for this session'}]:[];
+    const options=grant?[OPTIONS[0],...scriptOption,...readsOption,{optionId:'allow-session',label},...(kiln?[{optionId:'allow-kiln-session',label:'Allow all Kiln workspace tools for this session'}]:[]),OPTIONS[1]]:OPTIONS;
     const view={title:card.title,tool:tool.replace(/^mcp__\w+?__/,''),reason:`Claude Code wants to use ${tool}.`,command:card.command,outside:card.outside,cwd:this.store.root,changes:input,options};
     return new Promise(resolve=>{
-      this.pending.set(id,{id,grant,script,input,view,resolve:decision=>resolve(reply(decision))});this.publish();
+      this.pending.set(id,{id,grant,script,reads,input,view,resolve:decision=>resolve(reply(decision))});this.publish();
     });
   }
   granted(grant){const tools=this.state.sessionTools||[];return !!grant&&(tools.includes(grant)||SESSION_GRANTABLE.test(grant)&&tools.includes(KILN_GRANT));}
@@ -295,9 +314,9 @@ export class ClaudeAgent extends EventEmitter{
     if(!req.view.options.some(o=>o.optionId===decision))throw new Error('Invalid approval decision');
     req.resolve(decision==='reject-once'?{behavior:'deny',message:'The user declined this operation in Holodeck.'}:{behavior:'allow',updatedInput:req.input});
     this.pending.delete(String(id));
-    if(decision==='allow-session'||decision==='allow-kiln-session'||decision==='allow-script'){
-      this.state.sessionTools=[...new Set([...(this.state.sessionTools||[]),decision==='allow-kiln-session'?KILN_GRANT:decision==='allow-script'?req.script:req.grant])];
-      for(const other of [...this.pending.values()])if(this.granted(other.grant)||this.granted(other.script)){other.resolve({behavior:'allow',updatedInput:other.input});this.pending.delete(other.id);}
+    if(decision==='allow-session'||decision==='allow-kiln-session'||decision==='allow-script'||decision==='allow-reads'){
+      this.state.sessionTools=[...new Set([...(this.state.sessionTools||[]),decision==='allow-kiln-session'?KILN_GRANT:decision==='allow-script'?req.script:decision==='allow-reads'?READS_GRANT:req.grant])];
+      for(const other of [...this.pending.values()])if(this.granted(other.grant)||this.granted(other.script)||this.granted(other.reads)){other.resolve({behavior:'allow',updatedInput:other.input});this.pending.delete(other.id);}
       this.persist().catch(()=>{});
     }
     this.publish();return this.snapshot();

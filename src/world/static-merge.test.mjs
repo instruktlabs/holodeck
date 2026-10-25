@@ -11,19 +11,32 @@ const box=(material,{size=1,at=[0,0,0]}={})=>{const mesh=new THREE.Mesh(new THRE
 
 test('pieces of different assets in one material merge; single-asset, bound and transparent parts stay instanced (H100)',()=>{
  const stone=new THREE.MeshStandardMaterial({color:'#e9e1d2'}),moss=new THREE.MeshStandardMaterial({color:'#3d5a2e'}),glass=new THREE.MeshStandardMaterial({transparent:true,opacity:.5});
- const models={pier:model(box(stone),box(moss)),arch:model(box(stone,{size:2})),pane:model(box(glass)),ivy:model(box(stone))};
+ const ivy=box(stone);ivy.name='x';
+ const models={pier:model(box(stone),box(moss)),arch:model(box(stone,{size:2})),pane:model(box(glass)),ivy:model(ivy)};
  const items=[item('p1','pier'),item('p2','pier',{position:[5,0,0]}),item('a1','arch'),item('a2','arch',{position:[0,0,9]}),item('g1','pane'),item('g2','pane'),item('i1','ivy'),item('i2','ivy')];
  const {batches}=planStaticBatches(items,models),assets=[{id:'ivy',foliage:{nodes:['x']}}],plan=planStaticMerge(batches,models,assets);
  assert.equal(plan.buckets.length,1);const [bucket]=plan.buckets;
  assert.equal(bucket.material,stone);assert.deepEqual(bucket.sources.map(s=>s.asset).sort(),['arch','pier']);
  const pier=batches.find(b=>b.asset==='pier'),arch=batches.find(b=>b.asset==='arch');
  assert.deepEqual([...plan.skip.get(pier.key)],[0],'the pier hands its stone part over and keeps its moss');assert.deepEqual([...plan.skip.get(arch.key)],[0]);
- assert.equal(plan.skip.has(batches.find(b=>b.asset==='ivy').key),false,'foliage-bound assets keep their instanced binding');
+ assert.equal(plan.skip.has(batches.find(b=>b.asset==='ivy').key),false,'a foliage node keeps its instanced binding');
  const instanced=createStaticAssetBatch(models.pier.scene,pier.items,{skip:plan.skip.get(pier.key)});
  assert.deepEqual(instanced.meshes.map(m=>m.material),[moss]);instanced.dispose();
  const shadowless=planStaticMerge(planStaticBatches(items.map(i=>i.asset==='arch'?{...i,castShadow:false}:i),models).batches,models,assets);
  assert.equal(shadowless.buckets.length,0,'a shadowless set does not share a mesh with casting ones');
  const split=planStaticMerge(batches,models,assets,{maxVertices:60});assert.equal(split.buckets.length,2,'large buckets split into chunks');
+});
+
+test('the stone of a waterfall or a planted asset merges; flowing and foliage nodes and reflecting assets stay instanced (H118)',()=>{
+ const stone=new THREE.MeshStandardMaterial({color:'#e9e1d2'}),named=(name,mesh)=>{mesh.name=name;return mesh;};
+ const models={falls:model(named('falls_sheet',box(stone)),named('falls_lip',box(stone,{at:[0,1,0]}))),planter:model(named('Mesh_cypress',box(stone)),named('pot',box(stone,{at:[0,-1,0]}))),arch:model(box(stone,{size:2})),cube:model(box(stone,{size:.5}))};
+ const items=['falls','planter','arch','cube'].flatMap(a=>[item(a+'1',a),item(a+'2',a,{position:[6,0,0]})]);
+ const assets=[{id:'falls',flow:{nodes:['falls_sheet'],speed:[0,1]}},{id:'planter',foliage:{nodes:['Mesh_cypress']}},{id:'cube',reflection:'sky'}];
+ const {batches}=planStaticBatches(items,models),plan=planStaticMerge(batches,models,assets),key=a=>batches.find(b=>b.asset===a).key;
+ assert.deepEqual(plan.buckets[0].sources.map(s=>s.asset).sort(),['arch','falls','planter'],'the lip and the pot join the arch');
+ assert.deepEqual([...plan.skip.get(key('falls'))],[1],'the sheet keeps its flow binding');
+ assert.deepEqual([...plan.skip.get(key('planter'))],[1],'the cypress keeps its foliage binding');
+ assert.equal(plan.skip.has(key('cube')),false,'an asset with a reflection binding keeps every part');
 });
 
 test('a merged mesh puts every piece where instancing did, keeps winding when mirrored, and answers picks with its placement',()=>{

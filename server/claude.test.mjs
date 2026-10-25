@@ -6,7 +6,7 @@ import {createServer} from 'node:http';
 import net from 'node:net';
 import path from 'node:path';
 import os from 'node:os';
-import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,scriptGrant,scriptRun,sessionGrant,INSTRUCTIONS} from './claude.mjs';
+import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,readSearch,scriptGrant,scriptRun,sessionGrant,INSTRUCTIONS} from './claude.mjs';
 import {createHost} from './host.mjs';
 
 // A stand-in for the installed CLI. It records what it was given, answers
@@ -263,6 +263,17 @@ test('an exact shell command may be allowed for the session; other arguments, to
   assert.deepEqual((await reopened.connect()).sessionTools,[sessionGrant('Bash',{command:plan},root)]);
 });
 
+test('one approval allows read-only searches of the world files for the rest of the session (H115)',async t=>{
+  const asks=[['Bash',{command:"grep -n -e 'rim' assets/source/turn15/report.txt | head -5"}],['Bash',{command:"sed -n '1,9p' world/world.json | cut -c1-80"}],['Bash',{command:'grep x /etc/hosts'}]];
+  const {agent,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await agent.connect();await agent.startTurn({text:'Search the report',model:'default'});
+  const card=await new Promise(resolve=>{const check=s=>{if(s.requests[0]){agent.off('agent',check);resolve(s.requests[0]);}};agent.on('agent',check);check(agent.snapshot());});
+  assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-reads','allow-session','reject-once']);
+  // The second search is allowed by the grant; a read outside the world still asks.
+  const {results}=await answerCards(agent,calls,['allow-reads','reject-once']);
+  assert.deepEqual(results,['allow','allow','deny']);
+});
+
 test('a turn script may be allowed for the session with any arguments until code in assets/source changes',async t=>{
   const run=args=>`uv run assets/source/turn/turn.py ${args} 2>&1 | Select-Object -Last 10`;
   const asks=[['PowerShell',{command:run('verify')}],['PowerShell',{command:run('scene samples')}]];
@@ -411,6 +422,23 @@ test('a script grant covers a sweep over plain values with a safe loop variable 
    'for path in assets/source/bin; do node assets/source/a.mjs; done','for PATH in assets/source/bin; do node assets/source/a.mjs; done','for IFS in x; do node assets/source/a.mjs; done','for a in 1; do echo $(id); node assets/source/a.mjs; done',
    'for a in 1; do node assets/source/a.mjs "$a`id`"; done','for a in 1; do node assets/source/a.mjs | grep $a; done','for a in 1; do node assets/source/../../x.mjs; done'])assert.equal(bash(command),null,command);
   assert.equal(scriptRun('PowerShell','for a in 1; do node assets/source/a.mjs $a; done',root),null,'Bash only');
+});
+
+test('read-only searches of assets/source and world can be granted for the session (H115)',()=>{
+  const root=path.resolve('world-root'),read=command=>readSearch('Bash',command,root);
+  // Forms the agent used in revision 19's turn.
+  for(const command of [
+   "grep \"outline clear\" assets/source/turn15/far-grid.txt | grep -v -E \"brushing [^;]*(01|h1|h2) \" | sed -E 's/^  \\[[^]]*\\] //; s/above the skyline in [^;]*; //'",
+   "sed -n '8,39p' assets/source/turn15/report.txt | grep -v \" ok,\" ; sed -n '40,97p' assets/source/turn15/report.txt | cut -c1-300 | head -40",
+   "grep -E \"^\\s+\\[-1[0-9]\\.5,\" assets/source/turn15/near3-grid.txt | sed -E 's/above the skyline in /up: /; s/ m from other sky//' | head -32",
+   "grep -n -A 6 -E '\"id\": \"(tower-84-e|tower-108-e)\"' world/world.json | tr -s ' ' | paste -sd ' ' | fold -w 400",
+   'ls -la assets/source/turn15/','cat assets/source/turn15/report.txt | sort -n | uniq -c | wc -l','grep -c centre assets/source/turn15/far-grid.txt && grep -l x world/world.json'.replace(' && grep -l x world/world.json',''),
+  ])assert.equal(read(command),true,command);
+  for(const command of ['grep -r x assets/source','grep x /etc/passwd','grep x assets/source/../../../etc/passwd','grep x world/../.claude/settings.json','grep x .holodeck/state.json',
+   'grep x assets/source/a.txt > assets/source/out.txt','grep "$(id)" assets/source/a.txt','grep "a\\"b" assets/source/a.txt','grep "a\\\\" assets/source/a.txt',"sed -i 's/a/b/' assets/source/a.txt","sed 's/a/b/w out' assets/source/a.txt",
+   'grep x assets/source/a.txt; rm -rf assets','ls -la ~','sort -o assets/source/x assets/source/y','tr a b < assets/source/x','grep x assets/source/a.txt | xargs rm','grep x assets/source/a.txt || whoami',
+   "grep '-fpatterns' assets/source/a.txt",'grep x assets/source/*','cat assets/source/a.txt | sh','grep x assets/source/a.txt &'])assert.equal(read(command),false,command);
+  assert.equal(readSearch('PowerShell','grep x assets/source/a.txt',root),false,'Bash only');
 });
 
 test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{
