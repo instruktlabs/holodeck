@@ -25,7 +25,7 @@ test('default CLI init starts a fresh construct with the current cove and walk c
   assert.match(output,/Created construct world/);
   store=await WorldStore.open(root);const w=store.current;
   assert.equal(w.schemaVersion,2);assert.equal(w.revision,0);assert.equal(w.scene.environment.type,'construct');
-  assert.deepEqual(w.scene.runtime.modules,['collision.boxes@1','camera.walk-orbit@1']);
+  assert.deepEqual(w.scene.runtime.modules,['collision.boxes@1','camera.walk-orbit@1','inhabitant.maker@1']);assert.deepEqual(w.scene.runtime.possession,{preset:'maker',camera:'first'});
   assert.equal(w.scene.origin,'structure');assert.ok(w.scene.objects.length>0);
   assert.ok(w.scene.objects.every(o=>o.layer==='origin'&&!o.behavior&&!o.shape));
   assert.ok(w.references.every(r=>r.kind==='note'));

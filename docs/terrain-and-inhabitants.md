@@ -1,7 +1,7 @@
 # Terrain, ocean and possession
 
 Schema 2 worlds can opt into a heightfield, a bounded ocean and the built-in maker
-inhabitant. These are reusable runtime capabilities. The world agent authors their
+inhabitant. New worlds and every bundled example start with the maker. These are reusable runtime capabilities. The world agent authors their
 records through `world_propose`; the user applies the proposal. Existing worlds
 and installed workspace instructions are not rewritten. `world_read` returns the
 current host's complete spatial contract and valid examples on every read.
@@ -243,8 +243,22 @@ body consume one actor feet position. Switching view does not respawn the actor.
 
 On terrain, `runtime.spawn` X/Z selects the support point; eye height derives from
 terrain height. Without terrain, spawn Y minus 1.72 is the actor's ground plane.
-Without possession, the legacy walker keeps its fixed 1.72 metre eye-height rule;
-enable the maker for terrain-following movement.
+### The maker by default, the legacy walk as fallback
+
+Possession stays an explicit, versioned record in each world; the engine never
+injects it. `holodeck init`, a new library world and the agent's capability
+examples all start with `{"preset":"maker","camera":"first"}` and
+`inhabitant.maker@1`, so their exports and history say the world runs the maker.
+The bundled courtyard, Cove and kinetic examples gained it as a new revision.
+
+A world without possession keeps the legacy walk: a bodyless camera with a fixed
+1.72 metre eye height on flat ground, no jumping, swimming or walkable tops. It
+remains the fallback for worlds that opt out. Existing user worlds are never
+migrated. For them `world_check` (and **Check world** in Observe) reports an
+`inhabitant-upgrade` suggestion carrying the record to add; the agent can
+propose it, or **Add the maker** saves it as a new revision that undo reverts.
+Walk the spawn, routes and any walkable tops again afterwards: the maker is 1.82m
+tall rather than 1.72m, so a beam between those heights now blocks it.
 
 The standing actor has radius 0.22m, height 1.82m and eye height 1.72m. Movement is
 bounded in small steps, allows slopes up to 45 degrees and an upward step of 0.35m,

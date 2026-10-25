@@ -3,20 +3,21 @@
   "id": "courtyard",
   "title": "The Quiet Courtyard",
   "description": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
-  "sourceRevision": 8,
+  "sourceRevision": 9,
   "capabilities": {
     "schemaVersion": 2,
     "runtimeVersion": 1,
     "modules": [
       "camera.walk-orbit@1",
       "collision.boxes@1",
+      "inhabitant.maker@1",
       "motion.spin@1"
     ]
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "c6f2e287e767d9f33324ace41ad1d8116ee73668286e8a8aaff1abc89e6ae0e8",
-    "bytes": 109788
+    "sha256": "01c1342663184e6eac7061b37d6dec972bdda383b608cedf009785d64ed4cae7",
+    "bytes": 109902
   },
   "assets": [
     {
@@ -214,10 +215,10 @@
   ],
   "preview": {
     "file": "preview.png",
-    "sha256": "9875dfc34f12e5e309eb810eaa9902d89448e8bca63211dcf1f91b82bb463b33",
-    "bytes": 609742,
+    "sha256": "52c15890636f6aa23cfebc83c9930268a5ea9927f51e4a8d027dfc96ce207cdc",
+    "bytes": 510541,
     "width": 1280,
     "height": 720
   },
-  "integrity": "857fdc872496ae0b81c72ac96ab2fc0105fe86d704c5136b8661eaf231147ebf"
+  "integrity": "ddd9740c7a3a1dbe92e00f92d19c4f1606144ae97d22e274f1fdea8922079c3a"
 }
