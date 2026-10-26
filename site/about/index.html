@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About Holodeck and how to use it</title>
+  <meta name="description" content="What Holodeck is, how to walk the scenes on this site with a keyboard, mouse or touchscreen, and how to build your own world with your coding agent.">
+  <link rel="canonical" href="https://holodeck.kilnstudio.tools/about/">
+  <meta name="theme-color" content="#464b38">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Holodeck">
+  <meta property="og:title" content="About Holodeck and how to use it">
+  <meta property="og:description" content="How to walk the scenes on this site, and how to build your own world with your coding agent.">
+  <meta property="og:url" content="https://holodeck.kilnstudio.tools/about/">
+  <meta property="og:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Four Holodeck worlds: Meridian Sanctuary's marble terraces above the clouds, Crescent Cove's lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard's fountain among cypress and olive trees.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About Holodeck and how to use it">
+  <meta name="twitter:description" content="How to walk the scenes on this site, and how to build your own world with your coding agent.">
+  <meta name="twitter:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
+  <meta name="twitter:image:alt" content="Four Holodeck worlds: Meridian Sanctuary's marble terraces above the clouds, Crescent Cove's lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard's fountain among cypress and olive trees.">
+  <link rel="stylesheet" href="/shelf.css">
+  <script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@type": "AboutPage",
+ "@id": "https://holodeck.kilnstudio.tools/about/#page",
+ "name": "About Holodeck and how to use it",
+ "url": "https://holodeck.kilnstudio.tools/about/",
+ "isPartOf": {"@id": "https://holodeck.kilnstudio.tools/#website"},
+ "about": {"@id": "https://holodeck.kilnstudio.tools/#software"},
+ "breadcrumb": {
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+   {"@type": "ListItem", "position": 1, "name": "Holodeck", "item": "https://holodeck.kilnstudio.tools/"},
+   {"@type": "ListItem", "position": 2, "name": "About", "item": "https://holodeck.kilnstudio.tools/about/"}
+  ]
+ }
+}</script>
+</head>
+<body>
+  <!-- A separate page from the shelf; every link is root-relative, as on the 404 page. -->
+  <main>
+    <section class="hero compact">
+      <header class="top">
+        <a class="brand" href="/"><span class="mark" aria-hidden="true"></span>holodeck<span class="by">powered by Kiln</span></a>
+        <nav><a href="/#scenes">Scenes</a><a href="https://kilnstudio.tools/">Kiln</a><a class="gh" href="https://github.com/instruktlabs/holodeck">GitHub</a></nav>
+      </header>
+      <div class="hero-copy">
+        <div>
+          <p class="eyebrow">About</p>
+          <h1>Walk a world.<br><em>Then build your own.</em></h1>
+        </div>
+        <div>
+          <p class="lede">Holodeck is an early source prototype: a local workspace where you and your coding agent build 3D worlds from Kiln assets, then explore them on foot in the browser. The scenes on this site are exports of its bundled example worlds.</p>
+          <p class="ctas"><a class="button primary" href="/worlds/meridian-sanctuary/">Enter Meridian Sanctuary</a><a class="button glass" href="#build">Build your own</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap about-section" id="walk">
+      <p class="kicker">Walk a scene</p>
+      <h2>Open a world from the shelf.</h2>
+      <p class="sub">Each scene opens on an overlook. Choose Enter world to start exploring. The scene renders live with WebGPU where the browser supports it, and falls back to WebGL2 otherwise.</p>
+      <div class="status">
+        <div class="panel">
+          <h4>Walking</h4>
+          <ul>
+            <li>WASD to move, Shift to run and Space to jump</li>
+            <li>T or 1–9 for an emote, V to change the view</li>
+            <li>E to interact with what the reticle finds</li>
+            <li>G for the free camera, Esc to release the mouse and return to the overlook</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>Free camera</h4>
+          <ul>
+            <li>WASD to fly, with Q and E for down and up</li>
+            <li>Shift to move faster, G to return</li>
+            <li>Right-drag to look without capturing the mouse</li>
+            <li>The toolbar shows or hides the cove, returns to the arrival and pauses activity</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>Touchscreen</h4>
+          <ul>
+            <li>A thumb on the left of the scene becomes a stick that walks or flies</li>
+            <li>Any other finger drags to look</li>
+            <li>On the overlook, one finger orbits and two fingers pinch to zoom</li>
+            <li>Interact, Jump and Emote buttons appear only when they apply</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>What stays local</h4>
+          <ul>
+            <li>Activity runs only in your browser session</li>
+            <li>Nothing you do in a scene is saved into it</li>
+            <li>No agent is connected on this site</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap build" id="build">
+      <div class="build-grid">
+        <div><p class="kicker">Build</p><h2>Make your own world.</h2>
+          <p class="sub">Holodeck runs on your machine with Git, Node.js and npm. Launch creates a cove beside the checkout when that folder is new, starts the local server and opens the world.</p></div>
+        <div>
+          <ol class="install">
+            <li><code>git clone https://github.com/instruktlabs/holodeck.git</code></li>
+            <li><code>cd holodeck</code></li>
+            <li><code>npm ci</code><small>Installs dependencies once. Launch does not download them.</small></li>
+            <li><code>node bin/holodeck.mjs launch</code><small>Then choose Connect → Codex, Cursor or Claude Code, and describe what to build.</small></li>
+          </ol>
+          <ul class="facts">
+            <li>Your agent's proposals appear as ghosts in the world. Apply saves a new revision; Discard drops it.</li>
+            <li>The bible holds the rules of the place and the mood board holds its references, for you and your agent.</li>
+            <li>Enter world walks the result; Esc brings back the workspace.</li>
+          </ul>
+          <p class="license">The full guide is <a href="https://github.com/instruktlabs/holodeck/blob/main/docs/getting-started.md">Getting started</a> in the repository. Code is MIT. The bundled example worlds are CC0, and so are the scenes on this site. Your own worlds are not automatically CC0. The models come from <a href="https://kilnstudio.tools/">Kiln</a>.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer><div class="wrap"><span>holodeck · powered by <a href="https://kilnstudio.tools/">Kiln</a></span><a href="https://github.com/instruktlabs/holodeck">github.com/instruktlabs/holodeck</a></div></footer>
+</body>
+</html>

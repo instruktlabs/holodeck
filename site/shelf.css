@@ -127,6 +127,11 @@ footer{border-top:1px solid var(--line);font-size:13px;color:var(--ink-faint)}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:28px;padding-bottom:28px}
 footer a{text-decoration:none}
 
+/* about page: a shorter hero without the collage */
+.hero.compact{min-height:min(80svh,760px)}
+.about-section{padding-top:clamp(72px,10vw,120px)}
+.about-section .sub{margin:20px 0 0}
+
 @media (max-width:860px){
   .by,.top nav a:not(.gh),.scenes-menu{display:none}
   .hero::after{background:linear-gradient(180deg,rgba(26,31,22,.45) 0%,rgba(26,31,22,.1) 28%,rgba(26,31,22,.55) 46%,rgba(26,31,22,.88) 62%,rgba(26,31,22,.95) 100%)}

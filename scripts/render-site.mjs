@@ -9,6 +9,11 @@ export const SITE_URL='https://holodeck.kilnstudio.tools/';
 const REPOSITORY='https://github.com/instruktlabs/holodeck';
 const CC0='https://creativecommons.org/publicdomain/zero/1.0/';
 const KILN_PACKS='https://kilnstudio.tools/packs/';
+// The shelf's own pages and the date each last changed in substance (its copy, links or structured
+// data), as the sitemap's lastmod; a scene's date is its catalog `updated`. Update a date in the commit
+// that changes the page: server/site.test.mjs checks each against git history when the checkout has it.
+export const PAGES=[{path:'',updated:'2026-10-26'},{path:'about/',updated:'2026-10-26'}];
+const W3C_DATE=/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 // A hero tile is 1920×1080 with a 960×540 variant beside it, named -960.
 const smallTile=src=>src.replace(/\.webp$/,'-960.webp'),tileSet=src=>`${smallTile(src)} 960w, ${src} 1920w`,TILE_SIZES='(max-aspect-ratio:1/1) 100vw, 50vw';
 const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -40,7 +45,7 @@ export async function renderSite(site){
  if(!Array.isArray(scenes)||!scenes.length)fail('Scene catalog needs at least one scene');const ids=new Set();
  const cards=[],items=[];
  for(const [index,scene] of scenes.entries()){
-  if(Object.keys(scene).some(key=>!['id','example','kicker','title','summary','shots','path','gallery','hero'].includes(key)))fail('Unexpected scene catalog field');
+  if(Object.keys(scene).some(key=>!['id','example','kicker','title','summary','shots','path','updated','gallery','hero'].includes(key)))fail('Unexpected scene catalog field');
   if(!/^[a-z][a-z0-9-]{0,63}$/.test(scene.id)||ids.has(scene.id))fail('Scene ids must be unique slugs');ids.add(scene.id);
   // The deployed scene is exported from this bundled example by scripts/build-site.mjs, with site/cards/<id>.jpg as its card.
   if(typeof scene.example!=='string'||!/^[a-z][a-z0-9-]{0,63}$/.test(scene.example))fail(`Scene ${scene.id} needs the example it is built from`);
@@ -51,6 +56,8 @@ export async function renderSite(site){
   if(!Array.isArray(scene.shots)||scene.shots.length!==4)fail(`Scene ${scene.id} needs four shots`);
   for(const shot of scene.shots)if(Object.keys(shot).join()!=='src,alt'||typeof shot.src!=='string'||typeof shot.alt!=='string'||!shot.alt.trim())fail(`Scene ${scene.id} shots need a src and alt`);
   if(scene.path!==`worlds/${scene.id}/`)fail(`Scene ${scene.id} must live at worlds/${scene.id}/`);
+  // updated: the date the scene's example or card last changed, the sitemap lastmod of its page.
+  if(typeof scene.updated!=='string'||!W3C_DATE.test(scene.updated))fail(`Scene ${scene.id} needs an updated date (YYYY-MM-DD)`);
   if(scene.gallery!==undefined&&!/^https:\/\/kilnstudio\.tools\//.test(scene.gallery))fail(`Scene ${scene.id} gallery must be a kilnstudio.tools page`);
   // hero: the scene's tile in the hero collage.
   if(scene.hero!==undefined){
@@ -94,8 +101,9 @@ export async function renderSite(site){
  if(marked('hero'))index=between(index,'hero',tiles.join('')+'\n      ');
  index=between(index,'scenes',cards.join('')+'\n        ');
  index=between(index,'jsonld',`<script type="application/ld+json">${jsonLd(data)}</script>`);
- const urls=[SITE_URL,...scenes.map(scene=>new URL(scene.path,SITE_URL).href)];
- const sitemap=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`  <url><loc>${url}</loc></url>`).join('\n')}\n</urlset>\n`;
+ for(const page of PAGES){if(!W3C_DATE.test(page.updated))fail(`Page /${page.path} needs an updated date (YYYY-MM-DD)`);if(page.path)await file(site,`${page.path}index.html`,'Site page');}
+ const urls=[...PAGES,...scenes].map(page=>({loc:new URL(page.path,SITE_URL).href,lastmod:page.updated}));
+ const sitemap=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`  <url><loc>${url.loc}</loc><lastmod>${url.lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`;
  const robots=`User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}sitemap.xml\n`;
  return {'index.html':index,'sitemap.xml':sitemap,'robots.txt':robots};
 }

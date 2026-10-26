@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://holodeck.kilnstudio.tools/</loc></url>
-  <url><loc>https://holodeck.kilnstudio.tools/worlds/meridian-sanctuary/</loc></url>
-  <url><loc>https://holodeck.kilnstudio.tools/worlds/crescent-cove/</loc></url>
-  <url><loc>https://holodeck.kilnstudio.tools/worlds/courtyard/</loc></url>
-  <url><loc>https://holodeck.kilnstudio.tools/worlds/tidemark/</loc></url>
-  <url><loc>https://holodeck.kilnstudio.tools/worlds/winter-mountainside-cabin/</loc></url>
-  <url><loc>https://holodeck.kilnstudio.tools/worlds/cove/</loc></url>
+  <url><loc>https://holodeck.kilnstudio.tools/</loc><lastmod>2026-10-26</lastmod></url>
+  <url><loc>https://holodeck.kilnstudio.tools/about/</loc><lastmod>2026-10-26</lastmod></url>
+  <url><loc>https://holodeck.kilnstudio.tools/worlds/meridian-sanctuary/</loc><lastmod>2026-10-26</lastmod></url>
+  <url><loc>https://holodeck.kilnstudio.tools/worlds/crescent-cove/</loc><lastmod>2026-10-26</lastmod></url>
+  <url><loc>https://holodeck.kilnstudio.tools/worlds/courtyard/</loc><lastmod>2026-10-26</lastmod></url>
+  <url><loc>https://holodeck.kilnstudio.tools/worlds/tidemark/</loc><lastmod>2026-10-26</lastmod></url>
+  <url><loc>https://holodeck.kilnstudio.tools/worlds/winter-mountainside-cabin/</loc><lastmod>2026-10-25</lastmod></url>
+  <url><loc>https://holodeck.kilnstudio.tools/worlds/cove/</loc><lastmod>2026-10-26</lastmod></url>
 </urlset>

@@ -15,13 +15,14 @@ const ACCOUNT='0123456789abcdef0123456789abcdef';
 // the Pages API is the fixture's stub.
 const go=options=>deploy({env:{CLOUDFLARE_API_TOKEN:'test-value',CLOUDFLARE_ACCOUNT_ID:ACCOUNT},fetch:options.run?.fetch,...options});
 const SHOTS=Array.from({length:4},(_,i)=>({src:'images/cove.png',alt:`Cove shot ${i+1}`}));
-const scenes=title=>JSON.stringify([{id:'cove',example:'construct',title,summary:'A small cove.',shots:SHOTS,path:'worlds/cove/'}]);
+const scenes=title=>JSON.stringify([{id:'cove',example:'construct',title,summary:'A small cove.',shots:SHOTS,path:'worlds/cove/',updated:'2026-10-26'}]);
 
 // A one-scene shelf, rendered current, and a site built from it, with git and
 // Wrangler and the Pages API replaced by recorders.
 async function fixture(t){
  const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-deploy-')),site=path.join(root,'site'),built=path.join(root,'built');t.after(()=>rm(root,{recursive:true,force:true}));
- await mkdir(path.join(site,'images'),{recursive:true});await mkdir(path.join(site,'cards'));
+ await mkdir(path.join(site,'images'),{recursive:true});await mkdir(path.join(site,'cards'));await mkdir(path.join(site,'about'));
+ await writeFile(path.join(site,'about/index.html'),'<title>About</title>');
  await writeFile(path.join(site,'scenes.json'),scenes('The Cove'));
  await writeFile(path.join(site,'images/cove.png'),PNG);await writeFile(path.join(site,'cards/cove.jpg'),CARD);
  await writeFile(path.join(site,'index.html'),'<!-- scenes:start --><!-- scenes:end --><!-- jsonld:start --><!-- jsonld:end -->');
@@ -48,10 +49,10 @@ async function fixture(t){
 test('a dry run checks the built site, records its digest for CI, and never prepares Wrangler',async t=>{
  const {root,built,state,run}=await fixture(t),lines=[],output=path.join(root,'github-output');
  const result=await go({root,siteDir:built,projectName:'holodeck-site',dryRun:true,githubOutput:output,run,log:line=>lines.push(line)});
- assert.equal(result.deployed,false);assert.equal(result.preflight.head,HEAD);assert.equal(result.preflight.files,9);
+ assert.equal(result.deployed,false);assert.equal(result.preflight.head,HEAD);assert.equal(result.preflight.files,10);
  assert.match(lines[0],/holodeck-site\/main/);assert.match(lines[1],/Dry run/);
  assert.equal(state.calls.some(c=>c.includes('--version')||c.includes('pages')),false);
- assert.equal(await readFile(output,'utf8'),`sha256=${result.preflight.sha256}\nfiles=9\nbytes=${result.preflight.bytes}\nhead=${HEAD}\n`);
+ assert.equal(await readFile(output,'utf8'),`sha256=${result.preflight.sha256}\nfiles=10\nbytes=${result.preflight.bytes}\nhead=${HEAD}\n`);
 });
 
 test('without a site folder, a deploy builds one into a temporary folder and removes it',async t=>{
