@@ -10,6 +10,11 @@ water, jungle vegetation, articulated patrols and flying boid flocks. Select it
 under **Start from an example** in the [world picker](world-library.md), or use
 the CLI below. Each copy has its own name, saved revisions and local agent session.
 
+Meridian Sanctuary (`meridian-sanctuary`) is a marble sanctuary above a sea of
+cloud: a causeway between mirror pools, terraces and stairs up to a colossal gate
+tower, floating statues of a figure and a whale, live mirror orbs, and a bridge
+path off the east side to a pavilion and a stair plaza.
+
 Winter Mountainside Cabin (`winter-mountainside-cabin`) is a snowy conifer
 mountainside at dusk with a trailhead, woodland loop and lake viewpoint, and a
 furnished two-storey timber cabin with a sleeping loft, deck and hinged doors.
@@ -33,6 +38,8 @@ node bin/holodeck.mjs check ../my-world
 node bin/holodeck.mjs dev ../my-world --port 4189
 node bin/holodeck.mjs init ../my-island --example tidemark
 node bin/holodeck.mjs dev ../my-island --port 4192
+node bin/holodeck.mjs init ../my-sanctuary --example meridian-sanctuary
+node bin/holodeck.mjs dev ../my-sanctuary --port 4194
 node bin/holodeck.mjs init ../my-cabin --example winter-mountainside-cabin
 node bin/holodeck.mjs dev ../my-cabin --port 4193
 node bin/holodeck.mjs init ../my-courtyard --example courtyard
@@ -51,6 +58,9 @@ Agent connection retains the existing Kiln setup workflow.
 - Tidemark Island: Enter world to explore the beach and jungle. Maker possession
   supports first/third person, walking, running, jumping and swimming. Free camera
   lets you inspect the scene. Patrol joints and flock wings use procedural gait.
+- Meridian Sanctuary: Enter world at the arrival, walk the causeway between the
+  pools and climb the terraces to the gate. The east arch leads over the bridge to
+  the pavilion and down three flights to the plaza; the mirror orbs reflect you.
 - Winter Mountainside Cabin: Enter world at the trailhead and follow the trail
   markers up to the cabin. Press E near a door to open it; the interior stair
   leads to the loft, and the return path passes the lake viewpoint seat.

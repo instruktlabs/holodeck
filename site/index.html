@@ -18,14 +18,14 @@
   <meta property="og:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral.">
+  <meta property="og:image:alt" content="Four Holodeck worlds: Meridian Sanctuary's marble terraces above the clouds, Crescent Cove's lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard's fountain among cypress and olive trees.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Holodeck · Worlds you can walk into">
   <meta name="twitter:description" content="A local workspace where you and your coding agent build 3D worlds, then walk them in the browser. Play exported scenes here.">
   <meta name="twitter:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
-  <meta name="twitter:image:alt" content="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral.">
+  <meta name="twitter:image:alt" content="Four Holodeck worlds: Meridian Sanctuary's marble terraces above the clouds, Crescent Cove's lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard's fountain among cypress and olive trees.">
   <link rel="preload" href="fonts/InstrumentSerif-Regular.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" as="image" href="images/hero.webp" imagesrcset="images/hero-960.webp 960w, images/hero.webp 1920w" imagesizes="100vw" fetchpriority="high">
+  <!-- preload:start --><link rel="preload" as="image" href="images/hero-meridian-sanctuary.webp" imagesrcset="images/hero-meridian-sanctuary-960.webp 960w, images/hero-meridian-sanctuary.webp 1920w" imagesizes="(max-aspect-ratio:1/1) 100vw, 50vw" fetchpriority="high"><!-- preload:end -->
   <link rel="stylesheet" href="shelf.css">
   <!-- jsonld:start --><script type="application/ld+json">{
  "@context": "https://schema.org",
@@ -56,6 +56,18 @@
      "position": 1,
      "item": {
       "@type": "CreativeWork",
+      "name": "Meridian Sanctuary",
+      "description": "A marble sanctuary above the clouds: a causeway between mirror pools, terraces climbing to a gate tower, floating statues and mirrored orbs, and a bridge path off to the side.",
+      "url": "https://holodeck.kilnstudio.tools/worlds/meridian-sanctuary/",
+      "image": "https://holodeck.kilnstudio.tools/worlds/meridian-sanctuary/preview.jpg",
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "item": {
+      "@type": "CreativeWork",
       "name": "Crescent Cove",
       "description": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
       "url": "https://holodeck.kilnstudio.tools/worlds/crescent-cove/",
@@ -65,7 +77,7 @@
     },
     {
      "@type": "ListItem",
-     "position": 2,
+     "position": 3,
      "item": {
       "@type": "CreativeWork",
       "name": "The Quiet Courtyard",
@@ -77,7 +89,7 @@
     },
     {
      "@type": "ListItem",
-     "position": 3,
+     "position": 4,
      "item": {
       "@type": "CreativeWork",
       "name": "Tidemark Island",
@@ -89,7 +101,7 @@
     },
     {
      "@type": "ListItem",
-     "position": 4,
+     "position": 5,
      "item": {
       "@type": "CreativeWork",
       "name": "Winter Mountainside Cabin",
@@ -101,7 +113,7 @@
     },
     {
      "@type": "ListItem",
-     "position": 5,
+     "position": 6,
      "item": {
       "@type": "CreativeWork",
       "name": "The Cove",
@@ -119,12 +131,17 @@
 <body>
   <header class="top">
     <a class="brand" href="./"><span class="mark" aria-hidden="true"></span>holodeck<span class="by">powered by Kiln</span></a>
-    <nav><a href="#loop">How it works</a><a href="#scenes">Scenes</a><a href="https://kilnstudio.tools/">Kiln</a><a class="gh" href="https://github.com/instruktlabs/holodeck">GitHub</a></nav>
+    <nav><a href="#loop">How it works</a><!-- menu:start --><details class="scenes-menu"><summary>Scenes</summary><div><a href="worlds/meridian-sanctuary/">Meridian Sanctuary</a><a href="worlds/crescent-cove/">Crescent Cove</a><a href="worlds/courtyard/">The Quiet Courtyard</a><a href="worlds/tidemark/">Tidemark Island</a><a href="worlds/winter-mountainside-cabin/">Winter Mountainside Cabin</a><a href="worlds/cove/">The Cove</a><a href="#scenes">All scenes</a><a href="https://kilnstudio.tools/packs/">Asset packs on Kiln ↗</a></div></details><!-- menu:end --><a href="https://kilnstudio.tools/">Kiln</a><a class="gh" href="https://github.com/instruktlabs/holodeck">GitHub</a></nav>
   </header>
 
   <main>
     <section class="hero">
-      <img class="hero-image" src="images/hero.webp" srcset="images/hero-960.webp 960w, images/hero.webp 1920w" sizes="100vw" width="1920" height="1080" fetchpriority="high" alt="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral.">
+      <div class="hero-collage"><!-- hero:start -->
+        <a class="hero-tile" href="worlds/meridian-sanctuary/"><img src="images/hero-meridian-sanctuary.webp" srcset="images/hero-meridian-sanctuary-960.webp 960w, images/hero-meridian-sanctuary.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" fetchpriority="high" alt="Meridian Sanctuary: a causeway between mirror pools toward a marble gate tower, with floating statues and a mirrored orb above the clouds."><span>Meridian Sanctuary</span></a>
+        <a class="hero-tile" href="worlds/crescent-cove/"><img src="images/hero-crescent-cove.webp" srcset="images/hero-crescent-cove-960.webp 960w, images/hero-crescent-cove.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" alt="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon."><span>Crescent Cove</span></a>
+        <a class="hero-tile" href="worlds/courtyard/"><img src="images/hero-courtyard.webp" srcset="images/hero-courtyard-960.webp 960w, images/hero-courtyard.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" alt="The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."><span>The Quiet Courtyard</span></a>
+        <a class="hero-tile" href="worlds/winter-mountainside-cabin/"><img src="images/hero-winter-mountainside-cabin.webp" srcset="images/hero-winter-mountainside-cabin-960.webp 960w, images/hero-winter-mountainside-cabin.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" alt="Winter Mountainside Cabin: a timber cabin on a snowy slope among snow-laden pines."><span>Winter Mountainside Cabin</span></a>
+      <!-- hero:end --></div>
       <div class="hero-copy">
         <div>
           <p class="eyebrow">Early source prototype</p>
@@ -132,8 +149,8 @@
         </div>
         <div>
           <p class="lede">Holodeck is a local workspace where you and your coding agent build 3D worlds together, then explore them on foot, right in the browser.</p>
-          <p class="ctas"><a class="button primary" id="first-world" href="worlds/crescent-cove/">Enter Crescent Cove</a><a class="button glass" href="#build">Build your own</a></p>
-          <p class="capture">Crescent Cove, rendered live in the browser.</p>
+          <p class="ctas"><a class="button primary" id="first-world" href="worlds/meridian-sanctuary/">Enter Meridian Sanctuary</a><a class="button glass" href="#build">Build your own</a></p>
+          <p class="capture">Meridian Sanctuary, Crescent Cove, Winter Mountainside Cabin and the Quiet Courtyard, each rendered live in the browser.</p>
         </div>
       </div>
     </section>
@@ -202,7 +219,19 @@
     <section class="wrap scenes-section" id="scenes">
       <div class="section-head"><div><p class="kicker">Scenes</p><h2>Step into one now.</h2></div><div><p>Exported worlds play directly in your browser. Nothing to install.</p></div></div>
       <div class="scenes"><!-- scenes:start -->
-        <article class="scene">
+        <article class="scene" id="scene-meridian-sanctuary">
+          <div class="scene-shots">
+            <img class="feature" src="images/scenes/meridian-sanctuary-arrival.webp" width="1280" height="720" alt="Meridian Sanctuary from the arrival: a causeway between mirror pools toward a marble gate tower, with a floating figure, a whale statue and mirrored orbs above." loading="lazy" decoding="async">
+            <img src="images/scenes/meridian-sanctuary-side-aerial.webp" width="640" height="360" alt="The sanctuary from the side, its terraces and pools stepping up a cliff above the clouds." loading="lazy" decoding="async">
+            <img src="images/scenes/meridian-sanctuary-pools.webp" width="640" height="360" alt="Across the mirror pools toward the arcades, with the tower reflected in the water." loading="lazy" decoding="async">
+            <img src="images/scenes/meridian-sanctuary-gate-view.webp" width="640" height="360" alt="From the gate back down the terraces, between balustrades and cypresses." loading="lazy" decoding="async">
+          </div>
+          <div class="scene-copy">
+            <div><h3><a href="worlds/meridian-sanctuary/">Meridian Sanctuary</a></h3><p>A marble sanctuary above the clouds: a causeway between mirror pools, terraces climbing to a gate tower, floating statues and mirrored orbs, and a bridge path off to the side.</p></div>
+            <p class="scene-links"><a class="enter" href="worlds/meridian-sanctuary/">Enter the scene ↗</a></p>
+          </div>
+        </article>
+        <article class="scene" id="scene-crescent-cove">
           <div class="scene-shots">
             <img class="feature" src="images/scenes/crescent-cove-aerial-southwest.webp" width="1280" height="720" alt="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral." loading="lazy" decoding="async">
             <img src="images/scenes/crescent-cove-cove.webp" width="640" height="360" alt="The cove on Crescent Cove: a canopied stone seat on a grassy rise among palms, with the lagoon beyond." loading="lazy" decoding="async">
@@ -214,7 +243,7 @@
             <p class="scene-links"><a class="enter" href="worlds/crescent-cove/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/crescent-cove/">Its assets in the Kiln gallery</a></p>
           </div>
         </article>
-        <article class="scene">
+        <article class="scene" id="scene-courtyard">
           <div class="scene-shots">
             <img class="feature" src="images/scenes/courtyard-overview.webp" width="1280" height="720" alt="The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate." loading="lazy" decoding="async">
             <img src="images/scenes/courtyard-cove.webp" width="640" height="360" alt="The cove at the courtyard gate: a canopied stone seat in front of the walled garden." loading="lazy" decoding="async">
@@ -226,7 +255,7 @@
             <p class="scene-links"><a class="enter" href="worlds/courtyard/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/courtyard/">Its assets in the Kiln gallery</a></p>
           </div>
         </article>
-        <article class="scene">
+        <article class="scene" id="scene-tidemark">
           <div class="scene-shots">
             <img class="feature" src="images/scenes/tidemark-overview.webp" width="1280" height="720" alt="Tidemark Island from above: a palm-dotted beach curving into turquoise shallows." loading="lazy" decoding="async">
             <img src="images/scenes/tidemark-cove.webp" width="640" height="360" alt="The cove on Tidemark: a canopied stone seat on open sand, with palms behind." loading="lazy" decoding="async">
@@ -238,7 +267,7 @@
             <p class="scene-links"><a class="enter" href="worlds/tidemark/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/tidemark/">Its assets in the Kiln gallery</a></p>
           </div>
         </article>
-        <article class="scene">
+        <article class="scene" id="scene-winter-mountainside-cabin">
           <div class="scene-shots">
             <img class="feature" src="images/scenes/winter-mountainside-cabin-exterior.webp" width="1280" height="720" alt="The timber cabin and its deck among snow-covered conifers, with mountains beyond." loading="lazy" decoding="async">
             <img src="images/scenes/winter-mountainside-cabin-living.webp" width="640" height="360" alt="The cabin&#39;s furnished living room, with a stone hearth, timber beams and warm practical lights." loading="lazy" decoding="async">
@@ -250,7 +279,7 @@
             <p class="scene-links"><a class="enter" href="worlds/winter-mountainside-cabin/">Enter the scene ↗</a><a class="gallery" href="https://kilnstudio.tools/packs/holodeck/winter-mountainside-cabin/">Its assets in the Kiln gallery</a></p>
           </div>
         </article>
-        <article class="scene">
+        <article class="scene" id="scene-cove">
           <div class="scene-shots">
             <img class="feature" src="images/scenes/cove-side.webp" width="1280" height="720" alt="The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns." loading="lazy" decoding="async">
             <img src="images/scenes/cove-arrival.webp" width="640" height="360" alt="Inside the cove, the hearth stone on its round table under the canopy." loading="lazy" decoding="async">

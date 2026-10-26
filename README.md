@@ -6,6 +6,10 @@ Start in a cozy cove inside the grid construct. Connect your local agent, collec
 
 Holodeck is an early, actively changing prototype. It is available from source; there is no npm release.
 
+![Four Holodeck worlds: Meridian Sanctuary's marble causeway between mirror pools, Crescent Cove's lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard's fountain garden](docs/images/worlds.webp)
+
+Walk the example worlds in your browser at [holodeck.kilnstudio.tools](https://holodeck.kilnstudio.tools/): Meridian Sanctuary, Crescent Cove, the Quiet Courtyard, Tidemark Island, Winter Mountainside Cabin and the Cove.
+
 ![Crescent Cove in the workspace, with the dock at the bottom of the screen](site/images/workspace.webp)
 
 ![The starter cove inside the grid construct, with its mood board easel](docs/images/starter-cove.webp)
@@ -25,7 +29,7 @@ With no directory, launch uses `cove` inside `holodeck-worlds` next to your curr
 
 To choose the folder yourself: `node bin/holodeck.mjs launch ../my-worlds/first-world`. Then choose **Connect** in the dock at the bottom of the screen, pick **Codex**, **Cursor** or **Claude Code**, connect, select a model or Cursor mode, and describe what to build. For Claude Code, sign in first by running `claude` in a terminal; Holodeck checks `claude auth status` and never handles your Claude credentials. Connect also configures Kiln tools in that world's workspace.
 
-The world-name menu lets you create and switch worlds or start from **Tidemark Island**, an editable example with beaches, terrain, ocean, jungle and wildlife. Each world has its own scene, references and revision history. Your worlds live outside the source checkout, in a parent folder you choose.
+The world-name menu lets you create and switch worlds or start from an editable example: **Meridian Sanctuary**, **Crescent Cove**, **Tidemark Island**, **Winter Mountainside Cabin** or the **Quiet Courtyard**. Each world has its own scene, references and revision history. Your worlds live outside the source checkout, in a parent folder you choose.
 
 See [getting started](docs/getting-started.md) for the full flow. The current checkout has been tested with Node 24.20.0 and npm 11.19.0.
 
@@ -35,8 +39,9 @@ See [getting started](docs/getting-started.md) for the full flow. The current ch
 - Edit a shared world bible and mood board with images, notes, file references and imported reference packs.
 - See a proposal's placements as ghosts in the world, review its differences, then apply it; hot-load validated Kiln assets.
 - Shape terrain with textured material layers, fill groves and undergrowth with seeded scatter, and add optional surf and a cloudy sky. Objects under water take the depth tint automatically, and collider tops marked walkable carry you along jetties and up stairs.
-- Walk, jump, swim, switch first/third-person cameras, or inspect with a free camera. Press Enter to talk to your agent without leaving the world.
+- Walk, jump, swim, switch first/third-person cameras, or inspect with a free camera. Photo mode (H) hides every control for a clean frame. Press Enter to talk to your agent without leaving the world.
 - Save, restore and remix scene revisions; create independent copies of example worlds.
+- Light worlds with a sky light, a baked probe grid and sun shadows; still water and mirror orbs reflect the world, and the walker, in real time.
 - Export an accepted scene as a standalone playable static site.
 
 ## How it works

@@ -1,0 +1,375 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "meridian-sanctuary",
+  "title": "Meridian Sanctuary",
+  "description": "A marble sanctuary above the clouds: a causeway between mirror pools, terraces climbing to a gate tower, floating statues and mirrored orbs, and a bridge path off to the side.",
+  "sourceRevision": 27,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "inhabitant.maker@1",
+      "motion.drift@1",
+      "terrain.heightfield@1",
+      "water.ocean@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "4bfd354235b83f253ded88250683143814f7d9d9672a3df7e8c14e50401e5092",
+    "bytes": 438478
+  },
+  "assets": [
+    {
+      "id": "arcade-arch",
+      "file": "assets/imports/31800d916aee1b6bca31ab51c3577b813cef9982ba0d7fbdc5e6760d83a3ab7b.glb",
+      "sha256": "31800d916aee1b6bca31ab51c3577b813cef9982ba0d7fbdc5e6760d83a3ab7b",
+      "bytes": 446504
+    },
+    {
+      "id": "arcade-bay",
+      "file": "assets/imports/bf2e816bd344c60734361a581266831601546c8afddd49e80554110d64de815d.glb",
+      "sha256": "bf2e816bd344c60734361a581266831601546c8afddd49e80554110d64de815d",
+      "bytes": 561964
+    },
+    {
+      "id": "arcade-pier",
+      "file": "assets/imports/f5023ce52f99367f31ca76fb624ce89a9ab50028b02c562b92983e7473ac457d.glb",
+      "sha256": "f5023ce52f99367f31ca76fb624ce89a9ab50028b02c562b92983e7473ac457d",
+      "bytes": 392988
+    },
+    {
+      "id": "arcade-pier-slot",
+      "file": "assets/imports/7e96ed8923b375105a427a3c61a0c829fe4594b9668ab80af00a4bbfd6927036.glb",
+      "sha256": "7e96ed8923b375105a427a3c61a0c829fe4594b9668ab80af00a4bbfd6927036",
+      "bytes": 409172
+    },
+    {
+      "id": "arcade-pylon",
+      "file": "assets/imports/70a0024743ec6757a4a0110ea06a3d9b8d01e196130e30c91a99280f71b33dad.glb",
+      "sha256": "70a0024743ec6757a4a0110ea06a3d9b8d01e196130e30c91a99280f71b33dad",
+      "bytes": 796008
+    },
+    {
+      "id": "balustrade-4",
+      "file": "assets/imports/a0c40e478f7a7ee58aaa6f87642a7f9329c45e627af7da6c183d82b5f5c0ee45.glb",
+      "sha256": "a0c40e478f7a7ee58aaa6f87642a7f9329c45e627af7da6c183d82b5f5c0ee45",
+      "bytes": 332568
+    },
+    {
+      "id": "basin-water",
+      "file": "assets/imports/15be8981765636b518620ec8eac261e2bbc7b6ba421117b40f8508308399a0e1.glb",
+      "sha256": "15be8981765636b518620ec8eac261e2bbc7b6ba421117b40f8508308399a0e1",
+      "bytes": 36584
+    },
+    {
+      "id": "block-8",
+      "file": "assets/imports/b2fdece4ef00a30c62a46e0236df6ac04bf5a7a94257ee3f508f75b6ee6f0fe4.glb",
+      "sha256": "b2fdece4ef00a30c62a46e0236df6ac04bf5a7a94257ee3f508f75b6ee6f0fe4",
+      "bytes": 574980
+    },
+    {
+      "id": "canopy",
+      "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+      "sha256": "0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0",
+      "bytes": 929100
+    },
+    {
+      "id": "cascade-tower",
+      "file": "assets/imports/dc18db681668df8be1a07ef3e024b85faaa47ae818f5cca56240a031f1fdbfe1.glb",
+      "sha256": "dc18db681668df8be1a07ef3e024b85faaa47ae818f5cca56240a031f1fdbfe1",
+      "bytes": 478736
+    },
+    {
+      "id": "coping-4",
+      "file": "assets/imports/26647e19679146f84d7e9fcdeb9104f5273fcf7496b783b9b5de66252437c20c.glb",
+      "sha256": "26647e19679146f84d7e9fcdeb9104f5273fcf7496b783b9b5de66252437c20c",
+      "bytes": 299044
+    },
+    {
+      "id": "cube-marble",
+      "file": "assets/imports/a53ffada88901ed9323f7a8c9639eeb11d1927ea5a20477571a35e1d9789d96e.glb",
+      "sha256": "a53ffada88901ed9323f7a8c9639eeb11d1927ea5a20477571a35e1d9789d96e",
+      "bytes": 282288
+    },
+    {
+      "id": "cube-mirror",
+      "file": "assets/imports/f052282ea7389236f220c25277fb00504de1dfa440c6e7d2c8d398de9439de1a.glb",
+      "sha256": "f052282ea7389236f220c25277fb00504de1dfa440c6e7d2c8d398de9439de1a",
+      "bytes": 5236
+    },
+    {
+      "id": "cube-mirror-court",
+      "file": "assets/imports/de76c91d812d79382063b892c77295ff5deef58b1b677eddfda98bc421e0f2e1.glb",
+      "sha256": "de76c91d812d79382063b892c77295ff5deef58b1b677eddfda98bc421e0f2e1",
+      "bytes": 5244
+    },
+    {
+      "id": "cube-mirror-far",
+      "file": "assets/imports/7565e0872c555de2563f19c2a4533a90743a290497888d7b24f29ab10755fd41.glb",
+      "sha256": "7565e0872c555de2563f19c2a4533a90743a290497888d7b24f29ab10755fd41",
+      "bytes": 5240
+    },
+    {
+      "id": "cypress-broad",
+      "file": "assets/imports/26743581289a7b2799e09df6909e7ee72184f544c8f5a8bb677adae92c7c6a9e.glb",
+      "sha256": "26743581289a7b2799e09df6909e7ee72184f544c8f5a8bb677adae92c7c6a9e",
+      "bytes": 378448
+    },
+    {
+      "id": "cypress-mid",
+      "file": "assets/imports/a8263638268e4b8296eb1038dee3a16d7e5a5d1c293ca549320b74037ab688be.glb",
+      "sha256": "a8263638268e4b8296eb1038dee3a16d7e5a5d1c293ca549320b74037ab688be",
+      "bytes": 403320
+    },
+    {
+      "id": "cypress-slim",
+      "file": "assets/imports/003f4e9395fb5c6a3ff97c5d02762800b61687cd8f8064f7d920af798b600624.glb",
+      "sha256": "003f4e9395fb5c6a3ff97c5d02762800b61687cd8f8064f7d920af798b600624",
+      "bytes": 481224
+    },
+    {
+      "id": "cypress-tall",
+      "file": "assets/imports/689ed8584fff0fe276e8a45adaee3bbeec6a4e72a6a1839f934bdb531fa4a98f.glb",
+      "sha256": "689ed8584fff0fe276e8a45adaee3bbeec6a4e72a6a1839f934bdb531fa4a98f",
+      "bytes": 550724
+    },
+    {
+      "id": "deck-4",
+      "file": "assets/imports/71ee59d021e2bf91924b47cc7538a8e7a0777d4c7d49b32935274d773364769b.glb",
+      "sha256": "71ee59d021e2bf91924b47cc7538a8e7a0777d4c7d49b32935274d773364769b",
+      "bytes": 340520
+    },
+    {
+      "id": "deck-6",
+      "file": "assets/imports/5dd0045c8ae8652541737e066abeec56f451b889181e2da033a2e95359e5f4f8.glb",
+      "sha256": "5dd0045c8ae8652541737e066abeec56f451b889181e2da033a2e95359e5f4f8",
+      "bytes": 336124
+    },
+    {
+      "id": "falls-narrow",
+      "file": "assets/imports/984acc04312a1712e550a98a4ac1572438eadcec75687524428f70c1b98b7e51.glb",
+      "sha256": "984acc04312a1712e550a98a4ac1572438eadcec75687524428f70c1b98b7e51",
+      "bytes": 89784
+    },
+    {
+      "id": "foundation-4",
+      "file": "assets/imports/0acf1114dbddae2c17b9ef4121ac25dbaa6b7cdaaacd060913e5bd177e74454b.glb",
+      "sha256": "0acf1114dbddae2c17b9ef4121ac25dbaa6b7cdaaacd060913e5bd177e74454b",
+      "bytes": 468744
+    },
+    {
+      "id": "gateway",
+      "file": "assets/imports/a80b611eb293ab6b6b18e95d9a436c7d7e2185e328ea92787b4ef9f787c173d9.glb",
+      "sha256": "a80b611eb293ab6b6b18e95d9a436c7d7e2185e328ea92787b4ef9f787c173d9",
+      "bytes": 14792776
+    },
+    {
+      "id": "hearth",
+      "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+      "sha256": "07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba",
+      "bytes": 1656308
+    },
+    {
+      "id": "isle-base",
+      "file": "assets/imports/faa07d441e2383b1b408d0e2ab80b801bc7f6f576ad429ebe235f262a56ab945.glb",
+      "sha256": "faa07d441e2383b1b408d0e2ab80b801bc7f6f576ad429ebe235f262a56ab945",
+      "bytes": 1159192
+    },
+    {
+      "id": "ivy-long",
+      "file": "assets/imports/44008144537fd12cec0faa9b2104f22e20f82fe32985391a29cf58c67bf1255e.glb",
+      "sha256": "44008144537fd12cec0faa9b2104f22e20f82fe32985391a29cf58c67bf1255e",
+      "bytes": 213728
+    },
+    {
+      "id": "ivy-short",
+      "file": "assets/imports/f869dd440a9f58abbe25fe65cc73d99bfc1d0ad0c417dc38d7f0e21a1a22de0c.glb",
+      "sha256": "f869dd440a9f58abbe25fe65cc73d99bfc1d0ad0c417dc38d7f0e21a1a22de0c",
+      "bytes": 86884
+    },
+    {
+      "id": "lamp",
+      "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+      "sha256": "c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808",
+      "bytes": 254364
+    },
+    {
+      "id": "monolith",
+      "file": "assets/imports/51524b45342939d61988ec89d1ef63daf08ab58b70d7fc13bc50bb70dc3b8d92.glb",
+      "sha256": "51524b45342939d61988ec89d1ef63daf08ab58b70d7fc13bc50bb70dc3b8d92",
+      "bytes": 1313276
+    },
+    {
+      "id": "moodboard",
+      "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+      "sha256": "0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
+    },
+    {
+      "id": "orb",
+      "file": "assets/imports/563ea30274f7909b917ccd771e40a63fb2b1c6c18e696bc592eedbe7bdb3b1bb.glb",
+      "sha256": "563ea30274f7909b917ccd771e40a63fb2b1c6c18e696bc592eedbe7bdb3b1bb",
+      "bytes": 275776
+    },
+    {
+      "id": "overflow-wide",
+      "file": "assets/imports/5cc57f59320d62f219856f21b61ee1f34f4940e1c86420b553d8af972257744f.glb",
+      "sha256": "5cc57f59320d62f219856f21b61ee1f34f4940e1c86420b553d8af972257744f",
+      "bytes": 74552
+    },
+    {
+      "id": "parapet-4",
+      "file": "assets/imports/5621829bf18e8be8e0a947f9da65f8fbf938f9a8501f2eff9488d7a2233d3be4.glb",
+      "sha256": "5621829bf18e8be8e0a947f9da65f8fbf938f9a8501f2eff9488d7a2233d3be4",
+      "bytes": 294716
+    },
+    {
+      "id": "pavilion",
+      "file": "assets/imports/80c78c7effe5f1a71afb0f23b52b0126de5b724497114e49914958960f905282.glb",
+      "sha256": "80c78c7effe5f1a71afb0f23b52b0126de5b724497114e49914958960f905282",
+      "bytes": 596512
+    },
+    {
+      "id": "planter-long",
+      "file": "assets/imports/f409f0304f2fa8d4269c0826f873b504517c45e9618fb6dfce4e587ab179af74.glb",
+      "sha256": "f409f0304f2fa8d4269c0826f873b504517c45e9618fb6dfce4e587ab179af74",
+      "bytes": 503880
+    },
+    {
+      "id": "planter-sq",
+      "file": "assets/imports/763d149e4a3f2ae481c09c4889465b677cac3790b9af56a018749ef70e7d41f5.glb",
+      "sha256": "763d149e4a3f2ae481c09c4889465b677cac3790b9af56a018749ef70e7d41f5",
+      "bytes": 441368
+    },
+    {
+      "id": "planting",
+      "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+      "sha256": "cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8",
+      "bytes": 1053324
+    },
+    {
+      "id": "pool-steps",
+      "file": "assets/imports/23a3ab978f8d67be3c5b7dc996593533ad2e0317c0da8b037146597a5bd56397.glb",
+      "sha256": "23a3ab978f8d67be3c5b7dc996593533ad2e0317c0da8b037146597a5bd56397",
+      "bytes": 304680
+    },
+    {
+      "id": "rim-spill",
+      "file": "assets/imports/25b86da922bc5cbd0a45dad8bfb693d7d1aef882d4e577a2fdbec525066eb64c.glb",
+      "sha256": "25b86da922bc5cbd0a45dad8bfb693d7d1aef882d4e577a2fdbec525066eb64c",
+      "bytes": 67360
+    },
+    {
+      "id": "rug",
+      "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+      "sha256": "4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857",
+      "bytes": 121880
+    },
+    {
+      "id": "seating",
+      "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
+      "sha256": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
+      "bytes": 890148
+    },
+    {
+      "id": "shrub-a",
+      "file": "assets/imports/d41b632d49e91dfcd3f6db132b8ba89e42ac1d8d3d138a64867ecd7c22d610d7.glb",
+      "sha256": "d41b632d49e91dfcd3f6db132b8ba89e42ac1d8d3d138a64867ecd7c22d610d7",
+      "bytes": 282308
+    },
+    {
+      "id": "shrub-b",
+      "file": "assets/imports/b0f7b81d888b267ea85a1d4977af957004a8b02afdd6ab9ba3d8fa58ef322253.glb",
+      "sha256": "b0f7b81d888b267ea85a1d4977af957004a8b02afdd6ab9ba3d8fa58ef322253",
+      "bytes": 229668
+    },
+    {
+      "id": "shrub-c",
+      "file": "assets/imports/f7eeae666d6bac7bacd40f1514ebee4323ebef7afcc4c84adc44c50f57ce2d2c.glb",
+      "sha256": "f7eeae666d6bac7bacd40f1514ebee4323ebef7afcc4c84adc44c50f57ce2d2c",
+      "bytes": 252068
+    },
+    {
+      "id": "stair-4",
+      "file": "assets/imports/2c527e59cf8b7bade85935e30290b0c5986b83a5248f7cf30a20afa2149c5605.glb",
+      "sha256": "2c527e59cf8b7bade85935e30290b0c5986b83a5248f7cf30a20afa2149c5605",
+      "bytes": 414172
+    },
+    {
+      "id": "stair-8",
+      "file": "assets/imports/705bfe877ceee36dc6026496617ce20c8291d91f5a847318c25153e9d7998a39.glb",
+      "sha256": "705bfe877ceee36dc6026496617ce20c8291d91f5a847318c25153e9d7998a39",
+      "bytes": 587552
+    },
+    {
+      "id": "statue-figure",
+      "file": "assets/imports/fd9f981f9876ba561567ba071e10280db0feeeaf79ab902f813e2ea8c78a2988.glb",
+      "sha256": "fd9f981f9876ba561567ba071e10280db0feeeaf79ab902f813e2ea8c78a2988",
+      "bytes": 896964
+    },
+    {
+      "id": "statue-whale",
+      "file": "assets/imports/733063c17e42fbe08312a06ef3fb0b9b4ea1ee8bdb9d50103e8a8d04ef6382b3.glb",
+      "sha256": "733063c17e42fbe08312a06ef3fb0b9b4ea1ee8bdb9d50103e8a8d04ef6382b3",
+      "bytes": 794760
+    },
+    {
+      "id": "step-slab",
+      "file": "assets/imports/f4d3c14fbdbc1ab0f07f7af289e93eec9b6e618e8f253ceb457c5d5f840ba2fe.glb",
+      "sha256": "f4d3c14fbdbc1ab0f07f7af289e93eec9b6e618e8f253ceb457c5d5f840ba2fe",
+      "bytes": 289440
+    },
+    {
+      "id": "structure",
+      "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+      "sha256": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "bytes": 1398268
+    },
+    {
+      "id": "tower-gate",
+      "file": "assets/imports/eb250a9dd0a414138db8619015c2daf6646cfe1ed4794b3d6137d98b094ccd75.glb",
+      "sha256": "eb250a9dd0a414138db8619015c2daf6646cfe1ed4794b3d6137d98b094ccd75",
+      "bytes": 1618560
+    },
+    {
+      "id": "tower-slot",
+      "file": "assets/imports/7036e4b366e13826f00d1934ad3f09273c0d3a5ba634b37fc74c369e984e9ff2.glb",
+      "sha256": "7036e4b366e13826f00d1934ad3f09273c0d3a5ba634b37fc74c369e984e9ff2",
+      "bytes": 1107336
+    }
+  ],
+  "textures": [
+    {
+      "file": "assets/imports/terrain/87f3e77b745befde4b820a1846815acb41570d51bbf629a295124d40a4634006.png",
+      "sha256": "87f3e77b745befde4b820a1846815acb41570d51bbf629a295124d40a4634006",
+      "bytes": 42738,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/96b60cf65b491e0d6764a68d8e2166ca9a2311e2403580f4a7d8340aae551ba7.png",
+      "sha256": "96b60cf65b491e0d6764a68d8e2166ca9a2311e2403580f4a7d8340aae551ba7",
+      "bytes": 549243,
+      "width": 1024,
+      "height": 1024
+    },
+    {
+      "file": "assets/imports/terrain/eeeaadc04d60a303a7a48dcef5f13c3acbdcf68ce064dcd2f08c04184e2af9d6.png",
+      "sha256": "eeeaadc04d60a303a7a48dcef5f13c3acbdcf68ce064dcd2f08c04184e2af9d6",
+      "bytes": 6604,
+      "width": 1024,
+      "height": 1024
+    }
+  ],
+  "preview": {
+    "file": "preview.png",
+    "sha256": "67070971ce19e48884613c2baa54379330b8cea910ed565535f5f56a5522d97e",
+    "bytes": 936051,
+    "width": 1280,
+    "height": 720
+  },
+  "integrity": "a019313ca0160aa62655cb09bf8ee927e1e93cc601b6b3c859725f18109abfd3"
+}
