@@ -64,6 +64,21 @@ export function stableShadowKeys(renderer){
 export function shadowFadeAt([x,y,z],c=SUN_SHADOW){
  const edge=Math.min(x,1-x,y,1-y)*c.halfExtent*2,depth=Math.min(z,1-z)*(c.far-c.near),t=Math.max(0,Math.min(1,Math.min(edge,depth)/c.fadeWidth));return t*t*(3-2*t);
 }
+// Holds the shadow box still while its focus moves, as three's SunLightShadow holds its
+// cascades (H128). Across the light's view the focus steps in whole map texels, so shadow
+// edges keep their texels instead of crawling as the view turns. Away from the walker it
+// also slides along the sun's direction onto the ground plane, which moves nothing across
+// the light's view: the box's depth range, and the fade at its ends, then stay put while
+// the aim point rides up walls and across terraces (free camera shadows changed height as
+// the view moved). A walker keeps its own height, which follows it smoothly.
+const lightX=new Vector3(),lightY=new Vector3(),lightZ=new Vector3(),worldUp=new Vector3(0,1,0);
+export function stableShadowFocus(focus,toSun,{halfExtent,mapSize},{mode,groundHeight=0}={},out=focus){
+ lightZ.copy(toSun).normalize();out.copy(focus);
+ if(mode!=='walk'&&lightZ.y>1e-3)out.addScaledVector(lightZ,(groundHeight-out.y)/lightZ.y);
+ lightX.crossVectors(worldUp,lightZ);if(lightX.lengthSq()<1e-8)lightX.set(1,0,0);lightX.normalize();lightY.crossVectors(lightZ,lightX);
+ const texel=2*halfExtent/mapSize,x=Math.round(out.dot(lightX)/texel)*texel,y=Math.round(out.dot(lightY)/texel)*texel,z=out.dot(lightZ);
+ return out.copy(lightX).multiplyScalar(x).addScaledVector(lightY,y).addScaledVector(lightZ,z);
+}
 const viewRay=new Ray(),direction=new Vector3();
 export function shadowViewFocus({mode,actor,camera,terrain,groundHeight=0,lead=0},out=new Vector3()){
  if(lead>0){

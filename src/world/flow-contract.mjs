@@ -1,12 +1,15 @@
 // Flowing surfaces (asset.flow): named mesh nodes whose material maps scroll
 // along their UVs at a fixed rate, for waterfalls, overflowing pool lips and
 // streams. Visual only: geometry, colliders and the authored texture stay put.
+// mirror: true (H129) also mirrors the world on each node, which must be a level surface
+// where it is placed: still basins rather than falls.
 const fail=message=>{throw new Error(message);};
 const record=x=>x&&typeof x==='object'&&!Array.isArray(x);
 const exact=(x,keys,label)=>{if(!record(x)||Object.keys(x).some(k=>!keys.includes(k)))fail(`Invalid flow ${label} fields`);};
 export const FLOW_SPEED_LIMIT=4;
 export function validateFlow(value){
- exact(value,['nodes','speed'],'binding');
+ exact(value,['nodes','speed','mirror'],'binding');
+ if(value.mirror!==undefined&&typeof value.mirror!=='boolean')fail('Flow mirror must be true or false');
  if(!Array.isArray(value.nodes)||!value.nodes.length||value.nodes.length>16||new Set(value.nodes).size!==value.nodes.length||value.nodes.some(n=>typeof n!=='string'||!/^[-a-zA-Z0-9_]{1,128}$/.test(n)))fail('Flow requires 1–16 unique exact mesh node names');
  if(!Array.isArray(value.speed)||value.speed.length!==2||value.speed.some(v=>!Number.isFinite(v)||Math.abs(v)>FLOW_SPEED_LIMIT)||value.speed.every(v=>v===0))fail(`Flow speed must be [u,v] UV units per second within ±${FLOW_SPEED_LIMIT}, not both 0`);
  return value;

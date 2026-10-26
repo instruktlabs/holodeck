@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {BoxGeometry,DirectionalLight,DoubleSide,FrontSide,Mesh,MeshStandardMaterial,NodeMaterial,PerspectiveCamera,PlaneGeometry,Scene,Vector3} from 'three/webgpu';
 import {createTerrain} from './terrain.mjs';
-import {SHADOW_ONLY_LAYER,SUN_SHADOW,configureSunShadow,scheduleSunShadow,shadowFadeAt,shadowProxies,shadowViewFocus,stableShadowKeys,sunShadowConfig} from './sun-shadow.mjs';
+import {SHADOW_ONLY_LAYER,SUN_SHADOW,configureSunShadow,scheduleSunShadow,shadowFadeAt,shadowProxies,shadowViewFocus,stableShadowFocus,stableShadowKeys,sunShadowConfig} from './sun-shadow.mjs';
 import {validateShadow} from './shadow-contract.mjs';
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
 const terrain=createTerrain({type:'heightfield',bounds:[-40,40,-40,40],segments:[8,8],baseHeight:2,stamps:[]});
@@ -78,4 +78,25 @@ test('the shadow pass keeps its shared material version while leaves and stone a
  const plain=new Scene(),before=shared.version;renderer.renderObject(leaf,plain,null,leaf.geometry,leaf.material);
  const refusing=new MeshStandardMaterial();refusing.allowOverride=false;renderer.renderObject(stone,pass,null,stone.geometry,refusing);
  assert.equal(shared.version,before);
+});
+
+test('the shadow box steps in whole texels across the light and keeps its depth on the ground away from the walker (H128)',()=>{
+ const toSun=new Vector3(-8,14,9).normalize(),c=SUN_SHADOW,texel=2*c.halfExtent/c.mapSize;
+ const z=new Vector3().copy(toSun),x=new Vector3().crossVectors(new Vector3(0,1,0),z).normalize(),y=new Vector3().crossVectors(z,x);
+ // Free view: aim points anywhere along one sun ray land on the same ground point, on the texel grid.
+ const a=stableShadowFocus(new Vector3(3.217,0,-5.4),toSun,c,{mode:'free'},new Vector3());
+ const b=stableShadowFocus(new Vector3(3.217,0,-5.4).addScaledVector(toSun,7.3),toSun,c,{mode:'free'},new Vector3());
+ near(a.distanceTo(b),0);assert.ok(Math.abs(a.y)<=texel);
+ for(const axis of [x,y]){const k=a.dot(axis)/texel;near(k,Math.round(k));}
+ // However far the aim moves, the box moves across the light by whole texels only, at most
+ // one for a sub-texel move.
+ for(const [move,most] of [[.3,1],[40,40]]){
+  const moved=stableShadowFocus(new Vector3(3.217+texel*move,0,-5.4),toSun,c,{mode:'free'},new Vector3()).sub(a);
+  for(const axis of [x,y]){const k=moved.dot(axis)/texel;near(k,Math.round(k));assert.ok(Math.abs(k)<=most);}
+ }
+ // The ground plane follows the water level.
+ assert.ok(Math.abs(stableShadowFocus(new Vector3(1,12,1),toSun,c,{mode:'overview',groundHeight:-.1},new Vector3()).y+.1)<=texel);
+ // A walker keeps its own height: snapping moves it by under a texel.
+ const walker=new Vector3(2,18.4,-3),held=stableShadowFocus(walker,toSun,c,{mode:'walk'},new Vector3());
+ assert.ok(held.distanceTo(walker)<=texel);near(held.dot(z),walker.dot(z));
 });

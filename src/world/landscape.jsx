@@ -11,8 +11,9 @@ import {buildSurfMap,resolveSurf} from './surf.mjs';
 import {BELOW_HORIZON,CLOUD_FLOOR,CLOUD_SEA_HAZE,resolveSky,skyRadianceScale} from './sky.mjs';
 import {AERIAL_GLOW_G,KOSCHMIEDER,aerialWeights,resolveAerial} from './aerial.mjs';
 import {cumulusDeckNode} from './cloud-deck.js';
-import {probeGridBake} from './probe-grid.js';
+import {isReflectionsOnly,probeGridBake} from './probe-grid.js';
 import {probeKey,probeReflections,reflectionProbePoints,skyReflection} from './asset-reflection.mjs';
+import {holdLiveReflections} from './live-reflection.mjs';
 
 // Two bounded surface draws. Geometry, walking and shoreline shading all read
 // the same terrain lattice; only material detail is evaluated per fragment.
@@ -694,8 +695,10 @@ function SkyLight({environment,runtime}){
   const report=window.holodeckPrototype?(window.holodeckPrototype.skyLight={captures:0,pending:true,position:position.toArray()}):{captures:0};
   // sky.light.grid (H127): a probe grid, in the scene from the start, bakes a few probes a frame.
   const bake=sky.light.grid?probeGridBake({gl,scene,grid:sky.light.grid,capture:target.texture,intensity:sky.light.intensity}):null;
-  state.current={capture,extras,steps:PROBE_CAPTURES+1+extras.length,frames:0,report,bake,baked:!bake};
-  return()=>{state.current=null;report.pending=false;bake?.dispose();for(const extra of extras){if(probeReflections.get(extra.key)===extra.target.texture)probeReflections.set(extra.key,null);extra.target.dispose();}scene.environment=previous.environment;scene.environmentIntensity=previous.intensity;if(skyReflection.get()===skyTarget.texture)skyReflection.set(null);skyTarget.dispose();target.dispose();scratch?.dispose();copy.material.dispose();generator.dispose();dome.geometry.dispose();domeMaterial.dispose();};
+  // Live reflections (H130) wait for the last capture and the grid.
+  const release=holdLiveReflections();
+  state.current={capture,extras,steps:PROBE_CAPTURES+1+extras.length,frames:0,report,bake,baked:!bake,release};
+  return()=>{release();state.current=null;report.pending=false;bake?.dispose();for(const extra of extras){if(probeReflections.get(extra.key)===extra.target.texture)probeReflections.set(extra.key,null);extra.target.dispose();}scene.environment=previous.environment;scene.environmentIntensity=previous.intensity;if(skyReflection.get()===skyTarget.texture)skyReflection.set(null);skyTarget.dispose();target.dispose();scratch?.dispose();copy.material.dispose();generator.dispose();dome.geometry.dispose();domeMaterial.dispose();};
  },[gl,scene,camera,environment,probe,points]);
  // Wait a frame for placements to mount and for pipelines to finish compiling,
  // then capture the dome alone and the world PROBE_CAPTURES times, each lit by
@@ -706,7 +709,7 @@ function SkyLight({environment,runtime}){
   // A probe grid bakes between the dome's capture and the world's.
   if(!s.baked&&s.steps<=PROBE_CAPTURES+s.extras.length){
    s.baked=s.bake.step();s.report.grid=Math.round(s.bake.progress*100);
-   if(s.baked)s.report.reflectionsOnly=scene.environmentNode?.constructor?.type==='ReflectionEnvironmentNode';
+   if(s.baked)s.report.reflectionsOnly=isReflectionsOnly(scene.environmentNode);
    return;
   }
   if(!s.steps)return;
@@ -714,6 +717,7 @@ function SkyLight({environment,runtime}){
   const extra=s.steps<=s.extras.length?s.extras[s.extras.length-s.steps]:null,world=s.steps<=PROBE_CAPTURES+s.extras.length;
   if(extra?s.capture(true,extra.at,[extra.target]):s.capture(world)){s.steps--;if(world)s.report.captures++;}
   s.report.pending=s.steps>0||!s.baked;
+  if(!s.report.pending)s.release();
  });
  return null;
 }

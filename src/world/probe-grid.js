@@ -1,8 +1,9 @@
-import {EnvironmentNode,Vector3} from 'three/webgpu';
-import {texture,vec3} from 'three/tsl';
+import {Vector3} from 'three/webgpu';
+import {texture} from 'three/tsl';
 import {LightProbeGrid} from 'three/addons/lighting/LightProbeGrid.js';
 import {LightProbeGridNode} from 'three/addons/tsl/lighting/LightProbeGridNode.js';
 import {GRID_DEFAULTS,gridResolution} from './sky.mjs';
+import {reflectionsOnlyEnvironment} from './reflections-only.mjs';
 
 // sky.light.grid (H127, plateau plan step 5; see sky.mjs). The sky light's single probe lit
 // every surface with one unoccluded view of the world: shade under a lintel got the same
@@ -10,16 +11,9 @@ import {GRID_DEFAULTS,gridResolution} from './sky.mjs';
 // (three's LightProbeGrid, L2 spherical harmonics with bounces between surfaces) gives each
 // point the light around it, so shade facing sunlit stone is lit warm and recesses darken.
 
-// The sky light's capture for reflections only: three's environment light adds both a
-// reflected and a diffuse term, and with the grid in place the diffuse term would light
-// shade twice. Its diffuse write goes to a throwaway variable instead.
-export class ReflectionEnvironmentNode extends EnvironmentNode{
-  static get type(){return 'ReflectionEnvironmentNode';}
-  setup(builder){
-    const irradiance=builder.context.iblIrradiance;builder.context.iblIrradiance=vec3(0).toVar();
-    try{super.setup(builder);}finally{builder.context.iblIrradiance=irradiance;}
-  }
-}
+// With the grid in place the sky light's capture lights by reflection alone, or the
+// capture's diffuse term would light shade twice (see reflections-only.mjs).
+export {isReflectionsOnly} from './reflections-only.mjs';
 
 // Probes baked per frame. The bake renders the scene six times per probe, about 2 ms a face
 // on the hub laptop, mostly per-object CPU work, and every frame between ranges also draws the
@@ -64,6 +58,12 @@ export function probeGridBake({gl,scene,grid:config,capture,intensity=1}){
   const g={...GRID_DEFAULTS,...config},[nx,ny,nz]=gridResolution(g),size=[0,1,2].map(i=>g.max[i]-g.min[i]);
   const grid=new LightProbeGrid(size[0],size[1],size[2],nx,ny,nz);grid.name='sky-light-grid';grid.intensity=g.intensity*intensity;
   grid.position.set(...[0,1,2].map(i=>(g.min[i]+g.max[i])/2));grid.updateMatrixWorld();grid._ensureTextures();
+  // The atlas is set up as a render target before any material binds it, as three's own
+  // bounce grid is: a render target texture first created for sampling is destroyed and made
+  // again when the bake first draws into it, and the materials kept the destroyed one (WebGPU
+  // "Destroyed texture used in a submit" every frame, measured). three.js #35202, fixed after
+  // r186 by #35204, which initialises render target textures with their target.
+  gl.initRenderTarget?.(grid._renderTarget);
   // three registers the grid's light node with the renderer on its first bake; the grid is
   // in the scene before that, and materials built without the node leave the grid out for
   // good (three warns "Light node not found" and skips it), so it is registered here.
@@ -76,7 +76,7 @@ export function probeGridBake({gl,scene,grid:config,capture,intensity=1}){
   // lights them from the pass before. A single pass sees surfaces with the capture's fill
   // instead, and the switch follows it, in a step of its own; the caller steps again only
   // once the rebuilt pipelines have compiled.
-  const reflectionsOnly=()=>{previous=scene.environmentNode;reflections=scene.environmentNode=new ReflectionEnvironmentNode(texture(capture));};
+  const reflectionsOnly=()=>{previous=scene.environmentNode;reflections=scene.environmentNode=reflectionsOnlyEnvironment(texture(capture));};
   if(passes>1)reflectionsOnly();
   return {
     probes:total,

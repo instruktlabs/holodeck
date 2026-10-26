@@ -19,7 +19,7 @@ import {StaticAssetBatch,StaticMergedMesh} from './static-batches.jsx';
 import {shareMaterials} from './material-share.mjs';
 import {planStaticMerge} from './static-merge.mjs';
 import {FlockAsset} from './flock.jsx';
-import {configureSunShadow,scheduleSunShadow,shadowViewFocus,stableShadowKeys,sunShadowConfig} from './sun-shadow.mjs';
+import {configureSunShadow,scheduleSunShadow,shadowViewFocus,stableShadowFocus,stableShadowKeys,sunShadowConfig} from './sun-shadow.mjs';
 import {resolveGrade} from './grade.mjs';
 import {applySceneExposure,resolveLighting} from './lighting.mjs';
 
@@ -223,6 +223,7 @@ function Sun({runtime,environment,cameraMode}){
   const matrix=camera.matrixWorld.elements,previous=last.current,groundHeight=runtime.scene.water?.level??0;
   if(cameraMode==='walk'||previous.mode!==cameraMode||previous.terrain!==runtime.terrain||previous.groundHeight!==groundHeight||matrix.some((value,index)=>value!==previous.matrix?.[index])){
    shadowViewFocus({mode:cameraMode,actor:runtime.actor,camera,terrain:runtime.terrain,groundHeight,lead:shadow.lead},focus);
+   stableShadowFocus(focus,direction,shadow,{mode:cameraMode,groundHeight});
    last.current={mode:cameraMode,terrain:runtime.terrain,groundHeight,matrix:[...matrix]};
   }
   target.position.copy(focus);light.current.position.copy(focus).add(direction);target.updateMatrixWorld();
@@ -240,7 +241,7 @@ export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
  const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
  // Identical materials become one instance across assets, and static pieces in a
  // shared material bake into one mesh per material (H100).
- const placed=useMemo(()=>placedObjects(s),[s]),shared=useMemo(()=>shareMaterials(bundle.models).models,[bundle.models]),models=useUnderwaterModels(shared,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models),[placed,models]);
+ const placed=useMemo(()=>placedObjects(s),[s]),shared=useMemo(()=>shareMaterials(bundle.models).models,[bundle.models]),models=useUnderwaterModels(shared,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models,{apart:new Set(s.assets.filter(a=>a.reflection==='live').map(a=>a.id))}),[placed,models,s.assets]);
  const merge=useMemo(()=>planStaticMerge(staticPlan.batches,models,s.assets),[staticPlan,models,s.assets]);
  return <WorldMaterialsProvider>
   <color attach="background" args={[e.fogColor]}/><fog attach="fog" args={[e.fogColor,e.fogNear??28,e.fogFar??85]}/>

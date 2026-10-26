@@ -29,12 +29,13 @@ export const SPLIT_ABOVE=32;
 // detailed blocks, not a scatter of parapets or planters.
 export const SPLIT_TRIANGLES=200000;
 function modelTriangles(source){let triangles=0;source?.traverseVisible(node=>{if(node.isMesh)triangles+=(node.geometry.index?node.geometry.index.count:node.geometry.attributes.position.count)/3*(node.isInstancedMesh?node.count:1);});return triangles;}
-export function planStaticBatches(items,models,{cellSize=96,splitAbove=SPLIT_ABOVE,splitTriangles=SPLIT_TRIANGLES}={}){
+// Placements of assets named in apart (live reflections, H130) are never batched.
+export function planStaticBatches(items,models,{cellSize=96,splitAbove=SPLIT_ABOVE,splitTriangles=SPLIT_TRIANGLES,apart=new Set()}={}){
  if(!Number.isFinite(cellSize)||cellSize<0)throw new Error('Static batch cell size must be zero or a positive finite distance');
  const groups=new Map(),support=new Map(),triangles=new Map(),individual=[];
  for(const item of items){
   if(!support.has(item.asset))support.set(item.asset,compatibleModel(models[item.asset]?.scene));
-  if(!item.asset||item.behavior||item.light||item.materialStyle==='cove'||!support.get(item.asset)){individual.push(item);continue;}
+  if(!item.asset||item.behavior||item.light||item.materialStyle==='cove'||apart.has(item.asset)||!support.get(item.asset)){individual.push(item);continue;}
   // Placements kept out of the shadow map (castShadow:false, H79) batch apart.
   const casts=item.castShadow!==false,key=`${item.asset}:${item.layer??'world'}${casts?'':':noshadow'}`;
   if(!groups.has(key))groups.set(key,{key,asset:item.asset,layer:item.layer??'world',castShadow:casts,items:[]});groups.get(key).items.push(item);

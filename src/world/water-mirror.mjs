@@ -75,8 +75,13 @@ function update(frame,bounds,level,margin){
  clip.multiplyScalar(1/clip.dot(q));
  p[2]=clip.x;p[6]=clip.y;p[10]=renderer.coordinateSystem===WebGPUCoordinateSystem?clip.z:clip.z+1;p[14]=clip.w;
  // H98: only the water's rectangle. The window matrix rescales x and y alone, so the
- // oblique near plane in the third row is kept.
- const window=waterWindow(camera,bounds,level,margin);
+ // oblique near plane in the third row is kept. Pools sharing one level (H129) take
+ // the rectangle that holds each of their windows.
+ let window=null;
+ for(const rect of typeof bounds==='function'?bounds():[bounds]){
+  const w=waterWindow(camera,rect,level,margin);
+  if(w)window=window?[Math.min(window[0],w[0]),Math.max(window[1],w[1]),Math.min(window[2],w[2]),Math.max(window[3],w[3])]:w;
+ }
  const span=window?mirrorWindow(window,renderTarget.width,renderTarget.height,narrow):null;
  if(span&&!span.full){virtualCamera.projectionMatrix.premultiply(span.matrix);renderTarget.viewport.set(...span.viewport);}
  else renderTarget.viewport.set(0,0,renderTarget.width,renderTarget.height);
@@ -93,7 +98,8 @@ function update(frame,bounds,level,margin){
  material.visible=true;rendering=false;this.forceUpdate=false;
 }
 
-// water.bounds [xmin, xmax, zmin, zmax] at water.level, as the ocean geometry spans them.
+// water.bounds [xmin, xmax, zmin, zmax] at water.level, as the ocean geometry spans them,
+// or a function returning the current rectangles of the pools that share the level.
 export function windowedMirror({bounds,level,resolutionScale=.5,margin=.04}){
  const node=reflector({resolutionScale,bounces:false}),base=node.reflector;
  base.target.rotation.x=-Math.PI/2;base.target.position.y=level;base.target.updateMatrixWorld(true);

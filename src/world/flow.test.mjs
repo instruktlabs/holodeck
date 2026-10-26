@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {Group,Mesh,PlaneGeometry,BufferGeometry,BufferAttribute,MeshStandardMaterial,MeshBasicMaterial,Texture} from 'three/webgpu';
 import {flowOffset,validateFlow,validateFlowBinding} from './flow-contract.mjs';
 import {bindAssetFlow} from './asset-flow.mjs';
+import {isReflectionsOnly} from './reflections-only.mjs';
 import {isReactive,reactiveNode,translucentNode} from './reactive.mjs';
 import {validateWorld} from './contract.mjs';
 
@@ -58,4 +59,24 @@ test('worlds carry asset.flow on schema 2 ordinary assets only',()=>{
  const both=world();both.scene.assets[1].foliage={nodes:['falls_sheet']};assert.throws(()=>validateWorld(both),/both foliage and flow/);
  const origin=world();origin.scene.assets[0].flow=config();assert.throws(()=>validateWorld(origin),/ordinary imported placements/);
  const cove=world();cove.scene.objects[0].materialStyle='cove';assert.throws(()=>validateWorld(cove),/cove material derivation/);
+});
+
+test('still basins mirror the world: placements on one level share one windowed mirror, captures see the plain copy, and cleanup restores the source (H129)',()=>{
+ assert.equal(validateFlow({...config(),mirror:true}).mirror,true);assert.throws(()=>validateFlow({...config(),mirror:'yes'}),/mirror/);
+ const material=new MeshStandardMaterial({roughness:.03,transparent:true});
+ const basin=(x,y)=>{const g=new Group(),surface=new Mesh(new PlaneGeometry(8,16).rotateX(-Math.PI/2),material);surface.name='falls_sheet';g.add(surface);g.position.set(x,y,-76);return {g,surface};};
+ const west=basin(6,2.3),east=basin(22,2.3),high=basin(0,9);
+ const flow={...config(),mirror:true},a=bindAssetFlow(west.g,flow),b=bindAssetFlow(east.g,flow),c=bindAssetFlow(high.g,flow);
+ // One mirror and one material per level; the surface lights by reflection alone.
+ assert.equal(west.surface.material,east.surface.material);assert.notEqual(west.surface.material,high.surface.material);
+ const mirror=west.surface.material.envNode;assert.ok(isReflectionsOnly(mirror));
+ assert.ok(west.surface.material.name.endsWith('/ mirror'));
+ // Captures draw the flowing copy without the mirror.
+ assert.ok(west.surface.userData.skyCaptureMaterial);assert.equal(west.surface.userData.skyCaptureMaterial.envNode,null);
+ c.dispose();a.dispose();
+ assert.equal(west.surface.material,material);assert.equal(west.surface.userData.skyCaptureMaterial,undefined);
+ assert.notEqual(east.surface.material,material,'the other basin keeps its mirror');
+ b.dispose();assert.equal(east.surface.material,material);
+ // A tilted or stepped surface is refused rather than mirrored wrongly.
+ const tilted=basin(0,0);tilted.g.rotation.x=.3;assert.throws(()=>bindAssetFlow(tilted.g,flow),/level surface/);
 });

@@ -89,6 +89,10 @@ The `capabilities` section returns each of these; the key is in brackets
   probe's view of the world; `asset.reflection: {probe: [x, y, z]}` gives an
   asset a world capture of its own from a point in open air among its
   placements, so mirrors above the courts reflect the architecture.
+  `asset.reflection: "live"` gives each placement a cube of its own, captured
+  from its centre and kept current while it is on screen, so a mirror orb shows
+  the walker passing it; it costs a scene render a frame while one is in view,
+  so keep it to a few hero mirrors (at most 8 placements).
   Optional `sky.cumulus {toward: [x, z], spread, height}` raises a bank of
   towering cumulus on part of the horizon, in front of the sky: a far
   destination for an axis or a gateway (20–30° fills a tall opening). A list

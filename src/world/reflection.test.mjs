@@ -2,7 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Group,Mesh,PlaneGeometry,MeshStandardMaterial,MeshBasicMaterial,Texture} from 'three/webgpu';
 import {bindAssetReflection,probeKey,probeReflections,reflectionCapture,reflectionProbePoints,skyReflection} from './asset-reflection.mjs';
-import {validateWorld} from './contract.mjs';
+import {LIVE_REFLECTIONS,validateWorld} from './contract.mjs';
+import {PerspectiveCamera,SphereGeometry} from 'three/webgpu';
+import {pickLiveReflection,screenRadius} from './live-reflection.mjs';
+import {planStaticBatches} from './static-batches.mjs';
 
 test('a sky reflection gives lit meshes one shared copy reflecting the published capture, and cleanup restores the source',()=>{
  const mirror=new MeshStandardMaterial({color:'#ffffff',metalness:1,roughness:.04}),glow=new MeshBasicMaterial({color:'#ffe0b0'}),source=new Group();
@@ -67,6 +70,33 @@ test('captures see a probe mirror reflecting the sky capture, not a probe still 
 test('worlds carry a reflection probe point only with a sky light',()=>{
  const world=(reflection,light=true)=>({schemaVersion:2,revision:1,bible:{title:'T',intent:'I',rules:'R'},references:[],scene:{environment:{type:'construct',clearPath:true,groundColor:'#c9b994',fogColor:'#d6e5ec',sunColor:'#fff0d6',sunIntensity:3.3,...(light?{sky:{zenithColor:'#3d7fc4',light:{}}}:{})},bridge:null,origin:'cove',assets:[{id:'cove',file:'assets/imports/cove.glb'},{id:'cube',file:'assets/imports/cube.glb',reflection}],objects:[{id:'cube-1',asset:'cube',position:[0,30,0],rotation:[0,0,0],scale:[1,1,1],collider:null}],moodboard:null,runtime:{version:1,modules:['collision.boxes@1','camera.walk-orbit@1'],spawn:[0,1.72,4],look:[0,0],overview:[0,10,10],target:[0,0,0],bounds:[-20,20,-20,20],blockers:[]}}});
  validateWorld(world({probe:[0,32,4]}));
- for(const bad of [{probe:[0,32]},{probe:[0,32,'a']},{probe:[0,3000,0]},{probe:[0,1,0],size:2},[0,1,2],null])assert.throws(()=>validateWorld(world(bad)),/must be "sky" or \{probe/);
+ for(const bad of [{probe:[0,32]},{probe:[0,32,'a']},{probe:[0,3000,0]},{probe:[0,1,0],size:2},[0,1,2],null])assert.throws(()=>validateWorld(world(bad)),/must be "sky", "live" or \{probe/);
  assert.throws(()=>validateWorld(world({probe:[0,32,4]},false)),/needs environment.sky.light/);
+});
+
+test('a live reflection is a placement of its own, and a world holds a few (H130)',()=>{
+ const world=(count,reflection='live')=>({schemaVersion:2,revision:1,bible:{title:'T',intent:'I',rules:'R'},references:[],scene:{environment:{type:'construct',clearPath:true,groundColor:'#c9b994',fogColor:'#d6e5ec',sunColor:'#fff0d6',sunIntensity:3.3},bridge:null,origin:'cove',assets:[{id:'cove',file:'assets/imports/cove.glb'},{id:'orb',file:'assets/imports/orb.glb',reflection}],objects:Array.from({length:count},(_,i)=>({id:`orb-${i}`,asset:'orb',position:[i*4,30,0],rotation:[0,0,0],scale:[1,1,1],collider:null})),moodboard:null,runtime:{version:1,modules:['collision.boxes@1','camera.walk-orbit@1'],spawn:[0,1.72,4],look:[0,0],overview:[0,10,10],target:[0,0,0],bounds:[-20,20,-20,20],blockers:[]}}});
+ validateWorld(world(LIVE_REFLECTIONS));
+ assert.throws(()=>validateWorld(world(LIVE_REFLECTIONS+1)),/At most 8 placements may have a live reflection/);
+ // Live placements never join a static batch, which would share one material between them.
+ const items=[0,1].map(i=>({id:`orb-${i}`,asset:'orb',position:[i*3,0,0],rotation:[0,0,0],scale:[1,1,1]})),models={orb:{scene:new Mesh(new SphereGeometry(),new MeshStandardMaterial())}};
+ assert.equal(planStaticBatches(items,models).individual.length,0);
+ assert.deepEqual(planStaticBatches(items,models,{apart:new Set(['orb'])}).individual.map(i=>i.id),['orb-0','orb-1']);
+});
+test('live reflections take one placement a frame: a first cube in view first, then the longest wait on screen (H130)',()=>{
+ const camera=new PerspectiveCamera(60,1,.1,500);camera.position.set(0,0,0);camera.lookAt(0,0,-1);camera.updateMatrixWorld();
+ const orb=(z,x=0,radius=1)=>{const parent=new Group(),mesh=new Mesh(new SphereGeometry(radius),new MeshStandardMaterial());mesh.position.set(x,0,z);parent.add(mesh);parent.updateMatrixWorld(true);return {object:mesh,ready:true,waited:0};};
+ const near=orb(-10),far=orb(-400),behind=orb(10),late=orb(-12,3);
+ // A metre-radius orb 10 m away covers about 87 px of a 1000 px tall view; 400 m away, about 2.
+ assert.ok(Math.abs(screenRadius(camera,near.object.position,1,1000)-1/(10*Math.tan(Math.PI/6))*500)<1e-6);
+ const list=[near,far,behind,late];
+ late.ready=false;assert.equal(pickLiveReflection(camera,1000,list),late,'a placement in view without its first cube comes first');
+ late.ready=true;near.waited=0;late.waited=5;assert.equal(pickLiveReflection(camera,1000,list),late,'then the one that waited longest');
+ late.waited=0;assert.equal(pickLiveReflection(camera,1000,list),near);
+ far.ready=false;assert.equal(pickLiveReflection(camera,1000,list),far,'a first cube is taken however small');
+ far.ready=true;for(const e of list)e.waited=0;far.waited=99;behind.waited=99;
+ assert.notEqual(pickLiveReflection(camera,1000,list),far,'tiny placements wait');
+ far.waited=200;for(const e of [near,late,behind])e.waited=0;assert.equal(pickLiveReflection(camera,1000,list),far,'then refresh slowly');far.waited=0;behind.waited=99;
+ assert.notEqual(pickLiveReflection(camera,1000,list),behind,'and so do those out of view');
+ near.object.removeFromParent();late.object.removeFromParent();assert.equal(pickLiveReflection(camera,1000,list),null,'unmounted placements are skipped');
 });
