@@ -53,10 +53,10 @@
       },
       {
         "id": "wmc-fir-hero-a",
-        "file": "assets/imports/bec22f468853e89955c4ba4a48e314adb228af2dd2c9ca5a88b7a93669a5e0c7.glb",
+        "file": "assets/imports/fe9541b09092e748366975e8b6730c735af7dd1322b89f82fb6bfdb6b1e6d51b.glb",
         "provenance": {
           "assetId": "a_d7c11d251c944d37bb395dd2317258bc",
-          "revisionId": "r_105e6c9467ed4443a85cf1979b45aab2",
+          "revisionId": "r_24dc1336523045fe90ab54f009816389",
           "collection": "project"
         },
         "foliage": {
@@ -95,10 +95,10 @@
       },
       {
         "id": "wmc-spruce-hero-a",
-        "file": "assets/imports/eeb1d8ca42993801fa2de373caf539f861cb167f650797265ce02c1fe351e89e.glb",
+        "file": "assets/imports/ac6e81bc30a2df8cce9a36517d70f3942f4f5552a27d116b43b20fdd44b5466b.glb",
         "provenance": {
           "assetId": "a_23355f2ce8664f04b335c6be26def8d1",
-          "revisionId": "r_a6300c01aff74afcad5a4ea74cbb67d5",
+          "revisionId": "r_9096fae118ea43d9b436cb2b7038bdfa",
           "collection": "project"
         },
         "foliage": {
@@ -110,10 +110,10 @@
       },
       {
         "id": "wmc-fir-middle-a",
-        "file": "assets/imports/744fcb27a715a380cf1aa7d33dcc38055349c9b655f6ce18dd48730118fa7e47.glb",
+        "file": "assets/imports/1f75a2acb0ba007970ece3fc1fb3f7dd1a051d35500a80f7e3adda55b902994d.glb",
         "provenance": {
           "assetId": "a_70a4c2e9fee3489aa5d4f93d71942508",
-          "revisionId": "r_cc07345479d94a33bdf04bc3969540bc",
+          "revisionId": "r_653b24f39a224932ad60242f0fdf3434",
           "collection": "project"
         },
         "foliage": {
@@ -125,10 +125,10 @@
       },
       {
         "id": "wmc-spruce-middle-a",
-        "file": "assets/imports/aebf1f5ef565e398f073f667d46ce726abd376b90a14c26d707ab075fa9f059b.glb",
+        "file": "assets/imports/30bd23fb2b7531a97a6f5ae2ed8909794f3640a1190857fc9dd14b72b20e1be4.glb",
         "provenance": {
           "assetId": "a_d013717c727c48dfad0bd798c94f261f",
-          "revisionId": "r_9bf5d291a99f444c810b08b8cd7c1f6b",
+          "revisionId": "r_12a9a5e32f354fe992679bc5795f41a2",
           "collection": "project"
         },
         "foliage": {
@@ -140,28 +140,28 @@
       },
       {
         "id": "wmc-fir-background-a",
-        "file": "assets/imports/37f661f3e22281a291abf880e91340d9522aeb1bfec6e256b16336fc389e4e94.glb",
+        "file": "assets/imports/c6f9cc83fa0053e39df9325fadde80c8911e95cb5090a78c32cf2ae8db084067.glb",
         "provenance": {
           "assetId": "a_07729f5aec8847bc80d071b4599d6bff",
-          "revisionId": "r_23d2596b5b1142019ccc8960b414e373",
+          "revisionId": "r_d36e25c91a154b18adda59d5fc18ba9c",
           "collection": "project"
         }
       },
       {
         "id": "wmc-spruce-background-a",
-        "file": "assets/imports/90e553f918c89b6e088a3de8f52bccec8cab1aed698d309f0b7b1d0123a96e2e.glb",
+        "file": "assets/imports/0fc97db462c7e42a9fce4a93afc87da4662e585d486a6697912901bcace52f8c.glb",
         "provenance": {
           "assetId": "a_b9737920dd4e43abaad0a6536de676f0",
-          "revisionId": "r_840cfdc71ca547d9aa4c11ad542d52c9",
+          "revisionId": "r_3e6ab9ec488f47478525cb870e37f42e",
           "collection": "project"
         }
       },
       {
         "id": "wmc-fir-sapling-a",
-        "file": "assets/imports/553fec6081abf7e9efde030e1d8977f496e517b6c73704601d6bf26f6770c8da.glb",
+        "file": "assets/imports/c487671a89ecf9d79e53dbc8141bed6da8f39c02670c46c3dcdf34889f5b58e0.glb",
         "provenance": {
           "assetId": "a_f72b795d8be449cfaee39950d715be64",
-          "revisionId": "r_f2f1d09fd0a942c58964b2821e219406",
+          "revisionId": "r_a5fcf206ebe2418a813cc2abdb19cad1",
           "collection": "project"
         },
         "foliage": {

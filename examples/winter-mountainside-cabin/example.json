@@ -19,7 +19,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "403bc137f158f00508b5aabc5d311311c998f93203076b29fabfffe1dcf322a5",
+    "sha256": "0f9e7bd0e84240adb26170181fc965f54d808c418067f8a447fcf13c584831d3",
     "bytes": 452594
   },
   "assets": [
@@ -109,26 +109,26 @@
     },
     {
       "id": "wmc-fir-background-a",
-      "file": "assets/imports/37f661f3e22281a291abf880e91340d9522aeb1bfec6e256b16336fc389e4e94.glb",
-      "sha256": "37f661f3e22281a291abf880e91340d9522aeb1bfec6e256b16336fc389e4e94",
+      "file": "assets/imports/c6f9cc83fa0053e39df9325fadde80c8911e95cb5090a78c32cf2ae8db084067.glb",
+      "sha256": "c6f9cc83fa0053e39df9325fadde80c8911e95cb5090a78c32cf2ae8db084067",
       "bytes": 174668
     },
     {
       "id": "wmc-fir-hero-a",
-      "file": "assets/imports/bec22f468853e89955c4ba4a48e314adb228af2dd2c9ca5a88b7a93669a5e0c7.glb",
-      "sha256": "bec22f468853e89955c4ba4a48e314adb228af2dd2c9ca5a88b7a93669a5e0c7",
+      "file": "assets/imports/fe9541b09092e748366975e8b6730c735af7dd1322b89f82fb6bfdb6b1e6d51b.glb",
+      "sha256": "fe9541b09092e748366975e8b6730c735af7dd1322b89f82fb6bfdb6b1e6d51b",
       "bytes": 3435860
     },
     {
       "id": "wmc-fir-middle-a",
-      "file": "assets/imports/744fcb27a715a380cf1aa7d33dcc38055349c9b655f6ce18dd48730118fa7e47.glb",
-      "sha256": "744fcb27a715a380cf1aa7d33dcc38055349c9b655f6ce18dd48730118fa7e47",
+      "file": "assets/imports/1f75a2acb0ba007970ece3fc1fb3f7dd1a051d35500a80f7e3adda55b902994d.glb",
+      "sha256": "1f75a2acb0ba007970ece3fc1fb3f7dd1a051d35500a80f7e3adda55b902994d",
       "bytes": 425676
     },
     {
       "id": "wmc-fir-sapling-a",
-      "file": "assets/imports/553fec6081abf7e9efde030e1d8977f496e517b6c73704601d6bf26f6770c8da.glb",
-      "sha256": "553fec6081abf7e9efde030e1d8977f496e517b6c73704601d6bf26f6770c8da",
+      "file": "assets/imports/c487671a89ecf9d79e53dbc8141bed6da8f39c02670c46c3dcdf34889f5b58e0.glb",
+      "sha256": "c487671a89ecf9d79e53dbc8141bed6da8f39c02670c46c3dcdf34889f5b58e0",
       "bytes": 700308
     },
     {
@@ -271,20 +271,20 @@
     },
     {
       "id": "wmc-spruce-background-a",
-      "file": "assets/imports/90e553f918c89b6e088a3de8f52bccec8cab1aed698d309f0b7b1d0123a96e2e.glb",
-      "sha256": "90e553f918c89b6e088a3de8f52bccec8cab1aed698d309f0b7b1d0123a96e2e",
+      "file": "assets/imports/0fc97db462c7e42a9fce4a93afc87da4662e585d486a6697912901bcace52f8c.glb",
+      "sha256": "0fc97db462c7e42a9fce4a93afc87da4662e585d486a6697912901bcace52f8c",
       "bytes": 184060
     },
     {
       "id": "wmc-spruce-hero-a",
-      "file": "assets/imports/eeb1d8ca42993801fa2de373caf539f861cb167f650797265ce02c1fe351e89e.glb",
-      "sha256": "eeb1d8ca42993801fa2de373caf539f861cb167f650797265ce02c1fe351e89e",
+      "file": "assets/imports/ac6e81bc30a2df8cce9a36517d70f3942f4f5552a27d116b43b20fdd44b5466b.glb",
+      "sha256": "ac6e81bc30a2df8cce9a36517d70f3942f4f5552a27d116b43b20fdd44b5466b",
       "bytes": 3629236
     },
     {
       "id": "wmc-spruce-middle-a",
-      "file": "assets/imports/aebf1f5ef565e398f073f667d46ce726abd376b90a14c26d707ab075fa9f059b.glb",
-      "sha256": "aebf1f5ef565e398f073f667d46ce726abd376b90a14c26d707ab075fa9f059b",
+      "file": "assets/imports/30bd23fb2b7531a97a6f5ae2ed8909794f3640a1190857fc9dd14b72b20e1be4.glb",
+      "sha256": "30bd23fb2b7531a97a6f5ae2ed8909794f3640a1190857fc9dd14b72b20e1be4",
       "bytes": 432708
     },
     {
@@ -404,5 +404,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "3d4be1872340e2bc3289c4b437eee29a507150b1a0b6a1bb8f656e2ae2f40853"
+  "integrity": "3bda48d3f83e611d8a9f6600eb6f1e55ab91433bdcb85eba1f5b6b2230a60ace"
 }
