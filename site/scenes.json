@@ -23,6 +23,7 @@
    }
   ],
   "path": "worlds/meridian-sanctuary/",
+  "updated": "2026-10-26",
   "hero": {
    "src": "images/hero-meridian-sanctuary.webp",
    "alt": "Meridian Sanctuary: a causeway between mirror pools toward a marble gate tower, with floating statues and a mirrored orb above the clouds."
@@ -52,6 +53,7 @@
    }
   ],
   "path": "worlds/crescent-cove/",
+  "updated": "2026-10-26",
   "hero": {
    "src": "images/hero-crescent-cove.webp",
    "alt": "Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon."
@@ -82,6 +84,7 @@
    }
   ],
   "path": "worlds/courtyard/",
+  "updated": "2026-10-26",
   "hero": {
    "src": "images/hero-courtyard.webp",
    "alt": "The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."
@@ -112,6 +115,7 @@
    }
   ],
   "path": "worlds/tidemark/",
+  "updated": "2026-10-26",
   "gallery": "https://kilnstudio.tools/packs/holodeck/tidemark/"
  },
  {
@@ -138,6 +142,7 @@
    }
   ],
   "path": "worlds/winter-mountainside-cabin/",
+  "updated": "2026-10-25",
   "hero": {
    "src": "images/hero-winter-mountainside-cabin.webp",
    "alt": "Winter Mountainside Cabin: a timber cabin on a snowy slope among snow-laden pines."
@@ -169,6 +174,7 @@
    }
   ],
   "path": "worlds/cove/",
+  "updated": "2026-10-26",
   "gallery": "https://kilnstudio.tools/packs/holodeck/cove/"
  }
 ]

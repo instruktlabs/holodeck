@@ -12,3 +12,13 @@
 # so they never change in place. Pages allows one splat per rule, so the scene is a placeholder.
 /worlds/:world/assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# The project's own pages.dev hosts serve the same files (production at holodeck-5mm.pages.dev,
+# each deployment and branch alias beneath it), so search engines are told not to index them;
+# only https://holodeck.kilnstudio.tools/ is indexed. Pages matches an absolute rule on its host,
+# where :name is one label (developers.cloudflare.com/pages/configuration/headers/).
+https://holodeck-5mm.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.holodeck-5mm.pages.dev/*
+  X-Robots-Tag: noindex

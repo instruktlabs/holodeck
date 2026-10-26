@@ -37,7 +37,14 @@ Winter Mountainside Cabin and the Cove (from `construct`). Each scene's 1200×63
 
 `npm run render:site` prerenders `site/index.html` from `site/scenes.json`, with
 the home page JSON-LD, `sitemap.xml` and `robots.txt`; the shelf needs no script
-at runtime. `server/site.test.mjs` fails while the rendered output is stale, and
+at runtime. Each sitemap URL carries a `<lastmod>`: a scene's catalog `updated` date (when
+its example or card last changed) and, for the shelf and `site/about/`, the dates in
+`PAGES` in `scripts/render-site.mjs`. Update the date in the commit that changes the page;
+with full git history the site test fails a date older than the page's last commit.
+`site/about/` is the About and how-to-use page, linked from the shelf footer.
+`site/_headers` sends `X-Robots-Tag: noindex` on `holodeck-5mm.pages.dev` and its
+deployment and branch aliases, so only `holodeck.kilnstudio.tools` is indexed.
+`server/site.test.mjs` fails while the rendered output is stale, and
 checks image sizes, lazy loading, local links, social card sizes and export
 hashes offline. Fonts are bundled as woff2 subsets, and the site loads nothing
 from other hosts.
