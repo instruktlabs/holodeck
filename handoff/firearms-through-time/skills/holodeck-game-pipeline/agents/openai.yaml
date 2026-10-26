@@ -1,0 +1,4 @@
+interface:
+  display_name: "Holodeck Game Pipeline"
+  short_description: "Prototype games in Holodeck and port to Bevy"
+  default_prompt: "Use $holodeck-game-pipeline to prototype a game in Kiln and Holodeck and prepare a validated Bevy migration."

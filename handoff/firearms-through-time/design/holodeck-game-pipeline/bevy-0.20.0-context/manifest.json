@@ -1,0 +1,77 @@
+{
+  "checked_date": "2026-10-25",
+  "tag": "v0.20.0",
+  "tree_sha": "b3bdd75becaffe9a16677cf5bae5bd6d198f052b",
+  "files": [
+    {
+      "path": "examples/3d/3d_scene.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/3d/3d_scene.rs",
+      "sha256": "f2386f5388638cda3e88fdf7058ad5e9232eac563ea00cb869fd8e900c30051c",
+      "bytes": 972,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "examples/gltf/load_gltf_extras.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/gltf/load_gltf_extras.rs",
+      "sha256": "d54bfa5f910eb421f70c4cb9a6a23f7e3bd6905f373fc5ce38d5462c05786c6d",
+      "bytes": 2498,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "examples/movement/physics_in_fixed_timestep.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/movement/physics_in_fixed_timestep.rs",
+      "sha256": "dcf3bccbbd7cbfadddd69af3623dad9f22e9735890903113789af86a48b4ef82",
+      "bytes": 20857,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "examples/camera/first_person_view_model.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/camera/first_person_view_model.rs",
+      "sha256": "59e8c610f30bf977cdca73c49a5750f2699b3c511c1a07468a641ee6c014a51c",
+      "bytes": 10130,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "examples/animation/animation_graph.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/animation/animation_graph.rs",
+      "sha256": "9b78e92ae08744627d1c72e671c28bf52cfb6d27efd1fa0b17ad067293321f0f",
+      "bytes": 17413,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "examples/state/states.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/state/states.rs",
+      "sha256": "9665802980b13c1d8b5d123d9229bb74e05a3cf4d05246c80cb59684913bcc37",
+      "bytes": 5380,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "examples/remote/server.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/remote/server.rs",
+      "sha256": "60761e2f29c8d46ca380e09f84861b321c26cf28f3acfc2320ded2e6c7cbb1e1",
+      "bytes": 2567,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "examples/remote/integration_test.rs",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/examples/remote/integration_test.rs",
+      "sha256": "c0949962040f8b4e66d245ace5d9f6e62bc932c1198d97e907eba8532c5250c9",
+      "bytes": 8336,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "LICENSE-MIT",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/LICENSE-MIT",
+      "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+      "bytes": 1036,
+      "status": "downloaded-not-executed"
+    },
+    {
+      "path": "LICENSE-APACHE",
+      "url": "https://raw.githubusercontent.com/bevyengine/bevy/v0.20.0/LICENSE-APACHE",
+      "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+      "bytes": 10173,
+      "status": "downloaded-not-executed"
+    }
+  ]
+}

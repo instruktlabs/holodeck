@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+node_modules/
+target/

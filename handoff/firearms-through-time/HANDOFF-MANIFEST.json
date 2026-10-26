@@ -1,0 +1,259 @@
+{
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "8593180a446c524cb5b7bad9120f4e8dbf0aa929c002a5c45c8491294764e5b6",
+      "bytes": 116
+    },
+    {
+      "path": "PC-AGENT-TASK.md",
+      "sha256": "03ae4f3ef64d8a81d0ed272420f9f5d53c8cffba4c74ce4441bc2bc88fe79e3d",
+      "bytes": 4790
+    },
+    {
+      "path": "PC-START-PROMPT.md",
+      "sha256": "de8c53a05e762d476c5c79c41cdf5edcebc2412c30b9bf944dd86710d3187b9a",
+      "bytes": 4461
+    },
+    {
+      "path": "READ-FIRST.md",
+      "sha256": "86cbfc372ad99f79817b65b7d0cf991a163989952b0f6604fc25f98bdc6b59d1",
+      "bytes": 4913
+    },
+    {
+      "path": "README.md",
+      "sha256": "4c3d536103a954303da7aa7be1b66dfc881953cd8c5c685df706ac3813dfa965",
+      "bytes": 948
+    },
+    {
+      "path": "UNREAL-TOOLCHAIN.md",
+      "sha256": "3458622b95bef3be2c46a3984070da4626cbeb641acdb844e3704354c2a35e26",
+      "bytes": 4233
+    },
+    {
+      "path": "assets/kiln/a_673283fc103a42a0aad0f028694aeebd/revisions/r_6e751062e6d84453840177de130360b6/asset.glb",
+      "sha256": "d186bd70d92a6bf6fee2f74a2e09e07f39d6585638acbc5587e4ca18f7903d82",
+      "bytes": 84188
+    },
+    {
+      "path": "assets/kiln/a_673283fc103a42a0aad0f028694aeebd/revisions/r_6e751062e6d84453840177de130360b6/manifest.json",
+      "sha256": "a38a62c1f82006d11441fe7e7ece559ab07c5e00ddb12c52a36379912607e24e",
+      "bytes": 71489
+    },
+    {
+      "path": "assets/kiln/a_673283fc103a42a0aad0f028694aeebd/revisions/r_6e751062e6d84453840177de130360b6/preview.png",
+      "sha256": "0d6bf4220c0f146c4bb8cc2d4f4d5ccaf770083c69653344c20f9d66eee1c5e5",
+      "bytes": 168459
+    },
+    {
+      "path": "assets/kiln/a_673283fc103a42a0aad0f028694aeebd/revisions/r_6e751062e6d84453840177de130360b6/source.kiln.js",
+      "sha256": "60f037790a35be7be6a583a7a273813a92457f9d12c530b996d0267fe599e2ec",
+      "bytes": 5712
+    },
+    {
+      "path": "design/firearms-through-time/DESIGN-BIBLE.md",
+      "sha256": "56b62f9e5c17e22d050efd98f63cf54cefe26dba945dd40138348b8d73dae52c",
+      "bytes": 16601
+    },
+    {
+      "path": "design/firearms-through-time/ENGINE-DECISION.md",
+      "sha256": "6ab4d1e612c4f8ef8eb3f4baf5cacc3455a341c14940654447ef12bbf80578f5",
+      "bytes": 5477
+    },
+    {
+      "path": "design/firearms-through-time/MOOD-BOARD.md",
+      "sha256": "0ea47b060133fda17766aa852506186103bfc5a2ec89394c6e670bfa7c6c9230",
+      "bytes": 2418
+    },
+    {
+      "path": "design/firearms-through-time/RANGE-ACTIVITY-RESEARCH.md",
+      "sha256": "0e5e577008878e89bc4c157c6b480551bdf0389f240e8ce3a4f79242facc01ee",
+      "bytes": 10824
+    },
+    {
+      "path": "design/firearms-through-time/STYLE-GUIDE.md",
+      "sha256": "f3578b5efd85d6583dc1c0e3740470cb95275bc05c243f43644ce5f4b305e629",
+      "bytes": 4477
+    },
+    {
+      "path": "design/firearms-through-time/blueprints/PLAN-NOTES.md",
+      "sha256": "87f2ef39723991140f9dfdfcd93caadd55297917351fe481404049ca68dc7d51",
+      "bytes": 2554
+    },
+    {
+      "path": "design/firearms-through-time/blueprints/build_blueprint.py",
+      "sha256": "9a9f2262ad9c2bcbd31d84fbb4e4313ca5d584fdcb79c2a77518bb3f76ec41ab",
+      "bytes": 9193
+    },
+    {
+      "path": "design/firearms-through-time/blueprints/layout.json",
+      "sha256": "10b64ad2c542431208b23a1fb7f50b93db2060ae9aed22f543b7920967c7186c",
+      "bytes": 2455
+    },
+    {
+      "path": "design/firearms-through-time/blueprints/placements.json",
+      "sha256": "e53f0fe5eda5b0de0ac2c7bce181794836de61d775ba6f29bed041b91e6508e7",
+      "bytes": 64878
+    },
+    {
+      "path": "design/firearms-through-time/blueprints/range-campus-01.png",
+      "sha256": "8b56285560bedb4e721d2748171541464322a1549ecfb4eb933a920ab15cd5c8",
+      "bytes": 276892
+    },
+    {
+      "path": "design/firearms-through-time/blueprints/range-campus-01.svg",
+      "sha256": "3a02020f9e73abe3a48a459f249456972683bb3409806a8cd798ad670ddf50bd",
+      "bytes": 57468
+    },
+    {
+      "path": "design/firearms-through-time/blueprints/validation.json",
+      "sha256": "ce9934bbc15178714e9d3f6c22f065ef7f3afeb70dacc66d63a9c9b3afac5675",
+      "bytes": 527
+    },
+    {
+      "path": "design/firearms-through-time/character/PROTOTYPE.md",
+      "sha256": "332bd764f4412c03e4d17c46f1e8994eabf07939a618ef85a0be9dfec811cd14",
+      "bytes": 1601
+    },
+    {
+      "path": "design/firearms-through-time/character/sentinel.kiln.js",
+      "sha256": "1b8507f77c8a436edbaf28204a4930b012116bd398fdfd30e85f9ce477cf273c",
+      "bytes": 5713
+    },
+    {
+      "path": "design/firearms-through-time/concepts/01-museum-study-superseded.png",
+      "sha256": "d4e580fbc2e1739b638655f2dda1cb36e5964ad0ce92ee377534457d9c8a01a2",
+      "bytes": 2786723
+    },
+    {
+      "path": "design/firearms-through-time/concepts/02-massive-modern-range-study.png",
+      "sha256": "f01bbd4f54756cf8e6e658defb4d45f2107f9bd4ae0066589ea33e0b6cdda62c",
+      "bytes": 3432921
+    },
+    {
+      "path": "design/firearms-through-time/concepts/03-overview-layout-study.png",
+      "sha256": "adec1c5c9e1bbdb3bdded461fe95cdec7baec2051e367d477638a6266148a967",
+      "bytes": 3270909
+    },
+    {
+      "path": "design/firearms-through-time/concepts/04-shared-concourse-direction.png",
+      "sha256": "f1614ce92a8eb512f19218106404ce451437558e283dce6debee12338da83ea4",
+      "bytes": 2585950
+    },
+    {
+      "path": "design/firearms-through-time/concepts/BLUEPRINT-REFERENCE-PROMPTS.md",
+      "sha256": "38998941ce236d67edb567990c7e4e3b5522020fe9df6600cfe44878f6d3ff94",
+      "bytes": 5045
+    },
+    {
+      "path": "design/firearms-through-time/concepts/GENERATION-NOTES.md",
+      "sha256": "e1ca8b3c8a8549cacf660b8e2f3088dc1f991037c7efead5d55c246e39b5a36b",
+      "bytes": 4165
+    },
+    {
+      "path": "design/holodeck-game-pipeline/ALTERNATIVE-ENGINES-RESEARCH.md",
+      "sha256": "96fa6792694ea4f80f3e44797538ca0116c2e3ee75c3b2285033ae9054530e4d",
+      "bytes": 7721
+    },
+    {
+      "path": "design/holodeck-game-pipeline/BEVY-AGENT-RESEARCH.md",
+      "sha256": "9118a52b0d2039bd6695d8dc325473812679b7a44ee4b00daf2008934c662956",
+      "bytes": 6998
+    },
+    {
+      "path": "design/holodeck-game-pipeline/UNREAL-AGENT-RESEARCH.md",
+      "sha256": "080c161c16505bcd6368d0cfa4fb398f303dd66ca8103cc5ca07f0cb7b5f9f34",
+      "bytes": 7743
+    },
+    {
+      "path": "design/holodeck-game-pipeline/WORKFLOW.md",
+      "sha256": "110808eee69b55517c88b2b548a69cc3734030718119a86c5fcd088dc277f720",
+      "bytes": 3962
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/LICENSE-APACHE",
+      "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9",
+      "bytes": 10173
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/LICENSE-MIT",
+      "sha256": "508a77d2e7b51d98adeed32648ad124b7b30241a8e70b2e72c99f92d8e5874d1",
+      "bytes": 1036
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/3d/3d_scene.rs",
+      "sha256": "f2386f5388638cda3e88fdf7058ad5e9232eac563ea00cb869fd8e900c30051c",
+      "bytes": 972
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/animation/animation_graph.rs",
+      "sha256": "9b78e92ae08744627d1c72e671c28bf52cfb6d27efd1fa0b17ad067293321f0f",
+      "bytes": 17413
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/camera/first_person_view_model.rs",
+      "sha256": "59e8c610f30bf977cdca73c49a5750f2699b3c511c1a07468a641ee6c014a51c",
+      "bytes": 10130
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/gltf/load_gltf_extras.rs",
+      "sha256": "d54bfa5f910eb421f70c4cb9a6a23f7e3bd6905f373fc5ce38d5462c05786c6d",
+      "bytes": 2498
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/movement/physics_in_fixed_timestep.rs",
+      "sha256": "dcf3bccbbd7cbfadddd69af3623dad9f22e9735890903113789af86a48b4ef82",
+      "bytes": 20857
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/remote/integration_test.rs",
+      "sha256": "c0949962040f8b4e66d245ace5d9f6e62bc932c1198d97e907eba8532c5250c9",
+      "bytes": 8336
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/remote/server.rs",
+      "sha256": "60761e2f29c8d46ca380e09f84861b321c26cf28f3acfc2320ded2e6c7cbb1e1",
+      "bytes": 2567
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/examples/state/states.rs",
+      "sha256": "9665802980b13c1d8b5d123d9229bb74e05a3cf4d05246c80cb59684913bcc37",
+      "bytes": 5380
+    },
+    {
+      "path": "design/holodeck-game-pipeline/bevy-0.20.0-context/manifest.json",
+      "sha256": "e692d7eb016d267d9bfcdf438583b140f32e4fd893de0d3718e3ff469fca0f2b",
+      "bytes": 3243
+    },
+    {
+      "path": "skills/holodeck-game-pipeline/SKILL.md",
+      "sha256": "5b95216617becfabb7dbb93cae1566d2f8b7e93f5f80169f0418692104ff2297",
+      "bytes": 4191
+    },
+    {
+      "path": "skills/holodeck-game-pipeline/agents/openai.yaml",
+      "sha256": "19100e9e9e47892bae1b0e9c57ae6f0f94507482428c6b53fbdd71fa2cb1d90b",
+      "bytes": 249
+    },
+    {
+      "path": "skills/holodeck-game-pipeline/references/bevy-context.md",
+      "sha256": "6f58d60cb8b9dc4cb93d27e9b7e30d71228de3ad7daab95c07d7f022e1cebc9d",
+      "bytes": 3791
+    },
+    {
+      "path": "skills/holodeck-game-pipeline/references/engine-options.md",
+      "sha256": "cc0bd038816a049b5520514e5b4696fd0f1a13138a6181beac3f77b7c61a25a9",
+      "bytes": 2283
+    },
+    {
+      "path": "skills/holodeck-game-pipeline/references/pipeline-contract.md",
+      "sha256": "3e368fc93055d146e1d2f779fce7b9462626a053b43cf3e5d042c7287ae4339d",
+      "bytes": 5051
+    },
+    {
+      "path": "verify_handoff.py",
+      "sha256": "83c2d7b45569af152999d24b0def988a21ed8aec994ffd92f114eded594b607e",
+      "bytes": 647
+    }
+  ]
+}

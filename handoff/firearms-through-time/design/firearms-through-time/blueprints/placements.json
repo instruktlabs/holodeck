@@ -1,0 +1,3366 @@
+{
+  "schema": "holodeck-spatial-study-v1",
+  "revision": "range-campus-02",
+  "status": "proposal-not-approved-or-runtime-imported",
+  "coordinates": {
+    "x": "across banks",
+    "y": "downrange",
+    "z": "up"
+  },
+  "units": "virtual metres",
+  "placements": [
+    {
+      "id": "paper-01",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 5.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-01-station",
+      "kind": "station",
+      "lane_id": "paper-01",
+      "x": 5.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-01-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-01",
+      "x": 5.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-01-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-01",
+      "x": 5.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-01-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-01",
+      "x": 5.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-01-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-01",
+      "x": 5.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-01-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-01",
+      "x": 5.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "paper-02",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 9.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-02-station",
+      "kind": "station",
+      "lane_id": "paper-02",
+      "x": 9.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-02-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-02",
+      "x": 9.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-02-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-02",
+      "x": 9.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-02-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-02",
+      "x": 9.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-02-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-02",
+      "x": 9.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-02-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-02",
+      "x": 9.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "paper-03",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 13.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-03-station",
+      "kind": "station",
+      "lane_id": "paper-03",
+      "x": 13.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-03-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-03",
+      "x": 13.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-03-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-03",
+      "x": 13.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-03-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-03",
+      "x": 13.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-03-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-03",
+      "x": 13.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-03-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-03",
+      "x": 13.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "paper-04",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 17.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-04-station",
+      "kind": "station",
+      "lane_id": "paper-04",
+      "x": 17.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-04-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-04",
+      "x": 17.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-04-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-04",
+      "x": 17.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-04-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-04",
+      "x": 17.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-04-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-04",
+      "x": 17.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-04-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-04",
+      "x": 17.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "paper-05",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 22.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-05-station",
+      "kind": "station",
+      "lane_id": "paper-05",
+      "x": 22.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-05-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-05",
+      "x": 22.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-05-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-05",
+      "x": 22.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-05-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-05",
+      "x": 22.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-05-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-05",
+      "x": 22.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-05-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-05",
+      "x": 22.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "paper-06",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 26.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-06-station",
+      "kind": "station",
+      "lane_id": "paper-06",
+      "x": 26.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-06-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-06",
+      "x": 26.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-06-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-06",
+      "x": 26.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-06-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-06",
+      "x": 26.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-06-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-06",
+      "x": 26.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-06-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-06",
+      "x": 26.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "paper-07",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 30.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-07-station",
+      "kind": "station",
+      "lane_id": "paper-07",
+      "x": 30.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-07-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-07",
+      "x": 30.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-07-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-07",
+      "x": 30.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-07-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-07",
+      "x": 30.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-07-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-07",
+      "x": 30.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-07-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-07",
+      "x": 30.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "paper-08",
+      "kind": "lane",
+      "bank": "paper",
+      "x": 34.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "paper-08-station",
+      "kind": "station",
+      "lane_id": "paper-08",
+      "x": 34.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "paper-08-target-1",
+      "kind": "target-marker",
+      "lane_id": "paper-08",
+      "x": 34.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "paper-08-target-2",
+      "kind": "target-marker",
+      "lane_id": "paper-08",
+      "x": 34.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "paper-08-target-3",
+      "kind": "target-marker",
+      "lane_id": "paper-08",
+      "x": 34.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "paper-08-target-4",
+      "kind": "target-marker",
+      "lane_id": "paper-08",
+      "x": 34.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "paper-08-target-5",
+      "kind": "target-marker",
+      "lane_id": "paper-08",
+      "x": 34.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-01",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 45.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-01-station",
+      "kind": "station",
+      "lane_id": "reactive-01",
+      "x": 45.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-01-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-01",
+      "x": 45.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-01-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-01",
+      "x": 45.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-01-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-01",
+      "x": 45.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-01-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-01",
+      "x": 45.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-01-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-01",
+      "x": 45.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-02",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 49.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-02-station",
+      "kind": "station",
+      "lane_id": "reactive-02",
+      "x": 49.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-02-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-02",
+      "x": 49.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-02-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-02",
+      "x": 49.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-02-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-02",
+      "x": 49.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-02-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-02",
+      "x": 49.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-02-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-02",
+      "x": 49.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-03",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 53.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-03-station",
+      "kind": "station",
+      "lane_id": "reactive-03",
+      "x": 53.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-03-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-03",
+      "x": 53.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-03-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-03",
+      "x": 53.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-03-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-03",
+      "x": 53.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-03-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-03",
+      "x": 53.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-03-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-03",
+      "x": 53.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-04",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 57.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-04-station",
+      "kind": "station",
+      "lane_id": "reactive-04",
+      "x": 57.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-04-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-04",
+      "x": 57.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-04-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-04",
+      "x": 57.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-04-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-04",
+      "x": 57.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-04-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-04",
+      "x": 57.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-04-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-04",
+      "x": 57.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-05",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 62.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-05-station",
+      "kind": "station",
+      "lane_id": "reactive-05",
+      "x": 62.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-05-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-05",
+      "x": 62.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-05-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-05",
+      "x": 62.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-05-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-05",
+      "x": 62.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-05-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-05",
+      "x": 62.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-05-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-05",
+      "x": 62.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-06",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 66.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-06-station",
+      "kind": "station",
+      "lane_id": "reactive-06",
+      "x": 66.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-06-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-06",
+      "x": 66.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-06-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-06",
+      "x": 66.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-06-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-06",
+      "x": 66.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-06-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-06",
+      "x": 66.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-06-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-06",
+      "x": 66.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-07",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 70.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-07-station",
+      "kind": "station",
+      "lane_id": "reactive-07",
+      "x": 70.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-07-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-07",
+      "x": 70.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-07-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-07",
+      "x": 70.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-07-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-07",
+      "x": 70.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-07-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-07",
+      "x": 70.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-07-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-07",
+      "x": 70.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "reactive-08",
+      "kind": "lane",
+      "bank": "reactive",
+      "x": 74.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "reactive-08-station",
+      "kind": "station",
+      "lane_id": "reactive-08",
+      "x": 74.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "reactive-08-target-1",
+      "kind": "target-marker",
+      "lane_id": "reactive-08",
+      "x": 74.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "reactive-08-target-2",
+      "kind": "target-marker",
+      "lane_id": "reactive-08",
+      "x": 74.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "reactive-08-target-3",
+      "kind": "target-marker",
+      "lane_id": "reactive-08",
+      "x": 74.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "reactive-08-target-4",
+      "kind": "target-marker",
+      "lane_id": "reactive-08",
+      "x": 74.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "reactive-08-target-5",
+      "kind": "target-marker",
+      "lane_id": "reactive-08",
+      "x": 74.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-01",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 85.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-01-station",
+      "kind": "station",
+      "lane_id": "moving-01",
+      "x": 85.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-01-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-01",
+      "x": 85.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-01-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-01",
+      "x": 85.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-01-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-01",
+      "x": 85.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-01-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-01",
+      "x": 85.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-01-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-01",
+      "x": 85.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-02",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 89.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-02-station",
+      "kind": "station",
+      "lane_id": "moving-02",
+      "x": 89.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-02-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-02",
+      "x": 89.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-02-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-02",
+      "x": 89.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-02-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-02",
+      "x": 89.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-02-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-02",
+      "x": 89.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-02-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-02",
+      "x": 89.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-03",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 93.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-03-station",
+      "kind": "station",
+      "lane_id": "moving-03",
+      "x": 93.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-03-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-03",
+      "x": 93.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-03-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-03",
+      "x": 93.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-03-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-03",
+      "x": 93.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-03-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-03",
+      "x": 93.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-03-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-03",
+      "x": 93.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-04",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 97.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-04-station",
+      "kind": "station",
+      "lane_id": "moving-04",
+      "x": 97.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-04-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-04",
+      "x": 97.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-04-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-04",
+      "x": 97.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-04-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-04",
+      "x": 97.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-04-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-04",
+      "x": 97.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-04-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-04",
+      "x": 97.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-05",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 102.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-05-station",
+      "kind": "station",
+      "lane_id": "moving-05",
+      "x": 102.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-05-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-05",
+      "x": 102.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-05-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-05",
+      "x": 102.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-05-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-05",
+      "x": 102.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-05-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-05",
+      "x": 102.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-05-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-05",
+      "x": 102.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-06",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 106.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-06-station",
+      "kind": "station",
+      "lane_id": "moving-06",
+      "x": 106.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-06-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-06",
+      "x": 106.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-06-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-06",
+      "x": 106.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-06-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-06",
+      "x": 106.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-06-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-06",
+      "x": 106.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-06-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-06",
+      "x": 106.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-07",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 110.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-07-station",
+      "kind": "station",
+      "lane_id": "moving-07",
+      "x": 110.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-07-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-07",
+      "x": 110.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-07-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-07",
+      "x": 110.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-07-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-07",
+      "x": 110.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-07-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-07",
+      "x": 110.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-07-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-07",
+      "x": 110.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "moving-08",
+      "kind": "lane",
+      "bank": "moving",
+      "x": 114.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "moving-08-station",
+      "kind": "station",
+      "lane_id": "moving-08",
+      "x": 114.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "moving-08-target-1",
+      "kind": "target-marker",
+      "lane_id": "moving-08",
+      "x": 114.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "moving-08-target-2",
+      "kind": "target-marker",
+      "lane_id": "moving-08",
+      "x": 114.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "moving-08-target-3",
+      "kind": "target-marker",
+      "lane_id": "moving-08",
+      "x": 114.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "moving-08-target-4",
+      "kind": "target-marker",
+      "lane_id": "moving-08",
+      "x": 114.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "moving-08-target-5",
+      "kind": "target-marker",
+      "lane_id": "moving-08",
+      "x": 114.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-01",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 125.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-01-station",
+      "kind": "station",
+      "lane_id": "sequence-01",
+      "x": 125.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-01-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-01",
+      "x": 125.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-01-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-01",
+      "x": 125.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-01-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-01",
+      "x": 125.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-01-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-01",
+      "x": 125.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-01-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-01",
+      "x": 125.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-02",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 129.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-02-station",
+      "kind": "station",
+      "lane_id": "sequence-02",
+      "x": 129.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-02-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-02",
+      "x": 129.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-02-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-02",
+      "x": 129.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-02-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-02",
+      "x": 129.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-02-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-02",
+      "x": 129.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-02-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-02",
+      "x": 129.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-03",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 133.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-03-station",
+      "kind": "station",
+      "lane_id": "sequence-03",
+      "x": 133.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-03-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-03",
+      "x": 133.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-03-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-03",
+      "x": 133.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-03-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-03",
+      "x": 133.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-03-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-03",
+      "x": 133.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-03-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-03",
+      "x": 133.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-04",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 137.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-04-station",
+      "kind": "station",
+      "lane_id": "sequence-04",
+      "x": 137.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-04-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-04",
+      "x": 137.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-04-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-04",
+      "x": 137.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-04-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-04",
+      "x": 137.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-04-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-04",
+      "x": 137.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-04-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-04",
+      "x": 137.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-05",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 142.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-05-station",
+      "kind": "station",
+      "lane_id": "sequence-05",
+      "x": 142.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-05-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-05",
+      "x": 142.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-05-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-05",
+      "x": 142.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-05-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-05",
+      "x": 142.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-05-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-05",
+      "x": 142.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-05-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-05",
+      "x": 142.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-06",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 146.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-06-station",
+      "kind": "station",
+      "lane_id": "sequence-06",
+      "x": 146.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-06-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-06",
+      "x": 146.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-06-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-06",
+      "x": 146.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-06-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-06",
+      "x": 146.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-06-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-06",
+      "x": 146.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-06-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-06",
+      "x": 146.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-07",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 150.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-07-station",
+      "kind": "station",
+      "lane_id": "sequence-07",
+      "x": 150.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-07-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-07",
+      "x": 150.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-07-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-07",
+      "x": 150.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-07-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-07",
+      "x": 150.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-07-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-07",
+      "x": 150.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-07-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-07",
+      "x": 150.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "sequence-08",
+      "kind": "lane",
+      "bank": "sequence",
+      "x": 154.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "sequence-08-station",
+      "kind": "station",
+      "lane_id": "sequence-08",
+      "x": 154.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "sequence-08-target-1",
+      "kind": "target-marker",
+      "lane_id": "sequence-08",
+      "x": 154.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "sequence-08-target-2",
+      "kind": "target-marker",
+      "lane_id": "sequence-08",
+      "x": 154.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "sequence-08-target-3",
+      "kind": "target-marker",
+      "lane_id": "sequence-08",
+      "x": 154.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "sequence-08-target-4",
+      "kind": "target-marker",
+      "lane_id": "sequence-08",
+      "x": 154.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "sequence-08-target-5",
+      "kind": "target-marker",
+      "lane_id": "sequence-08",
+      "x": 154.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-01",
+      "kind": "lane",
+      "bank": "long",
+      "x": 165.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-01-station",
+      "kind": "station",
+      "lane_id": "long-01",
+      "x": 165.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-01-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-01",
+      "x": 165.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-01-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-01",
+      "x": 165.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-01-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-01",
+      "x": 165.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-01-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-01",
+      "x": 165.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-01-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-01",
+      "x": 165.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-02",
+      "kind": "lane",
+      "bank": "long",
+      "x": 169.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-02-station",
+      "kind": "station",
+      "lane_id": "long-02",
+      "x": 169.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-02-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-02",
+      "x": 169.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-02-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-02",
+      "x": 169.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-02-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-02",
+      "x": 169.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-02-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-02",
+      "x": 169.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-02-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-02",
+      "x": 169.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-03",
+      "kind": "lane",
+      "bank": "long",
+      "x": 173.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-03-station",
+      "kind": "station",
+      "lane_id": "long-03",
+      "x": 173.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-03-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-03",
+      "x": 173.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-03-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-03",
+      "x": 173.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-03-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-03",
+      "x": 173.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-03-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-03",
+      "x": 173.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-03-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-03",
+      "x": 173.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-04",
+      "kind": "lane",
+      "bank": "long",
+      "x": 177.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-04-station",
+      "kind": "station",
+      "lane_id": "long-04",
+      "x": 177.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-04-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-04",
+      "x": 177.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-04-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-04",
+      "x": 177.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-04-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-04",
+      "x": 177.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-04-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-04",
+      "x": 177.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-04-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-04",
+      "x": 177.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-05",
+      "kind": "lane",
+      "bank": "long",
+      "x": 182.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-05-station",
+      "kind": "station",
+      "lane_id": "long-05",
+      "x": 182.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-05-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-05",
+      "x": 182.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-05-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-05",
+      "x": 182.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-05-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-05",
+      "x": 182.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-05-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-05",
+      "x": 182.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-05-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-05",
+      "x": 182.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-06",
+      "kind": "lane",
+      "bank": "long",
+      "x": 186.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-06-station",
+      "kind": "station",
+      "lane_id": "long-06",
+      "x": 186.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-06-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-06",
+      "x": 186.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-06-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-06",
+      "x": 186.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-06-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-06",
+      "x": 186.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-06-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-06",
+      "x": 186.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-06-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-06",
+      "x": 186.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-07",
+      "kind": "lane",
+      "bank": "long",
+      "x": 190.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-07-station",
+      "kind": "station",
+      "lane_id": "long-07",
+      "x": 190.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-07-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-07",
+      "x": 190.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-07-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-07",
+      "x": 190.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-07-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-07",
+      "x": 190.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-07-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-07",
+      "x": 190.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-07-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-07",
+      "x": 190.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "long-08",
+      "kind": "lane",
+      "bank": "long",
+      "x": 194.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "long-08-station",
+      "kind": "station",
+      "lane_id": "long-08",
+      "x": 194.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "long-08-target-1",
+      "kind": "target-marker",
+      "lane_id": "long-08",
+      "x": 194.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "long-08-target-2",
+      "kind": "target-marker",
+      "lane_id": "long-08",
+      "x": 194.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "long-08-target-3",
+      "kind": "target-marker",
+      "lane_id": "long-08",
+      "x": 194.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "long-08-target-4",
+      "kind": "target-marker",
+      "lane_id": "long-08",
+      "x": 194.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "long-08-target-5",
+      "kind": "target-marker",
+      "lane_id": "long-08",
+      "x": 194.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-01",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 205.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-01-station",
+      "kind": "station",
+      "lane_id": "custom-01",
+      "x": 205.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-01-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-01",
+      "x": 205.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-01-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-01",
+      "x": 205.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-01-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-01",
+      "x": 205.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-01-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-01",
+      "x": 205.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-01-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-01",
+      "x": 205.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-02",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 209.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-02-station",
+      "kind": "station",
+      "lane_id": "custom-02",
+      "x": 209.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-02-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-02",
+      "x": 209.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-02-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-02",
+      "x": 209.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-02-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-02",
+      "x": 209.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-02-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-02",
+      "x": 209.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-02-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-02",
+      "x": 209.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-03",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 213.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-03-station",
+      "kind": "station",
+      "lane_id": "custom-03",
+      "x": 213.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-03-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-03",
+      "x": 213.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-03-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-03",
+      "x": 213.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-03-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-03",
+      "x": 213.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-03-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-03",
+      "x": 213.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-03-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-03",
+      "x": 213.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-04",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 217.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-04-station",
+      "kind": "station",
+      "lane_id": "custom-04",
+      "x": 217.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-04-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-04",
+      "x": 217.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-04-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-04",
+      "x": 217.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-04-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-04",
+      "x": 217.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-04-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-04",
+      "x": 217.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-04-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-04",
+      "x": 217.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-05",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 222.125,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-05-station",
+      "kind": "station",
+      "lane_id": "custom-05",
+      "x": 222.125,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-05-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-05",
+      "x": 222.125,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-05-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-05",
+      "x": 222.125,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-05-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-05",
+      "x": 222.125,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-05-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-05",
+      "x": 222.125,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-05-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-05",
+      "x": 222.125,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-06",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 226.375,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-06-station",
+      "kind": "station",
+      "lane_id": "custom-06",
+      "x": 226.375,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-06-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-06",
+      "x": 226.375,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-06-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-06",
+      "x": 226.375,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-06-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-06",
+      "x": 226.375,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-06-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-06",
+      "x": 226.375,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-06-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-06",
+      "x": 226.375,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-07",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 230.625,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-07-station",
+      "kind": "station",
+      "lane_id": "custom-07",
+      "x": 230.625,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-07-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-07",
+      "x": 230.625,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-07-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-07",
+      "x": 230.625,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-07-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-07",
+      "x": 230.625,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-07-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-07",
+      "x": 230.625,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-07-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-07",
+      "x": 230.625,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "custom-08",
+      "kind": "lane",
+      "bank": "custom",
+      "x": 234.875,
+      "y": 0,
+      "z": 0,
+      "width": 4.25,
+      "length": 280
+    },
+    {
+      "id": "custom-08-station",
+      "kind": "station",
+      "lane_id": "custom-08",
+      "x": 234.875,
+      "y": -4,
+      "z": 0
+    },
+    {
+      "id": "custom-08-target-1",
+      "kind": "target-marker",
+      "lane_id": "custom-08",
+      "x": 234.875,
+      "y": 30,
+      "z": 0
+    },
+    {
+      "id": "custom-08-target-2",
+      "kind": "target-marker",
+      "lane_id": "custom-08",
+      "x": 234.875,
+      "y": 70,
+      "z": 0
+    },
+    {
+      "id": "custom-08-target-3",
+      "kind": "target-marker",
+      "lane_id": "custom-08",
+      "x": 234.875,
+      "y": 120,
+      "z": 0
+    },
+    {
+      "id": "custom-08-target-4",
+      "kind": "target-marker",
+      "lane_id": "custom-08",
+      "x": 234.875,
+      "y": 190,
+      "z": 0
+    },
+    {
+      "id": "custom-08-target-5",
+      "kind": "target-marker",
+      "lane_id": "custom-08",
+      "x": 234.875,
+      "y": 250,
+      "z": 0
+    },
+    {
+      "id": "collection-slot-01",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 6.916666666666667,
+      "y": -37,
+      "z": 0,
+      "group": 1
+    },
+    {
+      "id": "collection-slot-02",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 10.75,
+      "y": -37,
+      "z": 0,
+      "group": 1
+    },
+    {
+      "id": "collection-slot-03",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 14.583333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 1
+    },
+    {
+      "id": "collection-slot-04",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 18.416666666666664,
+      "y": -37,
+      "z": 0,
+      "group": 1
+    },
+    {
+      "id": "collection-slot-05",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 22.25,
+      "y": -37,
+      "z": 0,
+      "group": 1
+    },
+    {
+      "id": "collection-slot-06",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 26.083333333333332,
+      "y": -37,
+      "z": 0,
+      "group": 1
+    },
+    {
+      "id": "collection-slot-07",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 29.916666666666668,
+      "y": -37,
+      "z": 0,
+      "group": 2
+    },
+    {
+      "id": "collection-slot-08",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 33.75,
+      "y": -37,
+      "z": 0,
+      "group": 2
+    },
+    {
+      "id": "collection-slot-09",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 37.583333333333336,
+      "y": -37,
+      "z": 0,
+      "group": 2
+    },
+    {
+      "id": "collection-slot-10",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 41.416666666666664,
+      "y": -37,
+      "z": 0,
+      "group": 2
+    },
+    {
+      "id": "collection-slot-11",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 45.25,
+      "y": -37,
+      "z": 0,
+      "group": 2
+    },
+    {
+      "id": "collection-slot-12",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 49.083333333333336,
+      "y": -37,
+      "z": 0,
+      "group": 2
+    },
+    {
+      "id": "collection-slot-13",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 52.916666666666664,
+      "y": -37,
+      "z": 0,
+      "group": 3
+    },
+    {
+      "id": "collection-slot-14",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 56.75,
+      "y": -37,
+      "z": 0,
+      "group": 3
+    },
+    {
+      "id": "collection-slot-15",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 60.583333333333336,
+      "y": -37,
+      "z": 0,
+      "group": 3
+    },
+    {
+      "id": "collection-slot-16",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 64.41666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 3
+    },
+    {
+      "id": "collection-slot-17",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 68.25,
+      "y": -37,
+      "z": 0,
+      "group": 3
+    },
+    {
+      "id": "collection-slot-18",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 72.08333333333333,
+      "y": -37,
+      "z": 0,
+      "group": 3
+    },
+    {
+      "id": "collection-slot-19",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 75.91666666666667,
+      "y": -37,
+      "z": 0,
+      "group": 4
+    },
+    {
+      "id": "collection-slot-20",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 79.75,
+      "y": -37,
+      "z": 0,
+      "group": 4
+    },
+    {
+      "id": "collection-slot-21",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 83.58333333333333,
+      "y": -37,
+      "z": 0,
+      "group": 4
+    },
+    {
+      "id": "collection-slot-22",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 87.41666666666667,
+      "y": -37,
+      "z": 0,
+      "group": 4
+    },
+    {
+      "id": "collection-slot-23",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 91.25,
+      "y": -37,
+      "z": 0,
+      "group": 4
+    },
+    {
+      "id": "collection-slot-24",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 95.08333333333333,
+      "y": -37,
+      "z": 0,
+      "group": 4
+    },
+    {
+      "id": "collection-slot-25",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 98.91666666666667,
+      "y": -37,
+      "z": 0,
+      "group": 5
+    },
+    {
+      "id": "collection-slot-26",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 102.75,
+      "y": -37,
+      "z": 0,
+      "group": 5
+    },
+    {
+      "id": "collection-slot-27",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 106.58333333333333,
+      "y": -37,
+      "z": 0,
+      "group": 5
+    },
+    {
+      "id": "collection-slot-28",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 110.41666666666667,
+      "y": -37,
+      "z": 0,
+      "group": 5
+    },
+    {
+      "id": "collection-slot-29",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 114.25,
+      "y": -37,
+      "z": 0,
+      "group": 5
+    },
+    {
+      "id": "collection-slot-30",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 118.08333333333333,
+      "y": -37,
+      "z": 0,
+      "group": 5
+    },
+    {
+      "id": "collection-slot-31",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 121.91666666666667,
+      "y": -37,
+      "z": 0,
+      "group": 6
+    },
+    {
+      "id": "collection-slot-32",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 125.75,
+      "y": -37,
+      "z": 0,
+      "group": 6
+    },
+    {
+      "id": "collection-slot-33",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 129.58333333333331,
+      "y": -37,
+      "z": 0,
+      "group": 6
+    },
+    {
+      "id": "collection-slot-34",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 133.41666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 6
+    },
+    {
+      "id": "collection-slot-35",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 137.25,
+      "y": -37,
+      "z": 0,
+      "group": 6
+    },
+    {
+      "id": "collection-slot-36",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 141.08333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 6
+    },
+    {
+      "id": "collection-slot-37",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 144.91666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 7
+    },
+    {
+      "id": "collection-slot-38",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 148.75,
+      "y": -37,
+      "z": 0,
+      "group": 7
+    },
+    {
+      "id": "collection-slot-39",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 152.58333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 7
+    },
+    {
+      "id": "collection-slot-40",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 156.41666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 7
+    },
+    {
+      "id": "collection-slot-41",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 160.25,
+      "y": -37,
+      "z": 0,
+      "group": 7
+    },
+    {
+      "id": "collection-slot-42",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 164.08333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 7
+    },
+    {
+      "id": "collection-slot-43",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 167.91666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 8
+    },
+    {
+      "id": "collection-slot-44",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 171.75,
+      "y": -37,
+      "z": 0,
+      "group": 8
+    },
+    {
+      "id": "collection-slot-45",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 175.58333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 8
+    },
+    {
+      "id": "collection-slot-46",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 179.41666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 8
+    },
+    {
+      "id": "collection-slot-47",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 183.25,
+      "y": -37,
+      "z": 0,
+      "group": 8
+    },
+    {
+      "id": "collection-slot-48",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 187.08333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 8
+    },
+    {
+      "id": "collection-slot-49",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 190.91666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 9
+    },
+    {
+      "id": "collection-slot-50",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 194.75,
+      "y": -37,
+      "z": 0,
+      "group": 9
+    },
+    {
+      "id": "collection-slot-51",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 198.58333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 9
+    },
+    {
+      "id": "collection-slot-52",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 202.41666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 9
+    },
+    {
+      "id": "collection-slot-53",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 206.25,
+      "y": -37,
+      "z": 0,
+      "group": 9
+    },
+    {
+      "id": "collection-slot-54",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 210.08333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 9
+    },
+    {
+      "id": "collection-slot-55",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 213.91666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 10
+    },
+    {
+      "id": "collection-slot-56",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 217.75,
+      "y": -37,
+      "z": 0,
+      "group": 10
+    },
+    {
+      "id": "collection-slot-57",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 221.58333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 10
+    },
+    {
+      "id": "collection-slot-58",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 225.41666666666666,
+      "y": -37,
+      "z": 0,
+      "group": 10
+    },
+    {
+      "id": "collection-slot-59",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 229.25,
+      "y": -37,
+      "z": 0,
+      "group": 10
+    },
+    {
+      "id": "collection-slot-60",
+      "kind": "display-slot",
+      "catalog_assignment": null,
+      "x": 233.08333333333334,
+      "y": -37,
+      "z": 0,
+      "group": 10
+    },
+    {
+      "id": "west-stair",
+      "kind": "stair-reservation",
+      "x": -3,
+      "y": -18,
+      "z": 0,
+      "end_y": -6,
+      "end_z": 4.2,
+      "width": 4
+    },
+    {
+      "id": "east-stair",
+      "kind": "stair-reservation",
+      "x": 243,
+      "y": -18,
+      "z": 0,
+      "end_y": -6,
+      "end_z": 4.2,
+      "width": 4
+    },
+    {
+      "id": "upper-viewing-deck",
+      "kind": "deck-reservation",
+      "x": 0,
+      "y": -8,
+      "z": 4.2,
+      "extent_x": 240,
+      "extent_y": 8
+    }
+  ]
+}

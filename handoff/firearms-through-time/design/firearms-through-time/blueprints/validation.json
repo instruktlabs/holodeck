@@ -1,0 +1,24 @@
+{
+  "status": "layout-data-and-svg-validated",
+  "lanes": 48,
+  "stations": 48,
+  "display_slots": 60,
+  "unique_ids": 399,
+  "checks": [
+    "bank bounds",
+    "unique IDs",
+    "station and target lane alignment",
+    "finite coordinates",
+    "contiguous zones",
+    "valid SVG XML"
+  ],
+  "not_validated": [
+    "runtime import",
+    "3D visibility",
+    "walkability",
+    "art fidelity",
+    "performance",
+    "user acceptance"
+  ],
+  "input_sha256": "10b64ad2c542431208b23a1fb7f50b93db2060ae9aed22f543b7920967c7186c"
+}

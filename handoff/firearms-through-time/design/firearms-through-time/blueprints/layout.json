@@ -1,0 +1,115 @@
+{
+  "schema": "holodeck-spatial-study-v1",
+  "status": "proposal-not-approved-or-runtime-imported",
+  "revision": "range-campus-02",
+  "units": "virtual metres",
+  "coordinates": {
+    "x": "across banks",
+    "y": "downrange",
+    "z": "up"
+  },
+  "width": 240,
+  "depth": 280,
+  "bank_width": 34,
+  "bank_gap": 6,
+  "lanes_per_bank": 8,
+  "banks": [
+    {
+      "id": "paper",
+      "label": "Paper / precision",
+      "color": "#68b9de"
+    },
+    {
+      "id": "reactive",
+      "label": "Reactive plates",
+      "color": "#e5b768"
+    },
+    {
+      "id": "moving",
+      "label": "Moving targets",
+      "color": "#8fc6aa"
+    },
+    {
+      "id": "sequence",
+      "label": "Timed sequences",
+      "color": "#b2a0dd"
+    },
+    {
+      "id": "long",
+      "label": "Long field",
+      "color": "#dc9292"
+    },
+    {
+      "id": "custom",
+      "label": "Custom practice",
+      "color": "#a8c4cd"
+    }
+  ],
+  "zones": {
+    "booths": [
+      -8,
+      0
+    ],
+    "concourse": [
+      -25,
+      -8
+    ],
+    "gallery": [
+      -40,
+      -25
+    ]
+  },
+  "collection_count": 60,
+  "display_groups": 10,
+  "collection_wall_y": -37,
+  "wall_margin": 5,
+  "proposal_notes": [
+    "48 stations is an exploratory option, not a confirmed count.",
+    "Five carried-forward practice families plus a proposed custom bank.",
+    "Full collection is reachable from every station; no era lockouts.",
+    "Historical ordering and artwork identities require catalog review.",
+    "Coordinates are virtual layout proposals, not engineering specifications."
+  ],
+  "upper_level": {
+    "status": "proposed interpretation of top access",
+    "deck": {
+      "x": [
+        0,
+        240
+      ],
+      "y": [
+        -8,
+        0
+      ],
+      "z": 4.2
+    },
+    "stairs": [
+      {
+        "id": "west-stair",
+        "x": -3,
+        "start_y": -18,
+        "end_y": -6,
+        "width": 4,
+        "bottom_z": 0,
+        "top_z": 4.2
+      },
+      {
+        "id": "east-stair",
+        "x": 243,
+        "start_y": -18,
+        "end_y": -6,
+        "width": 4,
+        "bottom_z": 0,
+        "top_z": 4.2
+      }
+    ],
+    "purpose": "viewing promenade above booth canopy; no new firing positions",
+    "requirements": [
+      "continuous walkable route from concourse",
+      "landings connect to deck",
+      "railings along exposed edges",
+      "headroom and support checked in 3D",
+      "stairs do not obstruct booths or gun wall"
+    ]
+  }
+}
