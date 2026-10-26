@@ -9,6 +9,7 @@ import {validateWorld} from '../world/contract.mjs';
 import {CoveEffects} from '../world/effects.jsx';
 import {probe} from '../prototype/scene.jsx';
 import {loadTerrainTextures} from '../world/terrain-textures.js';
+import {tagGltfTextures} from '../world/material-share.mjs';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
 import {Diagnostics,RenderReadiness} from './diagnostics.jsx';
@@ -40,7 +41,7 @@ function useStaticBundle(){
    const loader=new GLTFLoader(),byUrl=new Map();
    const entries=await Promise.all(payload.world.scene.assets.map(async asset=>{
     const entry=payload.assets[asset.id];if(!entry||!/^\.\/assets\/imports\/[a-f0-9]{64}\.glb$/.test(entry.url)||entry.url!==`./assets/imports/${entry.hash}.glb`)throw new Error('Invalid exported asset path');
-    if(!byUrl.has(entry.url))byUrl.set(entry.url,loader.loadAsync(entry.url).then(model=>{loaded.add(model);if(stopped)disposeModels([model]);return model;}));
+    if(!byUrl.has(entry.url))byUrl.set(entry.url,loader.loadAsync(entry.url).then(tagGltfTextures).then(model=>{loaded.add(model);if(stopped)disposeModels([model]);return model;}));
     return [asset.id,await byUrl.get(entry.url)];
    }));
    for(const [file,entry] of Object.entries(payload.textures||{}))if(!/^\.\/assets\/imports\/terrain\/[a-f0-9]{64}\.png$/.test(entry?.url)||entry.url!==`./${file}`)throw new Error('Invalid exported terrain texture path');
@@ -66,6 +67,22 @@ function Viewer(){
  // can become false again without resetting the player or disabling movement.
  useEffect(()=>{const timer=setInterval(()=>setObservation({ready:probe.ready,renderReady:probe.renderReady===true,pendingCompiles:probe.pendingCompiles,settledFrames:probe.settledFrames,backend:probe.backend,position:probe.position,actor:probe.actor,errors:probe.errors}),500);return()=>clearInterval(timer);},[]);
  useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),4000);return()=>clearTimeout(timer);},[notice]);
+ // Photo mode: every control hides, in any view. H toggles it (the walk controls send H to
+ // toggleHud), Esc leaves it before it would leave the world, and moving the pointer shows a
+ // faint way back for a few seconds. Touch keeps its sticks and its Show controls button.
+ const [awake,setAwake]=useState(false);
+ useEffect(()=>{
+  if(!hidden||benchmarkEnabled)return;let timer=0;
+  const wake=()=>{setAwake(true);clearTimeout(timer);timer=setTimeout(()=>setAwake(false),2500);};
+  const key=e=>{if(e.code==='Escape'){e.stopImmediatePropagation();setHidden(false);}};
+  window.addEventListener('pointermove',wake);window.addEventListener('keydown',key,true);
+  return()=>{clearTimeout(timer);setAwake(false);window.removeEventListener('pointermove',wake);window.removeEventListener('keydown',key,true);};
+ },[hidden]);
+ useEffect(()=>{
+  if(inhabiting||benchmarkEnabled)return;
+  const key=e=>{if(e.code==='KeyH'&&!e.repeat&&!e.target.closest?.('input,textarea,[contenteditable]'))setHidden(v=>!v);};
+  window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);
+ },[inhabiting]);
  useEffect(()=>{const fail=()=>setNotice('Mouse capture is unavailable. Right-drag to look.');document.addEventListener('pointerlockerror',fail);return()=>document.removeEventListener('pointerlockerror',fail);},[]);
  // The phone menu closes when a choice is made or the scene is touched.
  useEffect(()=>{if(!menu)return;const outside=e=>{if(!e.target.closest?.('.viewer-view'))setMenu(false);};window.addEventListener('pointerdown',outside,true);return()=>window.removeEventListener('pointerdown',outside,true);},[menu]);
@@ -73,20 +90,22 @@ function Viewer(){
  const possessed=!!runtime?.scene.runtime.possession,interaction=runtime?.interaction(aim,probe.actorEye??probe.position),effectiveMode=inhabiting?cameraMode:'overview',forcedGL=new URLSearchParams(location.search).get('backend')==='webgl';
  function enterWorld(){setInhabiting(true);setCameraMode('walk');setHidden(false);document.activeElement?.blur();if(!touchMode)requestLook();}
  const hint=touchMode?(inhabiting?(cameraMode==='free'?'Left thumb flies · drag to look · Up and Down rise and sink':`Left thumb moves, push to the edge to run · drag to look${possessed?' · tap to interact · Emote opens the wheel':''}`):'Drag to orbit · pinch to zoom · Enter the world to walk.')
-  :inhabiting?(cameraMode==='free'?'WASD fly · Q / E down / up · Shift faster · G return':possessed?'WASD move · Space jump · Shift run · T or 1–9 emote · V view · E interact':'WASD move · Shift faster · E interact'):'Enter the world to explore. Right-drag to orbit; scroll to zoom.';
+  :(inhabiting?(cameraMode==='free'?'WASD fly · Q / E down / up · Shift faster · G return':possessed?'WASD move · Space jump · Shift run · T or 1–9 emote · V view · E interact':'WASD move · Shift faster · E interact'):'Enter the world to explore. Right-drag to orbit; scroll to zoom.')+' · H photo mode';
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
- return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden&&inhabiting?'hud-hidden':''}`}>
-  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
-   <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
+ return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden?'hud-hidden':''}`}>
+  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows="percentage" dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
+   <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects effects={bundle.payload.world.scene.environment?.effects} grade={bundle.payload.world.scene.environment?.grade}/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
+  {hidden&&!benchmarkEnabled&&!touchMode&&<button type="button" className={`viewer-photo-exit ${awake?'awake':''}`} onClick={()=>setHidden(false)}>Show controls <kbd>H</kbd></button>}
   {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
   <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
   {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle?<section className="viewer-card" role="status">Loading the scene…</section>:!benchmarkEnabled&&!observation.renderReady?<section className="viewer-card" role="status">Preparing the current view…</section>:null}
   {inhabiting&&possessed&&<EmoteWheel input={emotes}/>}
-  {inhabiting&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
-  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} emotes={emotes} bottom={hidden&&inhabiting?24:150}>
-   {inhabiting&&<button type="button" className="touch-button quiet" aria-pressed={hidden} onClick={toggleHud}>{hidden?'Show controls':'Clear view'}</button>}
+  {/* Benchmark captures show the world alone, without the walk reticle (H78). */}
+  {inhabiting&&!benchmarkEnabled&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
+  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} emotes={emotes} bottom={hidden?24:150}>
+   <button type="button" className="touch-button quiet" aria-pressed={hidden} onClick={toggleHud}>{hidden?'Show controls':'Photo mode'}</button>
   </TouchControls>
   <footer className="viewer-footer" inert={benchmarkEnabled}>
    <div className={`viewer-view ${menu?'open':''}`}>
@@ -96,6 +115,7 @@ function Viewer(){
     <button aria-pressed={inhabiting&&cameraMode==='free'} onClick={()=>chooseCamera('free')}>Free camera <kbd>G</kbd></button><button onClick={leaveWorld}>Overlook</button>
     <button onClick={()=>{setCove(v=>!v);document.activeElement?.blur();}}>{cove?'Hide cove':'Show cove'}</button><button onClick={()=>{setHomeTick(n=>n+1);setCove(true);setCameraMode('walk');document.activeElement?.blur();}}>Return to arrival</button>
     <button aria-pressed={paused} onClick={()=>setPaused(v=>!v)}>{paused?'Resume activity':'Pause activity'}</button>
+    <button onClick={()=>{setHidden(true);document.activeElement?.blur();}}>Photo mode <kbd>H</kbd></button>
    </div>
    </div>
    <p role="status">{notice||hint}{inhabiting&&!locked&&!touchMode?' · Right-drag to look, or click the scene to capture the mouse.':''}</p>

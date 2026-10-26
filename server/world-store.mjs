@@ -38,7 +38,7 @@ export class WorldStore extends EventEmitter {
         validateWorld(cached.world);
         for(const asset of cached.world.scene.assets){
           const hash=cached.assets?.[asset.id]?.hash;if(!/^[a-f0-9]{64}$/.test(hash))throw new Error('Cached accepted asset receipt is invalid');
-          const bytes=await readFile(await this.contained(`.holodeck/blobs/${hash}.glb`));validateGlb(bytes,{foliage:asset.foliage});if(digest(bytes)!==hash)throw new Error('Cached accepted asset is corrupt');
+          const bytes=await readFile(await this.contained(`.holodeck/blobs/${hash}.glb`));validateGlb(bytes,{foliage:asset.foliage,flow:asset.flow});if(digest(bytes)!==hash)throw new Error('Cached accepted asset is corrupt');
         }
         for(const [file,texture] of Object.entries(cached.textures||{})){
           if(!/^[a-f0-9]{64}$/.test(texture?.hash))throw new Error('Cached accepted terrain texture receipt is invalid');
@@ -82,7 +82,7 @@ export class WorldStore extends EventEmitter {
     for(const reference of world.references||[]){if(reference.kind==='note')continue;const file=await this.contained(reference.file),info=await stat(file);if(info.size>12*1024*1024)throw new Error('Reference exceeds 12 MiB');const bytes=await readFile(file);if(digest(bytes)!==path.parse(reference.file).name)throw new Error('Pinned reference content changed; import a new revision');}
     for(const a of world.scene.assets){
       const file=await this.contained(a.file),info=await stat(file);if(!info.isFile()||info.size>MAX_ASSET_BYTES)throw new Error('Asset exceeds 32 MiB');
-      const bytes=await readFile(file),metrics=validateGlb(bytes,{foliage:a.foliage});total+=bytes.length;if(total>128*1024*1024)throw new Error('World exceeds 128 MiB of asset files');
+      const bytes=await readFile(file),metrics=validateGlb(bytes,{foliage:a.foliage,flow:a.flow});total+=bytes.length;if(total>128*1024*1024)throw new Error('World exceeds 128 MiB of asset files');
       const hash=digest(bytes),cached=path.join(this.root,`.holodeck/blobs/${hash}.glb`);
       await writeFile(cached,bytes,{flag:'wx'}).catch(e=>{if(e.code!=='EEXIST')throw e;});
       assets[a.id]={hash,url:`/api/assets/${hash}.glb`,...metrics};

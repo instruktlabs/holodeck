@@ -1,6 +1,7 @@
 import * as THREE from 'three/webgpu';
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+import {SHADOW_ONLY_LAYER} from './sun-shadow.mjs';
 
 const hash=(x,y)=>{const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n);};
 const smooth=t=>t*t*(3-2*t);
@@ -39,6 +40,10 @@ function clothSurface(fn,nu=36,nv=8,thickness=0){
 }
 
 const SIDES=[['left',-1],['right',1]];
+// The farthest the pose moves the pelvis from rest: stairs, landings and swimming (H120).
+export const PELVIS_TRAVEL=.75;
+// A camera this far beyond the head's sphere still sees the shawl under the eye from inside.
+export const EYE_MARGIN=.2;
 const FINGERS=[['Index',.064],['Middle',.072],['Ring',.067],['Little',.054]];
 // Joint names the pose solver drives. Every bone rests at identity except the
 // wrist (palm turned toward the thigh) and the thumb base; poses compose onto
@@ -218,12 +223,53 @@ export function createMakerModel(){
   const geometry=own(mergeGeometries(pieces));pieces.forEach(g=>g.dispose());
   if(group==='cape')geometry.userData.thickness=.006;
   const mesh=new THREE.SkinnedMesh(geometry,material);mesh.name=group==='cape'?'MakerCape':`Maker ${group} ${material.name}`;
-  mesh.castShadow=mesh.receiveShadow=true;mesh.frustumCulled=false;mesh.raycast=()=>{};
+  mesh.castShadow=mesh.receiveShadow=true;mesh.raycast=()=>{};
   (group==='head'?head:root).add(mesh);mesh.bind(skeleton,identity);if(group==='head')headMeshes.push(mesh);if(group!=='body')hiddenInFirstPerson.push(mesh);
  }
- // First person hides the head and the shawl that sits just under the eye, keeping both shadows.
- const hiddenMaterials=new Map();for(const mesh of hiddenInFirstPerson){const visible=mesh.material;let hidden=hiddenMaterials.get(visible);if(!hidden){hidden=visible.clone();hidden.colorWrite=false;hidden.depthWrite=false;materials.push(hidden);hiddenMaterials.set(visible,hidden);}mesh.userData.visibleMaterial=visible;mesh.userData.hiddenMaterial=hidden;}
+ // The actor casts its sun shadow through one skinned, position-only proxy per face side,
+ // not one draw per material bucket (H119). Every bucket binds the same skeleton with an
+ // identity bind matrix, so their vertices already share one bind space.
+ const shadowSides=new Map();
+ root.traverse(mesh=>{
+  if(!mesh.isSkinnedMesh||!mesh.castShadow)return;mesh.castShadow=false;
+  const side=mesh.material.shadowSide??mesh.material.side,source=mesh.geometry,shape=new THREE.BufferGeometry();
+  for(const name of ['position','skinIndex','skinWeight'])shape.setAttribute(name,source.getAttribute(name));
+  if(source.index)shape.setIndex(source.index);
+  let list=shadowSides.get(side);if(!list)shadowSides.set(side,list=[]);list.push(shape);
+ });
+ for(const [side,shapes] of shadowSides){
+  const uniform=shapes.every(g=>g.index)?shapes:shapes.map(g=>g.index?g.toNonIndexed():g),proxy=new THREE.SkinnedMesh(own(mergeGeometries(uniform)),new THREE.MeshBasicMaterial({side}));
+  materials.push(proxy.material);proxy.name='MakerShadow';proxy.userData.shadowProxy=true;proxy.castShadow=true;proxy.layers.set(SHADOW_ONLY_LAYER);proxy.raycast=()=>{};
+  root.add(proxy);proxy.bind(skeleton,identity);
+ }
+ // Culling (H120): every part used to skip frustum culling, so the actor cost its draws in
+ // the view, in each pool mirror and in the sun shadow wherever it stood. Skinned vertices
+ // follow the bones, not the mesh, so each part gets a fixed sphere, in the space of the
+ // joint it hangs from, that holds it in any pose. Joints only turn, so a vertex stays within
+ // the joint path to its bone plus its rest distance from that bone. Only the pelvis moves,
+ // by up to PELVIS_TRAVEL from rest, so parts on the root add that.
+ const rest=new Map(bones.map(bone=>[bone,bone.getWorldPosition(new THREE.Vector3())])),vertex=new THREE.Vector3();
+ const pathsFrom=start=>{
+  const up=new Map();for(let n=start,d=0;n&&n!==root;d+=n.position.length(),n=n.parent)up.set(n,d);
+  return new Map(bones.map(bone=>{let d=0,n=bone;while(!up.has(n)){d+=n.position.length();n=n.parent;}return [bone,d+up.get(n)];}));
+ };
+ const reach=(mesh,paths)=>{
+  const {position,skinIndex,skinWeight}=mesh.geometry.attributes;let most=0;
+  for(let i=0;i<position.count;i++){vertex.fromBufferAttribute(position,i);for(let k=0;k<4;k++)if(skinWeight.getComponent(i,k)>0){const bone=bones[skinIndex.getComponent(i,k)];most=Math.max(most,paths.get(bone)+vertex.distanceTo(rest.get(bone)));}}
+  return most;
+ };
+ const fromPelvis=pathsFrom(body),fromHead=pathsFrom(head);
+ root.traverse(mesh=>{
+  if(!mesh.isSkinnedMesh)return;
+  mesh.boundingSphere=mesh.parent===head?new THREE.Sphere(new THREE.Vector3(),reach(mesh,fromHead)):new THREE.Sphere(rest.get(body).clone(),reach(mesh,fromPelvis)+PELVIS_TRAVEL);
+ });
+ // First person hides the head and the shawl that sits just under the eye. The proxies keep
+ // both in the sun shadow, so hidden parts cost no draw in the view or the mirrors (H120).
+ // holdsEye tells whether a camera stands inside the head, where those parts would wrap its
+ // view: a free camera at the maker's eye, as the fixed review cameras at the spawn are (H128).
+ const headReach=Math.max(...headMeshes.map(mesh=>mesh.boundingSphere.radius))+EYE_MARGIN,headAt=new THREE.Vector3();
  return {root,body,head,joints:j,bones,skeleton,headMeshes,parts,palette,
-  setFirstPerson(value){for(const mesh of hiddenInFirstPerson)mesh.material=value?mesh.userData.hiddenMaterial:mesh.userData.visibleMaterial;},
+  setFirstPerson(value){for(const mesh of hiddenInFirstPerson)mesh.visible=!value;},
+  holdsEye(point){return head.getWorldPosition(headAt).distanceTo(point)<headReach;},
   dispose(){geometries.forEach(g=>g.dispose());Object.values(parts).forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());skeleton.dispose();}};
 }

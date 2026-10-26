@@ -28,8 +28,9 @@ test('the shelf page is self-contained, with sized lazy images and resolvable lo
  for(const [i,tag] of images.entries()){
   for(const name of ['src','width','height','alt'])assert.ok(attr(tag,name)!==undefined,`${tag} lacks ${name}`);
   const size=imageSize(await readFile(path.join(site,attr(tag,'src'))));assert.deepEqual([size.width,size.height],[Number(attr(tag,'width')),Number(attr(tag,'height'))],`${attr(tag,'src')} size attributes`);
-  // Only the hero loads eagerly.
-  if(i===0)assert.equal(attr(tag,'fetchpriority'),'high');else assert.equal(attr(tag,'loading'),'lazy',`${attr(tag,'src')} should load lazily`);
+  // Only the four hero tiles load eagerly, the first first.
+  if(i<4)assert.equal(attr(tag,'loading'),undefined);else assert.equal(attr(tag,'loading'),'lazy',`${attr(tag,'src')} should load lazily`);
+  assert.equal(attr(tag,'fetchpriority'),i===0?'high':undefined);
  }
  for(const [,kind,value] of html.matchAll(/\s(src|href|srcset|imagesrcset)="([^"]+)"/g)){
   for(const ref of kind.endsWith('srcset')?value.split(',').map(part=>part.trim().split(/\s+/)[0]):[value]){
@@ -44,7 +45,7 @@ test('the shelf page is self-contained, with sized lazy images and resolvable lo
 
 test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
  const html=await readFile(path.join(site,'index.html'),'utf8'),scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
- const cards=[...html.matchAll(/<article class="scene">([\s\S]*?)<\/article>/g)].map(m=>m[1]);
+ const cards=[...html.matchAll(/<article class="scene" id="scene-[a-z0-9-]+">([\s\S]*?)<\/article>/g)].map(m=>m[1]);
  assert.equal(cards.length,scenes.length);
  for(const [i,scene] of scenes.entries()){
   const images=cards[i].match(/<img\b[^>]*>/g);
@@ -52,6 +53,11 @@ test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
   assert.deepEqual(images.map(tag=>attr(tag,'class')??''),['feature','','','']);
  }
  assert.equal(attr(html.match(/<a [^>]*id="first-world"[^>]*>/)[0],'href'),scenes[0].path,'the hero leads into the first scene');
+ // The hero tiles open the worlds of the scenes marked hero, in catalog order, and the Scenes menu every world.
+ const tiles=[...html.matchAll(/<a class="hero-tile" href="([^"]+)"><img [^>]*src="([^"]+)"/g)].map(m=>[m[1],m[2]]);
+ assert.deepEqual(tiles,scenes.filter(scene=>scene.hero).map(scene=>[scene.path,scene.hero.src]));assert.equal(tiles.length,4);
+ const menu=html.match(/<details class="scenes-menu">[\s\S]*?<\/details>/)[0];
+ assert.deepEqual([...menu.matchAll(/href="(worlds\/[^"]+)"/g)].map(m=>m[1]),scenes.map(scene=>scene.path));
 });
 
 test('long-lived caching covers only content-hashed scene files, and every page gets the security headers',async()=>{

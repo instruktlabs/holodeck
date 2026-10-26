@@ -20,7 +20,9 @@ const inputAxis=value=>Number.isFinite(value)?Math.max(-1,Math.min(1,value)):0;
 function supportAt(actor,x,z,{terrain,water,time=0,walkable}={},reference=actor.position[1]+(actor.mode==='airborne'?1e-6:MAX_STEP)){
  const sampled=terrain?.sample(x,z)||{height:actor.groundHeight,normal:[0,1,0],slope:0,inBounds:true};
  const top=walkable?.(x,z,reference),onTop=!!top&&top.height>sampled.height;
- const ground=onTop?{height:top.height,normal:[0,1,0],slope:0,inBounds:sampled.inBounds}:sampled;
+ // A walkable top is support in its own right, also beyond the terrain bounds; stepping
+ // off it there finds no support, so a deck's edge out there is the world's edge.
+ const ground=onTop?{height:top.height,normal:[0,1,0],slope:0,inBounds:true}:sampled;
  const surface=water?sampleWater(water,x,z,time):null;
  const depth=surface?.inBounds?Math.max(0,surface.height-ground.height):0;
  const swimming=actor.mode==='swimming'?depth>.9:depth>=1.25;

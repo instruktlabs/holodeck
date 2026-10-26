@@ -110,7 +110,7 @@ export function createTerrain(terrain){
 }
 
 export function validateWater(water){
- record(water,['type','bounds','level','waves','color','shallowColor','foamWidth','surf'],'water');
+ record(water,['type','bounds','level','waves','color','shallowColor','foamWidth','surf','reflection'],'water');
  assert(water.type==='ocean','Unsupported water type');bounds(water.bounds,'water bounds');finite(water.level,-1000,1000,'water level');
  assert(Array.isArray(water.waves)&&water.waves.length<=4,'Water allows at most four waves');
  for(const wave of water.waves){
@@ -121,6 +121,7 @@ export function validateWater(water){
  for(const key of ['color','shallowColor'])if(water[key]!==undefined)tint(water[key],key);
  if(water.foamWidth!==undefined)finite(water.foamWidth,.001,20,'foam width');
  if(water.surf!==undefined)validateSurf(water.surf);
+ assert(water.reflection===undefined||water.reflection==='planar','Water reflection must be "planar"');
  return water;
 }
 

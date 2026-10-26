@@ -8,6 +8,9 @@ import {fileURLToPath} from 'node:url';
 export const SITE_URL='https://holodeck.kilnstudio.tools/';
 const REPOSITORY='https://github.com/instruktlabs/holodeck';
 const CC0='https://creativecommons.org/publicdomain/zero/1.0/';
+const KILN_PACKS='https://kilnstudio.tools/packs/';
+// A hero tile is 1920×1080 with a 960×540 variant beside it, named -960.
+const smallTile=src=>src.replace(/\.webp$/,'-960.webp'),tileSet=src=>`${smallTile(src)} 960w, ${src} 1920w`,TILE_SIZES='(max-aspect-ratio:1/1) 100vw, 50vw';
 const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const jsonLd=value=>JSON.stringify(value,null,1).replace(/</g,'\\u003c');
 const fail=message=>{throw new Error(message);};
@@ -37,7 +40,7 @@ export async function renderSite(site){
  if(!Array.isArray(scenes)||!scenes.length)fail('Scene catalog needs at least one scene');const ids=new Set();
  const cards=[],items=[];
  for(const [index,scene] of scenes.entries()){
-  if(Object.keys(scene).some(key=>!['id','example','kicker','title','summary','shots','path','gallery'].includes(key)))fail('Unexpected scene catalog field');
+  if(Object.keys(scene).some(key=>!['id','example','kicker','title','summary','shots','path','gallery','hero'].includes(key)))fail('Unexpected scene catalog field');
   if(!/^[a-z][a-z0-9-]{0,63}$/.test(scene.id)||ids.has(scene.id))fail('Scene ids must be unique slugs');ids.add(scene.id);
   // The deployed scene is exported from this bundled example by scripts/build-site.mjs, with site/cards/<id>.jpg as its card.
   if(typeof scene.example!=='string'||!/^[a-z][a-z0-9-]{0,63}$/.test(scene.example))fail(`Scene ${scene.id} needs the example it is built from`);
@@ -49,6 +52,11 @@ export async function renderSite(site){
   for(const shot of scene.shots)if(Object.keys(shot).join()!=='src,alt'||typeof shot.src!=='string'||typeof shot.alt!=='string'||!shot.alt.trim())fail(`Scene ${scene.id} shots need a src and alt`);
   if(scene.path!==`worlds/${scene.id}/`)fail(`Scene ${scene.id} must live at worlds/${scene.id}/`);
   if(scene.gallery!==undefined&&!/^https:\/\/kilnstudio\.tools\//.test(scene.gallery))fail(`Scene ${scene.id} gallery must be a kilnstudio.tools page`);
+  // hero: the scene's tile in the hero collage.
+  if(scene.hero!==undefined){
+   if(Object.keys(scene.hero).join()!=='src,alt'||!/^images\/hero-[a-z0-9-]+\.webp$/.test(scene.hero.src)||typeof scene.hero.alt!=='string'||!scene.hero.alt.trim())fail(`Scene ${scene.id} hero needs an images/hero-*.webp src and alt`);
+   for(const [src,width,height] of [[scene.hero.src,1920,1080],[smallTile(scene.hero.src),960,540]]){const size=imageSize(await file(site,src,'Hero tile'));if(size.width!==width||size.height!==height)fail(`Hero tile ${src} must be ${width}×${height}`);}
+  }
   const url=new URL(scene.path,SITE_URL).href,shots=[];
   for(const [i,shot] of scene.shots.entries()){
    const size=imageSize(await file(site,shot.src,'Scene shot'));
@@ -56,7 +64,7 @@ export async function renderSite(site){
             <img${i?'':' class="feature"'} src="${escapeHtml(shot.src)}" width="${size.width}" height="${size.height}" alt="${escapeHtml(shot.alt)}" loading="lazy" decoding="async">`);
   }
   cards.push(`
-        <article class="scene">
+        <article class="scene" id="scene-${scene.id}">
           <div class="scene-shots">${shots.join('')}
           </div>
           <div class="scene-copy">
@@ -72,6 +80,18 @@ export async function renderSite(site){
   {'@type':'ItemList','@id':`${SITE_URL}#scenes`,name:'Holodeck scenes',itemListElement:items},
  ]};
  let index=(await file(site,'index.html','Site page')).toString('utf8');
+ // A page with hero markers has a collage of the four scenes marked hero, in catalog order;
+ // each tile opens its world. The preload and the Scenes menu fill their markers where present.
+ const marked=name=>index.includes(`<!-- ${name}:start -->`),heroes=scenes.filter(scene=>scene.hero);
+ if(marked('hero')&&heroes.length!==4)fail('Mark exactly four scenes as hero tiles');
+ const tiles=heroes.map((scene,i)=>`
+        <a class="hero-tile" href="${scene.path}"><img src="${escapeHtml(scene.hero.src)}" srcset="${escapeHtml(tileSet(scene.hero.src))}" sizes="${TILE_SIZES}" width="1920" height="1080"${i?'':' fetchpriority="high"'} alt="${escapeHtml(scene.hero.alt)}"><span>${escapeHtml(scene.title)}</span></a>`);
+ const preload=heroes.length&&`<link rel="preload" as="image" href="${escapeHtml(heroes[0].hero.src)}" imagesrcset="${escapeHtml(tileSet(heroes[0].hero.src))}" imagesizes="${TILE_SIZES}" fetchpriority="high">`;
+ // The Scenes menu lists every scene's world, then the shelf and Kiln's asset packs. It needs no script.
+ const menu=`<details class="scenes-menu"><summary>Scenes</summary><div>${scenes.map(scene=>`<a href="${scene.path}">${escapeHtml(scene.title)}</a>`).join('')}<a href="#scenes">All scenes</a><a href="${KILN_PACKS}">Asset packs on Kiln ↗</a></div></details>`;
+ if(marked('preload')&&heroes.length)index=between(index,'preload',preload);
+ if(marked('menu'))index=between(index,'menu',menu);
+ if(marked('hero'))index=between(index,'hero',tiles.join('')+'\n      ');
  index=between(index,'scenes',cards.join('')+'\n        ');
  index=between(index,'jsonld',`<script type="application/ld+json">${jsonLd(data)}</script>`);
  const urls=[SITE_URL,...scenes.map(scene=>new URL(scene.path,SITE_URL).href)];

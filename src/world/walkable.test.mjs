@@ -115,3 +115,19 @@ test('without walkable flags the same colliders only block, as before',()=>{
  const end=walk(r,a,{forward:1,yaw:yawToward(-c,s)},4).at(-1);assert.ok(distanceAlong(end)>6.5,'the stair blocks');near(end.y,-.5);
  assert.equal(r.walkableAt(...along(1.5).filter((_,i)=>i!==1),10),null);
 });
+
+test('a deck beyond the terrain bounds carries the walker, and its far edge is the edge of the world',()=>{
+ // A floating court: terrain only under a pool at x -10..0; a 10 m walkable deck runs on east to x 12.
+ const w=structuredClone(DEFAULT_WORLD);w.schemaVersion=2;
+ w.scene.runtime={version:1,modules:['collision.boxes@1','camera.walk-orbit@1','inhabitant.maker@1','terrain.heightfield@1'],spawn:[1,1.72,0],look:[0,0],overview:[8,12,14],target:[0,0,0],bounds:[-20,20,-20,20],blockers:[],possession:{preset:'maker',camera:'first'}};
+ w.scene.terrain={type:'heightfield',bounds:[-10,0,-5,5],segments:[8,8],baseHeight:-1,stamps:[]};
+ w.scene.objects=[{id:'deck',position:[6,0,0],rotation:[0,0,0],scale:[1,1,1],layer:'world',shape:{type:'box',size:[12,.6,4],offset:[0,-.3,0],color:'#e8e2d6'},collider:{type:'box',size:[12,.6,4],offset:[0,-.3,0],walkable:true}}];
+ validateWorld(w);
+ const runtime=new WorldRuntime(w.scene),walker=walkerAt(runtime,[1,0,0]),east=yawToward(1,0);
+ for(let i=0;i<90;i++)stepInhabitant(walker,{forward:1,yaw:east},1/30,inhabitantContext(runtime,walker.radius));
+ assert.ok(walker.position[0]>7,`walked east along the deck, beyond the terrain (x ${walker.position[0].toFixed(2)})`);
+ assert.ok(Math.abs(walker.position[1])<1e-9,'standing on the deck top');
+ for(let i=0;i<120;i++)stepInhabitant(walker,{forward:1,yaw:east},1/30,inhabitantContext(runtime,walker.radius));
+ assert.ok(walker.position[0]<=12.1+walker.radius,'stopped at the deck edge rather than stepping into nothing');
+ assert.ok(Math.abs(walker.position[1])<1e-9,'still on the deck');
+});

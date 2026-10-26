@@ -43,7 +43,7 @@ try{
  }else if(command==='check'){
   const world=JSON.parse(await readFile(path.join(root,'world/world.json'),'utf8'));validateWorld(world);
   const resolvedRoot=await realpath(root);
-  for(const asset of world.scene.assets){const file=await realpath(path.resolve(root,asset.file)),relative=path.relative(resolvedRoot,file);if(relative.startsWith('..')||path.isAbsolute(relative))throw new Error('Asset escapes workspace');validateGlb(await readFile(file),{foliage:asset.foliage});}
+  for(const asset of world.scene.assets){const file=await realpath(path.resolve(root,asset.file)),relative=path.relative(resolvedRoot,file);if(relative.startsWith('..')||path.isAbsolute(relative))throw new Error('Asset escapes workspace');validateGlb(await readFile(file),{foliage:asset.foliage,flow:asset.flow});}
   console.log(`Valid schema v${world.schemaVersion} world: ${world.bible.title}. Browser behavior and performance are separate checks.`);
  }else{
   const i=args.indexOf('--port'),port=i<0?4186:Number(args[i+1]);

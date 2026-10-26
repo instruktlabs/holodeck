@@ -6,8 +6,11 @@ import * as THREE from 'three/webgpu';
 import { applyCoveUVs, coveRole, makeCoveMaterials } from './cove-materials.js';
 import { MoodBoard } from '../world/moodboard.jsx';
 import { useAssetFoliage } from '../world/foliage.jsx';
+import { useAssetFlow } from '../world/flow.jsx';
+import { useAssetReflection } from '../world/reflection.jsx';
 import { useAssetGait } from '../world/gait.jsx';
 import { SHADOW_ONLY_LAYER, shadowProxies } from '../world/sun-shadow.mjs';
+import { translucent } from '../world/static-batches.mjs';
 
 export const HOME = [1.25,1.72,2.35];
 export const probe = window.holodeckPrototype = { ready:false, frames:[], position:HOME, errors:[] };
@@ -222,8 +225,11 @@ function Controller({cove,session,homeTick,setLocked,setMoving,setAim,select,foc
   return null;
 }
 export function PlacedAsset({model,item,select,asset,runtime,gaitScale}){
-  const object=useMemo(()=>{const clone=model.scene.clone(true);clone.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.userData={...o.userData,target:item.id};}});return clone;},[model,item.id]);
+  // castShadow:false keeps a placement out of the sun shadow map (H79).
+  const casts=item.castShadow!==false,object=useMemo(()=>{const clone=model.scene.clone(true);clone.traverse(o=>{if(o.isMesh){o.castShadow=casts&&!translucent(o);o.receiveShadow=true;o.userData={...o.userData,target:item.id};}});return clone;},[model,item.id,casts]);
   useAssetFoliage({object,asset,runtime,enabled:item.materialStyle!=='cove'});
+  useAssetFlow({object,asset,runtime,enabled:item.materialStyle!=='cove'});
+  useAssetReflection({object,asset,enabled:item.materialStyle!=='cove'});
   useAssetGait({object,item,runtime,scaleX:gaitScale??item.scale[0]});
   return <group position={item.position} rotation={item.rotation} scale={item.scale} onClick={e=>{e.stopPropagation();select(item.id,{additive:e.shiftKey});}}>{item.materialStyle==='cove'?<Cove gltf={model} target={item.id}/>:<primitive object={object} dispose={null}/>} {item.light&&<pointLight position={item.light.offset} color={item.light.color} intensity={item.light.intensity} distance={item.light.distance} decay={2}/>}</group>;
 }

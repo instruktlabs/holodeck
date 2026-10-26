@@ -22,7 +22,7 @@ function GhostShape({item}){
   return <group position={item.position} rotation={item.rotation} scale={item.scale}><mesh position={s.offset} scale={size} geometry={box} material={ghostMaterial} raycast={ignore}/><mesh position={s.offset} scale={size} geometry={box} material={ghostEdge} raycast={ignore}/></group>;
 }
 export function Ghosts({items,models}){
-  return <group name="proposal-ghosts">{items.map(item=>item.asset?models[item.asset]&&<GhostAsset key={item.id} model={models[item.asset]} item={item}/>:item.shape&&<GhostShape key={item.id} item={item}/>)}</group>;
+  return <group name="proposal-ghosts" userData={{skyLightExclude:true}}>{items.map(item=>item.asset?models[item.asset]&&<GhostAsset key={item.id} model={models[item.asset]} item={item}/>:item.shape&&<GhostShape key={item.id} item={item}/>)}</group>;
 }
 
 // Placements a proposal adds or moves, compared with the accepted world.

@@ -38,7 +38,7 @@ function App(){
   const title=s.phase==='welcome'?'A place to begin.':s.phase==='decision'?'Keep the path walkable?':s.phase==='building'?(s.task==='world'?'A woodland is taking shape.':'A crossing for this path.'):s.phase==='preview'?'A quieter way across.':s.phase==='applied'?'The crossing is yours.':'Step into the woodland.';
   const compact=(locked||moving)&&!drawer;
   return <main className={compact?'is-exploring':''}>
-    <div className="scene"><SceneBoundary><Canvas shadows dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{
+    <div className="scene"><SceneBoundary><Canvas shadows="percentage" dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{
       const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;renderer.info.autoReset=false;await renderer.init();return renderer;
     }}><Suspense fallback={null}><Scene {...{session:s,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}}/></Suspense></Canvas></SceneBoundary></div>
     <header className="topbar"><div className="identity glass"><span className="brand">holodeck</span><i/><span className="mode"><b/>Create</span></div><span className="mock-label">LOCAL PROTOTYPE <span>·</span> MOCK AGENT</span><div className="top-actions"><button className="glass" onClick={()=>setCove(v=>!v)}><Icon name="eye"/>{cove?'Hide cove':'Show cove'}</button><button className="glass" onClick={home}><Icon name="home"/>Return to cove</button></div></header>

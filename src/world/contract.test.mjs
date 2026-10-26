@@ -49,3 +49,13 @@ test('optional hemisphere and exposure validate only on schema two without norma
  }
  for(const change of [{hemisphere:{}},{exposure:1.12}]){const legacy=structuredClone(DEFAULT_WORLD);Object.assign(legacy.scene.environment,change);assert.throws(()=>validateWorld(legacy),/environment fields/);}
 });
+test('exposure is set once, and a sky light replaces the hemisphere fill rather than joining it',()=>{
+ const graded=world();graded.scene.environment.grade={toneMapping:'neutral',exposure:1.05};assert.equal(validateWorld(graded),graded);
+ const twice=world();Object.assign(twice.scene.environment,{grade:{exposure:1.05},exposure:1.05});assert.throws(()=>validateWorld(twice),/exposure once/);
+ const both=world();Object.assign(both.scene.environment,{hemisphere:{intensity:1},sky:{zenithColor:'#3d7fc4',light:{intensity:.6}}});assert.throws(()=>validateWorld(both),/replaces the hemisphere/);
+});
+test('fogSky takes 0 to 1 and needs an authored sky (H108)',()=>{
+ const w=world();Object.assign(w.scene.environment,{fogNear:0,fogFar:1300,fogSky:.8,sky:{zenithColor:'#2a78c4'}});assert.doesNotThrow(()=>validateWorld(w));
+ for(const fogSky of [-.1,1.5,'1',null,Infinity]){const bad=structuredClone(w);bad.scene.environment.fogSky=fogSky;assert.throws(()=>validateWorld(bad),/fogSky must be a number from 0 to 1/);}
+ const bare=structuredClone(w);delete bare.scene.environment.sky;assert.throws(()=>validateWorld(bare),/fogSky needs environment.sky/);
+});

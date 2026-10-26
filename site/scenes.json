@@ -1,73 +1,174 @@
 [
-  {
-    "id": "crescent-cove",
-    "example": "crescent-cove",
-    "title": "Crescent Cove",
-    "summary": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
-    "shots": [
-      {"src": "images/scenes/crescent-cove-aerial-southwest.webp", "alt": "Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral."},
-      {"src": "images/scenes/crescent-cove-cove.webp", "alt": "The cove on Crescent Cove: a canopied stone seat on a grassy rise among palms, with the lagoon beyond."},
-      {"src": "images/scenes/crescent-cove-lagoon-low.webp", "alt": "Low over the lagoon toward the palm-lined beach and the rocky headland."},
-      {"src": "images/scenes/crescent-cove-summit.webp", "alt": "From the headland summit over the lagoon's shallows and coral heads."}
-    ],
-    "path": "worlds/crescent-cove/",
-    "gallery": "https://kilnstudio.tools/packs/holodeck/crescent-cove/"
-  },
-  {
-    "id": "courtyard",
-    "example": "courtyard",
-    "title": "The Quiet Courtyard",
-    "summary": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
-    "shots": [
-      {"src": "images/scenes/courtyard-overview.webp", "alt": "The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate."},
-      {"src": "images/scenes/courtyard-cove.webp", "alt": "The cove at the courtyard gate: a canopied stone seat in front of the walled garden."},
-      {"src": "images/scenes/courtyard-fountain.webp", "alt": "The tiered stone fountain among cypresses and lamp posts."},
-      {"src": "images/scenes/courtyard-far-end.webp", "alt": "The courtyard from its far end, over cypress rows toward the fountain."}
-    ],
-    "path": "worlds/courtyard/",
-    "gallery": "https://kilnstudio.tools/packs/holodeck/courtyard/"
-  },
-  {
-    "id": "tidemark",
-    "example": "tidemark",
-    "title": "Tidemark Island",
-    "summary": "A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.",
-    "shots": [
-      {"src": "images/scenes/tidemark-overview.webp", "alt": "Tidemark Island from above: a palm-dotted beach curving into turquoise shallows."},
-      {"src": "images/scenes/tidemark-cove.webp", "alt": "The cove on Tidemark: a canopied stone seat on open sand, with palms behind."},
-      {"src": "images/scenes/tidemark-shore-a.webp", "alt": "Along Tidemark's shore, palms above a curve of sand and clear water."},
-      {"src": "images/scenes/tidemark-sea.webp", "alt": "Tidemark Island from the sea, a low line of sand and palms."}
-    ],
-    "path": "worlds/tidemark/",
-    "gallery": "https://kilnstudio.tools/packs/holodeck/tidemark/"
-  },
-  {
-    "id": "winter-mountainside-cabin",
-    "example": "winter-mountainside-cabin",
-    "title": "Winter Mountainside Cabin",
-    "summary": "A snowy forest trail leads to a furnished timber cabin, with a sleeping loft, a mountain-facing deck and a stone seat overlooking the lake.",
-    "shots": [
-      {"src": "images/scenes/winter-mountainside-cabin-exterior.webp", "alt": "The timber cabin and its deck among snow-covered conifers, with mountains beyond."},
-      {"src": "images/scenes/winter-mountainside-cabin-living.webp", "alt": "The cabin's furnished living room, with a stone hearth, timber beams and warm practical lights."},
-      {"src": "images/scenes/winter-mountainside-cabin-loft.webp", "alt": "The sleeping loft with its bed, desk and view through the cabin's glazing."},
-      {"src": "images/scenes/winter-mountainside-cabin-vista.webp", "alt": "The lake and distant mountain ridges seen from the forest viewpoint."}
-    ],
-    "path": "worlds/winter-mountainside-cabin/",
-    "gallery": "https://kilnstudio.tools/packs/holodeck/winter-mountainside-cabin/"
-  },
-  {
-    "id": "cove",
-    "example": "construct",
-    "kicker": "The maker space",
-    "title": "The Cove",
-    "summary": "The starter workspace is a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent begin building.",
-    "shots": [
-      {"src": "images/scenes/cove-side.webp", "alt": "The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns."},
-      {"src": "images/scenes/cove-arrival.webp", "alt": "Inside the cove, the hearth stone on its round table under the canopy."},
-      {"src": "images/scenes/cove-seat.webp", "alt": "The cove's curved seat with green cushions and a red throw."},
-      {"src": "images/scenes/cove-high.webp", "alt": "The cove from above: the canopy over the round floor and its inlaid rings."}
-    ],
-    "path": "worlds/cove/",
-    "gallery": "https://kilnstudio.tools/packs/holodeck/cove/"
+ {
+  "id": "meridian-sanctuary",
+  "example": "meridian-sanctuary",
+  "title": "Meridian Sanctuary",
+  "summary": "A marble sanctuary above the clouds: a causeway between mirror pools, terraces climbing to a gate tower, floating statues and mirrored orbs, and a bridge path off to the side.",
+  "shots": [
+   {
+    "src": "images/scenes/meridian-sanctuary-arrival.webp",
+    "alt": "Meridian Sanctuary from the arrival: a causeway between mirror pools toward a marble gate tower, with a floating figure, a whale statue and mirrored orbs above."
+   },
+   {
+    "src": "images/scenes/meridian-sanctuary-side-aerial.webp",
+    "alt": "The sanctuary from the side, its terraces and pools stepping up a cliff above the clouds."
+   },
+   {
+    "src": "images/scenes/meridian-sanctuary-pools.webp",
+    "alt": "Across the mirror pools toward the arcades, with the tower reflected in the water."
+   },
+   {
+    "src": "images/scenes/meridian-sanctuary-gate-view.webp",
+    "alt": "From the gate back down the terraces, between balustrades and cypresses."
+   }
+  ],
+  "path": "worlds/meridian-sanctuary/",
+  "hero": {
+   "src": "images/hero-meridian-sanctuary.webp",
+   "alt": "Meridian Sanctuary: a causeway between mirror pools toward a marble gate tower, with floating statues and a mirrored orb above the clouds."
   }
+ },
+ {
+  "id": "crescent-cove",
+  "example": "crescent-cove",
+  "title": "Crescent Cove",
+  "summary": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
+  "shots": [
+   {
+    "src": "images/scenes/crescent-cove-aerial-southwest.webp",
+    "alt": "Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon with seagrass and coral."
+   },
+   {
+    "src": "images/scenes/crescent-cove-cove.webp",
+    "alt": "The cove on Crescent Cove: a canopied stone seat on a grassy rise among palms, with the lagoon beyond."
+   },
+   {
+    "src": "images/scenes/crescent-cove-lagoon-low.webp",
+    "alt": "Low over the lagoon toward the palm-lined beach and the rocky headland."
+   },
+   {
+    "src": "images/scenes/crescent-cove-summit.webp",
+    "alt": "From the headland summit over the lagoon's shallows and coral heads."
+   }
+  ],
+  "path": "worlds/crescent-cove/",
+  "hero": {
+   "src": "images/hero-crescent-cove.webp",
+   "alt": "Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon."
+  },
+  "gallery": "https://kilnstudio.tools/packs/holodeck/crescent-cove/"
+ },
+ {
+  "id": "courtyard",
+  "example": "courtyard",
+  "title": "The Quiet Courtyard",
+  "summary": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
+  "shots": [
+   {
+    "src": "images/scenes/courtyard-overview.webp",
+    "alt": "The Quiet Courtyard from above: a walled garden of cypress and olive trees around a fountain, with a canopied cove at its gate."
+   },
+   {
+    "src": "images/scenes/courtyard-cove.webp",
+    "alt": "The cove at the courtyard gate: a canopied stone seat in front of the walled garden."
+   },
+   {
+    "src": "images/scenes/courtyard-fountain.webp",
+    "alt": "The tiered stone fountain among cypresses and lamp posts."
+   },
+   {
+    "src": "images/scenes/courtyard-far-end.webp",
+    "alt": "The courtyard from its far end, over cypress rows toward the fountain."
+   }
+  ],
+  "path": "worlds/courtyard/",
+  "hero": {
+   "src": "images/hero-courtyard.webp",
+   "alt": "The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."
+  },
+  "gallery": "https://kilnstudio.tools/packs/holodeck/courtyard/"
+ },
+ {
+  "id": "tidemark",
+  "example": "tidemark",
+  "title": "Tidemark Island",
+  "summary": "A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.",
+  "shots": [
+   {
+    "src": "images/scenes/tidemark-overview.webp",
+    "alt": "Tidemark Island from above: a palm-dotted beach curving into turquoise shallows."
+   },
+   {
+    "src": "images/scenes/tidemark-cove.webp",
+    "alt": "The cove on Tidemark: a canopied stone seat on open sand, with palms behind."
+   },
+   {
+    "src": "images/scenes/tidemark-shore-a.webp",
+    "alt": "Along Tidemark's shore, palms above a curve of sand and clear water."
+   },
+   {
+    "src": "images/scenes/tidemark-sea.webp",
+    "alt": "Tidemark Island from the sea, a low line of sand and palms."
+   }
+  ],
+  "path": "worlds/tidemark/",
+  "gallery": "https://kilnstudio.tools/packs/holodeck/tidemark/"
+ },
+ {
+  "id": "winter-mountainside-cabin",
+  "example": "winter-mountainside-cabin",
+  "title": "Winter Mountainside Cabin",
+  "summary": "A snowy forest trail leads to a furnished timber cabin, with a sleeping loft, a mountain-facing deck and a stone seat overlooking the lake.",
+  "shots": [
+   {
+    "src": "images/scenes/winter-mountainside-cabin-exterior.webp",
+    "alt": "The timber cabin and its deck among snow-covered conifers, with mountains beyond."
+   },
+   {
+    "src": "images/scenes/winter-mountainside-cabin-living.webp",
+    "alt": "The cabin's furnished living room, with a stone hearth, timber beams and warm practical lights."
+   },
+   {
+    "src": "images/scenes/winter-mountainside-cabin-loft.webp",
+    "alt": "The sleeping loft with its bed, desk and view through the cabin's glazing."
+   },
+   {
+    "src": "images/scenes/winter-mountainside-cabin-vista.webp",
+    "alt": "The lake and distant mountain ridges seen from the forest viewpoint."
+   }
+  ],
+  "path": "worlds/winter-mountainside-cabin/",
+  "hero": {
+   "src": "images/hero-winter-mountainside-cabin.webp",
+   "alt": "Winter Mountainside Cabin: a timber cabin on a snowy slope among snow-laden pines."
+  },
+  "gallery": "https://kilnstudio.tools/packs/holodeck/winter-mountainside-cabin/"
+ },
+ {
+  "id": "cove",
+  "example": "construct",
+  "kicker": "The maker space",
+  "title": "The Cove",
+  "summary": "The starter workspace is a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent begin building.",
+  "shots": [
+   {
+    "src": "images/scenes/cove-side.webp",
+    "alt": "The Cove: a curved stone seat with green cushions under a linen canopy on timber masts, ringed with potted ferns."
+   },
+   {
+    "src": "images/scenes/cove-arrival.webp",
+    "alt": "Inside the cove, the hearth stone on its round table under the canopy."
+   },
+   {
+    "src": "images/scenes/cove-seat.webp",
+    "alt": "The cove's curved seat with green cushions and a red throw."
+   },
+   {
+    "src": "images/scenes/cove-high.webp",
+    "alt": "The cove from above: the canopy over the round floor and its inlaid rings."
+   }
+  ],
+  "path": "worlds/cove/",
+  "gallery": "https://kilnstudio.tools/packs/holodeck/cove/"
+ }
 ]

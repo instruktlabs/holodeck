@@ -11,7 +11,7 @@ export function collectAimMeshes(root){
  const visit=(object,target=null)=>{
   if(!object.visible)return;
   target=target??object.userData?.target??null;
-  if((target||object.userData?.instanceTargets)&&object.isMesh)meshes.push(object);
+  if((target||object.userData?.instanceTargets||object.userData?.partTargets)&&object.isMesh)meshes.push(object);
   for(const child of object.children)visit(child,target);
  };
  visit(root);return meshes;
@@ -90,8 +90,10 @@ export function waterRayDistance(ray,water,near=0,far=30,time=0){
 
 export function pickWorldAim(raycaster,scene,{terrain=null,water=null,time=0,maxDistance=30}={}){
  raycaster.far=Math.min(30,maxDistance);
- // Entity movement runs before aiming; do not use last render's matrices.
- scene.updateMatrixWorld(true);
+ // Entity movement runs before aiming; do not use last render's matrices. Moving
+ // objects update their own matrices; a forced update would recompute every
+ // static matrix in the scene a second time each frame (H94).
+ scene.updateMatrixWorld();
  const hit=raycaster.intersectObjects(collectAimMeshes(scene),false)[0];if(!hit)return null;
  const far=hit.distance-1e-5;
  if(terrain&&terrainRayDistance(raycaster.ray,terrain,raycaster.near,far)!==null)return null;
@@ -101,6 +103,7 @@ export function pickWorldAim(raycaster,scene,{terrain=null,water=null,time=0,max
 
 export function worldHitTarget(hit){
  if(hit.object.userData?.instanceTargets)return hit.object.userData.instanceTargets[hit.instanceId]??null;
+ if(hit.object.userData?.partTargets)return hit.object.userData.partTargets[hit.partId]??null;
  let target=null;for(let object=hit.object;object;object=object.parent)if(object.userData?.target)target=object.userData.target;
  return target;
 }

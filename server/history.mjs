@@ -34,7 +34,7 @@ export async function readRevisionBundle(root,revision){
   const pinned=receipt.assets[asset.id],bytes=await containedBytes(root,`.holodeck/blobs/${pinned.hash}.glb`,MAX_ASSET_BYTES);
   if(hash(bytes)!==pinned.hash)throw new Error(`Pinned asset hash mismatch: ${asset.id}`);
   total+=bytes.length;if(total>128*1024*1024)throw new Error('Snapshot exceeds the asset byte budget');
-  assets[asset.id]={hash:pinned.hash,url:`/api/assets/${pinned.hash}.glb`,...validateGlb(bytes,{foliage:asset.foliage})};
+  assets[asset.id]={hash:pinned.hash,url:`/api/assets/${pinned.hash}.glb`,...validateGlb(bytes,{foliage:asset.foliage,flow:asset.flow})};
  }
  const textures={};
  for(const file of terrainTextureFiles(receipt.world.scene.terrain).keys()){

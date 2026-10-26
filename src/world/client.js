@@ -2,6 +2,7 @@ import {createContext,useCallback,useContext,useEffect,useMemo,useRef,useState} 
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {createWorldClient,worldContextKey,createSessionRecovery} from './world-client.mjs';
 import {loadTerrainTextures} from './terrain-textures.js';
+import {tagGltfTextures} from './material-share.mjs';
 export const WorldClientContext=createContext(null);
 export function useWorldClient(){const context=useContext(WorldClientContext);return useMemo(()=>createWorldClient(context),[context?.worldId,context?.epoch]);}
 export const api=createWorldClient(null).api;
@@ -18,7 +19,7 @@ function loader(url){
   return loader;
 }
 function acquire(url){
-  let entry=cache.get(url);if(!entry){entry={refs:0,promise:loader(url).loadAsync(url)};cache.set(url,entry);entry.promise.then(g=>{entry.gltf=g;}).catch(()=>{});}entry.refs++;
+  let entry=cache.get(url);if(!entry){entry={refs:0,promise:loader(url).loadAsync(url).then(tagGltfTextures)};cache.set(url,entry);entry.promise.then(g=>{entry.gltf=g;}).catch(()=>{});}entry.refs++;
   return {promise:entry.promise,release(){if(--entry.refs===0){cache.delete(url);entry.promise.then(disposeGLTF).catch(()=>{});}}};
 }
 export function useAssetBundle(payload){

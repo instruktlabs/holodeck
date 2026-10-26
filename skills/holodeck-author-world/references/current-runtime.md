@@ -59,9 +59,118 @@ The `capabilities` section returns each of these; the key is in brackets
   `water.surf` adds reef-break foam and beach swash over the terrain (visual
   only). Optional `environment.sky` gives a zenith/horizon gradient (the
   horizon defaults to `fogColor`), a sun disc and procedural clouds; without it
-  the analytic sky has no clouds. Placed objects under the water are tinted
+  the analytic sky has no clouds. Its `curve` is the exponent on elevation:
+  lower is bluer overhead, higher carries the horizon haze further up. Placed
+  objects under the water are tinted
   automatically like the seabed at their depth; do not bake underwater tint
-  into GLB albedo.
+  into GLB albedo. Only `water.bounds` holds water: below the level outside
+  it, terrain and placements stay dry.
+- **Sky light and cloud deck** (`spatial.sky`): optional `sky.light` captures
+  the world from one probe point (default the spawn) into an environment map
+  that lit materials reflect and are lit by, in place of the fixed hemisphere
+  fill: mirrors, metal and polished stone then show the sky and the
+  architecture around the probe. Author mirrors as metallic 1 with roughness
+  near 0. Optional `sky.cloudSea` puts a sunlit deck of cloud below the
+  horizon at a world height, so a world can float with nothing below; anything
+  that dips below the deck fades into it. Billows are about 85 m times `scale`
+  across: a deck just below the rim reads as a flat floor, while one 50–120 m
+  down at scale 0.5–0.8 reads as a sea of cloud. `contrast` (0.5) sets how far
+  the shaded sides of the billows fall from their sunlit crowns: toward 1 they
+  keep only the cool sky light. `haze` (0.3) is the downward ray slope below
+  which the deck dissolves into the horizon haze: lower keeps billows visible
+  nearer the horizon. `cloudSea.model: "cumulus"` builds the deck from rounded lobes
+  at three scales instead of noise billows that read as dunes, lights it
+  through its own depth toward the sun, opens its gaps onto a darker, bluer
+  layer below and hazes it with clear-air distance haze (`environment.aerial`
+  when set), so it keeps its own colour almost to the horizon; `haze` then
+  sets only the thin horizon band. `towers` (0–1) raises a few sparse taller
+  domes that shadow and hide the deck behind them. Optional `asset.reflection:
+  "sky"` makes floating mirrors reflect the sky dome alone rather than the
+  probe's view of the world; `asset.reflection: {probe: [x, y, z]}` gives an
+  asset a world capture of its own from a point in open air among its
+  placements, so mirrors above the courts reflect the architecture.
+  `asset.reflection: "live"` gives each placement a cube of its own, captured
+  from its centre and kept current while it is on screen, so a mirror orb shows
+  the walker passing it; it costs a scene render a frame while one is in view,
+  so keep it to a few hero mirrors (at most 8 placements).
+  Optional `sky.cumulus {toward: [x, z], spread, height}` raises a bank of
+  towering cumulus on part of the horizon, in front of the sky: a far
+  destination for an axis or a gateway (20–30° fills a tall opening). A list
+  of up to six banks stands towers on several parts of the horizon, such as
+  a ring of cumulus heads rising from a cloud deck.
+  Clouds of every layer are lit in `sky.cloudLight` (default `sunColor`): a
+  whiter `cloudLight` keeps a golden sun on the stone and off the clouds.
+  `sky.radiance: "sun"` lights the whole sky with the sun: the gradient,
+  clouds, cumulus, cloud deck, sun disc and glow, the fog and haze and the
+  water's sky take `sunIntensity / π` times their colours. A `#ffffff` sky is
+  then as bright as white stone facing the sun and sunlit cloud tops a little
+  brighter, so openings onto lit cloud can outshine the stone around them and
+  bloom can fire; raising `sunIntensity` raises sky and stone together. The
+  sky light's capture brightens with it, so lower `sky.light.intensity`. The
+  default `"display"` draws the colours as they are, near a linear 1 however
+  strong the sun.
+- **Haze** (`lighting`): the fog is a smoothstep between `fogNear` and
+  `fogFar`, not linear. From 0 to 1300 m it hazes about 1% at 80 m, 4% at
+  165 m, 23% at 400 m, half at 650 m and 86% at 1 km, so it barely touches a
+  court and nearly hides forms a kilometre out. Optional
+  `environment.fogSky` (0–1, needs `environment.sky`) gives the haze the
+  colour of the sky behind each surface instead of `fogColor`: a far form
+  seen against the zenith fades toward blue, one at the horizon into the
+  horizon haze and one below it into the cloud deck. 1 is the sky's colour;
+  between, it mixes with `fogColor`.
+  Optional `environment.aerial {visibility, base, falloff, blue, glow}`
+  (needs `environment.sky`) replaces the smoothstep with clear-air haze that
+  never reaches full opacity: light from a surface is attenuated per colour
+  channel by `exp(-depth)` and the air adds its own light (`fogColor`, or the
+  sky behind with `fogSky`) plus a glow toward the sun. `visibility` (metres)
+  is the distance over which contrast falls to 2% in level air at `base`; the
+  air thins by e every `falloff` metres above `base`. `blue` (0–1) makes blue
+  scatter more than red, so distant shade lifts toward the blue air while lit
+  faces stay warm. At visibility 20000 a level form 4 km out keeps about 45%
+  of its contrast and one 1 km out about 82%, shading intact. `fogNear` and
+  `fogFar` are ignored when `aerial` is set.
+- **Grade** (`lighting`): optional `environment.grade` picks ACES (default),
+  Neutral or AgX tone mapping and the exposure. Neutral keeps hue and
+  saturation and lets sunlit white reach white; retune warm colours after
+  switching.
+  With Neutral, `grade.highlights` (0–3, default 0.15, the Khronos value)
+  sets how strongly the curve desaturates what it compresses. At 0.15 warm
+  sunlit stone keeps its hue all the way up and reaches L* 99 only near 38
+  times its mid-tone input; at 1 it rolls to white near 8.6 times (L* 97
+  near 3), with mid-tones unchanged.
+- **Shadow reach** (`lighting`): sun shadows cover 24 m either side of the
+  walker or view; optional `environment.shadow.extent` (12–120) widens the box
+  for long axial views, with softer shadows and more casters. A placement with
+  `castShadow: false` stays out of the shadow map: use it for floating or far
+  pieces that should not shade the walkable court below them.
+- **Probe grid** (`spatial.sky`): optional `sky.light.grid {min, max,
+  spacing, bounces, intensity}` bakes a box of light probes over the courts
+  after the sky light's captures, with bounces between surfaces. Lit surfaces
+  inside it take their diffuse fill from the probes around them, so shade
+  facing sunlit stone is lit warm and recesses darken; the sky light's capture
+  then serves reflections only. Its `intensity` is relative to the sky
+  light's: 1 fills shade as brightly as the capture did. At most 1200 probes (one every `spacing`
+  metres); the bake runs a few probes a frame before the view counts as ready.
+  Lower or drop `bounce` with a grid, since it adds to it.
+- **Bounce light** (`spatial.sky`): optional `sky.light.bounce` adds unshadowed
+  light rising from the ground in one colour, so shade on warm sunlit stone
+  reads warm. Keep it modest (about 0.2–0.6).
+- **Mirror water** (`spatial.waterRendering`): optional `water.reflection:
+  "planar"` mirrors the world itself in the water plane at half resolution,
+  so pools reflect the architecture crisply and in place. It roughly doubles
+  the draws of every view that shows the water; use it where mirror water is
+  the point.
+- **Screen-space effects** (`lighting`): optional `environment.effects` adds
+  `occlusion` (ambient occlusion: contact, creases and recesses darken; it
+  turns on `temporalAA`), `temporalAA` (settles shimmering bevels, inlays and
+  stair edges, slightly softer) and `sunShafts` (light shafts from the sun's
+  shadow map; beyond the shadow box they veil distant architecture, so use a
+  low intensity or none in long open views), and `bloom` tunes the glow every
+  world has (a lower `threshold` lets sunlit marble glow). Check both renderer
+  backends after enabling them.
+- **Flowing water** (`spatial.flow`): optional `asset.flow` scrolls the maps of
+  named mesh nodes along their UVs, for waterfalls, overflowing lips and
+  streams. Author UV.v along the fall and a texture that tiles along it.
 - **Proposal size** (`proposals`): the scene is always sent whole, capped at
   4 MiB. Inline `sceneJson` travels in one tool call, so your own output limit
   binds first. For more than a small change, write the complete scene to a JSON
@@ -211,6 +320,17 @@ both WebGPU and forced WebGL2. Shader detail and foam do not supply physics.
   64 assets, 1200 placements and two million placed source triangles (including
   every bird in a flock). Repeated compatible opaque static GLBs are rendered
   through instanced batches while keeping placement IDs and collision data.
+  Each set of one asset (and one castShadow choice) is one draw per mesh part; a
+  set of more than 32 placements spread beyond 96 m splits into 96 m cells only
+  when it carries more than 200,000 triangles in all. Each draw is drawn again by
+  the water mirror and the sun shadow, and costs the CPU far more than the GPU's
+  extra vertex work, so fewer, larger sets are cheaper than many small ones.
+  Static parts of different assets whose materials are identical (the same
+  parameters and byte-identical texture images) bake into one mesh per material,
+  one draw per pass for the whole kit, so a kit that reuses one saved material
+  across its pieces draws far less than one with a variant per piece. Foliage,
+  flow and reflection nodes, transparent materials and instance colours keep
+  their own draws.
   Instancing reduces draw calls, not triangles or shader cost. These are
   admission limits, not performance guarantees or targets for every world.
 - Bible: title, intent, rules, optional pinned reference IDs. Rules are text;

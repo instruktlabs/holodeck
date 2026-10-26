@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {deflateRawSync} from 'node:zlib';
+import {createHash} from 'node:crypto';
 import {readZip,planPack,packTitle,categorySuggestions,DEFAULT_CATEGORIES} from './reference-pack.mjs';
 
 // A minimal archive writer for the test: one stored or deflated entry per file.
@@ -26,6 +27,19 @@ test('a zipped pack reads stored and deflated entries and applies its manifest',
  assert.deepEqual(plan.items.map(i=>[i.path,i.kind,i.title,i.group,i.status]),[['01-hero.png','image','Hero view','Scene','approved'],['notes/brief.md','file','Brief','Rules','rejected']]);
  assert.equal(plan.items[0].notes,'The island from the reef.\n\nFrom tropical.zip: 01-hero.png');
  assert.deepEqual(plan.skipped,[{path:'cover.psd',reason:'unsupported type'}]);
+});
+
+test('a dogfood input proposal applies its images, keeps provenance, checks hashes and lands the brief',async()=>{
+ const sha=text=>createHash('sha256').update(text).digest('hex');
+ const manifest=JSON.stringify({format:'holodeck-dogfood-input-proposal/v1',title:'Marble court',userBriefFile:'brief.md',images:[
+  {file:'images/01-hero.png',title:'Scene direction',category:'scene',notes:'The primary direction.',status:'exploring',sha256:sha('HERO'),provenance:'user-provided image, copied unchanged'},
+  {file:'images/02-kit.png',title:'Kit',category:'kit',sha256:sha('something else'),provenance:'AI-generated reference image; not an engine render'}]});
+ const bytes=zip([['marble/input-manifest.json',manifest,true],['marble/brief.md','# Marble court\nBright, not neon.',true],['marble/images/01-hero.png','HERO',false],['marble/images/02-kit.png','KIT',false]]);
+ const plan=await planPack(await readZip(bytes),{packName:'marble.zip'});
+ assert.equal(plan.manifest,true);
+ assert.deepEqual(plan.items.map(i=>[i.path,i.kind,i.title,i.group,i.status]),[['brief.md','file','Marble court: brief','Brief','approved'],['images/01-hero.png','image','Scene direction','Scene','exploring']]);
+ assert.equal(plan.items[1].notes,'The primary direction.\n\nProvenance: user-provided image, copied unchanged\n\nFrom marble.zip: images/01-hero.png');
+ assert.deepEqual(plan.skipped,[{path:'images/02-kit.png',reason:'differs from its manifest hash'}]);
 });
 
 test('a pack without a manifest still gets readable titles and the default categories',async()=>{

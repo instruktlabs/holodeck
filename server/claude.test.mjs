@@ -6,7 +6,7 @@ import {createServer} from 'node:http';
 import net from 'node:net';
 import path from 'node:path';
 import os from 'node:os';
-import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,scriptGrant,scriptRun,sessionGrant,INSTRUCTIONS} from './claude.mjs';
+import {ClaudeAgent,claudeCommand,claudeEnv,permissionCard,pluginRead,readSearch,scriptGrant,scriptRun,sessionGrant,INSTRUCTIONS} from './claude.mjs';
 import {createHost} from './host.mjs';
 
 // A stand-in for the installed CLI. It records what it was given, answers
@@ -40,6 +40,7 @@ function mcp(){
   return {request,close:()=>child.stdin.end()};
 }
 if(scenario==='text'){say('msg-1','Hello from ');say('msg-1','Claude');finish();}
+if(scenario==='expired'){out({type:'result',subtype:'success',is_error:true,result:'Failed to authenticate: OAuth session expired and could not be refreshed',session_id:session,num_turns:1});process.exit(1);}
 if(scenario==='apikey'||scenario==='hold'){
   say('msg-1','Working');
   process.on('SIGINT',()=>{out({type:'result',subtype:'error_during_execution',is_error:true,session_id:session,errors:['interrupted']});process.exit(130);});
@@ -262,6 +263,17 @@ test('an exact shell command may be allowed for the session; other arguments, to
   assert.deepEqual((await reopened.connect()).sessionTools,[sessionGrant('Bash',{command:plan},root)]);
 });
 
+test('one approval allows read-only searches of the world files for the rest of the session (H115)',async t=>{
+  const asks=[['Bash',{command:"grep -n -e 'rim' assets/source/turn15/report.txt | head -5"}],['Bash',{command:"sed -n '1,9p' world/world.json | cut -c1-80"}],['Bash',{command:'grep x /etc/hosts'}]];
+  const {agent,calls}=await fixture(t,{scenario:'asks',env:{FAKE_CLAUDE_ASKS:JSON.stringify(asks)}});
+  await agent.connect();await agent.startTurn({text:'Search the report',model:'default'});
+  const card=await new Promise(resolve=>{const check=s=>{if(s.requests[0]){agent.off('agent',check);resolve(s.requests[0]);}};agent.on('agent',check);check(agent.snapshot());});
+  assert.deepEqual(card.params.options.map(o=>o.optionId),['allow-once','allow-reads','allow-session','reject-once']);
+  // The second search is allowed by the grant; a read outside the world still asks.
+  const {results}=await answerCards(agent,calls,['allow-reads','reject-once']);
+  assert.deepEqual(results,['allow','allow','deny']);
+});
+
 test('a turn script may be allowed for the session with any arguments until code in assets/source changes',async t=>{
   const run=args=>`uv run assets/source/turn/turn.py ${args} 2>&1 | Select-Object -Last 10`;
   const asks=[['PowerShell',{command:run('verify')}],['PowerShell',{command:run('scene samples')}]];
@@ -294,11 +306,139 @@ test('only a plain run of one script inside assets/source qualifies for a script
   assert.equal(script('node assets/source/plan.mjs --seed 3 | tail -n 20'),'assets/source/plan.mjs');
   assert.equal(script('uv run assets/source/turn12/turn12.py bedmask 2>&1 | Select-Object -First 60'),'assets/source/turn12/turn12.py');
   assert.equal(script('node assets/source/plan.mjs | head -n 5'),'assets/source/plan.mjs');
+  assert.equal(script('node assets/source/design/sanctuary.mjs --turn 2 | head -40'),'assets/source/design/sanctuary.mjs','the classic head -N form trims output too');
+  assert.equal(script('node assets/source/plan.mjs | tail -20'),'assets/source/plan.mjs');
+  assert.equal(script('node assets/source/plan.mjs | head -40 > out.txt'),null,'a redirect after the trim still never qualifies');
   assert.equal(script('python ./assets/source/a.py'),'assets/source/a.py');
+  assert.equal(script("node assets/source/design/tonemap.mjs sky '#f3e5cc' '#1468d0' 0.3"),'assets/source/design/tonemap.mjs','quoted colours are plain words');
+  assert.equal(script('node assets/source/a.mjs "#f3e5cc" --label "south pool" | head -20'),'assets/source/a.mjs');
   for(const command of ['uv run assets/source/a.py; Remove-Item world -Recurse','uv run assets/source/a.py > world/world.json','uv run assets/source/a.py $(whoami)',
-   'uv run assets/source/a.py "quoted arg"','uv run assets/source/../../outside.py','uv run assets/imports/a.py','uv run --with requests assets/source/a.py',
+   'uv run assets/source/a.py "$(whoami)"','uv run assets/source/a.py "`whoami`"','uv run assets/source/a.py "$env:USERPROFILE"',"uv run assets/source/a.py '#fff'; whoami",
+   "uv run assets/source/a.py 'it''s'","uv run assets/source/a.py '#fff\u2019; whoami; \u2018'",'uv run assets/source/a.py "a\\" b"','uv run assets/source/a.py #comment',
+   'uv run assets/source/../../outside.py','uv run assets/imports/a.py','uv run --with requests assets/source/a.py',
    'uv run assets/source/a.py | Out-File x.txt','uv run assets/source/a.py && echo done','pwsh assets/source/a.ps1'])assert.equal(script(command),null,command);
   assert.equal(scriptRun('Read',{file_path:'assets/source/a.py'},root),null,'only shell tools');
+});
+
+test('in Bash a script run may pass its output through read-only grep and sed -n filters (H70)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 5 | grep -v -E '^ [a-z0-9-]+: [0-9]+$'"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 5 | sed -n '1,5p;/^routes/,/^families/p' | grep -v -E '^ (cove-out|F1|T1)'"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/design/glb-audit.mjs 2>&1 | sed -n '120,400p' | grep -v '^ images\\|^ extensions' | head -40"),'assets/source/design/glb-audit.mjs');
+  assert.equal(bash('node assets/source/a.mjs | grep -c "ivy curtain"'),'assets/source/a.mjs');
+  assert.equal(scriptRun('PowerShell',"node assets/source/a.mjs | grep 'x'",root),null,'PowerShell keeps only the tail forms');
+  for(const command of ["node assets/source/a.mjs | sed -n '1p;w out.txt'","node assets/source/a.mjs | sed -n '1e whoami'","node assets/source/a.mjs | sed -n '/a/Ip'",
+   "node assets/source/a.mjs | sed '1,5p'","node assets/source/a.mjs | sed -n '1,5p' x.txt","node assets/source/a.mjs | grep -f patterns.txt","node assets/source/a.mjs | grep -r 'x' /",
+   'node assets/source/a.mjs | grep "$(whoami)"','node assets/source/a.mjs | grep "`whoami`"','node assets/source/a.mjs | grep "a\\" | grep "; rm -rf ~; echo "',
+   "node assets/source/a.mjs | grep 'a'' ; whoami ; '","node assets/source/a.mjs | grep 'a' > out.txt","node assets/source/a.mjs | xargs rm",
+   "node assets/source/a.mjs | grep 'a' | grep 'b' | grep 'c' | grep 'd'","node assets/source/a.mjs | grep 'a'; whoami"])assert.equal(bash(command),null,command);
+});
+
+test('a script run may discard its output and grep a file under assets/source through read-only filters (H91)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The forms the agent used in turn 10, re-running its design script and reading the report it writes.
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 10 > /dev/null; grep -E -e '^placements|over the route|within 1.5 m of' assets/source/turn10/report.txt | sed -e 's/; /\\n    /g' | grep -v -e 'h8-back\\|h4-side' | cut -c1-300"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 10 > /dev/null; grep -o -e '03-head-f1 sky[^;]*' assets/source/turn10/report.txt | head -30"),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash('node assets/source/a.mjs | cut -c1-200'),'assets/source/a.mjs');
+  assert.equal(bash("node assets/source/design/draws.mjs assets/source/turn11/scene.json --hub all | sed 's/assets\\/source\\/turn11\\/scene.json //' | cut -c1-150"),'assets/source/design/draws.mjs','sed without -e');
+  assert.equal(bash("node assets/source/design/draws.mjs assets/source/turn9/scene.json --hub all 2>&1 | sed -E 's/ \\(new engine.*groups/ groups/; s/assets\\/source\\/turn9\\/scene.json //'"),'assets/source/design/draws.mjs','substitutions joined by ;');
+  assert.equal(bash("time node assets/source/design/sanctuary.mjs --turn 12 > /dev/null; grep -A 20 -e '^turn 12 (the destination' assets/source/turn12/report.txt | sed 's/; /\\n      /g' | cut -c1-260"),'assets/source/design/sanctuary.mjs','timed, with a context count');
+  assert.equal(bash("node assets/source/design/list-objects.mjs assets/source/turn12/scene.json '^(parapet-(t[123]-front|F[123])|planter-landing)' | cut -c1-120"),'assets/source/design/list-objects.mjs','a single-quoted regular expression is an inert argument in Bash');
+  assert.equal(scriptRun('PowerShell',"node assets/source/a.mjs '^(a|b)'",root),null,'PowerShell keeps the plain-word quoting');
+  for(const command of ["node assets/source/a.mjs 'x''; whoami; ''y'","node assets/source/a.mjs 'a\nwhoami'"])assert.equal(bash(command),null,command);
+  for(const command of ["time rm -rf assets","time node assets/source/a.mjs; rm -rf assets","node assets/source/a.mjs | grep -A 2 -f patterns.txt",
+   "node assets/source/a.mjs > /dev/null; grep -A x -e 'a' assets/source/r.txt"])assert.equal(bash(command),null,command);
+  for(const command of ["node assets/source/a.mjs | sed -E 's/a/b/; w out.txt'","node assets/source/a.mjs | sed 's/a/b/;e whoami'","node assets/source/a.mjs | sed 's|a|b|w out.txt'",
+   "node assets/source/a.mjs | sed -E 's/a/b/gw out.txt'","node assets/source/a.mjs | sed 's/a/b/' assets/source/a.mjs"])assert.equal(bash(command),null,command);
+  for(const command of ["node assets/source/a.mjs > /dev/null; grep -e 'x' /etc/passwd","node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/../../outside.txt",
+   "node assets/source/a.mjs > /dev/null; grep -r -e 'x' assets/source","node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt; whoami",
+   "node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt assets/source/s.txt","node assets/source/a.mjs > out.txt; grep -e 'x' assets/source/r.txt",
+   "node assets/source/a.mjs > /dev/null; grep -e 'x' -f patterns.txt assets/source/r.txt","node assets/source/a.mjs | sed -e 's/a/b/w out.txt'",
+   "node assets/source/a.mjs | sed -e 's/a/b/e'","node assets/source/a.mjs | sed -e '1d'","node assets/source/a.mjs | sed -e 's/a/b/g;w out.txt'",
+   "node assets/source/a.mjs | sed -i -e 's/a/b/g' assets/source/a.mjs","node assets/source/a.mjs | cut -c1-5 /etc/passwd","node assets/source/a.mjs | cut -f1 -d,",
+   'node assets/source/a.mjs | grep -e "$(whoami)"'])assert.equal(bash(command),null,command);
+  assert.equal(scriptRun('PowerShell',"node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt",root),null,'PowerShell keeps only the tail forms');
+});
+
+test('a read may follow the filters, and a bare grep pattern may not start with - (H95)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The form the agent used in turn 17: list pieces, then look up a function in the design script.
+  assert.equal(bash("node assets/source/design/list-objects.mjs assets/source/turn12/scene.json '^(parapet-arrival|arrival-terrace|found-arrival|planter-arrival|lip-arrival|coping-arrival)' | cut -c1-120; grep -n -e 'function shiftY' assets/source/design/sanctuary.mjs"),'assets/source/design/list-objects.mjs');
+  assert.equal(bash("node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/r.txt | head -5"),'assets/source/a.mjs');
+  assert.equal(bash("node assets/source/a.mjs > /dev/null; grep -e 'x' assets/source/r.txt | cut -c1-80; grep -c -e 'y' assets/source/s.txt"),'assets/source/a.mjs','one read on each side of the filters');
+  assert.equal(bash("node assets/source/a.mjs | grep -e '-re.'"),'assets/source/a.mjs','an -e pattern is always a pattern');
+  assert.equal(bash("node assets/source/a.mjs | grep -v 'x-ray'"),'assets/source/a.mjs');
+  // The form the agent used in turn 18: a bare head keeps ten lines.
+  assert.equal(bash("node assets/source/design/list-objects.mjs assets/source/turn13/scene.json '^(rim-spill|lip-|overflow|basin|falls-|tower-falls|cascade-)' | cut -c1-120; grep -n -e \"rim-spill\" assets/source/design/sanctuary.mjs | cut -c1-180 | head"),'assets/source/design/list-objects.mjs');
+  assert.equal(bash('node assets/source/a.mjs | tail'),'assets/source/a.mjs');
+  // Unquoted plain words, as in the agent's turn 18 draw estimate.
+  assert.equal(bash("node assets/source/design/draws.mjs assets/source/turn13/scene.json --hub all --extent 40 | grep -e estimate | sed 's/assets\\/source\\/turn13\\/scene.json //; s/ (new engine.*//' | head -14"),'assets/source/design/draws.mjs');
+  assert.equal(bash('node assets/source/a.mjs | grep -v draws'),'assets/source/a.mjs');
+  // A read may follow the run with && as well as ;, as in the agent's turn 18.
+  assert.equal(bash("node assets/source/design/sanctuary.mjs --turn 14 > /dev/null && grep -e \"brushing the grounded\" -e \"^assets:\" assets/source/turn14/report.txt | cut -c1-700"),'assets/source/design/sanctuary.mjs');
+  for(const command of ['node assets/source/a.mjs && rm -rf assets','node assets/source/a.mjs > /dev/null && grep -e x /etc/passwd','node assets/source/a.mjs || grep -e x assets/source/r.txt'])assert.equal(bash(command),null,command);assert.equal(bash('node assets/source/a.mjs | grep -e -r'),'assets/source/a.mjs','-e takes -r as the pattern');
+  for(const command of ['node assets/source/a.mjs | grep -r','node assets/source/a.mjs | grep foo*','node assets/source/a.mjs | grep $HOME','node assets/source/a.mjs | grep ~/x','node assets/source/a.mjs | grep -e {a,b}','node assets/source/a.mjs | grep -e a;whoami'])assert.equal(bash(command),null,command);
+  for(const command of ['node assets/source/a.mjs | head /etc/passwd','node assets/source/a.mjs | tail -f /var/log/x','node assets/source/a.mjs | head; whoami'])assert.equal(bash(command),null,command);
+  // grep reads '-re.' as -r -e . (with no file, the whole working directory) and '-fFILE' as a pattern file.
+  for(const command of ["node assets/source/a.mjs | grep '-re.'",'node assets/source/a.mjs | grep "-re."',"node assets/source/a.mjs | grep -v '-fpatterns.txt'",
+   "node assets/source/a.mjs | grep -c '--file=/etc/passwd'","node assets/source/a.mjs | cut -c1-9 | grep '-d' | head -3",
+   "node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' /etc/passwd","node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/../../outside.txt",
+   "node assets/source/a.mjs | cut -c1-120; grep -n -e 'x' assets/source/r.txt; whoami","node assets/source/a.mjs | cut -c1-120; grep -r -e 'x' assets/source",
+   "node assets/source/a.mjs | cut -c1-120; grep -n 'x' assets/source/r.txt","node assets/source/a.mjs | grep 'a' | grep 'b' | grep 'c'; grep -e 'd' assets/source/r.txt | grep 'e' | grep 'f' | grep 'g' | grep 'h'"])assert.equal(bash(command),null,command);
+});
+
+test('a script grant covers running the same script again with other arguments (H107)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The form the agent used in revision 19's turn: one search at two settings.
+  assert.equal(bash('node assets/source/design/sanctuary.mjs --turn 15 --sanctum-search 2 2>&1 | tail -24; node assets/source/design/sanctuary.mjs --turn 15 --sanctum-search 2.5 2>&1 | tail -24'),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash("node assets/source/a.mjs --x 1 > /dev/null && time node assets/source/a.mjs --x 2 | grep -e 'y' | head -3; node assets/source/a.mjs '^(a|b)'"),'assets/source/a.mjs');
+  assert.equal(bash("node assets/source/a.mjs | cut -c1-80; grep -n -e 'x' assets/source/r.txt; node assets/source/a.mjs --y"),'assets/source/a.mjs','a run may follow the read');
+  for(const command of ['node assets/source/a.mjs; node assets/source/b.mjs','node assets/source/a.mjs; python3 assets/source/a.mjs','node assets/source/a.mjs; node ./assets/source/a.mjs',
+   'node assets/source/a.mjs; node assets/source/a.mjs $(whoami)','node assets/source/a.mjs; node assets/source/a.mjs `id`','node assets/source/a.mjs || node assets/source/a.mjs',
+   'node assets/source/a.mjs; node assets/source/a.mjs; whoami','node assets/source/a.mjs & node assets/source/a.mjs','node assets/source/a.mjs; NODE_OPTIONS=x node assets/source/a.mjs',
+   'node assets/source/a.mjs;node assets/source/a.mjs;node assets/source/a.mjs;node assets/source/a.mjs;node assets/source/a.mjs'])assert.equal(bash(command),null,command);
+  // A double-quoted list of views, as in the same turn; only $, backquote, backslash and ! stay out.
+  assert.equal(bash('node assets/source/design/sanctuary.mjs --turn 15 --sanctum-strict "01|h1|h2|02" --sanctum-yaw -0.7,-0.8 2>&1 | head -12'),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash('node assets/source/a.mjs --pick "^(a|b)[0-9]*" --note "rim; spill > 4%"'),'assets/source/a.mjs');
+  for(const command of ['node assets/source/a.mjs "$HOME"','node assets/source/a.mjs "`id`"','node assets/source/a.mjs "a\\\\b"','node assets/source/a.mjs "!x"','node assets/source/a.mjs "a" "b'])assert.equal(bash(command),null,command);
+  assert.equal(scriptRun('PowerShell','node assets/source/a.mjs "01|h1"',root),null,'PowerShell keeps the plain-word quoting');
+  assert.equal(scriptRun('PowerShell','node assets/source/a.mjs; node assets/source/a.mjs',root),null,'PowerShell keeps one run');
+});
+
+test('a script grant covers a sweep over plain values with a safe loop variable (H107)',()=>{
+  const root=path.resolve('world');
+  const bash=command=>scriptRun('Bash',command,root)?.script??null;
+  // The form the agent used in revision 19's turn.
+  assert.equal(bash('for a in 2.5 2.5,0,6 3,0,6; do node assets/source/design/sanctuary.mjs --turn 15 --sanctum-search $a 2>&1 | head -12; done'),'assets/source/design/sanctuary.mjs');
+  assert.equal(bash('for seed in 1 2 3; do echo "== $seed"; node assets/source/a.mjs --seed=$seed | tail -3; done | head -40'),'assets/source/a.mjs');
+  assert.equal(bash("for v in -x low,high; do node assets/source/a.mjs \"${v}\" '$HOME' > /dev/null; done"),'assets/source/a.mjs','single quotes keep a dollar literal');
+  for(const command of ['for a in $(ls); do node assets/source/a.mjs $a; done','for a in *; do node assets/source/a.mjs $a; done','for a in ~ x; do node assets/source/a.mjs $a; done','for a in {1..3}; do node assets/source/a.mjs $a; done',
+   'for a in 1; do node assets/source/a.mjs $b; done','for a in 1; do node assets/source/a.mjs $ab; done','for a in 1; do node assets/source/a.mjs ${a:-x}; done','for a in 1; do node assets/source/a.mjs $a; rm x; done',
+   'for a in 1; do node assets/source/a.mjs $a; done; whoami','for a in 1; do node /etc/x.mjs; done','for a in 1 2; do node assets/source/a.mjs $a & done','for a in 1; do NODE_OPTIONS=x node assets/source/a.mjs; done',
+   'for path in assets/source/bin; do node assets/source/a.mjs; done','for PATH in assets/source/bin; do node assets/source/a.mjs; done','for IFS in x; do node assets/source/a.mjs; done','for a in 1; do echo $(id); node assets/source/a.mjs; done',
+   'for a in 1; do node assets/source/a.mjs "$a`id`"; done','for a in 1; do node assets/source/a.mjs | grep $a; done','for a in 1; do node assets/source/../../x.mjs; done'])assert.equal(bash(command),null,command);
+  assert.equal(scriptRun('PowerShell','for a in 1; do node assets/source/a.mjs $a; done',root),null,'Bash only');
+});
+
+test('read-only searches of assets/source and world can be granted for the session (H115)',()=>{
+  const root=path.resolve('world-root'),read=command=>readSearch('Bash',command,root);
+  // Forms the agent used in revision 19's turn.
+  for(const command of [
+   "grep \"outline clear\" assets/source/turn15/far-grid.txt | grep -v -E \"brushing [^;]*(01|h1|h2) \" | sed -E 's/^  \\[[^]]*\\] //; s/above the skyline in [^;]*; //'",
+   "sed -n '8,39p' assets/source/turn15/report.txt | grep -v \" ok,\" ; sed -n '40,97p' assets/source/turn15/report.txt | cut -c1-300 | head -40",
+   "grep -E \"^\\s+\\[-1[0-9]\\.5,\" assets/source/turn15/near3-grid.txt | sed -E 's/above the skyline in /up: /; s/ m from other sky//' | head -32",
+   "grep -n -A 6 -E '\"id\": \"(tower-84-e|tower-108-e)\"' world/world.json | tr -s ' ' | paste -sd ' ' | fold -w 400",
+   'ls -la assets/source/turn15/','cat assets/source/turn15/report.txt | sort -n | uniq -c | wc -l','grep -c centre assets/source/turn15/far-grid.txt && grep -l x world/world.json'.replace(' && grep -l x world/world.json',''),
+  ])assert.equal(read(command),true,command);
+  for(const command of ['grep -r x assets/source','grep x /etc/passwd','grep x assets/source/../../../etc/passwd','grep x world/../.claude/settings.json','grep x .holodeck/state.json',
+   'grep x assets/source/a.txt > assets/source/out.txt','grep "$(id)" assets/source/a.txt','grep "a\\"b" assets/source/a.txt','grep "a\\\\" assets/source/a.txt',"sed -i 's/a/b/' assets/source/a.txt","sed 's/a/b/w out' assets/source/a.txt",
+   'grep x assets/source/a.txt; rm -rf assets','ls -la ~','sort -o assets/source/x assets/source/y','tr a b < assets/source/x','grep x assets/source/a.txt | xargs rm','grep x assets/source/a.txt || whoami',
+   "grep '-fpatterns' assets/source/a.txt",'grep x assets/source/*','cat assets/source/a.txt | sh','grep x assets/source/a.txt &'])assert.equal(read(command),false,command);
+  assert.equal(readSearch('PowerShell','grep x assets/source/a.txt',root),false,'Bash only');
 });
 
 test('cards are titled by tool, show a search pattern beside its folder, and flag paths outside the world',()=>{
@@ -422,9 +562,24 @@ test('a turn that reports an API key source is stopped before billing changes',a
   assert.equal(done.status,'error');assert.match(done.error,/API key/);
 });
 
+test('a sign-in that lapses mid-session ends the turn disconnected, with the way back',async t=>{
+  const {agent}=await fixture(t,{scenario:'expired'});
+  await agent.connect();await agent.startTurn({text:'Plan the world',model:'opus'});
+  const done=await settled(agent);
+  assert.equal(done.connected,false);assert.equal(done.status,'disconnected');
+  assert.match(done.error,/^Failed to authenticate: OAuth session expired and could not be refreshed\. Claude Code needs you to sign in again: run `claude` in a terminal/);
+  assert.equal(done.sessionStarted,true,'the session is kept for the next turn');
+});
+
 test('claudeEnv strips Anthropic API and provider credentials but keeps unrelated variables',()=>{
-  const env=claudeEnv({PATH:'x',HOME:'h',ANTHROPIC_API_KEY:'k',ANTHROPIC_AUTH_TOKEN:'t',ANTHROPIC_BASE_URL:'u',ANTHROPIC_VERTEX_PROJECT_ID:'v',CLAUDE_CODE_USE_VERTEX:'1',CLAUDE_CODE_USE_FOUNDRY:'1',AWS_BEARER_TOKEN_BEDROCK:'b',CLAUDE_CODE_SIMPLE:'1'});
-  assert.deepEqual(env,{PATH:'x',HOME:'h',CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR:'1'});
+  const env=claudeEnv({PATH:'x',HOME:'h',ANTHROPIC_API_KEY:'k',ANTHROPIC_AUTH_TOKEN:'t',ANTHROPIC_BASE_URL:'u',ANTHROPIC_VERTEX_PROJECT_ID:'v',CLAUDE_CODE_USE_VERTEX:'1',CLAUDE_CODE_USE_FOUNDRY:'1',AWS_BEARER_TOKEN_BEDROCK:'b',CLAUDE_CODE_SIMPLE:'1',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'64000'});
+  assert.deepEqual(env,{PATH:'x',HOME:'h',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'64000',CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR:'1'});
+});
+
+test('a Holodeck launched inside a Claude Code session does not hand that session to the CLI',()=>{
+  // As observed when the desktop app's agent started the host: the child then waited on a host auth refresh.
+  const env=claudeEnv({PATH:'x',HOME:'h',CLAUDE_CONFIG_DIR:'c',CLAUDECODE:'1',CLAUDE_CODE_ENTRYPOINT:'claude-desktop',CLAUDE_CODE_SDK_HAS_HOST_AUTH_REFRESH:'1',CLAUDE_CODE_SESSION_ID:'s',CLAUDE_CODE_OAUTH_SCOPES:'o',CLAUDE_CODE_MESSAGING_TOKEN:'m',CLAUDE_CODE_MAX_OUTPUT_TOKENS:'64000',CLAUDE_AGENT_SDK_VERSION:'1',CLAUDE_PID:'2',CLAUDE_EFFORT:'max',USE_STAGING_OAUTH:'',MCP_CONNECTION_NONBLOCKING:'1'});
+  assert.deepEqual(env,{PATH:'x',HOME:'h',CLAUDE_CONFIG_DIR:'c',CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR:'1'});
 });
 
 test('claude command is the installed CLI and nothing else',()=>{

@@ -9,5 +9,8 @@ export function readRenderReadiness(renderer){return {...(states.get(renderer)??
 export function resetRenderReadiness(renderer,probe){return publish(renderer,initial(),probe);}
 export function completeRenderFrame(renderer,probe){
  const previous=readRenderReadiness(renderer),gate=compileGate(renderer,previous.settledFrames);
- return publish(renderer,{renderReady:gate.ready,pendingCompiles:gate.compiling,settledFrames:gate.settled},probe);
+ // A world's sky light captures its dome over the first frames (landscape.jsx); the
+ // view has not settled until the last capture lands.
+ const sky=probe?.skyLight?.pending===true;
+ return publish(renderer,{renderReady:gate.ready&&!sky,pendingCompiles:gate.compiling,settledFrames:sky?0:gate.settled},probe);
 }
