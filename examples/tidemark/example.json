@@ -20,7 +20,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "bda05abacf0c445e822a4070506284fef90bf77f81c45c096932c497b2c46c80",
+    "sha256": "68564b749eb5e4defc07dc0d1a2d3fb8e0552f4368962b906130276e19ebfa2e",
     "bytes": 314103
   },
   "assets": [
@@ -152,9 +152,9 @@
     },
     {
       "id": "seating",
-      "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
-      "sha256": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
-      "bytes": 890148
+      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "bytes": 890340
     },
     {
       "id": "structure",
@@ -170,5 +170,5 @@
     "width": 1146,
     "height": 884
   },
-  "integrity": "30806122b760a2551fe10603608376a8fd3a381335def7859aa0daa22ead3987"
+  "integrity": "9d7d480b11561b191e058fdb5b82b4b14f34029c4d312c74c01a560df67cb180"
 }
