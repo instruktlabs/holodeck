@@ -26,7 +26,8 @@
   "hero": {
    "src": "images/hero-meridian-sanctuary.webp",
    "alt": "Meridian Sanctuary: a causeway between mirror pools toward a marble gate tower, with floating statues and a mirrored orb above the clouds."
-  }
+  },
+  "gallery": "https://kilnstudio.tools/packs/holodeck/meridian-sanctuary/"
  },
  {
   "id": "crescent-cove",

@@ -101,6 +101,41 @@ Both writer and installer refuse existing destinations. An interrupted output
 retains an `EXAMPLE-INCOMPLETE.txt` or `INSTALL-INCOMPLETE.txt` marker; the library
 must not treat it as ready. The same rule applies to `REMIX-INCOMPLETE.txt`.
 
+## Repairing a pinned asset
+
+When a placed asset has a defect, such as a cloth through a neighbouring module,
+fix it in the separate Kiln workspace and save it as a new revision of the same
+asset (`--asset <id> --parent <revision>`). Then re-pin the packaged examples
+from that revision directory:
+
+```sh
+node scripts/repin-example-asset.mjs <kiln store>/assets/kiln/<assetId>/revisions/<revisionId>
+```
+
+`repinExampleAsset(directory, {assetId, revisionId, bytes})` verifies the whole
+bundle first. In every example that places the asset, it writes the new
+content-addressed GLB, updates the world's `file` and `provenance.revisionId`,
+and refreshes the world and asset receipts and the integrity. It removes the old
+GLB once nothing references it, then verifies the bundle again. Examples that
+don't place the asset are left alone, and a second run reports them as already
+pinned. `sourceRevision` stays the same, because only the asset changed, not the
+authored scene. A run that fails partway leaves `EXAMPLE-INCOMPLETE.txt`. Restore
+that bundle from version control and run it again.
+
+The Cove's starter modules are not bundles. The script reports any module that
+still pins the old revision. Update these by hand:
+
+- `assets/cove/modules/<id>/`: `source.kiln.js`, `review.png` and
+  `provenance.json`, with the parent revision.
+- The module's entry in `assets/cove/modules/manifest.json`.
+- `public/assets/cove-modules/<id>.glb`.
+
+Authoring worlds pin assets through their own history, so commit their re-pin
+through Holodeck. Kiln's QA checks a module on its own, so check a repair to
+soft goods, or anything resting against another module, in the composed scene.
+Retake every site image that shows the repaired asset. A capture scenario with
+`maker: false` leaves the walker out of shots of a place.
+
 ## Future sharing boundary
 
 The same versioned data contract can support downloadable worlds later. There
