@@ -59,6 +59,13 @@ preserving mappings to source parts and scene IDs. Do not weld an operable gate,
 door or moving lamp irreversibly into the architecture. Rendering optimization
 does not establish physical fit or interaction behavior.
 
+Kiln QA checks one module at a time and can't see its neighbours. It reports
+open surfaces such as cloth, canopies and ivy as unmeasured. A module can pass QA
+and still run through another module: a throw through a wall or a mast, say.
+When soft goods drape over another module, or modules share an origin, check the
+composed scene in the browser from close views of each contact. A repair is a new
+revision of the same asset; re-pin it everywhere it is placed.
+
 Verify the destination: supports, overlaps, passage clearances, collision, picking
 identity, lights and visibility/lifetime. Match collision to the current controller
 and scene layout. Record source QA separately from runtime-loaded and in-scene

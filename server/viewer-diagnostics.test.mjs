@@ -4,7 +4,7 @@ import {parseScenarios,hardwareEvidence,recordDiagnostic,createReportDownload,cr
 import React from 'react';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {createServer} from 'vite';
-import {BENCHMARK_PROTOCOL} from '../src/viewer/benchmark-protocol.mjs';
+import {BENCHMARK_PROTOCOL,validateScenario,withoutMaker} from '../src/viewer/benchmark-protocol.mjs';
 
 const cameras=()=>['arrival','inside','forest'].map(id=>({id,position:[0,2,8],target:[0,2,0],fov:63,cove:false}));
 function fixture(){
@@ -35,6 +35,15 @@ test('bounded camera JSON rejects extra executable fields, duplicate IDs, wrong 
  const duplicate=cameras();duplicate[1].id=duplicate[0].id;assert.throws(()=>parseScenarios(JSON.stringify(duplicate)),/unique/);
  const extra=cameras();extra[0].code='alert(1)';assert.throws(()=>parseScenarios(JSON.stringify(extra)),/Invalid scenario/);
  const invalid=cameras();invalid[0].target=[0,2,8];assert.throws(()=>parseScenarios(JSON.stringify(invalid)),/distinct/);
+});
+test('a capture scenario may leave the maker out, and only that',()=>{
+ assert.equal(validateScenario({...cameras()[0],maker:false}).maker,false);
+ assert.throws(()=>validateScenario({...cameras()[0],maker:true}),/maker/);
+ const runtime={version:1,modules:['collision.boxes@1','camera.walk-orbit@1','inhabitant.maker@1'],spawn:[1,1.7,2],possession:{preset:'maker',camera:'first'}};
+ const world={schemaVersion:2,scene:{assets:[],objects:[],runtime}},plain=withoutMaker(world);
+ assert.deepEqual(plain.scene.runtime,{version:1,modules:['collision.boxes@1','camera.walk-orbit@1'],spawn:[1,1.7,2]});
+ assert.equal(world.scene.runtime.possession.preset,'maker','the loaded world is not changed in place');
+ const unpossessed={scene:{runtime:{version:1,modules:['collision.boxes@1']}}};assert.equal(withoutMaker(unpossessed),unpossessed);
 });
 test('run waits for the actual camera, warms up for ten seconds and records once for sixty seconds',async()=>{
  const f=fixture(),report=await recordDiagnostic(f.options);

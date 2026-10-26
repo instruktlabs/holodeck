@@ -132,6 +132,24 @@ export async function createExampleBundle(root,{out,revision,id,title,descriptio
  if(previewBytes)await writeFile(path.join(output,'preview.png'),previewBytes,{flag:'wx'});
  await writeFile(path.join(output,'world/world.json'),worldBytes,{flag:'wx'});await writeFile(path.join(output,'example.json'),JSON.stringify(manifest,null,2)+'\n',{flag:'wx'});await unlink(path.join(output,'EXAMPLE-INCOMPLETE.txt'));return manifest;
 }
+// A repaired revision of an asset the bundle already pins replaces it in place: the GLB, the world's
+// pin and the receipts change, and sourceRevision stays, since the scene itself was not re-authored.
+export async function repinExampleAsset(directory,{assetId,revisionId,bytes}={}){
+ if(typeof assetId!=='string'||typeof revisionId!=='string'||!/^[a-zA-Z0-9_.@ -]{1,160}$/.test(revisionId)||!Buffer.isBuffer(bytes))fail('Supply the asset ID, its new revision ID and the GLB bytes');
+ const bundle=await readExampleBundle(directory),{manifest,world}=bundle,entries=world.scene.assets.filter(asset=>asset.provenance?.assetId===assetId);
+ if(!entries.length)return null;const sha256=digest(bytes),file=`assets/imports/${sha256}.glb`,from=[...new Set(entries.map(asset=>asset.provenance.revisionId))];
+ if(entries.every(asset=>asset.file===file&&asset.provenance.revisionId===revisionId))return {id:manifest.id,assets:entries.map(asset=>asset.id),from,revisionId,sha256,bytes:bytes.length,changed:false};
+ if(bytes.length>MAX_ASSET_BYTES)fail('Repaired GLB exceeds the asset size limit');const metrics={...bundle.assets};
+ for(const asset of entries){metrics[asset.id]={hash:sha256,file,...inspectGlb(bytes,asset.foliage,asset.flow),bytes};asset.file=file;asset.provenance.revisionId=revisionId;}
+ validateWorld(world);portableMetadata(world);if(placedSourceTriangles(world.scene,metrics)>MAX_PLACED_TRIANGLES)fail('Repaired asset takes the example past two million placed source triangles');
+ const worldBytes=Buffer.from(JSON.stringify(world,null,2)+'\n'),ids=new Set(entries.map(asset=>asset.id)),{integrity,...body}=manifest;
+ body.world={...body.world,sha256:digest(worldBytes),bytes:worldBytes.length};body.assets=body.assets.map(asset=>ids.has(asset.id)?{id:asset.id,file,sha256,bytes:bytes.length}:asset);
+ const next={...body,integrity:digest(canonical(body))};validateManifest(next);const kept=new Set(next.assets.map(asset=>asset.file)),dropped=new Set(manifest.assets.map(asset=>asset.file).filter(old=>!kept.has(old)));
+ const marker=path.join(directory,'EXAMPLE-INCOMPLETE.txt');await writeFile(marker,'An asset re-pin did not finish. Restore this bundle from version control and run it again.\n',{flag:'wx'});
+ await writeFile(path.join(directory,file),bytes);await writeFile(path.join(directory,'world/world.json'),worldBytes);await writeFile(path.join(directory,'example.json'),JSON.stringify(next,null,2)+'\n');
+ for(const old of dropped)await unlink(path.join(directory,old));await unlink(marker);await readExampleBundle(directory);
+ return {id:manifest.id,assets:[...ids],from,revisionId,sha256,bytes:bytes.length,changed:true};
+}
 export async function installExampleBundle(directory,destination){
  const output=path.resolve(destination);await absent(output);const {manifest,world,assets,textures,previewBytes}=await readExampleBundle(directory);
  await mkdir(output);await writeFile(path.join(output,'INSTALL-INCOMPLETE.txt'),'Example installation did not finish. Choose a fresh workspace directory.\n',{flag:'wx'});

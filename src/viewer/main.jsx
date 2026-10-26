@@ -16,13 +16,14 @@ import {Diagnostics,RenderReadiness} from './diagnostics.jsx';
 import {createInitializationEvidence} from './renderer-diagnostics.mjs';
 import {enableParallelCompile} from '../world/parallel-compile.js';
 import {DEFAULT_EXPOSURE} from '../world/lighting.mjs';
-import {validateScenario,scenarioCamera} from './benchmark-protocol.mjs';
+import {validateScenario,scenarioCamera,withoutMaker} from './benchmark-protocol.mjs';
 import {createTouchInput} from '../world/touch-input.mjs';
 import {TouchControls,useTouchMode} from '../world/touch.jsx';
 import {EmoteWheel} from '../world/emote-wheel.jsx';
 import {createEmoteInput} from '../world/emote-wheel.mjs';
 const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='1';
-const benchmarkCamera=benchmarkEnabled&&window.holodeckBenchmarkScenario?scenarioCamera(validateScenario(window.holodeckBenchmarkScenario)):{};
+const benchmarkScenario=benchmarkEnabled&&window.holodeckBenchmarkScenario?validateScenario(window.holodeckBenchmarkScenario):null;
+const benchmarkCamera=benchmarkScenario?scenarioCamera(benchmarkScenario):{};
 const initialization=benchmarkEnabled?createInitializationEvidence({forceWebGL:new URLSearchParams(location.search).get('backend')==='webgl'}):null;
 
 const noop=()=>{};
@@ -38,6 +39,7 @@ function useStaticBundle(){
   (async()=>{
    const response=await fetch(new URL('./scene.json',document.baseURI),{signal:controller.signal});if(!response.ok)throw new Error('The exported scene file could not be loaded.');
    const payload=await response.json();if(payload.format!=='holodeck-view-v1')throw new Error('Unsupported static scene format');validateWorld(payload.world);
+   if(benchmarkScenario?.maker===false)payload.world=withoutMaker(payload.world);
    const loader=new GLTFLoader(),byUrl=new Map();
    const entries=await Promise.all(payload.world.scene.assets.map(async asset=>{
     const entry=payload.assets[asset.id];if(!entry||!/^\.\/assets\/imports\/[a-f0-9]{64}\.glb$/.test(entry.url)||entry.url!==`./assets/imports/${entry.hash}.glb`)throw new Error('Invalid exported asset path');

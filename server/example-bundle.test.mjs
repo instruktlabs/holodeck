@@ -8,7 +8,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {scaffold} from './scaffold.mjs';
 import {WorldStore} from './world-store.mjs';
-import {createExampleBundle,readExampleBundle,installExampleBundle,readExampleManifest,readExamplePreview} from './example-bundle.mjs';
+import {createExampleBundle,readExampleBundle,installExampleBundle,readExampleManifest,readExamplePreview,repinExampleAsset} from './example-bundle.mjs';
 import {listExamples} from './example-catalog.mjs';
 import {scaffold as scaffoldBundle} from './scaffold.mjs';
 const digest=value=>createHash('sha256').update(value).digest('hex');
@@ -62,4 +62,15 @@ test('absolute paths embedded in exact GLB metadata require a new reviewed asset
  const {root,parent,accepted}=await fixture(t),pinned=accepted.assets.lamp,original=await readFile(path.join(root,`.holodeck/blobs/${pinned.hash}.glb`)),oldLength=original.readUInt32LE(12),doc=JSON.parse(original.subarray(20,20+oldLength).toString());doc.extras={source:'C:\\private\\author.js'};
  const text=JSON.stringify(doc),json=Buffer.from(text.padEnd(Math.ceil(text.length/4)*4,' ')),bytes=Buffer.concat([original.subarray(0,20),json,original.subarray(20+oldLength)]);bytes.writeUInt32LE(bytes.length,8);bytes.writeUInt32LE(json.length,12);pinned.hash=digest(bytes);await writeFile(path.join(root,`.holodeck/blobs/${pinned.hash}.glb`),bytes);await writeFile(path.join(root,'.holodeck/accepted-bundle.json'),JSON.stringify(accepted));
  const out=path.join(parent,'private-metadata');await assert.rejects(createExampleBundle(root,options(out)),/absolute path/);await assert.rejects(stat(out),{code:'ENOENT'});
+});
+test('a repaired asset revision is re-pinned in place with fresh receipts and the old GLB removed',async t=>{
+ const {root,parent}=await fixture(t),out=path.join(parent,'bundle');await createExampleBundle(root,options(out));const before=await readExampleBundle(out),asset=before.world.scene.assets.find(a=>a.provenance?.assetId);
+ const original=before.assets[asset.id].bytes,oldFile=asset.file,length=original.readUInt32LE(12),doc=JSON.parse(original.subarray(20,20+length).toString());doc.extras={repair:'clear of the mast'};
+ const text=JSON.stringify(doc),json=Buffer.from(text.padEnd(Math.ceil(text.length/4)*4,' ')),bytes=Buffer.concat([original.subarray(0,20),json,original.subarray(20+length)]);bytes.writeUInt32LE(bytes.length,8);bytes.writeUInt32LE(json.length,12);
+ assert.equal(await repinExampleAsset(out,{assetId:'a_not_placed',revisionId:'r_new',bytes}),null);
+ const result=await repinExampleAsset(out,{assetId:asset.provenance.assetId,revisionId:'r_repaired',bytes});assert.equal(result.changed,true);assert.deepEqual(result.from,[asset.provenance.revisionId]);
+ const after=await readExampleBundle(out),pinned=after.world.scene.assets.find(a=>a.id===asset.id);assert.equal(pinned.provenance.revisionId,'r_repaired');assert.equal(pinned.file,`assets/imports/${digest(bytes)}.glb`);
+ assert.equal(after.manifest.sourceRevision,before.manifest.sourceRevision);assert.notEqual(after.manifest.integrity,before.manifest.integrity);await assert.rejects(stat(path.join(out,oldFile)),{code:'ENOENT'});
+ assert.equal((await repinExampleAsset(out,{assetId:asset.provenance.assetId,revisionId:'r_repaired',bytes})).changed,false);
+ await assert.rejects(repinExampleAsset(out,{assetId:asset.provenance.assetId,revisionId:'r_broken',bytes:Buffer.from('not a glb')}),/GLB|glTF/i);assert.equal((await readExampleBundle(out)).manifest.integrity,after.manifest.integrity);
 });
