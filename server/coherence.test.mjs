@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {checkWorld,sampleWorldPoints} from './coherence.mjs';
+import {withMaker} from '../src/world/inhabitant.mjs';
+import {validateRuntimeScene} from '../src/world/runtime.mjs';
 const template=JSON.parse(await readFile(new URL('../test/fixtures/courtyard-template.json',import.meta.url)));
 const world={revision:4,schemaVersion:2,scene:{...template,assets:[],origin:'cove'}};
 test('advisory findings never mutate, accept or reject a world revision',()=>{
@@ -82,6 +84,17 @@ test('legacy and possession ground-plane assumptions remain explicit',()=>{
  const possessed=sampleWorldPoints(value,{points:[{id:'flat',position:[0,1.72,0]}]});
  assert.equal(possessed.driver,'inhabitant-ground-plane');assert.equal(possessed.samples[0].terrainHeight,0);
  const unsupported=checkWorld(world,{routes:[{id:'flying',from:[0,5,0],to:[1,5,0]}]}).checks.find(c=>c.id==='route:flying');assert.equal(unsupported.status,'unsupported');
+});
+
+test('legacy worlds get an explicit maker suggestion and are never migrated',()=>{
+ const before=JSON.stringify(world),legacy=checkWorld(world),upgrade=legacy.checks.find(c=>c.id==='inhabitant-upgrade');
+ assert.equal(upgrade.status,'suggestion');assert.equal(upgrade.evidence.driver,'legacy-ground-plane');
+ assert.deepEqual(upgrade.evidence.possession,{preset:'maker',camera:'first'});assert.ok(upgrade.evidence.modules.includes('inhabitant.maker@1'));
+ assert.match(legacy.next.join(' '),/Add the maker/);assert.equal(JSON.stringify(world),before);assert.equal(world.scene.runtime.possession,undefined);
+ // The suggested revision is the one withMaker produces, and the maker then walks the same ground plane.
+ const added={...world,scene:withMaker(world.scene)};validateRuntimeScene(added.scene);assert.equal(withMaker(added.scene),added.scene);
+ const possessed=checkWorld(added);assert.equal(possessed.driver,'inhabitant-ground-plane');assert.equal(possessed.checks.some(c=>c.id==='inhabitant-upgrade'),false);
+ assert.equal(possessed.checks.find(c=>c.id==='spawn-clearance').evidence.feetPosition[1],0);
 });
 
 test('point samples bound IDs, positions, work and explicit time',()=>{

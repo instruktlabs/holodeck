@@ -29,6 +29,8 @@ import {Ghosts,ghostPlacements} from './ghosts.jsx';
 import {agentPresence,readLastAgent,writeLastAgent} from './presence.mjs';
 import {createTouchInput} from './touch-input.mjs';
 import {TouchControls,useTouchMode} from './touch.jsx';
+import {EmoteWheel} from './emote-wheel.jsx';
+import {createEmoteInput} from './emote-wheel.mjs';
 
 class Boundary extends React.Component{
   state={error:null};static getDerivedStateFromError(error){return {error};}
@@ -61,7 +63,7 @@ function WorldSession({host}){
   const toggleFree=useCallback(()=>{setCameraMode(m=>m==='free'?'walk':'free');document.activeElement?.blur();},[]);
   // Touch: a shared stick and pad for the controller, a View menu on phones, and
   // "Add more" standing in for Shift when tapping references.
-  const touch=useMemo(createTouchInput,[]),touchMode=useTouchMode(),[viewMenu,setViewMenu]=useState(false),[addMore,setAddMore]=useState(false),addMoreRef=useRef(false);addMoreRef.current=addMore;
+  const touch=useMemo(createTouchInput,[]),emotes=useMemo(createEmoteInput,[]),touchMode=useTouchMode(),[viewMenu,setViewMenu]=useState(false),[addMore,setAddMore]=useState(false),addMoreRef=useRef(false);addMoreRef.current=addMore;
   useEffect(()=>{if(!viewMenu)return;const outside=e=>{if(!e.target.closest?.('.hd-view'))setViewMenu(false);};window.addEventListener('pointerdown',outside,true);return()=>window.removeEventListener('pointerdown',outside,true);},[viewMenu]);
   const world=loaded.bundle?.payload.world,accepted=host.payload?.world,worldId=host.payload?.context?.worldId;worldRef.current=world;inhabitRef.current=inhabiting;
   const runtime=useMemo(()=>{if(world?.schemaVersion!==2)return null;if(runtimeRef.current)runtimeRef.current.reconcile(world.scene);else runtimeRef.current=new WorldRuntime(world.scene);return runtimeRef.current;},[world]);
@@ -161,7 +163,7 @@ function WorldSession({host}){
   const resolveBlocker=blocker=>{if(blocker.location==='conversation')openPanel('conversation');else if(blocker.location==='message')focusInput();else{setDraftFocus({...blocker,serial:performance.now()});if(blocker.item)setSelected(blocker.item);setPanel(blocker.location);setTall(TALL.has(blocker.location));}};
   const canSend=!writeDisabled&&!!text.trim()&&!!model&&!active&&!busy;
   const placeholder=inhabiting?'Say something to your agent · Esc returns to walking':agent.connected?'Describe, ask, or change something…':'A thought for your world…';
-  const walkHint=touchMode?(cameraMode==='free'?'Left thumb flies · drag to look · Up and Down rise and sink':'Left thumb moves, push to the edge to run · drag to look · Talk opens the composer'):cameraMode==='free'?'WASD fly · Q down / E up · Shift faster · G return · Enter to talk · H hide':runtime?.scene.runtime.possession?'WASD move · Space jump · Shift run · V view · G free camera · E interact · Enter to talk · H hide':'WASD move · E interact · G free camera · Enter to talk · H hide';
+  const walkHint=touchMode?(cameraMode==='free'?'Left thumb flies · drag to look · Up and Down rise and sink':`Left thumb moves, push to the edge to run · drag to look${runtime?.scene.runtime.possession?' · Emote opens the wheel':''} · Talk opens the composer`):cameraMode==='free'?'WASD fly · Q down / E up · Shift faster · G return · Enter to talk · H hide':runtime?.scene.runtime.possession?'WASD move · Space jump · Shift run · T or 1–9 emote · V view · G free camera · E interact · Enter to talk · H hide':'WASD move · E interact · G free camera · Enter to talk · H hide';
   const sheetOpen=!inhabiting&&panel&&accepted;
   // On phones each camera cluster folds into one View button; on wider screens the toggle is hidden.
   const closeViewMenu=e=>{if(e.target.closest('button'))setViewMenu(false);};
@@ -185,8 +187,9 @@ function WorldSession({host}){
   </section>;
 
   return <main className={`live-world hd ${inhabiting?'is-inhabiting':''} ${inhabiting&&hudHidden?'hud-hidden':''} ${sheetOpen?'has-sheet':''}`}>
-    <div className="scene"><Boundary><Canvas shadows="percentage" dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=DEFAULT_EXPOSURE;r.info.autoReset=false;await r.init();enableParallelCompile(r);return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}} leaveWorld={lockLost} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{preview&&ghost.items.length>0&&ghostBundle.bundle&&<Ghosts items={ghost.items} models={ghostBundle.bundle.models}/>}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects effects={world?.scene?.environment?.effects} grade={world?.scene?.environment?.grade}/></Suspense></Canvas></Boundary></div>
+    <div className="scene"><Boundary><Canvas shadows="percentage" dpr={[1,1.5]} camera={{position:[1.25,1.72,2.35],fov:63,near:.05,far:160}} gl={async props=>{const r=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});r.toneMapping=ACESFilmicToneMapping;r.toneMappingExposure=DEFAULT_EXPOSURE;r.info.autoReset=false;await r.init();enableParallelCompile(r);return r;}}><Suspense fallback={null}>{world&&(runtime?<RuntimeScene {...{runtime,cameraMode,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected,inhabiting,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}} leaveWorld={lockLost} bundle={loaded.bundle}/>:<Scene {...{session,cove,homeTick,setLocked,setMoving,setAim,select,focusInput,selected}} bundle={loaded.bundle}/>)}{preview&&ghost.items.length>0&&ghostBundle.bundle&&<Ghosts items={ghost.items} models={ghostBundle.bundle.models}/>}{world&&<SessionFrame contextKey={contextKey} revision={world.revision}/>}<CoveEffects effects={world?.scene?.environment?.effects} grade={world?.scene?.environment?.grade}/></Suspense></Canvas></Boundary></div>
     <div className={`reticle ${aimText?'has-target':''}`}/><div className="aim-label">{aimText}</div>
+    {runtime?.scene.runtime.possession&&<EmoteWheel input={emotes}/>}
     {inhabiting?<header className="hd-top is-inhabiting">
       <button className="b hud" onClick={leaveWorld}><Icon name="close" size={15}/>Return to making <kbd>Esc</kbd></button>
       {viewGroup(<div id="hd-view-menu" className="hd-cluster hud" role="group" aria-label="Camera mode" onClick={closeViewMenu}>
@@ -204,7 +207,7 @@ function WorldSession({host}){
       {runtime&&<button className="b pri hd-enter" onClick={enterWorld}>Enter world <Icon name="enter" size={15}/></button>}
     </header>}
     {inhabiting&&!locked&&!composing&&(touchMode?<p className="hd-lock-hint is-touch">Left thumb moves · drag to look</p>:<p className="hd-lock-hint">{pointerHint||'Click the world to lock your mouse · arrow keys or right-drag to look'}</p>)}
-    <TouchControls touch={touch} active={touchMode&&!!runtime&&!sheetOpen} mode={cameraMode} possessed={!!runtime?.scene.runtime.possession} interaction={interaction} onInteract={()=>interact(aim)} bottom={inhabiting?(hudHidden?24:composing?150:96):240}>
+    <TouchControls touch={touch} active={touchMode&&!!runtime&&!sheetOpen} mode={cameraMode} possessed={!!runtime?.scene.runtime.possession} interaction={interaction} onInteract={()=>interact(aim)} emotes={emotes} bottom={inhabiting?(hudHidden?24:composing?150:96):240}>
       {inhabiting&&!composing&&<button type="button" className="touch-button quiet" onClick={focusInput}>Talk</button>}
       {inhabiting&&<button type="button" className="touch-button quiet" aria-pressed={hudHidden} onClick={toggleHud}>{hudHidden?'Show controls':'Clear view'}</button>}
     </TouchControls>

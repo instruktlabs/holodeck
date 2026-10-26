@@ -1,7 +1,7 @@
 # Fresh worlds and runtime examples
 
 `init <new-folder>` starts an empty grid construct with the current modular cove,
-walk and overview cameras, and cove collision. `--example construct` selects the
+the maker in first person, overview camera, and cove collision. `--example construct` selects the
 same starter explicitly. Its origin blockers cover the current shell's seat and
 back; the board retains the starter placement. All disappear with the cove.
 
@@ -25,7 +25,8 @@ placements, terrain, lighting and supported behavior, or replace an asset with a
 new delivery. Original procedural asset sources, reference attachments and agent
 history are excluded; the GLBs are not the original Kiln source programs.
 
-Courtyard and kinetic remain smaller architectural fixtures. The cove uses its
+Courtyard and kinetic remain smaller architectural fixtures. Like the Cove,
+both walk as the maker on flat, box-collided ground (no terrain). The cove uses its
 existing Kiln-authored modules. The courtyard has procedural atlas foliage, wind
 and textured surfaces; its paths, architecture and mechanisms use built-in shapes.
 Replace a shape with an asset-backed placement while retaining its ID and behavior.

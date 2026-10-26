@@ -5,6 +5,7 @@ import {referenceUrl} from './moodboard.jsx';
 import {connectName,modelGroups} from './presence.mjs';
 import {probe} from '../prototype/scene.jsx';
 import {selectableItem} from './selection.mjs';
+import {withMaker} from './inhabitant.mjs';
 
 export function BibleEditor({world,run,drafts,writeDisabled}){
   const {api,url:scopedUrl}=useWorldClient();
@@ -84,6 +85,6 @@ export function ObservePanel({runtime,world,observation,cameraMode,locked,paused
       {Object.entries(o?.activity?.states||{}).map(([id,s])=><p className="hd-meta" key={id}>{id}: {s.open!==undefined?(s.open?'open':'closed'):(s.running?'running':'stopped')} / {(s.angle??0).toFixed(2)} rad</p>)}
     </details>
     <div className="hd-row"><button className="b" disabled={writeDisabled} onClick={()=>run(async()=>setCoherence(await api('check',{})))}>Check world</button><span className="hd-meta">Read-only observations; no quality verdict.</span></div>
-    {coherence&&<div className="hd-card hd-coherence" role="status"><span className="hd-caps">Advisory · revision {coherence.worldRevision}</span>{coherence.checks.map(c=><p key={c.id}><strong>{c.id}: {c.status}</strong><br/>{c.message}</p>)}</div>}
+    {coherence&&<div className="hd-card hd-coherence" role="status"><span className="hd-caps">Advisory · revision {coherence.worldRevision}</span>{coherence.checks.map(c=><p key={c.id}><strong>{c.id}: {c.status}</strong><br/>{c.message}</p>)}{coherence.checks.some(c=>c.id==='inhabitant-upgrade')&&!world.scene.runtime?.possession&&<div className="hd-row"><button className="b" disabled={writeDisabled||coherence.worldRevision!==world.revision} onClick={()=>run(async()=>{await api('world',{baseRevision:world.revision,scene:withMaker(world.scene)});setCoherence(await api('check',{}));})}>Add the maker</button><span className="hd-meta">Saves a new revision; undo restores the bodyless walk.</span></div>}</div>}
   </div>;
 }

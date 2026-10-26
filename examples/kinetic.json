@@ -16,7 +16,8 @@
     "modules": [
       "collision.boxes@1",
       "camera.walk-orbit@1",
-      "motion.spin@1"
+      "motion.spin@1",
+      "inhabitant.maker@1"
     ],
     "spawn": [
       0.55,
@@ -272,7 +273,11 @@
         ],
         "layer": "origin"
       }
-    ]
+    ],
+    "possession": {
+      "preset": "maker",
+      "camera": "first"
+    }
   },
   "objects": [
     {

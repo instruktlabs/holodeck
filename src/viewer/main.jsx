@@ -19,6 +19,8 @@ import {DEFAULT_EXPOSURE} from '../world/lighting.mjs';
 import {validateScenario,scenarioCamera} from './benchmark-protocol.mjs';
 import {createTouchInput} from '../world/touch-input.mjs';
 import {TouchControls,useTouchMode} from '../world/touch.jsx';
+import {EmoteWheel} from '../world/emote-wheel.jsx';
+import {createEmoteInput} from '../world/emote-wheel.mjs';
 const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='1';
 const benchmarkCamera=benchmarkEnabled&&window.holodeckBenchmarkScenario?scenarioCamera(validateScenario(window.holodeckBenchmarkScenario)):{};
 const initialization=benchmarkEnabled?createInitializationEvidence({forceWebGL:new URLSearchParams(location.search).get('backend')==='webgl'}):null;
@@ -56,7 +58,7 @@ class RenderBoundary extends React.Component{
 function Viewer(){
  const {bundle,error}=useStaticBundle(),runtime=useMemo(()=>bundle?new WorldRuntime(bundle.payload.world.scene):null,[bundle]);
  const [inhabiting,setInhabiting]=useState(benchmarkEnabled),[cameraMode,setCameraMode]=useState(benchmarkEnabled?'free':'walk'),[person,setPerson]=useState('first'),[cove,setCove]=useState(true),[homeTick,setHomeTick]=useState(0),[locked,setLocked]=useState(false),[aim,setAim]=useState(null),[hidden,setHidden]=useState(benchmarkEnabled),[paused,setPaused]=useState(false),[notice,setNotice]=useState(''),[observation,setObservation]=useState({});
- const touch=useMemo(createTouchInput,[]),touchMode=useTouchMode(),[menu,setMenu]=useState(false);
+ const touch=useMemo(createTouchInput,[]),emotes=useMemo(createEmoteInput,[]),touchMode=useTouchMode(),[menu,setMenu]=useState(false);
  const leaveWorld=useCallback(()=>{setInhabiting(false);setLocked(false);document.exitPointerLock?.();document.activeElement?.blur();},[]);
  const requestLook=useCallback(()=>{try{const canvas=document.querySelector('canvas');if(!canvas?.requestPointerLock){setNotice('Right-drag to look.');return;}canvas.requestPointerLock()?.catch(()=>setNotice('Right-drag to look.'));}catch{setNotice('Right-drag to look.');}},[]);
  const toggleHud=useCallback(()=>setHidden(v=>!v),[]),toggleFree=useCallback(()=>{setCameraMode(m=>m==='free'?'walk':'free');document.activeElement?.blur();},[]);
@@ -87,21 +89,22 @@ function Viewer(){
  if(runtime){runtime.paused=paused||!inhabiting;runtime.originVisible=cove;}
  const possessed=!!runtime?.scene.runtime.possession,interaction=runtime?.interaction(aim,probe.actorEye??probe.position),effectiveMode=inhabiting?cameraMode:'overview',forcedGL=new URLSearchParams(location.search).get('backend')==='webgl';
  function enterWorld(){setInhabiting(true);setCameraMode('walk');setHidden(false);document.activeElement?.blur();if(!touchMode)requestLook();}
- const hint=touchMode?(inhabiting?(cameraMode==='free'?'Left thumb flies · drag to look · Up and Down rise and sink':`Left thumb moves, push to the edge to run · drag to look${possessed?' · tap to interact':''}`):'Drag to orbit · pinch to zoom · Enter the world to walk.')
-  :(inhabiting?(cameraMode==='free'?'WASD fly · Q / E down / up · Shift faster · G return':possessed?'WASD move · Space jump · Shift run · V view · E interact':'WASD move · Shift faster · E interact'):'Enter the world to explore. Right-drag to orbit; scroll to zoom.')+' · H photo mode';
+ const hint=touchMode?(inhabiting?(cameraMode==='free'?'Left thumb flies · drag to look · Up and Down rise and sink':`Left thumb moves, push to the edge to run · drag to look${possessed?' · tap to interact · Emote opens the wheel':''}`):'Drag to orbit · pinch to zoom · Enter the world to walk.')
+  :(inhabiting?(cameraMode==='free'?'WASD fly · Q / E down / up · Shift faster · G return':possessed?'WASD move · Space jump · Shift run · T or 1–9 emote · V view · E interact':'WASD move · Shift faster · E interact'):'Enter the world to explore. Right-drag to orbit; scroll to zoom.')+' · H photo mode';
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
  return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden?'hud-hidden':''}`}>
   <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows="percentage" dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL,antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
-   <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects effects={bundle.payload.world.scene.environment?.effects} grade={bundle.payload.world.scene.environment?.grade}/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
+   <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects effects={bundle.payload.world.scene.environment?.effects} grade={bundle.payload.world.scene.environment?.grade}/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
   {hidden&&!benchmarkEnabled&&!touchMode&&<button type="button" className={`viewer-photo-exit ${awake?'awake':''}`} onClick={()=>setHidden(false)}>Show controls <kbd>H</kbd></button>}
   {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
   <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
   {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle?<section className="viewer-card" role="status">Loading the scene…</section>:!benchmarkEnabled&&!observation.renderReady?<section className="viewer-card" role="status">Preparing the current view…</section>:null}
+  {inhabiting&&possessed&&<EmoteWheel input={emotes}/>}
   {/* Benchmark captures show the world alone, without the walk reticle (H78). */}
   {inhabiting&&!benchmarkEnabled&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
-  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} bottom={hidden?24:150}>
+  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} emotes={emotes} bottom={hidden?24:150}>
    <button type="button" className="touch-button quiet" aria-pressed={hidden} onClick={toggleHud}>{hidden?'Show controls':'Photo mode'}</button>
   </TouchControls>
   <footer className="viewer-footer" inert={benchmarkEnabled}>

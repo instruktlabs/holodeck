@@ -3,7 +3,7 @@ import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {Cove,PlacedAsset,Construct,probe} from '../prototype/scene.jsx';
 import {MoodBoard} from './moodboard.jsx';
-import {resolveWorldKey,createFreeCamera,stepFreeCamera,isWorldInputTarget,stepCameraLook,firstPersonEyePosition} from './inhabit.mjs';
+import {resolveWorldKey,createFreeCamera,stepFreeCamera,isWorldInputTarget,stepCameraLook,firstPersonEyePosition,createFollowCamera,resetFollowCamera,stepFollowCamera} from './inhabit.mjs';
 import {touchDown,touchMove,touchUp,resetTouch,stickAxes} from './touch-input.mjs';
 import {WorldMaterialsProvider,WorldSurfaceMaterial} from './world-materials.js';
 import {Tree} from './vegetation.jsx';
@@ -11,6 +11,8 @@ import {Landscape,LandscapeSky,createUnderwaterTint} from './landscape.jsx';
 import {underwaterAssets} from './water-optics.mjs';
 import {createInhabitant,stepInhabitant,inhabitantContext} from './inhabitant.mjs';
 import {Maker} from './inhabitant.jsx';
+import {requestEmote,chooseSeat} from './emotes.mjs';
+import {createEmoteInput,openWheel,closeWheel,moveWheel,stepWheel,playSlot,takeEmoteRequest} from './emote-wheel.mjs';
 import {pickWorldAim} from './aim.mjs';
 import {planStaticBatches} from './static-batches.mjs';
 import {viewFar} from './runtime.mjs';
@@ -60,9 +62,9 @@ function useUnderwaterModels(models,placed,scene,runtime){
 function Driver({runtime}){useFrame((_,dt)=>runtime.step(dt),-2);return null;}
 const axis=v=>Math.max(-1,Math.min(1,v));
 const NO_STICK={forward:0,strafe:0,sprint:false};
-function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch}){
+function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}){
  const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),lastPick=useRef({time:-Infinity,pose:[]}),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
- const actor=useRef(null),free=useRef(null),skipFrame=useRef(false),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
+ const actor=useRef(null),free=useRef(null),follow=useRef(createFollowCamera()),skipFrame=useRef(false),wheel=useMemo(()=>emotes??createEmoteInput(),[emotes]),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
  // A hidden page is throttled or paused; the first interval after it returns spans
  // the whole absence. Neither is a frame anyone saw, so neither is recorded.
  useEffect(()=>{const changed=()=>{skipFrame.current=true;};document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[]);
@@ -71,7 +73,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
  const far=viewFar(runtime.scene);
  useLayoutEffect(()=>{
   walk.current={position:[...config.spawn],yaw:config.look[0],pitch:config.look[1]};
-  actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;
+  actor.current=config.possession?createInhabitant(runtime):null;runtime.actor=actor.current;resetFollowCamera(follow.current);
   // The body stays protected while its camera is free/overview. Legacy walking
   // has no maker actor, but still occupies a fixed-height body on the ground.
   const body=actor.current??{position:[config.spawn[0],0,config.spawn[2]],radius:.22,height:1.72};runtime.playerBody=body;
@@ -98,11 +100,16 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const typing=()=>isWorldInputTarget(document.activeElement);
   const clear=()=>{keys.current.clear();drag.current=false;};
   const down=e=>{
+   // While the emote wheel is open, Esc closes it and the arrow keys step round it.
+   if(wheel.open&&e.code==='Escape'){e.preventDefault();closeWheel(wheel,{play:false});return;}
    const target=runtime.interaction(aim.current,probe.actorEye??camera.position.toArray());
    const intent=resolveWorldKey({code:e.code,repeat:e.repeat,editable:typing(),mode:inhabiting?'inhabit':'author',cameraMode:mode,target,possessed:!!actor.current});
    if(!intent)return;
    e.preventDefault();
+   if(wheel.open&&intent.type==='look'){if(!e.repeat)stepWheel(wheel,['ArrowRight','ArrowDown'].includes(intent.code)?1:-1);return;}
    if(intent.type==='move'||intent.type==='look'){keys.current.add(intent.code);return;}
+   if(intent.type==='emote-wheel'){openWheel(wheel,'keys');return;}
+   if(intent.type==='emote'){playSlot(wheel,intent.slot);return;}
    if(intent.type==='jump'){keys.current.add('Space');return;}
    if(intent.type==='select'){select(intent.id,{additive:e.shiftKey});return;}
    if(intent.type==='toggle-hud'){toggleHud();return;}
@@ -118,11 +125,13 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   // two fingers pinch the overlook, and a tap uses what the reticle aims at.
   const at=e=>{const r=el.getBoundingClientRect();return {id:e.pointerId,x:e.clientX-r.left,y:e.clientY-r.top,width:r.width,time:e.timeStamp,mode};};
   const touched=e=>e.pointerType==='touch'&&!!touch;
-  const up=e=>keys.current.delete(e.code),move=e=>{
+  const up=e=>{keys.current.delete(e.code);if(e.code==='KeyT'&&wheel.open&&wheel.source==='keys')closeWheel(wheel);},move=e=>{
    if(touched(e)){const r=touchMove(touch,at(e));if(r?.type==='look')look(r.dx,r.dy,.006);else if(r?.type==='pinch'&&mode==='overview')orbitDistance(d=>d*r.scale);return;}
+   // A locked mouse aims the open wheel instead of the camera.
+   if(wheel.open){if(document.pointerLockElement===el)moveWheel(wheel,e.movementX,e.movementY);return;}
    if(drag.current||document.pointerLockElement===el)look(e.movementX,e.movementY,.003);
   };
-  const pointer=e=>{if(touched(e)){try{el.setPointerCapture(e.pointerId);}catch{/* The finger already lifted. */}touchDown(touch,at(e));return;}if(e.button===2){drag.current=true;e.preventDefault();}else if(e.button===0&&inhabiting&&document.pointerLockElement!==el)requestLook();};
+  const pointer=e=>{if(touched(e)){try{el.setPointerCapture(e.pointerId);}catch{/* The finger already lifted. */}touchDown(touch,at(e));return;}if(wheel.open){if(e.button===0)closeWheel(wheel);return;}if(e.button===2){drag.current=true;e.preventDefault();}else if(e.button===0&&inhabiting&&document.pointerLockElement!==el)requestLook();};
   const release=e=>{
    if(!touched(e)){drag.current=false;return;}
    const r=touchUp(touch,at(e));if(r?.type!=='tap'||mode!=='walk')return;
@@ -130,14 +139,14 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   },cancel=e=>{if(touched(e))touchUp(touch,at(e));},context=e=>e.preventDefault();
   const zoom=e=>{if(mode==='overview'){e.preventDefault();orbitDistance(d=>d+e.deltaY*.04);}};
   // Focus moving to a button or the composer drops held keys but not a thumb that is still down.
-  const drop=()=>{clear();if(touch)resetTouch(touch);};
+  const drop=()=>{clear();if(touch)resetTouch(touch);closeWheel(wheel,{play:false});};
   let wasLocked=document.pointerLockElement===el;
-  const lock=()=>{const isLocked=document.pointerLockElement===el;setLocked(isLocked);clear();if(wasLocked&&!isLocked)leaveWorld();wasLocked=isLocked;};
+  const lock=()=>{const isLocked=document.pointerLockElement===el;setLocked(isLocked);clear();if(wasLocked&&!isLocked){if(wheel.open)closeWheel(wheel,{play:false});else leaveWorld();}wasLocked=isLocked;};
   window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',drop);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',drop);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
   return()=>{drop();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',drop);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',drop);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
- },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree,touch]);
+ },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree,touch,wheel]);
  useFrame((_,dt)=>{
-  let moving=false;const stick=touch?stickAxes(touch):NO_STICK,pad=touch?.pad;
+  let moving=false;const stick=touch?stickAxes(touch):NO_STICK,pad=touch?.pad,requested=takeEmoteRequest(wheel);
   if(actor.current)actor.current.camera=person;
   if(mode==='walk'||mode==='free'){
    const k=keys.current;stepCameraLook(mode==='free'?free.current:walk.current,{turn:Number(k.has('ArrowRight'))-Number(k.has('ArrowLeft')),tilt:Number(k.has('ArrowUp'))-Number(k.has('ArrowDown'))},dt,{maxPitch:mode==='free'?1.45:1.3});
@@ -146,24 +155,18 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    const k=keys.current,f=axis(Number(k.has('KeyW'))-Number(k.has('KeyS'))+stick.forward),r=axis(Number(k.has('KeyD'))-Number(k.has('KeyA'))+stick.strafe),w=walk.current,len=Math.max(1,Math.hypot(f,r)),sprint=k.has('ShiftLeft')||k.has('ShiftRight')||stick.sprint;
    if(actor.current){
     const a=actor.current;a.camera=person;
+    // A pick while a movement key or the stick is held would end at once, so it is dropped.
+    if(requested&&!f&&!r&&!k.has('Space')&&!pad?.jump)requestEmote(a,requested,{start:runtime.time,seat:requested==='sit'?chooseSeat(runtime.colliderTops(a.position[0],a.position[2]),a):null});
     stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space')||!!pad?.jump,sprint,yaw:w.yaw},dt,inhabitantContext(runtime,a.radius));a.pitch=w.pitch;
     moving=a.speed>.01;
     const eye=new THREE.Vector3(a.position[0],a.position[1]+a.eyeHeight,a.position[2]);w.position=eye.toArray();
     camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
     if(person==='first')camera.position.set(...firstPersonEyePosition(a.position,a.eyeHeight,w.yaw,w.pitch,(...args)=>runtime.blocked(...args)));
     if(person==='third'){
-     const follow=a.config.thirdPerson,distance=follow.distance,height=follow.height;
-     const offset=new THREE.Vector3(0,height,distance).applyEuler(new THREE.Euler(w.pitch,w.yaw,0,'YXZ'));
-     // Retract a single follow camera before the first terrain or box obstruction.
-     const steps=Math.ceil(offset.length()/.08);let safe=0;
-     for(let i=1;i<=steps;i++){
-      const t=i/steps,p=eye.clone().addScaledVector(offset,t),ground=runtime.terrain?.sample(p.x,p.z);
-      if((ground&&p.y<ground.height+.18)||runtime.blocked(p.x,p.z,.14,p.y-.14,.28))break;safe=t;
-     }
-     camera.position.copy(eye).addScaledVector(offset,safe);
-     // Frame the full inhabitant while retaining a forward point for looking.
-     const focus=eye.clone().add(new THREE.Vector3(0,-.6,0)).add(new THREE.Vector3(0,0,-1.4).applyEuler(new THREE.Euler(w.pitch,w.yaw,0,'YXZ')));camera.lookAt(focus);
-    }
+     // A sprung follow boom: it eases steps and swim height, retracts before terrain or a box, and snaps on spawn or recall.
+     const view=stepFollowCamera(follow.current,{eye:eye.toArray(),yaw:w.yaw,pitch:w.pitch,...a.config.thirdPerson,ground:(x,z)=>runtime.terrain?.sample(x,z),blocked:(x,z,radius,feetY,height)=>runtime.blocked(x,z,radius,feetY,height)},dt);
+     camera.position.set(...view.position);camera.lookAt(...view.focus);
+    }else resetFollowCamera(follow.current);
     probe.actorEye=eye.toArray();
    }else{
    moving=!!(f||r);const distance=Math.min(dt,.04)*(sprint?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
@@ -174,6 +177,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
     probe.actorEye=null;
    }
   }else{
+   resetFollowCamera(follow.current);
    if(actor.current){const a=actor.current;stepInhabitant(a,{stop:true},dt,inhabitantContext(runtime,a.radius));probe.actorEye=[a.position[0],a.position[1]+a.eyeHeight,a.position[2]];}else probe.actorEye=null;
    if(mode==='free'){
     const k=keys.current,v=free.current,input={forward:axis(Number(k.has('KeyW'))-Number(k.has('KeyS'))+stick.forward),strafe:axis(Number(k.has('KeyD'))-Number(k.has('KeyA'))+stick.strafe),up:axis(Number(k.has('KeyE'))-Number(k.has('KeyQ'))+(pad?.up??0)),sprint:k.has('ShiftLeft')||k.has('ShiftRight')||stick.sprint};
@@ -196,7 +200,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   // A geometry/bounds edit may strand the existing pose. Report it instead of
   // silently teleporting; the host can offer the explicit Recall action.
   const outOfBounds=!!a&&(runtime.terrain?.sample(a.position[0],a.position[2]).inBounds===false||a.position[0]-a.radius<b[0]||a.position[0]+a.radius>b[1]||a.position[2]-a.radius<b[2]||a.position[2]+a.radius>b[3]);
-  probe.actor=a?{position:[...a.position],eyePosition:[a.position[0],a.position[1]+a.eyeHeight,a.position[2]],mode:a.mode,camera:person,possessed:mode==='walk',grounded:a.grounded,verticalVelocity:a.verticalVelocity,speed:a.speed,supportHeight:a.supportHeight,waterDepth:a.waterDepth,outOfBounds}:null;
+  probe.actor=a?{position:[...a.position],eyePosition:[a.position[0],a.position[1]+a.eyeHeight,a.position[2]],mode:a.mode,camera:person,possessed:mode==='walk',grounded:a.grounded,verticalVelocity:a.verticalVelocity,speed:a.speed,supportHeight:a.supportHeight,waterDepth:a.waterDepth,outOfBounds,emote:a.emote?{id:a.emote.id,loop:a.emote.loop,stage:a.emote.stage,time:a.emote.time,seat:a.emote.seat?.id??null}:null}:null;probe.emoteWheel={open:wheel.open,highlight:wheel.highlight};
   const look=mode==='free'?free.current:walk.current;
   probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();

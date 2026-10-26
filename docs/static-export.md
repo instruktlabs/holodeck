@@ -32,7 +32,8 @@ recording; it does not enable scene input or change the canvas size or camera.
 
 The player reuses the registered world runtime, terrain, water, interactions and
 camera controller. Enter world starts exploration. Worlds with maker possession
-support first and third person, walking, jumping and swimming. Free camera uses
+support first and third person, walking, jumping, swimming and emotes (T or 1–9).
+Free camera uses
 WASD with Q/E for vertical movement. Escape returns to the overlook and releases
 mouse capture. Right-drag is available without capture. The toolbar controls cove
 visibility, return to arrival and activity pause. Activity is local to the browser
@@ -42,8 +43,8 @@ On a touchscreen the player uses the same controller without mouse capture. A
 thumb on the left of the scene becomes a floating stick that walks or flies, and
 runs at its rim. Any other finger drags to look. On the overlook one finger
 orbits and two fingers pinch to zoom. Buttons appear only when they apply:
-Interact when the reticle finds something (a tap does the same), Jump while
-walking as the inhabitant, Up and Down in the free camera, and Clear view to hide
+Interact when the reticle finds something (a tap does the same), Jump and Emote
+while walking as the inhabitant, Up and Down in the free camera, and Clear view to hide
 the HUD. On screens narrower than 700 px the toolbar folds into one View button.
 See [selection and inhabiting](selection-and-inhabiting.md#touch).
 

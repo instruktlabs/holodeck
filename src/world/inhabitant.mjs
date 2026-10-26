@@ -1,9 +1,17 @@
 import {createTerrain,sampleWater} from './terrain.mjs';
+import {stepEmote} from './emotes.mjs';
 
 export const INHABITANT_DEFAULTS=Object.freeze({preset:'maker',camera:'first',walkSpeed:2.6,runSpeed:4.5,swimSpeed:1.8,thirdPerson:Object.freeze({distance:3.6,height:1.3})});
 const EYE_HEIGHT=1.72,HEIGHT=1.82,SWIM_EYE_HEIGHT=1.25,SWIM_HEIGHT=1.35;
 const MAX_SLOPE=Math.PI/4,MAX_STEP=.35,MAX_DELTA=.1,MOVE_STEP=.06,GRAVITY=18,JUMP_SPEED=5.4;
 export const INHABITANT_LIMITS=Object.freeze({maxSlope:MAX_SLOPE,maxStep:MAX_STEP,maxDelta:MAX_DELTA,moveStep:MOVE_STEP,gravity:GRAVITY,jumpSpeed:JUMP_SPEED,eyeHeight:EYE_HEIGHT});
+// The maker stays an explicit, versioned record in each world. New worlds start
+// with it; an older world gains it only through a revision that adds it here.
+export const MAKER_POSSESSION=Object.freeze({preset:'maker',camera:'first'});
+export function withMaker(scene){
+ const r=scene.runtime;if(r.possession)return scene;
+ return {...scene,runtime:{...r,modules:r.modules.includes('inhabitant.maker@1')?r.modules:[...r.modules,'inhabitant.maker@1'],possession:{...MAKER_POSSESSION}}};
+}
 const inputAxis=value=>Number.isFinite(value)?Math.max(-1,Math.min(1,value)):0;
 
 // Support is the terrain or the highest walkable collider top (context.walkable)
@@ -44,7 +52,7 @@ function airborne(actor,support){
 // this same mutable record; neither owns a second movement simulation.
 export function createInhabitant(runtime,possession=runtime.scene.runtime.possession){
  const r=runtime.scene.runtime,config={...INHABITANT_DEFAULTS,...possession,thirdPerson:{...INHABITANT_DEFAULTS.thirdPerson,...possession?.thirdPerson}};
- const actor={position:[r.spawn[0],r.spawn[1]-EYE_HEIGHT,r.spawn[2]],yaw:r.look[0],velocity:[0,0,0],movementVelocity:[0,0],verticalVelocity:0,grounded:true,jumpHeld:false,speed:0,mode:'grounded',camera:config.camera,eyeHeight:EYE_HEIGHT,height:HEIGHT,radius:.22,distance:0,gaitPhase:0,groundHeight:r.spawn[1]-EYE_HEIGHT,config};
+ const actor={position:[r.spawn[0],r.spawn[1]-EYE_HEIGHT,r.spawn[2]],yaw:r.look[0],velocity:[0,0,0],movementVelocity:[0,0],verticalVelocity:0,grounded:true,jumpHeld:false,speed:0,mode:'grounded',camera:config.camera,eyeHeight:EYE_HEIGHT,height:HEIGHT,radius:.22,distance:0,gaitPhase:0,emote:null,groundHeight:r.spawn[1]-EYE_HEIGHT,config};
  const terrain=runtime.terrain||(runtime.scene.terrain?createTerrain(runtime.scene.terrain):null);
  adoptSupport(actor,supportAt(actor,actor.position[0],actor.position[2],{terrain,water:runtime.scene.water,time:runtime.time||0,walkable:runtime.walkableAt?(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop):null}));
  return actor;
@@ -53,6 +61,8 @@ export function createInhabitant(runtime,possession=runtime.scene.runtime.posses
 export function stepInhabitant(actor,input,seconds,context={}){
  actor.velocity.fill(0);actor.speed=0;
  if(!Number.isFinite(seconds)||seconds<=0)return actor;
+ // Movement ends an emote; a sitter stands up before it walks off.
+ if(stepEmote(actor,input,seconds))input={yaw:input.yaw};
  const dt=Math.min(seconds,MAX_DELTA),before=[...actor.position];
  if(Number.isFinite(input.yaw))actor.yaw=input.yaw;
  const initial=supportAt(actor,before[0],before[2],context);

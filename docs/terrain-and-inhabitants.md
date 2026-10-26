@@ -1,7 +1,7 @@
 # Terrain, ocean and possession
 
 Schema 2 worlds can opt into a heightfield, a bounded ocean and the built-in maker
-inhabitant. These are reusable runtime capabilities. The world agent authors their
+inhabitant. New worlds and every bundled example start with the maker. These are reusable runtime capabilities. The world agent authors their
 records through `world_propose`; the user applies the proposal. Existing worlds
 and installed workspace instructions are not rewritten. `world_read` returns the
 current host's complete spatial contract and valid examples on every read.
@@ -243,8 +243,22 @@ body consume one actor feet position. Switching view does not respawn the actor.
 
 On terrain, `runtime.spawn` X/Z selects the support point; eye height derives from
 terrain height. Without terrain, spawn Y minus 1.72 is the actor's ground plane.
-Without possession, the legacy walker keeps its fixed 1.72 metre eye-height rule;
-enable the maker for terrain-following movement.
+### The maker by default, the legacy walk as fallback
+
+Possession stays an explicit, versioned record in each world; the engine never
+injects it. `holodeck init`, a new library world and the agent's capability
+examples all start with `{"preset":"maker","camera":"first"}` and
+`inhabitant.maker@1`, so their exports and history say the world runs the maker.
+The bundled courtyard, Cove and kinetic examples gained it as a new revision.
+
+A world without possession keeps the legacy walk: a bodyless camera with a fixed
+1.72 metre eye height on flat ground, no jumping, swimming or walkable tops. It
+remains the fallback for worlds that opt out. Existing user worlds are never
+migrated. For them `world_check` (and **Check world** in Observe) reports an
+`inhabitant-upgrade` suggestion carrying the record to add; the agent can
+propose it, or **Add the maker** saves it as a new revision that undo reverts.
+Walk the spawn, routes and any walkable tops again afterwards: the maker is 1.82m
+tall rather than 1.72m, so a beam between those heights now blocks it.
 
 The standing actor has radius 0.22m, height 1.82m and eye height 1.72m. Movement is
 bounded in small steps, allows slopes up to 45 degrees and an upward step of 0.35m,
@@ -252,7 +266,8 @@ and tests boxes at actual feet height. Water deeper than 0.08m starts wading at 
 of walk/run speed. Depth at least 1.25m enters swimming; depth at most 0.9m exits it.
 Swimming feet follow water height minus 1m, with height 1.35m and eye height 1.25m.
 Space jumps when grounded, with a 5.4m/s impulse and 18m/s² gravity. **V**
-switches first and third person. The maker is an optional built-in procedural
+switches first and third person, and **T** or **1–9** play an
+[emote](#emotes). The maker is an optional built-in procedural
 body; its motion is described below. Arbitrary imported rigs, ragdolls,
 moving-body push response and a general physics solver are not implemented by
 these records.
@@ -292,6 +307,43 @@ First person hides the head and the shawl, which sit at the eye, while keeping
 their shadows. For development, `maker-lab.html` on the dev server
 (`npm run dev`) runs the same controller and pose on a small beach and lagoon;
 `window.makerLab` drives scripted input and fixed review cameras.
+
+### Emotes
+
+The maker has nine emotes, in wheel and number-key order: wave, dance, clap,
+bow, point, shrug, cheer (both arms up), sit and lie down. Hold **T** for the
+wheel, or press **1–9**; on touch, the Emote button beside Jump opens it.
+
+- **Timing.** One-shots play once and return to idle. Dance, sit and lie down
+  hold until you move, jump or pick another emote; picking the running loop
+  again stops it. A new pick lets the current emote finish ending first.
+- **Cancelling.** Any movement input or a jump ends an emote and the body blends
+  back into walking. A sitter or lier stands up first (about 0.55s and 1.3s),
+  holding movement until it is up. Falling or swimming drops an emote at once;
+  sitting and lying need firm ground, and the rest also play while wading. A
+  pick made while a movement key or the stick is held is ignored.
+- **Seats.** Sit chooses the nearest collider box top 0.25–0.7m above the feet
+  within 0.8m: a bench, chair seat, log or step. The maker backs onto the nearest
+  edge, sits 0.2m inside it facing out, and places its feet on the ground ahead
+  by IK at whatever height the seat is. With no seat in reach it sits on the
+  ground with its knees up. Moving objects (a door, a mechanism) are never seats.
+- **Lying down** sits first, then lies back along the ground's fall line with the
+  hands behind the head and one knee raised.
+- **Cameras.** Emotes never move the camera: first or third person stays exactly
+  as the player set it, and mouse look works as usual.
+- **State.** An emote is transient activity on the actor, like a door swing. It
+  is never saved into the world document or its revisions, and it does not move
+  collision, support or the actor's position: sitting moves only the visible body.
+  `actor.emote` is plain data (`id`, `loop`, `start` on the world clock, `seat`,
+  elapsed `time` and `stage`), so a body can be played from replicated state.
+  Point aims where you look, within about 60 degrees of the body's facing.
+
+The emote layer (`src/world/maker-emotes.mjs`) runs after the locomotion pose and
+slerps keyed rotations over it by the emote's weight. Upper-body emotes and the
+dance re-solve the legs so both feet stay planted. Timing, cancelling and seat
+choice are in `src/world/emotes.mjs`; the wheel's input is
+`src/world/emote-wheel.mjs`. In `maker-lab.html`, `makerLab.emote(id,{seat})`
+plays one.
 
 ### Walkable colliders
 
