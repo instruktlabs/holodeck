@@ -18,7 +18,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "4bfd354235b83f253ded88250683143814f7d9d9672a3df7e8c14e50401e5092",
+    "sha256": "911fe13d1121caccc90ae8d9549307ac4f07cf2506daa726f63a7d8cc7ad5db2",
     "bytes": 438478
   },
   "assets": [
@@ -270,9 +270,9 @@
     },
     {
       "id": "seating",
-      "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
-      "sha256": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
-      "bytes": 890148
+      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "bytes": 890340
     },
     {
       "id": "shrub-a",
@@ -371,5 +371,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "a019313ca0160aa62655cb09bf8ee927e1e93cc601b6b3c859725f18109abfd3"
+  "integrity": "a7d4d25150c22be69b78c2dcf1ad76633b6488aef9f096ee33fd03c18cbe7c8b"
 }

@@ -18,7 +18,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "0c1efbe7740e698ad79e00c83d5a6d3ed86414087ecdee3a5a4c6eca78a66573",
+    "sha256": "5dc28372550010c247e31681c5270341da08b16e889c62bce16143dc3bc6f5b2",
     "bytes": 507541
   },
   "assets": [
@@ -300,9 +300,9 @@
     },
     {
       "id": "seating",
-      "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
-      "sha256": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
-      "bytes": 890148
+      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "bytes": 890340
     },
     {
       "id": "shelter",
@@ -382,5 +382,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "83e272e0ed98b16372760187bdbf89874fc7d8b94c85f2cda65851ede446245c"
+  "integrity": "44684235adff54af82a848d71c0338fe227c56bda5117da0aaf45d43f51f872b"
 }

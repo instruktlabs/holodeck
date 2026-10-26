@@ -16,7 +16,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "01c1342663184e6eac7061b37d6dec972bdda383b608cedf009785d64ed4cae7",
+    "sha256": "a99281504140a3ee239477377d454c6fe7b1274bf168869ea35ecce9ba85832c",
     "bytes": 109902
   },
   "assets": [
@@ -148,9 +148,9 @@
     },
     {
       "id": "seating",
-      "file": "assets/imports/39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48.glb",
-      "sha256": "39142b52279d5f68d93ed0e9b0f3ddb64bafe8008c530931cb5df1341faf1e48",
-      "bytes": 890148
+      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "bytes": 890340
     },
     {
       "id": "shrub-box",
@@ -220,5 +220,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "ddd9740c7a3a1dbe92e00f92d19c4f1606144ae97d22e274f1fdea8922079c3a"
+  "integrity": "53f046d0253213cbb106095a7b0ec9b08fdedd10987442ec804b5ce48e43edfc"
 }

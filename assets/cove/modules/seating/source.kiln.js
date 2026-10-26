@@ -162,16 +162,17 @@ async function build() {
     add('LinenPillow_' + i, plump, i === 1 ? moss : linen, [3.68 * Math.cos(a), 0.975, 3.68 * Math.sin(a)], [8, 90 - a / DEG + 6 * (i - 1), 4 * (i - 1)]);
   }
   // A wool throw slung over the wall cap, down the back and across one cushion.
-  const path = [[4.2, 1.43], [3.99, 1.445], [3.935, 1.3], [3.92, 0.95], [3.86, 0.74], [3.7, 0.712], [3.4, 0.712], [3.2, 0.7], [3.1, 0.6], [3.07, 0.38]];
+  // Seated between fern pots 7 and 8, clear of the canopy mast at 45 degrees; the back run stays inside the 3.92 wall face.
+  const path = [[4.22, 1.5], [4.03, 1.525], [3.93, 1.51], [3.87, 1.42], [3.86, 1.2], [3.86, 0.95], [3.83, 0.76], [3.7, 0.73], [3.4, 0.73], [3.2, 0.72], [3.1, 0.64], [3.07, 0.5]];
   const curve = new THREE.CatmullRomCurve3(path.map(([r, y]) => new V3(r, y, 0)));
-  const ta = 0.78, half = 0.46, rows = 40, cols = 16, verts = [];
+  const ta = 0.929, half = 0.36, rows = 40, cols = 16, verts = [];
   for (let j = 0; j <= rows; j++) {
     const s = j / rows, c = curve.getPointAt(s), tangent = curve.getTangentAt(s), nr = tangent.y, ny = -tangent.x;
     for (let k = 0; k <= cols; k++) {
       const w = (k / cols) * 2 - 1, fold = 0.016 * Math.sin(w * 8 + s * 5) * Math.min(1, s * 6) + 0.01 * Math.sin(w * 19 - s * 3);
       const r = c.x + nr * fold, y = c.y + ny * fold, ang = ta + (w * half) / r;
       const hang = s > 0.85 ? 0.03 * Math.abs(w) ** 2 : 0;
-      verts.push([r * Math.cos(ang), y + (r > 3.98 ? liftAt(r * Math.cos(ang), r * Math.sin(ang)) : 0) + hang, r * Math.sin(ang)]);
+      verts.push([r * Math.cos(ang), y + liftAt(r * Math.cos(ang), r * Math.sin(ang)) * Math.min(1, Math.max(0, (y - 1.1) / 0.3)) + hang, r * Math.sin(ang)]);
     }
   }
   const position = [], uv = [];
