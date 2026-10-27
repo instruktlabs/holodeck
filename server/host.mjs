@@ -140,7 +140,7 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
       if(route==='/api/agent/connect'){
         const provider=data.provider||agent.snapshot?.().provider||'codex';selectAgent(provider);
         const upgrade=await ensureWorkspace(root,{provider});
-        // Kiln 1.4.0's upgrade report lists the files it rewrote in `changed`.
+        // Kiln's upgrade report (1.4.0 and 1.6.0) lists the files it rewrote in `changed`.
         const files=upgrade?.changed?.length;
         if(files)emit('notice',`Kiln workspace upgraded for the installed Kiln · ${files} Kiln-managed file${files===1?'':'s'} refreshed`);
         return send(res,await agent.connect());

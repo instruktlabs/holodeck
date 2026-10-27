@@ -33,7 +33,7 @@ async function upgradeIfStale(root){
   try{return JSON.parse(output);}catch{return {status:'current',changed:[]};}
 }
 function runInitializer(root,flags,{check=false}={}){
-  // Kiln exports lib/index.js for ESM (1.3.1 and 1.4.0); resolve it without evaluating the
+  // Kiln exports lib/index.js for ESM (1.3.1 through 1.6.0); resolve it without evaluating the
   // engine. Normal package lookup supports both nested and hoisted installs.
   const initializer=fileURLToPath(new URL('../scripts/create-workspace.mjs',import.meta.resolve('@instruktlabs/kiln')));
   return new Promise((resolve,reject)=>{
