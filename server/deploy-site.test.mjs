@@ -49,10 +49,10 @@ async function fixture(t){
 test('a dry run checks the built site, records its digest for CI, and never prepares Wrangler',async t=>{
  const {root,built,state,run}=await fixture(t),lines=[],output=path.join(root,'github-output');
  const result=await go({root,siteDir:built,projectName:'holodeck-site',dryRun:true,githubOutput:output,run,log:line=>lines.push(line)});
- assert.equal(result.deployed,false);assert.equal(result.preflight.head,HEAD);assert.equal(result.preflight.files,10);
+ assert.equal(result.deployed,false);assert.equal(result.preflight.head,HEAD);assert.equal(result.preflight.files,11);
  assert.match(lines[0],/holodeck-site\/main/);assert.match(lines[1],/Dry run/);
  assert.equal(state.calls.some(c=>c.includes('--version')||c.includes('pages')),false);
- assert.equal(await readFile(output,'utf8'),`sha256=${result.preflight.sha256}\nfiles=10\nbytes=${result.preflight.bytes}\nhead=${HEAD}\n`);
+ assert.equal(await readFile(output,'utf8'),`sha256=${result.preflight.sha256}\nfiles=11\nbytes=${result.preflight.bytes}\nhead=${HEAD}\n`);
 });
 
 test('without a site folder, a deploy builds one into a temporary folder and removes it',async t=>{
