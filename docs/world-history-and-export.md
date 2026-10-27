@@ -37,6 +37,14 @@ keyed by their path. Restore and remix copy each pinned image to
 `assets/imports/terrain/snapshot-<sha256>.png` and point the layers at it;
 undo uses `restored-<sha256>.png`.
 
+A heightmap terrain's samples are pinned as `.holodeck/blobs/<sha256>.r32`, and
+the receipt's `height` entry records the file, hash, byte count and sample size.
+The record itself names the hash, so every revision keeps its own samples.
+Restore and remix copy them to `assets/imports/terrain/snapshot-<sha256>.r32`;
+undo uses `restored-<sha256>.r32`. A snapshot whose height blob is missing
+cannot be restored, remixed or exported; its terrain is never rebuilt from
+another source.
+
 ## Static experience boundary
 
 A static export is a playable snapshot of an accepted schema-v2 scene and its

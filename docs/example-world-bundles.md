@@ -28,6 +28,9 @@ The versioned format is `holodeck-example-v1`. It contains only:
 - `assets/imports/terrain/<sha256>.png`, only when the terrain has
   `appearance.layers`: the exact pinned layer maps and paint masks. The manifest
   lists each under `textures` with its hash, byte count and dimensions.
+- `assets/imports/terrain/<sha256>.r32`, only when the terrain is a heightmap:
+  the exact pinned height samples. The manifest lists the file under `height`
+  with its hash, byte count and sample size.
 - Optional `preview.png`: an actual runtime screenshot, limited to 8 MiB and
   4096 pixels per dimension, with its own hash, byte count and dimensions.
 
@@ -47,9 +50,11 @@ two million placed source triangles, including every flock member. Legacy
 schema-v1 scenes retain their 64-asset and 200-placement limits. Terrain layer textures keep
 their own rules: at most 32 MiB of PNGs, counted inside the 128 MiB, and layer
 maps square, power-of-two and one shared size. The listed textures must be
-exactly the files the terrain names.
+exactly the files the terrain names. A heightmap's height file must be the one
+its terrain names, with `nx × nz × 4` bytes, the record's sha256 and finite
+samples; it also counts inside the 128 MiB.
 
-Only validated world data, GLBs, terrain PNGs and the optional preview enter an install. Bundle
+Only validated world data, GLBs, terrain PNGs, height samples and the optional preview enter an install. Bundle
 scripts, plugins, session files, extra files and escaping paths are rejected.
 Installed authoring skills come from the trusted Holodeck package, never from
 the bundle. The install creates a fresh editable history when first opened.
@@ -64,8 +69,8 @@ refinement therefore needs a separately available, authorized source artifact.
 ## Preparing a curated bundle
 
 The Node-side `createExampleBundle(workspace, options)` reads an immutable
-accepted receipt and rechecks pinned asset and terrain texture hashes before
-copying. The terrain is repointed at the texture copies' content-addressed names. `options`
+accepted receipt and rechecks pinned asset, terrain texture and height sample
+hashes before copying. The terrain is repointed at the copies' content-addressed names. `options`
 requires `out`, `id`, `title` and `description`; `revision` selects a specific
 accepted revision. Optional `authoring: {intent, rules}` supplies public prose.
 When omitted, those fields are blank. `preview` is a local path to a real

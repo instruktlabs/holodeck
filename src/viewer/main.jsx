@@ -9,6 +9,7 @@ import {validateWorld} from '../world/contract.mjs';
 import {CoveEffects} from '../world/effects.jsx';
 import {probe} from '../prototype/scene.jsx';
 import {loadTerrainTextures} from '../world/terrain-textures.js';
+import {loadTerrainHeight} from '../world/terrain-heights.js';
 import {tagGltfTextures} from '../world/material-share.mjs';
 import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
@@ -38,7 +39,14 @@ function useStaticBundle(){
   let stopped=false;const controller=new AbortController(),loaded=new Set();
   (async()=>{
    const response=await fetch(new URL('./scene.json',document.baseURI),{signal:controller.signal});if(!response.ok)throw new Error('The exported scene file could not be loaded.');
-   const payload=await response.json();if(payload.format!=='holodeck-view-v1')throw new Error('Unsupported static scene format');validateWorld(payload.world);
+   const payload=await response.json();if(payload.format!=='holodeck-view-v1')throw new Error('Unsupported static scene format');
+   // A heightmap's samples load first: they are part of the terrain the world validates and builds.
+   const terrain=payload.world?.scene?.terrain;
+   if(terrain?.type==='heightmap'||payload.height){
+    const entry=payload.height;if(terrain?.type!=='heightmap'||!/^\.\/assets\/imports\/terrain\/[a-f0-9]{64}\.r32$/.test(entry?.url)||entry.url!==`./${terrain.height.file}`||entry.hash!==terrain.height.sha256)throw new Error('Invalid exported terrain height path');
+    await loadTerrainHeight({...entry,size:terrain.size},{signal:controller.signal});
+   }
+   validateWorld(payload.world);
    if(benchmarkScenario?.maker===false)payload.world=withoutMaker(payload.world);
    const loader=new GLTFLoader(),byUrl=new Map();
    const entries=await Promise.all(payload.world.scene.assets.map(async asset=>{

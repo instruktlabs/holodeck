@@ -34,6 +34,15 @@ test('world_read lists every terrain appearance setting, what is fixed, and how 
   assert.match(terrainRendering,/seabed/);
 });
 
+test('world_read states the heightmap terrain contract and gives a structurally valid example',async()=>{
+  const {terrain,terrainHeightmap,limits,examples}=(await read(2)).spatial;
+  assert.match(terrain,/type:"heightmap"/);
+  for(const fact of ['little-endian float32','row 0 at zmin','column 0 at xmin','2..1025','sha256','128 MiB','new file name','segments','one lattice','stamps','never the samples'])assert.ok(terrainHeightmap.includes(fact),fact);
+  assert.match(limits,/heightmap/);
+  const {validateTerrain}=await import('../src/world/terrain.mjs');
+  assert.equal(validateTerrain(examples.terrainHeightmap),examples.terrainHeightmap);
+});
+
 test('world_read says what each environment type renders',async()=>{
   const v2=await read(2),v1=await read(1);
   for(const text of [v2.environmentTypes,v2.spatial.environments])for(const fact of ['construct','meadow','With scene.terrain both types render identically','clearPath'])assert.ok(text.includes(fact),fact);

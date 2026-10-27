@@ -26,7 +26,13 @@ The current runtime groups compatible static placements by asset/layer, splittin
 large groups into 96-metre X/Z cells while keeping compact groups together. Each
 mesh is culled as a whole against the main and shadow cameras. This is not
 per-instance GPU culling. Terrain/ocean remain whole meshes, and a flock's bounds
-cover its authored flight volume.
+cover its authored flight volume. A heightmap at its default lattice submits
+(nx-1)x(nz-1)x2 triangles in its one terrain draw, in every pass that draws it
+(terrain casts no shadows). On a mid-range laptop GPU a 690-draw world ran the
+same with 43,500 or 524,288 terrain triangles, while a 2,097,152-triangle lattice
+added about 2 ms p95 and over-70 ms p99 frames on WebGL2 only. Compare segments
+against the same view on both backends before keeping a 1024x1024 lattice; fewer
+segments also move steep ground, so recheck it with world_sample.
 
 Global batches can save draws while submitting off-camera instances. Smaller
 chunks can reject more geometry but add draws in a wide view. Check an actor-height

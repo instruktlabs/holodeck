@@ -38,7 +38,7 @@ See [getting started](docs/getting-started.md) for the full flow. The current ch
 - Build through a local Codex, Cursor or Claude Code conversation, with model selection, approvals and cancellation. Allow an exact command, or all Kiln workspace tools, once for the session.
 - Edit a shared world bible and mood board with images, notes, file references and imported reference packs.
 - See a proposal's placements as ghosts in the world, review its differences, then apply it; hot-load validated Kiln assets.
-- Shape terrain with textured material layers, fill groves and undergrowth with seeded scatter, and add optional surf and a cloudy sky. Objects under water take the depth tint automatically, and collider tops marked walkable carry you along jetties and up stairs.
+- Shape terrain with stamps or a sampled heightmap pinned by hash, dress it with textured material layers, fill groves and undergrowth with seeded scatter, and add optional surf and a cloudy sky. Objects under water take the depth tint automatically, and collider tops marked walkable carry you along jetties and up stairs.
 - Walk, jump, swim, wave, dance or sit on a bench, switch first/third-person cameras, or inspect with a free camera. Photo mode (H) hides every control for a clean frame. Press Enter to talk to your agent without leaving the world.
 - Save, restore and remix scene revisions; create independent copies of example worlds.
 - Light worlds with a sky light, a baked probe grid and sun shadows; still water and mirror orbs reflect the world, and the walker, in real time.

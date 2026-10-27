@@ -29,7 +29,7 @@ Simulation checkpoints are not implemented.
 Existing schema v1 worlds remain supported without automatic migration. New
 examples use schema v2 and scene.runtime.version 1. Shape blockouts and pinned
 Kiln GLBs share the placement model. The capability registry covers camera and
-box collision, hinge and spin interactions, heightfields and ocean, maker
+box collision, hinge and spin interactions, heightfield and heightmap terrain and ocean, maker
 possession, patrols, articulated gait, airborne boid flocks and seeded scatter.
 Terrain texture layers, surf and the gradient sky are optional fields of the
 terrain, water and environment records. Optional schema-v2 hemisphere fill and
@@ -53,7 +53,7 @@ Define routes, destinations, support, clearance and sightlines before decoration
 Rendering, collision and interaction share placement frames. The current box query
 supports yaw and scale; pitch/roll collision is rejected. New worlds and bundled
 examples walk as the maker; a world without possession falls back to the legacy
-fixed-height ground-plane walk. Optional heightfield, ocean and maker possession share terrain
+fixed-height ground-plane walk. Optional terrain (heightfield or heightmap), ocean and maker possession share terrain
 triangles, water time and one actor support anchor across first/third person.
 Collider boxes marked `walkable` add their tops to that support, so the walker and
 patrols can cross a jetty deck or climb stair treads; walkable boxes are static and
@@ -152,6 +152,51 @@ draw thousands of times through parts, behaviours, water and shadows, so check
 `world_observe` draws and frame p95 after large edits. At 128 assets the
 `world_read` overview can outgrow its 24,000-character page; it then keeps the
 most-placed asset groups and reports the rest in `objectsByAssetOmitted`.
+
+## Terrain sources
+
+`scene.terrain` has two sources over one lattice: a `heightfield` (a base height
+and elliptical stamps) and a `heightmap` (sampled heights from a pinned
+little-endian float32 `.r32` file, named in the record by its SHA-256). Both
+take the same ordered stamps and appearance, and both require
+`terrain.heightfield@1`. `createTerrain` in `src/world/terrain.mjs` builds one
+Float32 lattice from either source, and the renderer, walker, aim, scatter,
+floor clearance, terrain layers, surf, ocean depth and the `world_sample` and
+`world_check` probes all read it. A heightmap's default lattice puts one vertex on
+each sample, so the drawn vertices are the samples; an explicit `segments`
+resamples them, and every consumer still reads that same resampled lattice. The
+runtime's terrain signature includes the height hash, so new samples rebuild the
+terrain while an appearance-only edit does not.
+
+Samples live in a registry keyed by SHA-256, and `createTerrain` refuses a
+heightmap whose samples are not loaded. Each reader loads and verifies them
+before it validates a world, because counting scatter placements builds the
+terrain. On the Node side that is the world store (accepted world and every
+proposal), history listing, restore and remix, static export, example bundles,
+and `holodeck check` and `launch`. In the browser it is the asset bundle loader
+and the static viewer, which fetch the pinned bytes by hash and check them where
+the page can compute SHA-256. The accepted world, a staged proposal and a loaded
+browser bundle retain their samples; up to eight other sample sets stay cached.
+The host pins the file as `.holodeck/blobs/<sha256>.r32`, counts it in the
+128 MiB world budget, records it in the revision receipt's `height` entry and
+serves it at `/api/heights/<sha256>.r32`. Writing over the pinned file never
+changes an accepted revision. See
+[terrain and inhabitants](terrain-and-inhabitants.md#heightmap) for the record.
+
+**Cost.** A heightmap's default lattice can carry sixteen times the triangles of
+the largest heightfield: 2,097,152 against 131,072. These are hub browser results
+(GTX 1660 Ti Max-Q laptop GPU, driver 615.78.08, headed Chrome through
+Playwright, 1600×900, nice 10, uncapped frame rate), not PC, Windows or Unity
+results. Terrain triangles cost far less than draws. A 690-draw modular world
+measured the same p95 with a 43,500-triangle stamped heightfield, a
+524,288-triangle heightmap and that heightmap resampled to 131,072 triangles
+(WebGPU 11.2–11.8 ms, WebGL2 10.0–10.4 ms). On a 94-draw world the largest
+lattice left WebGPU p95 unchanged; on WebGL2 it added about 2 ms at p95, and at
+least 1% of frames took over 70 ms. Building the lattice is main-thread CPU work,
+done once per change of shape: 0.11–0.14 s and 52 MiB of buffers at
+1024 × 1024 in Node on a desktop CPU. Walker support matched the drawn triangles
+within 7.1 × 10⁻¹⁵ m in every run. [Choosing segments](terrain-and-inhabitants.md#choosing-segments)
+has the table, the resampling error and the guidance.
 
 ## Local world activation
 

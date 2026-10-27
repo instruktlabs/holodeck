@@ -296,8 +296,14 @@ resolves accepted placements, colliders, behaviors and asset revisions at send t
 Tree parts are trunk/canopy; arbitrary imported GLB parts are not yet supported.
 Use world_read to inspect the current document before proposing changes.
 
-Terrain uses a finite heightfield of at most256x256 cells and up to32 ordered
-elliptical add/flatten stamps; it cannot supply caves or overhangs. Ocean has up
+Terrain is a finite stamped heightfield of at most256x256 cells, or a sampled
+heightmap: a pinned little-endian float32 .r32 file of up to1025x1025 samples,
+row0 at zmin, named by its sha256 in terrain.height. Both take up to32 ordered
+elliptical add/flatten stamps (over the samples on a heightmap) and neither can
+supply caves or overhangs. Heightmap samples are immutable once proposed: write
+new ones under a new file name and propose its sha256. segments sets one lattice
+that the renderer, walker, aim, scatter and world_sample all share; measure its
+cost before raising it (spatial.terrainHeightmap, spatial.limits). Ocean has up
 to4 directional waves with bounded amplitude, wavelength and speed. Terrain,
 water and sky remain present when the origin layer is hidden. Use world_sample
 before positioning roots, entries and waterline details; object Y remains an

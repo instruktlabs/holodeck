@@ -1,4 +1,4 @@
-import {createTerrain,validateTerrain,validateWater,sampleWater} from './terrain.mjs';
+import {sharedTerrain,validateTerrain,validateWater,sampleWater,terrainSignature as signatureOf} from './terrain.mjs';
 import {INHABITANT_LIMITS} from './inhabitant.mjs';
 import {validateGait} from './gait.mjs';
 import {validateFlock,createFlock,stepFlock} from './boids.mjs';
@@ -176,8 +176,11 @@ export class WorldRuntime{
   validateRuntimeScene(scene);
   // Appearance changes do not alter support geometry. Build a candidate before
   // replacing any retained state so a failed surface keeps the previous world.
-  const t=scene.terrain,terrainSignature=t?JSON.stringify([t.type,t.bounds,t.segments,t.baseHeight,t.stamps]):null;
-  const terrain=t?(terrainSignature===this.terrainSignature?this.terrain:createTerrain(t)):null;
+  // A heightmap's signature carries its content hash, so new samples rebuild it.
+  // The lattice is the one scatter counting already built for this terrain, so
+  // validation and the runtime hold one copy (52 MiB at 1024 x 1024 cells).
+  const t=scene.terrain,terrainSignature=signatureOf(t);
+  const terrain=t?(terrainSignature===this.terrainSignature?this.terrain:sharedTerrain(t)):null;
   // Expanded scatter placements collide like authored ones; none carry behavior.
   const placed=placedObjects(scene,{terrain}),walkable=walkableBoxes(placed),support=(x,z,maxTop)=>walkableTop(walkable,x,z,maxTop,this.originVisible);
   const states=new Map(),signatures=new Map();for(const o of scene.objects){if(!o.behavior)continue;const signature=JSON.stringify(o.behavior.type==='patrol'?[o.behavior,o.position,walkable]:o.behavior.type==='flock'?[o.behavior,terrainSignature]:o.behavior),module=MODULES[behaviorModule[o.behavior.type]];states.set(o.id,this.signatures.get(o.id)===signature?this.states.get(o.id):module.init(o,terrain,support));signatures.set(o.id,signature);}

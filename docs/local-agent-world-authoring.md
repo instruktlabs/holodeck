@@ -102,9 +102,10 @@ without the CLI serves `HOLODECK_WORKSPACE`, or `../holodeck-worlds/hearth` when
 it is unset. Asset authoring uses the world's configured `kiln_workspace` setup;
 installed package/engine code is outside ordinary world editing. Environment choices
 are currently construct/meadow/woodland with static GLB placements and simple
-blockers. Schema 2 also supports a bounded heightfield with up to four texture
-layers, an ocean with optional surf, an optional gradient sky with clouds, seeded
-scatter, and optional maker possession with first/third-person cameras. Placed
+blockers. Schema 2 also supports bounded terrain, a stamped heightfield or a
+sampled heightmap pinned by hash, with up to four texture layers, an ocean with
+optional surf, an optional gradient sky with clouds, seeded scatter, and
+optional maker possession with first/third-person cameras. Placed
 objects below the water are tinted automatically. General imported-rig
 possession, custom physics and XR are future capabilities. See
 [terrain and inhabitants](terrain-and-inhabitants.md).

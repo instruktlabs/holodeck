@@ -5,6 +5,7 @@ import {createHash} from 'node:crypto';
 import {readRevisionBundle} from './history.mjs';
 import {validateWorld,validateGlb,MAX_ASSET_BYTES} from '../src/world/contract.mjs';
 import {renameTerrainTextures,pngInfo,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
+import {admitHeight,heightBlob,HEIGHT_FILE_BYTES} from './terrain-heights.mjs';
 
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -25,6 +26,12 @@ async function pinnedTexture(root,hash){
  if(relative.startsWith('..')||path.isAbsolute(relative))throw new Error('Pinned terrain texture escapes workspace');
  const info=await stat(file);if(!info.isFile()||info.size>TERRAIN_LAYER_LIMITS.textureBytes)throw new Error('Pinned terrain texture exceeds the export size limit');
  const bytes=await readFile(file);if(digest(bytes)!==hash)throw new Error('Pinned terrain texture hash mismatch during export');pngInfo(bytes);return bytes;
+}
+async function pinnedHeight(root,terrain){
+ const hash=terrain.height.sha256,base=await realpath(root),file=await realpath(path.join(base,heightBlob(hash))),relative=path.relative(base,file);
+ if(relative.startsWith('..')||path.isAbsolute(relative))throw new Error('Pinned terrain height escapes workspace');
+ const info=await stat(file);if(!info.isFile()||info.size>HEIGHT_FILE_BYTES)throw new Error('Pinned terrain height exceeds the export size limit');
+ const bytes=await readFile(file);admitHeight(terrain,bytes);return bytes;
 }
 async function fileInventory(root,relative=''){
  const result=[];
@@ -109,6 +116,14 @@ export async function exportStaticWorld(root,{out,revision,page}={}){
   scene.terrain=renameTerrainTextures(scene.terrain,file=>`assets/imports/terrain/${receipt.textures[file].hash}.png`);
   for(const pinned of Object.values(receipt.textures)){const file=`assets/imports/terrain/${pinned.hash}.png`;textures[file]={hash:pinned.hash,url:`./${file}`,width:pinned.width,height:pinned.height};if(!textureBlobs.has(pinned.hash))textureBlobs.set(pinned.hash,await pinnedTexture(root,pinned.hash));}
  }
+ // The height samples travel as their pinned bytes under their hash, so the
+ // exported terrain is the same surface, not a re-derivation.
+ let height=null,heightBytes=null;
+ if(scene.terrain?.type==='heightmap'){
+  const hash=scene.terrain.height.sha256,file=`assets/imports/terrain/${hash}.r32`;
+  scene.terrain={...scene.terrain,height:{...scene.terrain.height,file}};heightBytes=await pinnedHeight(root,scene.terrain);
+  height={hash,url:`./${file}`,bytes:heightBytes.length,size:[...scene.terrain.size]};
+ }
  validateWorld(world);
  for(const entry of Object.values(assets))if(!blobs.has(entry.hash))blobs.set(entry.hash,await pinnedBytes(root,entry.hash));
  // Reserve exactly one fresh destination before writing; never clean or merge
@@ -127,11 +142,12 @@ export async function exportStaticWorld(root,{out,revision,page}={}){
  }
  await mkdir(path.join(output,'assets/imports'),{recursive:true});
  for(const [hash,bytes] of blobs)await writeFile(path.join(output,`assets/imports/${hash}.glb`),bytes,{flag:'wx'});
- if(textureBlobs.size)await mkdir(path.join(output,'assets/imports/terrain'));
+ if(textureBlobs.size||height)await mkdir(path.join(output,'assets/imports/terrain'));
  for(const [hash,bytes] of textureBlobs)await writeFile(path.join(output,`assets/imports/terrain/${hash}.png`),bytes,{flag:'wx'});
- await writeFile(path.join(output,'scene.json'),JSON.stringify({format:'holodeck-view-v1',world,assets,...(textureBlobs.size?{textures}:{})},null,2)+'\n',{flag:'wx'});
- await writeFile(path.join(output,'README.txt'),'Holodeck static scene\n\nUpload the entire directory to any static HTTP(S) host. Keep relative paths intact; subdirectory deployment is supported. No Node server, account, agent, or API endpoint is required. Open index.html through the host, not file://. HTTPS enables WebGPU where available; WebGL2 is the fallback. Add ?backend=webgl to force it.\n\nEnter world: WASD move, Shift run, Space jump and V first/third person when the scene has an inhabitant. G toggles free camera; Q/E descend/ascend there. E interacts while walking. Escape stops mouse capture and returns to the overlook. Right-drag works without mouse capture. The toolbar controls cove visibility, activity pause and return to arrival.\n\nThis artifact contains an accepted scene revision and exact pinned GLB bytes. Authoring prose, board references, agent history, credentials and source workspace files are excluded. Asset metadata embedded in the original GLBs is retained unchanged; publication rights remain the asset owner\'s responsibility. The manifest records SHA-256 hashes of every delivered file except itself.\n',{flag:'wx'});
- const files=(await fileInventory(output)).filter(entry=>entry.file!=='EXPORT-INCOMPLETE.txt'),manifest={format:'holodeck-static-v1',revision:world.revision,scope:'scene-only',assets:scene.assets.map(a=>({id:a.id,sha256:assets[a.id].hash,file:a.file,...(a.provenance?{provenance:a.provenance}:{})})),files};
+ if(height)await writeFile(path.join(output,scene.terrain.height.file),heightBytes,{flag:'wx'});
+ await writeFile(path.join(output,'scene.json'),JSON.stringify({format:'holodeck-view-v1',world,assets,...(textureBlobs.size?{textures}:{}),...(height?{height}:{})},null,2)+'\n',{flag:'wx'});
+ await writeFile(path.join(output,'README.txt'),'Holodeck static scene\n\nUpload the entire directory to any static HTTP(S) host. Keep relative paths intact; subdirectory deployment is supported. No Node server, account, agent, or API endpoint is required. Open index.html through the host, not file://. HTTPS enables WebGPU where available; WebGL2 is the fallback. Add ?backend=webgl to force it.\n\nEnter world: WASD move, Shift run, Space jump and V first/third person when the scene has an inhabitant. G toggles free camera; Q/E descend/ascend there. E interacts while walking. Escape stops mouse capture and returns to the overlook. Right-drag works without mouse capture. The toolbar controls cove visibility, activity pause and return to arrival.\n\nThis artifact contains an accepted scene revision and exact pinned GLB bytes, with any terrain textures and terrain height samples. Authoring prose, board references, agent history, credentials and source workspace files are excluded. Asset metadata embedded in the original GLBs is retained unchanged; publication rights remain the asset owner\'s responsibility. The manifest records SHA-256 hashes of every delivered file except itself.\n',{flag:'wx'});
+ const files=(await fileInventory(output)).filter(entry=>entry.file!=='EXPORT-INCOMPLETE.txt'),manifest={format:'holodeck-static-v1',revision:world.revision,scope:'scene-only',assets:scene.assets.map(a=>({id:a.id,sha256:assets[a.id].hash,file:a.file,...(a.provenance?{provenance:a.provenance}:{})})),...(height?{height:{file:scene.terrain.height.file,sha256:height.hash,bytes:height.bytes,size:height.size}}:{}),files};
  await writeFile(path.join(output,'manifest.json'),JSON.stringify(manifest,null,2)+'\n',{flag:'wx'});
  await unlink(path.join(output,'EXPORT-INCOMPLETE.txt'));
  return {path:output,revision:world.revision,files:files.length+1,assets:scene.assets.length};
