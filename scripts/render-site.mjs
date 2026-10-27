@@ -12,10 +12,10 @@ const KILN_PACKS='https://kilnstudio.tools/packs/';
 // The shelf's own pages and the date each last changed in substance (its copy, links or structured
 // data), as the sitemap's lastmod; a scene's date is its catalog `updated`. Update a date in the commit
 // that changes the page: server/site.test.mjs checks each against git history when the checkout has it.
-export const PAGES=[{path:'',updated:'2026-10-26'},{path:'about/',updated:'2026-10-26'}];
+export const PAGES=[{path:'',updated:'2026-10-27'},{path:'about/',updated:'2026-10-26'}];
 const W3C_DATE=/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
-// A hero tile is 1920×1080 with a 960×540 variant beside it, named -960.
-const smallTile=src=>src.replace(/\.webp$/,'-960.webp'),tileSet=src=>`${smallTile(src)} 960w, ${src} 1920w`,TILE_SIZES='(max-aspect-ratio:1/1) 100vw, 50vw';
+// A hero slide is 1920×1080 with a 960×540 variant beside it, named -960.
+const smallTile=src=>src.replace(/\.webp$/,'-960.webp'),tileSet=src=>`${smallTile(src)} 960w, ${src} 1920w`,TILE_SIZES='(max-width:860px) 80vw, 66vw';
 const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const jsonLd=value=>JSON.stringify(value,null,1).replace(/</g,'\\u003c');
 const fail=message=>{throw new Error(message);};
@@ -59,7 +59,7 @@ export async function renderSite(site){
   // updated: the date the scene's example or card last changed, the sitemap lastmod of its page.
   if(typeof scene.updated!=='string'||!W3C_DATE.test(scene.updated))fail(`Scene ${scene.id} needs an updated date (YYYY-MM-DD)`);
   if(scene.gallery!==undefined&&!/^https:\/\/kilnstudio\.tools\//.test(scene.gallery))fail(`Scene ${scene.id} gallery must be a kilnstudio.tools page`);
-  // hero: the scene's tile in the hero collage.
+  // hero: the scene's slide in the home hero's carousel.
   if(scene.hero!==undefined){
    if(Object.keys(scene.hero).join()!=='src,alt'||!/^images\/hero-[a-z0-9-]+\.webp$/.test(scene.hero.src)||typeof scene.hero.alt!=='string'||!scene.hero.alt.trim())fail(`Scene ${scene.id} hero needs an images/hero-*.webp src and alt`);
    for(const [src,width,height] of [[scene.hero.src,1920,1080],[smallTile(scene.hero.src),960,540]]){const size=imageSize(await file(site,src,'Hero tile'));if(size.width!==width||size.height!==height)fail(`Hero tile ${src} must be ${width}×${height}`);}
@@ -87,8 +87,8 @@ export async function renderSite(site){
   {'@type':'ItemList','@id':`${SITE_URL}#scenes`,name:'Holodeck scenes',itemListElement:items},
  ]};
  let index=(await file(site,'index.html','Site page')).toString('utf8');
- // A page with hero markers has a collage of the four scenes marked hero, in catalog order;
- // each tile opens its world. The preload and the Scenes menu fill their markers where present.
+ // A page with hero markers has a carousel of the four scenes marked hero, in catalog order;
+ // each slide opens its world. The preload and the Scenes menu fill their markers where present.
  const marked=name=>index.includes(`<!-- ${name}:start -->`),heroes=scenes.filter(scene=>scene.hero);
  if(marked('hero')&&heroes.length!==4)fail('Mark exactly four scenes as hero tiles');
  const tiles=heroes.map((scene,i)=>`

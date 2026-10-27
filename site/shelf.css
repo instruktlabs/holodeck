@@ -13,16 +13,31 @@ img{display:block;max-width:100%}
 h2{font:400 clamp(40px,5.4vw,72px)/.98 var(--serif);letter-spacing:-.01em;margin:0}
 .sub{color:var(--ink-soft);font-size:clamp(17px,1.5vw,19px);max-width:620px}
 
+/* liquid glass: a blurred, saturated backdrop under a faint tint, lit from the top left.
+   A 1px rim (::before) catches light on two opposite corners. Each element sets --lg-r to its corner radius. */
+.brand,.top nav .gh,.button.glass,.hero-tile span,.reel-btn,.reel-dots{--lg-r:var(--r-control);isolation:isolate;color:var(--cream);border-radius:var(--lg-r);
+ background:linear-gradient(135deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.07) 38%,rgba(255,255,255,.03) 62%,rgba(255,255,255,.16) 100%),rgba(26,31,22,.22);
+ -webkit-backdrop-filter:blur(18px) saturate(1.7) brightness(1.06);backdrop-filter:blur(18px) saturate(1.7) brightness(1.06);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(255,255,255,.1),inset 1px 0 0 rgba(255,255,255,.14),inset 0 0 18px rgba(255,255,255,.07),0 1px 2px rgba(10,14,8,.3),0 10px 28px -6px rgba(10,14,8,.38);
+ text-shadow:0 1px 2px rgba(10,14,8,.4)}
+.brand::before,.top nav .gh::before,.button.glass::before,.hero-tile span::before,.reel-btn::before,.reel-dots::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;padding:1px;pointer-events:none;
+ background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.08) 34%,rgba(255,255,255,.06) 66%,rgba(255,255,255,.55));
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.button.glass,.reel-btn{transition:transform .2s ease,background-color .2s ease}
+.button.glass:hover,.reel-btn:hover{background-color:rgba(255,255,255,.1)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.brand,.top nav .gh,.button.glass,.hero-tile span,.reel-btn,.reel-dots{background:rgba(26,31,22,.62)}}
+@media (prefers-reduced-transparency:reduce){.brand,.top nav .gh,.button.glass,.hero-tile span,.reel-btn,.reel-dots{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(26,31,22,.78)}}
+
 /* header over the hero */
 .top{position:absolute;inset:0 0 auto;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px clamp(16px,4vw,40px);color:var(--cream)}
 .brand,.top nav a{display:inline-flex;align-items:center;text-decoration:none;font-size:14px;font-weight:500;border-radius:var(--r-control)}
-.brand{gap:12px;padding:10px 16px;letter-spacing:.22em;font-size:15px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.brand{position:relative;gap:12px;padding:10px 16px;letter-spacing:.22em;font-size:15px}
 .mark{width:16px;height:16px;border-radius:50%;background:linear-gradient(var(--cream) 50%,var(--signal) 50%);border:1.5px solid var(--cream)}
 .by{letter-spacing:0;font-size:12px;font-weight:400;opacity:.7;border-left:1px solid var(--glass-line);padding-left:12px}
 .top nav{display:flex;gap:4px}
 .top nav a{padding:10px 16px}
 .top nav a:hover{background:var(--glass)}
-.top nav .gh{border:1px solid var(--glass-line)}
+.top nav .gh{position:relative}
 .scenes-menu{position:relative}
 .scenes-menu summary{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;font-size:14px;font-weight:500;border-radius:var(--r-control);cursor:pointer;list-style:none}
 .scenes-menu summary::-webkit-details-marker{display:none}
@@ -33,31 +48,82 @@ h2{font:400 clamp(40px,5.4vw,72px)/.98 var(--serif);letter-spacing:-.01em;margin
 
 /* hero */
 .hero{position:relative;min-height:100svh;display:grid;overflow:hidden;background:var(--night);color:var(--cream)}
-/* four worlds, 2 x 2; stacked in rows on a portrait screen so each keeps its frame */
-.hero-collage{position:absolute;inset:0;display:grid;grid-template:1fr 1fr/1fr 1fr;gap:3px;background:var(--night);transform:scale(1.02);animation:drift 24s ease-in-out infinite alternate}
-.hero-tile{position:relative;display:block;min-height:0;overflow:hidden;text-decoration:none}
-.hero-tile img{width:100%;height:100%;object-fit:cover;transition:filter .2s}
-.hero-tile:hover img{filter:brightness(1.08)}
-.hero-tile:focus-visible{outline:2px solid var(--cream);outline-offset:-6px}
-.hero-tile span{position:absolute;right:14px;bottom:14px;padding:5px 12px;font-size:13px;font-weight:500;border-radius:var(--r-control);background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-@keyframes drift{to{transform:scale(1.05) translate(-.8%,-.5%)}}
-@media (prefers-reduced-motion:reduce){.hero-collage{animation:none}}
-@media (max-aspect-ratio:1/1){.hero-collage{grid-template:repeat(4,1fr)/1fr}}
-.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,31,22,.45) 0%,rgba(26,31,22,.1) 34%,rgba(26,31,22,0) 50%,rgba(26,31,22,.55) 72%,rgba(26,31,22,.9) 100%)}
-/* the tiles stay clickable under the scrim and the copy; only the copy's links take the pointer */
-.hero::after,.hero-copy{pointer-events:none}
-.hero-copy a{pointer-events:auto}
 .hero-copy{position:relative;z-index:2;width:100%;max-width:1280px;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(96px,13vh,132px) clamp(16px,4vw,40px) clamp(32px,7vh,72px)}
 .eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.75;margin:0 0 18px}
 h1{font:400 clamp(46px,7vw,104px)/.95 var(--serif);letter-spacing:-.015em;margin:0;text-shadow:0 2px 30px rgba(26,31,22,.35)}
 h1 em{color:#ffe9c7}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* home hero: the headline and pitch in a band, then the scenes in a carousel. The centred slide's
+   width sets the layout: the text lines up with its edges and the neighbours peek in either side.
+   Scroll snapping moves the slides with no script; reel.js adds the loop, controls and slideshow. */
+.home{container-type:inline-size}
+.home-grid{--slide-w:clamp(44cqw,calc((100svh - 430px)*16/9),min(66cqw,1400px));--edge:calc((100cqw - var(--slide-w))/2);--gap:clamp(12px,1.6cqw,28px);--back:.86;
+ position:relative;z-index:1;display:grid;grid-template-columns:var(--edge) minmax(0,1.15fr) minmax(0,1fr) var(--edge);
+ grid-template-areas:". title pitch ." "reel reel reel reel" ". ctas bar .";align-content:center;padding:clamp(92px,12vh,124px) 0 clamp(24px,4vh,48px)}
+.home-title{grid-area:title;align-self:end}
+.home-title h1{font-size:clamp(40px,calc(var(--slide-w)*.078),92px)}
+.home-pitch{grid-area:pitch;align-self:end;padding-left:clamp(24px,3cqw,56px)}
+.home-pitch .lede{margin:0;max-width:none}
+.home .capture{margin:12px 0 0}
+.home .ctas{grid-area:ctas;align-self:center}
+/* an ambient wash of the centred scene behind the stage, blurred small and scaled up so it costs little */
+.hero-ambient{position:absolute;inset:0;pointer-events:none;-webkit-mask:radial-gradient(70% 60% at 50% 64%,#000 25%,transparent 100%);mask:radial-gradient(70% 60% at 50% 64%,#000 25%,transparent 100%)}
+.hero-ambient i{position:absolute;left:40%;top:44%;width:20%;height:20%;background:center/cover no-repeat;filter:blur(7px) saturate(1.4);transform:scale(6);opacity:0;transition:opacity 1.4s ease}
+.hero-ambient i.is-on{opacity:.42}
+
+.reel{grid-area:reel;position:relative;display:flex;gap:var(--gap);overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;
+ padding:clamp(22px,3.6vh,40px) var(--edge) clamp(22px,3.4vh,36px)}
+.reel::-webkit-scrollbar{display:none}
+.hero-tile{position:relative;flex:0 0 var(--slide-w);aspect-ratio:16/9;overflow:hidden;isolation:isolate;border-radius:clamp(14px,1.4cqw,22px);scroll-snap-align:center;scroll-snap-stop:always;
+ text-decoration:none;color:var(--cream);background:#11150e;box-shadow:0 0 0 1px rgba(255,255,255,.07),0 34px 60px -30px rgba(0,0,0,.75);-webkit-tap-highlight-color:transparent}
+.hero-tile img{position:absolute;top:0;left:-5%;width:110%;max-width:none;height:100%;object-fit:cover}
+.hero-tile:focus-visible{outline:2px solid var(--cream);outline-offset:4px}
+.hero-tile span{position:absolute;left:clamp(12px,1.4cqw,22px);bottom:clamp(12px,1.4cqw,22px);z-index:2;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;
+ font-size:clamp(13px,1.05cqw,15px);font-weight:500;letter-spacing:.01em;line-height:1.2;--lg-r:999px;
+ background:linear-gradient(135deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,.05) 40%,rgba(255,255,255,.02) 62%,rgba(255,255,255,.14) 100%),rgba(20,24,17,.5)}
+.hero-tile span::after{content:"\2197";opacity:.8;transition:translate .25s ease}
+.hero-tile:hover span::after{translate:2px -2px}
+/* each slide comes forward as it reaches the centre: the neighbours sit back and dim,
+   the image drifts within its frame, and the scene's tag rises in */
+@keyframes reel-frame{0%,12%,88%,100%{scale:var(--back)}50%{scale:1}}
+@keyframes reel-image{0%{translate:-4.5% 0}100%{translate:4.5% 0}}
+@keyframes reel-light{0%,12%,88%,100%{filter:brightness(.4) saturate(.75)}50%{filter:none}}
+@keyframes reel-tag{0%,38%,62%,100%{opacity:0;translate:0 8px}50%{opacity:1;translate:none}}
+@supports (animation-timeline:view()){
+ .hero-tile{view-timeline:--slide inline;animation:reel-frame linear both;animation-timeline:--slide}
+ .hero-tile img{animation:reel-image linear both,reel-light linear both;animation-timeline:--slide,--slide}
+ .hero-tile span{animation:reel-tag linear both;animation-timeline:--slide}
+}
+/* without scroll-driven animations, reel.js sets --p (1 at the centre, 0 one slide away) and --x (-1 to 1) */
+.reel.is-tracked .hero-tile{scale:calc(var(--back) + (1 - var(--back))*var(--p,1))}
+.reel.is-tracked .hero-tile img{translate:calc(var(--x,0)*4.5%) 0;filter:brightness(calc(.42 + .58*var(--p,1))) saturate(calc(.8 + .2*var(--p,1)))}
+.reel.is-tracked .hero-tile span{opacity:clamp(0,calc((var(--p,1) - .8)*5),1);translate:0 calc((1 - var(--p,1))*8px)}
+@media (prefers-reduced-motion:reduce){.hero-tile,.hero-tile img,.hero-tile span{scale:none!important;translate:none!important}}
+
+.reel-bar{grid-area:bar;justify-self:end;display:flex;align-items:center;gap:10px}
+.reel-bar[hidden]{display:none}
+.reel-btn{position:relative;flex:none;width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;cursor:pointer;font:inherit;--lg-r:999px}
+.reel-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.reel-play .i-play{fill:currentColor;stroke:none}
+.reel-bar.is-playing .i-play,.reel-bar:not(.is-playing) .i-pause{display:none}
+.reel-btn:focus-visible,.reel-dots button:focus-visible{outline:2px solid var(--cream);outline-offset:2px}
+.reel-dots{position:relative;display:flex;align-items:center;height:44px;margin:0;padding:0 12px;list-style:none;--lg-r:999px}
+.reel-dots button{display:block;width:clamp(26px,2.6cqw,36px);padding:16px 3px;border:0;background:none;cursor:pointer;border-radius:4px}
+.reel-dots i{display:block;height:3px;border-radius:2px;background:rgba(246,242,233,.26);overflow:hidden}
+.reel-dots i::after{content:"";display:block;height:100%;background:var(--cream);transform-origin:left;scale:0 1;transition:scale .3s ease}
+.reel-dots .is-active i::after{scale:1 1}
+.reel-bar.is-playing .reel-dots .is-active i::after{animation:reel-dwell 6.5s linear both}
+.reel-bar.is-held .reel-dots .is-active i::after{animation-play-state:paused}
+@keyframes reel-dwell{from{scale:0 1}to{scale:1 1}}
+@media (hover:none){.reel-arrow{display:none}}
 .lede{max-width:560px;font-size:clamp(16px,1.4vw,19px);opacity:.8;margin:0 0 28px}
 .ctas{display:flex;flex-wrap:wrap;gap:12px;margin:0}
 .button{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 22px;border-radius:var(--r-control);font-size:15px;font-weight:500;text-decoration:none;transition:transform .2s ease}
 .button:hover{transform:translateY(-1px)}
 .button.primary{background:var(--cream);color:var(--ink)}
 .button.primary::after{content:"↗"}
-.button.glass{background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.button.glass{position:relative}
 .capture{font-size:12px;opacity:.55;margin:20px 0 0}
 
 /* workspace */
@@ -127,14 +193,18 @@ footer{border-top:1px solid var(--line);font-size:13px;color:var(--ink-faint)}
 footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:28px;padding-bottom:28px}
 footer a{text-decoration:none}
 
-/* about page: a shorter hero without the collage */
+/* about page: a shorter hero without the carousel */
 .hero.compact{min-height:min(80svh,760px)}
 .about-section{padding-top:clamp(72px,10vw,120px)}
 .about-section .sub{margin:20px 0 0}
 
 @media (max-width:860px){
   .by,.top nav a:not(.gh),.scenes-menu{display:none}
-  .hero::after{background:linear-gradient(180deg,rgba(26,31,22,.45) 0%,rgba(26,31,22,.1) 28%,rgba(26,31,22,.55) 46%,rgba(26,31,22,.88) 62%,rgba(26,31,22,.95) 100%)}
+  .home-grid{--slide-w:80cqw;--gap:10px;--back:.94;grid-template-columns:var(--edge) minmax(0,1fr) var(--edge);grid-template-areas:". title ." "reel reel reel" ". bar ." ". pitch ." ". ctas .";align-content:start;padding-top:96px}
+  .reel-bar{justify-self:center}
+  .home .ctas{margin-top:22px}
+  .home-title h1{font-size:clamp(40px,12cqw,64px)}
+  .home-pitch{padding:0;margin-top:28px}
   .button{flex:1 1 auto}
   .section-head,.step,.step:nth-of-type(even),.status,.scene,.build-grid{grid-template-columns:1fr}
   .step:nth-of-type(even) .copy{order:0}
