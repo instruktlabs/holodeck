@@ -1,0 +1,33 @@
+# Holodeck
+
+Holodeck is an early source prototype: a local workspace where you and your coding agent build 3D worlds from Kiln assets, then explore them on foot in the browser. The scenes on this site are exports of its bundled example worlds. They render with WebGPU where the browser supports it and fall back to WebGL2.
+
+## Scenes
+
+- [Meridian Sanctuary](https://holodeck.kilnstudio.tools/worlds/meridian-sanctuary/): A marble sanctuary above the clouds: a causeway between mirror pools, terraces climbing to a gate tower, floating statues and mirrored orbs, and a bridge path off to the side.
+- [Crescent Cove](https://holodeck.kilnstudio.tools/worlds/crescent-cove/): A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.
+- [The Quiet Courtyard](https://holodeck.kilnstudio.tools/worlds/courtyard/): A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.
+- [Tidemark Island](https://holodeck.kilnstudio.tools/worlds/tidemark/): A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.
+- [Winter Mountainside Cabin](https://holodeck.kilnstudio.tools/worlds/winter-mountainside-cabin/): A snowy forest trail leads to a furnished timber cabin, with a sleeping loft, a mountain-facing deck and a stone seat overlooking the lake.
+- [The Cove](https://holodeck.kilnstudio.tools/worlds/cove/): The starter workspace is a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent begin building.
+
+## Use and build
+
+- [About and how to use it](https://holodeck.kilnstudio.tools/about/): What Holodeck is, how to walk the scenes with a keyboard, mouse or touchscreen, and how to build your own world with your coding agent.
+- [Getting started](https://github.com/instruktlabs/holodeck/blob/main/docs/getting-started.md): Run Holodeck locally with Git, Node.js and npm, then connect Codex, Cursor or Claude Code and describe what to build.
+- [Repository](https://github.com/instruktlabs/holodeck): Source. Code is MIT; the bundled example worlds and the scenes on this site are CC0. Your own worlds are not automatically CC0.
+
+## Assets
+
+- [Kiln](https://kilnstudio.tools/): The tool the models come from.
+- [Asset packs on Kiln](https://kilnstudio.tools/packs/): Downloadable packs, including one for each scene.
+- [Meridian Sanctuary assets](https://kilnstudio.tools/packs/holodeck/meridian-sanctuary/)
+- [Crescent Cove assets](https://kilnstudio.tools/packs/holodeck/crescent-cove/)
+- [The Quiet Courtyard assets](https://kilnstudio.tools/packs/holodeck/courtyard/)
+- [Tidemark Island assets](https://kilnstudio.tools/packs/holodeck/tidemark/)
+- [Winter Mountainside Cabin assets](https://kilnstudio.tools/packs/holodeck/winter-mountainside-cabin/)
+- [The Cove assets](https://kilnstudio.tools/packs/holodeck/cove/)
+
+## Optional
+
+- [Sitemap](https://holodeck.kilnstudio.tools/sitemap.xml)
