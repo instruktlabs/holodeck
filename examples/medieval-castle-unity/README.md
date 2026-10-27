@@ -52,6 +52,43 @@ It generates `Assets/CastleSliceGenerated/PlayableCastle.unity`, leaving the
 historical blockout and soldier benchmark scenes separate. The generated scene
 is importer-owned; put durable changes in the bundle or runtime adapter.
 
+### Terrain contract, bundle selection and GUID gate
+
+`--slice-bundle Assets/<dir>/<name>.json` selects the bundle (default: the
+qualified `Assets/CastleSliceBundle/slice.json`); assets resolve beside it. The
+builder fails closed unless the terrain declares one of two contracts:
+
+- `holodeck-heightfield-appearance-v1`: exported by the authoring workspace's
+  `build-slice.mjs --bundle-out <new file>` from the **stored** accepted world
+  revision (`.holodeck/history/<rev>.json`). It carries Holodeck's own vertex
+  normals, the appearance resolved with the renderer's defaults, the source
+  revision and SHA-256 values, and an explicit `unsupported` feature list. The
+  builder rejects a v1 bundle that lacks this provenance.
+- `legacy-flat-ground-v0`: an explicit regression path for pre-contract
+  bundles. It requires `legacyBaseColor` (`#rrggbb`) and `legacyBaseColorSource`.
+  `legacyMaterial: "urp-lit-ground"` keeps the committed URP Lit `Ground.mat`
+  unchanged, after checking it matches the colour, for r10 pixel parity. The
+  default `vertex-palette` bakes the colour through the diffuse vertex shader.
+
+`Evidence/castle-slice-scene.json` records the bundle path and hash, the terrain
+contract, the palette and colour source, the material and the unsupported
+features. A new bundle is a new identity and needs its own native smoke run.
+
+Before any cross-host Editor job, run the read-only GUID gate:
+
+```text
+python -I Tools/validate_bundle_meta.py [--compare OTHER/Assets] [--receipt INPUTS.json] [--package-root DIR]
+python -I -m unittest discover -s Tools/tests -v
+```
+
+It requires a committed `.meta` file for every bundle file and folder. Every
+GUID referenced by `Assets/CastleSliceGenerated` must resolve to a project
+`.meta`, to an entry in `Tools/known_unity_guids.json`, or to a `--package-root`
+tree. `--compare` reports byte-identical assets with different GUIDs.
+`--receipt` checks `.meta` hashes in the closure against a build-input receipt.
+`CastleTerrainAppearance.RunContractFixture` exercises the contract gates in
+the Editor.
+
 From an installed Editor's batch mode:
 
 ```text

@@ -42,6 +42,24 @@ and its actual source color. Never silently invent a palette or overwrite the
 qualified bundle and then reuse its old smoke receipt. The previously built
 legacy executable remains available in the private handoff.
 
+Static repair (2026-10-26, not yet Editor-qualified):
+
+- The exporter now emits v1 from the stored revision with source hashes and an
+  explicit `unsupported` list. It writes only a new `--bundle-out` file.
+- The builder takes `--slice-bundle`, requires v1 provenance, and records the
+  contract and palette source in the scene receipt.
+- `legacy-flat-ground-v0` now requires its colour and that colour's source, and
+  can keep URP Lit `Ground.mat` for parity.
+- `Tools/validate_bundle_meta.py` gates bundle `.meta` closure.
+
+Checked statically: node and python tests, plus a compile-only check against the
+6000.7.0b6 managed modules with stubbed URP and project types. That is not a
+Unity compile. On this checkout the gate fails for two reasons. The 17 restored
+bundle metas are uncommitted. Three committed `reconstruction-*.glb` files in
+`Assets/CastleSliceBundle` have no `.meta`, and the receipt does not cover them.
+Recover those from their authoritative source or move them out before an import.
+Never re-import to mint new GUIDs.
+
 ## Resume order
 
 1. Read the private companion `castle-design/CHECKPOINT.md`, review index and

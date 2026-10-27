@@ -1,0 +1,21 @@
+{
+  "_comment": "GUIDs that legitimately resolve outside this project's .meta files. Add an entry only with a read-only verification source; never to silence an unresolved bundle reference.",
+  "0000000000000000e000000000000000": {
+    "name": "Unity built-in extra resources (unity_builtin_extra)",
+    "source": "unity-builtin"
+  },
+  "0000000000000000f000000000000000": {
+    "name": "Unity default resources (unity default resources)",
+    "source": "unity-builtin"
+  },
+  "933532a4fcc9baf4fa0491de14d08ed7": {
+    "name": "com.unity.render-pipelines.universal/Shaders/Lit.shader",
+    "source": "package:com.unity.render-pipelines.universal@17.7.0",
+    "verified": "Editor 6000.7.0b6 Data/Resources/PackageManager/BuiltInPackages .meta, read-only, 2026-10-26"
+  },
+  "d0353a89b1f911e48b9e16bdc9f2e058": {
+    "name": "com.unity.render-pipelines.universal/Editor/AssetVersion.cs",
+    "source": "package:com.unity.render-pipelines.universal@17.7.0",
+    "verified": "Editor 6000.7.0b6 Data/Resources/PackageManager/BuiltInPackages .meta, read-only, 2026-10-26"
+  }
+}

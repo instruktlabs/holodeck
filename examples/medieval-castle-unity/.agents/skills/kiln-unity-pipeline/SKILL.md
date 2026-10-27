@@ -28,6 +28,12 @@ module's interface. Test a complete approach and departure against neighboring
 placements, not only the isolated assembly. Use actual controller movement and
 body sweeps in both directions; downward support rays cannot expose every blocked
 entrance. Keep diagram sweeps, controller simulation and browser traversal distinct.
+Prove reachability before refining stairs: build an adjacency graph of walkable
+collider tops from every placement (step height, gaps wider than the capsule,
+rails and guards) and confirm a path from spawn to every station. A gatehouse
+design passed rise/run, headroom and lintel arithmetic while its entire gallery,
+crown and tower circuit was an unreachable island behind a guard rail.
+Check that each visual walking surface has collision at the same height.
 Draw terrain support, bridge abutments and foundations before dressing. Derive
 vegetation exclusions from circulation and sightlines. A local placement repair
 does not establish a functioning defensive circuit or complete scene layout.
@@ -212,8 +218,9 @@ Measure the actual anatomical landmarks when fitting a sourced mesh: the full
 head-and-neck bounding box may include a bust and is not the ear-to-ear width.
 Check head/neck embedding, helmet seating and the eye line in front and profile.
 Qualify source byte size before a large literal-buffer edit. This installed
-Kiln evaluator caps source at 512 KiB; edit/validate accepted an oversized input
-whose render later reported a misleading protocol error. Preserve the original
+Kiln evaluator caps source at 512 KiB while the program store accepts 1 MiB;
+edit/validate accepted an oversized input whose render later reported a
+misleading protocol error (instruktlabs/kiln#299). Preserve the original
 data and use declared precision reduction or a supported resource binding.
 Do not alter the installed evaluator or silently decimate to hide this limit.
 For custom eye apertures, lip ribbons and other surfaces collapsing to a point,
@@ -237,6 +244,28 @@ trial order for capacity work.
 Use a normal local execution directory when synchronized-path imports fail. Copy
 source, packages, settings and exact inputs explicitly; preserve .meta GUIDs.
 Do not transfer Library caches or live Editor locks between machines.
+Commit every bundle asset `.meta` with the generated scene that references it.
+A checkpoint once held the GLBs, bundle JSON and scene but none of the 17 bundle
+metas; a second project copy had imported the same bytes and minted different
+GUIDs for every file. The build host's set was authoritative because its hashes
+matched the build input receipt. Recover metas from that receipt-matched source;
+never re-import to regenerate them. Before a cross-host build, check that every
+GUID a generated scene references resolves to a committed `.meta`.
+`validate_render_settings.py` covers render assets only, not bundle metas.
+
+Fail closed on a missing terrain appearance contract. To rebuild a pre-contract
+bundle for regression, write a separately named bundle with an explicit legacy
+contract and the colour's actual source (it was a constant in the earlier
+destination builder, not world data), and record the contract in the scene
+receipt. Compare an exported palette with the accepted world revision's stored
+appearance; a reconstruction script once typed a different palette inline.
+A new bundle identity needs its own smoke run, never the old receipt.
+
+Reconcile module dimensions to one source before authoring. The asset inventory
+drifted from later blueprints (gate opening, bridge width and pitch, stair rise
+and width, wall height), so the same module had two specifications.
+Hash review images and bind them to the asset revision they show. One review
+folder held a byte-identical copy of another asset's capture under a new name.
 For the hub, pin the matching Editor and platform module, check memory, serialize
 heavy jobs and save input hashes, exit code, logs and output checksums. Linux checks
 do not establish Windows player performance. CachyOS is a compatibility target;
