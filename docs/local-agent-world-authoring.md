@@ -32,7 +32,7 @@ including while walking with the HUD hidden. Sections open in a sheet above the
 dock.
 
 The **World** sheet groups placements by family and asset, with a filter, meters
-for the 64-asset, 1200-placement and two-million-triangle budgets, and inline
+for the 128-asset, 1200-placement and two-million-triangle budgets, and inline
 position, rotation and scale editing for the selected placement. It also holds
 the environment choice, GLB import, the raw scene document and **Undo last world
 edit**. The **Observe** sheet shows this browser's backend, draw and triangle

@@ -100,6 +100,59 @@ settling, and compilation during a recording invalidates that evidence. This doe
 not prewarm unseen views or certify visual completeness or performance. A later
 settled recording can retry; the prior failed result retains its raw evidence.
 
+## Asset budget
+
+A schema-v2 scene admits `MAX_ASSETS` (128) unique assets, set in
+`src/world/asset-budget.mjs`; schema-v1 scenes keep 64. The earlier 64 had no
+measured basis. These are hub browser results (GTX 1660 Ti Max-Q laptop GPU,
+driver 615.78.08, headed Chrome through Playwright, 1600×900, nice 10), not PC,
+Windows or Unity results.
+
+**Harness.** Synthetic schema-v2 worlds on the starter cove: N unique assets in
+total (N−8 small GLBs of 1–3 mesh parts, each part its own material, about
+1,000 triangles), always 639 extra placements (646 in all) and about 630k placed
+synthetic triangles, so asset count is the variable. The camera orbits the
+whole field (radius 62 m, height 22 m) for 20 s after a 10 s warm-up orbit, so
+nearly every asset is in view. This is the worst case for draws: no two assets
+share a material, and most pieces are placed once, so nothing merges. Medians of
+two runs; frame times are rAF intervals, paced by the 120 Hz display unless
+uncapped (`--disable-gpu-vsync --disable-frame-rate-limit`).
+
+| N | Draws | WebGL2 p95 | WebGL2 p95 uncapped | WebGPU p95 | Ready, WebGL2 | `world_read`, all pages |
+|---:|---:|---:|---:|---:|---:|---:|
+| 64 | 305 | 16.7 ms | 12.4 ms | 12.6 ms | 7.0 s | 119 KB |
+| 128 | 563 | 25.0 ms | 19.6 ms | 24.9 ms | 9.8 s | 138 KB |
+| 256 | 1,073 | 41.8 ms | 44.4 ms | 41.6 ms | 15.7 s | 172 KB |
+| 512 | 1,527 | 83.2 ms | 82.2 ms | 75.0 ms | 11.5 s | 247 KB |
+
+- Frame time follows draws: about 20–30 µs per draw on WebGL2 here. The same
+  series at about 430 triangles per asset gives about the same p95 (16.6,
+  25.0, 50.0 and 95.8 ms), so draw submission, not triangles, dominates.
+- Planar water and a 120 m sun shadow raise the draws by half to double (469
+  at N=64, 2,973 at N=512); WebGL2 p95 is then 25 ms at 64 and 150 ms at 512.
+- The same 512 pieces in one shared palette of three materials draw 996 times,
+  not 1,527, and their uncapped WebGL2 p95 falls from 82 to 31 ms. They do not
+  bake into one mesh: static merging covers only assets placed more than once.
+- JS heap stayed between 110 and 510 MiB and GPU memory at 334–402 MiB at every
+  N. Load time grew with N but not monotonically.
+- Bundled examples on the same path family: Crescent Cove (49 assets, 154
+  draws) p95 8.4 ms; Winter Mountainside Cabin (56, 313) 16.7 ms; Meridian
+  Sanctuary (53, about 300) 33 ms, where effects rather than draws bind.
+
+**Rule.** Strictly, no N above 64 keeps this worst case inside the 64-asset
+WebGL2 budget (p95 16.7 ms, every other 120 Hz frame): 128 adds one refresh
+interval. Real modular content is not that worst case: a 70-asset modular world
+with shared kit materials and repeats measured 16.7 ms WebGL2 p95 at 650 draws
+on the same hub. The cap is therefore the largest N whose worst case stays at
+or under 33.3 ms WebGL2 p95 (30 fps, twice the 64-asset budget) at both
+triangle loads. That is 128; 256 misses it at 42–50 ms.
+
+The asset cap does not bound frame time on its own. A world under it can still
+draw thousands of times through parts, behaviours, water and shadows, so check
+`world_observe` draws and frame p95 after large edits. At 128 assets the
+`world_read` overview can outgrow its 24,000-character page; it then keeps the
+most-placed asset groups and reports the rest in `objectsByAssetOmitted`.
+
 ## Local world activation
 
 One local host activates one saved world at a time. Each activation has an

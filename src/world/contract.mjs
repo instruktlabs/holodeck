@@ -4,7 +4,7 @@ import {validateFlow,validateFlowBinding} from './flow-contract.mjs';
 import {validateShadow} from './shadow-contract.mjs';
 import {validateGrade} from './grade.mjs';
 import {validateEffects} from './effects-contract.mjs';
-import {MAX_PLACEMENTS} from './asset-budget.mjs';
+import {MAX_ASSETS,LEGACY_MAX_ASSETS,MAX_PLACEMENTS} from './asset-budget.mjs';
 import {validateAerial} from './aerial.mjs';
 import {expandScatters} from './scatter.mjs';
 import {validateSky} from './sky.mjs';
@@ -71,8 +71,8 @@ export function validateWorld(w){
   if(s.environment.aerial!==undefined){validateAerial(s.environment.aerial);if(!s.environment.sky)fail('aerial needs environment.sky');}
   if(s.environment.fogSky!==undefined){const k=s.environment.fogSky;if(typeof k!=='number'||!Number.isFinite(k)||k<0||k>1)fail('fogSky must be a number from 0 to 1');if(!s.environment.sky)fail('fogSky needs environment.sky');}
   if(![null,'low','high'].includes(s.bridge)||s.bridge&&s.environment.type!=='woodland')fail('Bridge requires the woodland crossing');
-  const placementLimit=w.schemaVersion===2?MAX_PLACEMENTS:200;
-  if(!Array.isArray(s.assets)||s.assets.length>64||!Array.isArray(s.objects)||s.objects.length>placementLimit)fail(`Scene exceeds 64 assets or ${placementLimit} placements`);
+  const placementLimit=w.schemaVersion===2?MAX_PLACEMENTS:200,assetLimit=w.schemaVersion===2?MAX_ASSETS:LEGACY_MAX_ASSETS;
+  if(!Array.isArray(s.assets)||s.assets.length>assetLimit||!Array.isArray(s.objects)||s.objects.length>placementLimit)fail(`Scene exceeds ${assetLimit} assets or ${placementLimit} placements`);
   const ids=new Set();for(const a of s.assets){
     exact(a,['id','file','provenance','foliage','flow','reflection'],'asset');id(a.id);if(ids.has(a.id))fail('Duplicate asset ID');ids.add(a.id);
     if(a.foliage!==undefined){if(w.schemaVersion!==2)fail('Foliage requires schema version 2');validateFoliage(a.foliage);if(a.id===s.origin||a.id===s.moodboard?.asset)fail('Foliage is only supported on ordinary imported placements');}

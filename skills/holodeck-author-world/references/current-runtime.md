@@ -177,9 +177,13 @@ The `capabilities` section returns each of these; the key is in brackets
   file under `assets/source` and pass `sceneFile`. Measure the staged proposal
   with `world_sample` and `world_check` using its `proposalId` before the user
   applies it.
-- **Budget strategy** (`budgetStrategy`): the 64-asset cap usually binds first.
-  Use two or three shaped variants per family, and vary placements by yaw,
-  scale and lean. A scatter record does that variation for a whole family.
+- **Budget strategy** (`budgetStrategy`): the asset cap (`limits`) is sized
+  for modular kits, so build from as many distinct kit pieces as the design
+  needs. Draws and distinct materials cost frame time, not asset count: keep
+  pieces to a few mesh parts and give a kit one shared set of saved materials.
+  For organic fill, two or three shaped variants per family are usually
+  enough; vary placements by yaw, scale and lean. A scatter record does that
+  variation for a whole family.
 - **Kiln skills**: Holodeck owns terrain, water and scene composition. If Kiln's
   `kiln-compose-scene` skill is installed, do not use its terrain or scene
   composition for a Holodeck world. Keep Kiln's progress log at
@@ -317,8 +321,8 @@ both WebGPU and forced WebGL2. Shader detail and foam do not supply physics.
 - Imports: self-contained static GLBs under `assets/imports`, editable source under
   `assets/source`. Preserve source/revision provenance and supported extensions.
   Current admission caps include 32 MiB per asset, 128 MiB asset files per world,
-  64 assets, 1200 placements and two million placed source triangles (including
-  every bird in a flock). Repeated compatible opaque static GLBs are rendered
+  128 assets (64 for schema v1), 1200 placements and two million placed source
+  triangles (including every bird in a flock). Repeated compatible opaque static GLBs are rendered
   through instanced batches while keeping placement IDs and collision data.
   Each set of one asset (and one castShadow choice) is one draw per mesh part; a
   set of more than 32 placements spread beyond 96 m splits into 96 m cells only
@@ -329,8 +333,8 @@ both WebGPU and forced WebGL2. Shader detail and foam do not supply physics.
   parameters and byte-identical texture images) bake into one mesh per material,
   one draw per pass for the whole kit, so a kit that reuses one saved material
   across its pieces draws far less than one with a variant per piece. Foliage,
-  flow and reflection nodes, transparent materials and instance colours keep
-  their own draws.
+  flow and reflection nodes, transparent materials, instance colours and pieces
+  placed only once keep their own draws.
   Instancing reduces draw calls, not triangles or shader cost. These are
   admission limits, not performance guarantees or targets for every world.
 - Bible: title, intent, rules, optional pinned reference IDs. Rules are text;

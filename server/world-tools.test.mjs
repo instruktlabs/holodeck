@@ -67,9 +67,11 @@ test('world_read advertises optional lighting defaults and bounds with a valid e
  assert.equal((await read(1)).spatial,null);
 });
 
-test('world_read gives a budget strategy for the 64-asset cap',async()=>{
-  const {budgetStrategy}=await read(2);
-  for(const fact of ['64-asset cap usually binds','two or three shaped variants per family','yaw','scale','lean'])assert.ok(budgetStrategy.includes(fact),fact);
+test('world_read gives a budget strategy that leaves room for modular kits',async()=>{
+  const {budgetStrategy,limits}=await read(2),{MAX_ASSETS,MAX_PLACEMENTS}=await import('../src/world/asset-budget.mjs');
+  for(const fact of [`${MAX_ASSETS} unique assets`,`${MAX_PLACEMENTS} placements`,'modular kit','one draw per mesh part','one shared set of saved materials','two or three shaped variants per family','yaw','scale','lean'])assert.ok(budgetStrategy.includes(fact),fact);
+  assert.ok(!/cap usually binds|leave a few asset slots/.test(budgetStrategy),'the asset cap is no longer the budget to plan around');
+  assert.ok(limits.startsWith(`${MAX_ASSETS} assets (64 for schema 1), ${MAX_PLACEMENTS} placements, 32 MiB per GLB, 128 MiB per scene`),limits);
 });
 
 test('world_read describes scatter records, and its example expands on the example terrain',async()=>{

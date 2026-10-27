@@ -71,6 +71,16 @@ export function worldReadSection(source,{section='overview',asset,cursor}={}){
     // settings, to their own sections.
     if(size(overview)>budget)overview.bible='Too large for the overview; read section bible.';
     if(size(overview)>budget)overview.scene=`Too large for the overview; read section scene. Keys: ${Object.keys(settings).join(', ')}`;
+    // A world with hundreds of unique assets (a modular kit) has one group per
+    // asset, more than the overview holds. Keep the most-placed groups, in their
+    // original order, and say where the rest are.
+    if(size(overview)>budget){
+      const groups=overview.objectsByAsset,rank=groups.map((g,i)=>i).sort((a,b)=>groups[b].count-groups[a].count||a-b);
+      const keep=n=>{const kept=new Set(rank.slice(0,n));const shown=groups.filter((_,i)=>kept.has(i));const omitted=groups.filter((_,i)=>!kept.has(i));
+        return {...overview,objectsByAsset:shown,objectsByAssetOmitted:{groups:omitted.length,objects:omitted.reduce((n,g)=>n+g.count,0),note:'The least-placed asset groups are left out to keep the overview small; read section assets for every asset, or section objects with an asset filter.'}};};
+      let lo=0,hi=groups.length;while(lo<hi){const mid=Math.ceil((lo+hi)/2);if(size(keep(mid))<=budget)lo=mid;else hi=mid-1;}
+      return keep(lo);
+    }
     return overview;
   }
   if(section==='bible')return {...head,bible:world.bible};

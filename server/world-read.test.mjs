@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {WORLD_READ_LIMIT,WORLD_READ_SECTIONS,worldReadSection} from './world-read.mjs';
 import {callWorldTool} from './world-tools.mjs';
+import {MAX_ASSETS,MAX_PLACEMENTS} from '../src/world/asset-budget.mjs';
 
 // A world well past the dogfood island: 2,000 objects over 64 assets, long
 // asset metadata and a full mood board.
@@ -60,6 +61,20 @@ test('an oversized bible moves out of the overview instead of breaking the limit
   const world=bigWorld();world.bible.rules='Long rule. '.repeat(3000);
   const overview=worldReadSection(source(world));
   assert.match(overview.bible,/read section bible/);assert.ok(bytes(overview)<=WORLD_READ_LIMIT);
+});
+
+test('a modular kit at the asset cap keeps every section under the limit and accounts for every object',()=>{
+  const world=bigWorld();
+  world.scene.assets=Array.from({length:MAX_ASSETS},(_,i)=>({id:`kit-piece-${i}`,file:`assets/imports/kit-piece-${i}-with-a-long-descriptive-name.glb`}));
+  world.scene.objects=Array.from({length:MAX_PLACEMENTS},(_,i)=>({id:`p-${i}`,asset:`kit-piece-${i<MAX_ASSETS?i:i%7}`,position:[i%40*2.5,0,Math.floor(i/40)*2.5],rotation:[0,0,0],scale:[1,1,1],layer:'world'}));
+  const src=source(world);
+  for(const section of WORLD_READ_SECTIONS)for(const data of all(src,section))assert.ok(bytes(data)<=WORLD_READ_LIMIT,`${section} page ${data.start} is ${bytes(data)} bytes`);
+  const overview=worldReadSection(src),shown=overview.objectsByAsset.reduce((n,g)=>n+g.count,0);
+  assert.equal(shown+(overview.objectsByAssetOmitted?.objects??0),MAX_PLACEMENTS);
+  assert.equal(overview.objectsByAsset.length+(overview.objectsByAssetOmitted?.groups??0),Math.min(MAX_ASSETS,MAX_PLACEMENTS));
+  // The most-placed groups stay: the seven reused pieces carry most of the placements.
+  for(let i=0;i<7;i++)assert.ok(overview.objectsByAsset.some(g=>g.asset===`kit-piece-${i}`),`kit-piece-${i}`);
+  assert.equal(worldReadSection(src,{section:'objects',asset:`kit-piece-${Math.min(MAX_ASSETS,MAX_PLACEMENTS)-1}`}).total,1);
 });
 
 test('bad sections, assets and cursors give clear errors',()=>{

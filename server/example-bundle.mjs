@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 import {readRevisionBundle} from './history.mjs';
 import {SKILLS_GUIDE,KILN_GUIDE} from './world-guide.mjs';
 import {validateWorld,validateGlb,MAX_ASSET_BYTES} from '../src/world/contract.mjs';
-import {placedSourceTriangles,MAX_PLACED_TRIANGLES} from '../src/world/asset-budget.mjs';
+import {placedSourceTriangles,MAX_ASSETS,MAX_PLACED_TRIANGLES} from '../src/world/asset-budget.mjs';
 import {terrainTextureFiles,checkTerrainTextures,renameTerrainTextures,pngInfo,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
 
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
@@ -46,7 +46,7 @@ function validateManifest(manifest){
  text(manifest.title,100,'example title');text(manifest.description,1200,'example description');if(!Number.isSafeInteger(manifest.sourceRevision)||manifest.sourceRevision<0)fail('Invalid example source revision');
  exact(manifest.capabilities,['schemaVersion','runtimeVersion','modules'],'example capabilities');const capabilities=manifest.capabilities;if(capabilities.schemaVersion!==2||capabilities.runtimeVersion!==1||!Array.isArray(capabilities.modules)||capabilities.modules.length>64||new Set(capabilities.modules).size!==capabilities.modules.length||capabilities.modules.some(value=>typeof value!=='string'||value.length>80))fail('Invalid example capabilities');
  exact(manifest.world,['file','sha256','bytes'],'example world');if(manifest.world.file!=='world/world.json'||!hashPattern.test(manifest.world.sha256)||!Number.isSafeInteger(manifest.world.bytes)||manifest.world.bytes<1||manifest.world.bytes>8*1024*1024)fail('Invalid example world receipt');
- if(!Array.isArray(manifest.assets)||!manifest.assets.length||manifest.assets.length>64)fail('Example requires 1–64 assets');const ids=new Set();
+ if(!Array.isArray(manifest.assets)||!manifest.assets.length||manifest.assets.length>MAX_ASSETS)fail(`Example requires 1–${MAX_ASSETS} assets`);const ids=new Set();
  for(const asset of manifest.assets){exact(asset,['id','file','sha256','bytes'],'example asset');if(typeof asset.id!=='string'||!/^[-\w]{1,64}$/.test(asset.id)||ids.has(asset.id)||!hashPattern.test(asset.sha256)||asset.file!==`assets/imports/${asset.sha256}.glb`||!Number.isSafeInteger(asset.bytes)||asset.bytes<20||asset.bytes>MAX_ASSET_BYTES)fail('Invalid example asset receipt');ids.add(asset.id);}
  // Terrain layer PNGs are optional and content-addressed like the GLBs.
  if(manifest.textures!==undefined){

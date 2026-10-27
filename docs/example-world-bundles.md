@@ -41,9 +41,10 @@ Installation validates the manifest, exact inventory, every file hash, GLB
 capabilities and scene limits before creating a destination. Capability records
 must agree with `scene.runtime`. Unsupported versions or modules fail locally;
 the installer does not fetch code or add capabilities. The current schema-v2
-limits remain 64 assets, 1200 placements, 32 MiB per GLB, 128 MiB of assets and
+limits are 128 assets (`MAX_ASSETS`, measured; see [asset budget](architecture.md#asset-budget)),
+1200 placements, 32 MiB per GLB, 128 MiB of assets and
 two million placed source triangles, including every flock member. Legacy
-schema-v1 scenes retain their 200-placement limit. Terrain layer textures keep
+schema-v1 scenes retain their 64-asset and 200-placement limits. Terrain layer textures keep
 their own rules: at most 32 MiB of PNGs, counted inside the 128 MiB, and layer
 maps square, power-of-two and one shared size. The listed textures must be
 exactly the files the terrain names.
