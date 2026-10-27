@@ -54,7 +54,8 @@ test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
   assert.deepEqual(images.map(tag=>attr(tag,'src')),scene.shots.map(shot=>shot.src));
   assert.deepEqual(images.map(tag=>attr(tag,'class')??''),['feature','','','']);
  }
- assert.equal(attr(html.match(/<a [^>]*id="first-world"[^>]*>/)[0],'href'),scenes[0].path,'the hero leads into the first scene');
+ // The hero's one button leads down to the build section; the slides lead into the worlds.
+ assert.equal(attr(html.match(/<a class="button primary[^"]*"[^>]*>/)[0],'href'),'#build');assert.match(html,/<section[^>]*id="build"/);
  // The hero tiles open the worlds of the scenes marked hero, in catalog order, and the Scenes menu every world.
  const tiles=[...html.matchAll(/<a class="hero-tile" href="([^"]+)"><img [^>]*src="([^"]+)"/g)].map(m=>[m[1],m[2]]);
  assert.deepEqual(tiles,scenes.filter(scene=>scene.hero).map(scene=>[scene.path,scene.hero.src]));assert.equal(tiles.length,4);

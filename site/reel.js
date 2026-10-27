@@ -76,13 +76,14 @@
     next.classList.add('is-on'); wash[lit ^ 1].classList.remove('is-on');
   };
 
-  let active = -1;
+  let active = -1, onShow = () => {};
   const show = (i) => {
     if (i === active) return;
     active = i;
     marks.forEach((b, j) => { b.classList.toggle('is-active', j === i); if (j === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
     if (status) status.textContent = `${title(real[i])}, ${i + 1} of ${n}`;
     glow(real[i]);
+    onShow();
   };
 
   // A settled reel on a copy jumps to the original, unless a finger is still on the glass.
@@ -108,18 +109,28 @@
   reel.addEventListener('touchstart', () => { touching = true; }, { passive: true });
   reel.addEventListener('touchend', () => { touching = false; if (!ends) { clearTimeout(idle); idle = setTimeout(settle, 160); } }, { passive: true });
 
-  // The slideshow: the active segment's fill is the timer, so pausing the fill pauses the show.
-  let playing = !still.matches;
+  // The slideshow starts on its own and cycles until the visitor takes over or pauses it. A timer
+  // runs the dwell while the active segment's fill (CSS, paused in step with it) shows the time left.
+  // Reduced motion keeps the slideshow, with instant changes, and the pause button stays in reach.
+  const DWELL = 6500;
+  let playing = true, left = DWELL, since = 0, timer = 0, running = false;
   const held = new Set();
+  const pause = () => { if (running) { clearTimeout(timer); left -= performance.now() - since; running = false; } };
+  const resume = () => {
+    if (running || !playing || held.size) return;
+    running = true; since = performance.now();
+    timer = setTimeout(() => { running = false; left = DWELL; move(nearest(reel.scrollLeft) + 1, true); resume(); }, Math.max(0, left));
+  };
+  onShow = () => { pause(); left = DWELL; resume(); };
   const sync = () => {
     bar.classList.toggle('is-playing', playing);
     bar.classList.toggle('is-held', held.size > 0);
     play.setAttribute('aria-label', playing ? 'Pause the slideshow' : 'Play the slideshow');
     status?.setAttribute('aria-live', playing && !held.size ? 'off' : 'polite');
+    pause(); resume();
   };
   const stop = () => { if (playing) { playing = false; sync(); } };
   const hold = (why, on) => { if (on) held.add(why); else held.delete(why); sync(); };
-  dots.addEventListener('animationend', (e) => { if (e.animationName === 'reel-dwell' && playing && !held.size) step(1); });
   play.addEventListener('click', () => { playing = !playing; sync(); });
   bar.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => { stop(); step(Number(b.dataset.step)); }));
 
