@@ -1,0 +1,1795 @@
+{
+  "schema": "siege-asset-inventory/v1",
+  "status": "design-proposal",
+  "date": "2026-10-26",
+  "uniqueConceptEntries": 40,
+  "notes": [
+    "Entries are authored families, not a promise of one GLB per row.",
+    "Assemblies may reuse assets; keep Holodeck scene under its 64 asset limit including cove and board.",
+    "No assets have been produced or approved by listing them.",
+    "P0 proves the bridge; P1 completes gameplay; P2 enriches presentation."
+  ],
+  "materialFamilies": [
+    "limestone",
+    "dark-oak",
+    "slate",
+    "iron",
+    "mail",
+    "leather",
+    "burgundy-wool",
+    "mustard-wool",
+    "linen",
+    "dirt",
+    "rock",
+    "foliage"
+  ],
+  "items": [
+    {
+      "id": "wall-bay",
+      "family": "architecture",
+      "priority": "P0",
+      "name": "4 m wall bay with parapet",
+      "dimensions": "4x1x7",
+      "contract": "ground center; connection planes at \u00b12m X",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "siege-wall"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    },
+    {
+      "id": "gate-frame",
+      "family": "architecture",
+      "priority": "P0",
+      "name": "Asymmetric gate frame and fighting platform",
+      "dimensions": "9x4x9",
+      "contract": "opening 5m wide; asymmetric fixture proves basis",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "siege-gate"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    },
+    {
+      "id": "gate-leaf",
+      "family": "architecture",
+      "priority": "P0",
+      "name": "Oak gate leaf with ironwork",
+      "dimensions": "2.5x0.25x4.8",
+      "contract": "hinge origin; leaf is independent",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "wall-corner",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "90 degree wall corner",
+      "dimensions": "4x4x7",
+      "contract": "one owner for overlapping corner masonry",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "siege-wall-corner"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    },
+    {
+      "id": "tower-base",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Polygonal gate tower base",
+      "dimensions": "7x7x10",
+      "contract": "ground center; doorway aligned",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-architecture-01/tower-base.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_a0f5ed84902645f5b0d3cecf4b9f047b",
+          "revisionId": "r_186c23b1ad674c55ac2d38bead5f1af3",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-architecture-01/tower-base.kiln.js",
+          "glb": "castle-world/assets/source/bible-architecture-01/tower-base.glb",
+          "image": "castle-world/assets/source/bible-architecture-01/tower-base-cpu.png",
+          "sourceSha256": "92cfc60d230114550bb78b1d8a45ffd85d29cb6e7d5c5fe408890357b59d628d",
+          "glbSha256": "532a42bf167a3be21aa3c928c16003d640b8c7e5ba9a020a6439f55c0d653da5",
+          "imageSha256": "edac53c5fa44309b9a544991b7f79b24abaf2135919b2257434db46c9bebcfcd"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_a0f5ed84902645f5b0d3cecf4b9f047b",
+            "revisionId": "r_186c23b1ad674c55ac2d38bead5f1af3",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-architecture-01/tower-base.kiln.js",
+            "glb": "castle-world/assets/source/bible-architecture-01/tower-base.glb",
+            "image": "castle-world/assets/source/bible-architecture-01/tower-base-cpu.png",
+            "sourceSha256": "92cfc60d230114550bb78b1d8a45ffd85d29cb6e7d5c5fe408890357b59d628d",
+            "glbSha256": "532a42bf167a3be21aa3c928c16003d640b8c7e5ba9a020a6439f55c0d653da5",
+            "imageSha256": "edac53c5fa44309b9a544991b7f79b24abaf2135919b2257434db46c9bebcfcd"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tower-top",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Tower parapet and slate roof",
+      "dimensions": "8x8x4",
+      "contract": "separate tower-top datum",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-architecture-01/tower-top.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_a4d0814e78fd4f8f95fcdca937e3b757",
+          "revisionId": "r_66b9f03b15634494953acef1bf90f93c",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-architecture-01/tower-top.kiln.js",
+          "glb": "castle-world/assets/source/bible-architecture-01/tower-top.glb",
+          "image": "castle-world/assets/source/bible-architecture-01/tower-top-cpu.png",
+          "sourceSha256": "a325b0cce77fced7c1cbf9434f6e4cd2aa406db195cc3cff0d95e2d2cdc35d31",
+          "glbSha256": "40a17a95b12a3b7f7847e8b6516b385606c31c594860e6017ae7c018bd4182c1",
+          "imageSha256": "1930cfde9ef2eea21918b1b6c253d1638d91699bab993a7b14bde4e7a1e60827"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_a4d0814e78fd4f8f95fcdca937e3b757",
+            "revisionId": "r_66b9f03b15634494953acef1bf90f93c",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-architecture-01/tower-top.kiln.js",
+            "glb": "castle-world/assets/source/bible-architecture-01/tower-top.glb",
+            "image": "castle-world/assets/source/bible-architecture-01/tower-top-cpu.png",
+            "sourceSha256": "a325b0cce77fced7c1cbf9434f6e4cd2aa406db195cc3cff0d95e2d2cdc35d31",
+            "glbSha256": "40a17a95b12a3b7f7847e8b6516b385606c31c594860e6017ae7c018bd4182c1",
+            "imageSha256": "1930cfde9ef2eea21918b1b6c253d1638d91699bab993a7b14bde4e7a1e60827"
+          }
+        ]
+      }
+    },
+    {
+      "id": "arch-bay",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Bridge arch and pier module",
+      "dimensions": "8x7x10",
+      "contract": "deck top datum 0; pier depths vary",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "partial-embedded-or-related",
+        "assetRefs": [
+          "siege-bridge"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Arch/pier embedded in bridge assembly; no separately connectable arch module verified."
+      }
+    },
+    {
+      "id": "bridge-deck",
+      "family": "architecture",
+      "priority": "P0",
+      "name": "Bridge deck and parapets",
+      "dimensions": "8x9x1.4",
+      "contract": "7m clear width; floor collider separate rails",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "partial-embedded-or-related",
+        "assetRefs": [
+          "siege-bridge"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Deck/parapets embedded in bridge assembly; no independent deck module verified."
+      }
+    },
+    {
+      "id": "stair-flight",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Human-scale wall access stairs",
+      "dimensions": "2x5x3",
+      "contract": "0.18m rise; walkable treads",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "siege-stair-flight-lower",
+          "siege-stair-flight-middle",
+          "siege-stair-flight-upper"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    },
+    {
+      "id": "ramp-bay",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Inner ramp segment",
+      "dimensions": "6x5x0.67",
+      "contract": "six segments form 4m rise over 30m",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "inner-gate",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Inner gate assembly",
+      "dimensions": "9x4x9",
+      "contract": "reuse gate and wall parts, distinct placement",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "keep-shell",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Rectangular keep entrance and exterior",
+      "dimensions": "16x14x18",
+      "contract": "accessible ground floor; no full keep interior initially",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "timber-hoarding",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Wall-mounted fighting gallery",
+      "dimensions": "4x3x3",
+      "contract": "floor at wall datum; firing openings",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-architecture-01/timber-hoarding.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_a0cedcddbd7e41fd97c33b465fd58574",
+          "revisionId": "r_e22e67665e0941eea92102b6210a03b5",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-architecture-01/timber-hoarding.kiln.js",
+          "glb": "castle-world/assets/source/bible-architecture-01/timber-hoarding.glb",
+          "image": "castle-world/assets/source/bible-architecture-01/timber-hoarding-cpu.png",
+          "sourceSha256": "f182fbc4d77f99cae2ae94337dc7593cc002671c99441a11039f381b36ad972f",
+          "glbSha256": "3afe5c52a86dbbecfea61a60fad276a23f2dd152f0cafbe2e0dd2c81eab258a6",
+          "imageSha256": "0acd199ba79033445600051f3de1395713fa148172cb6c136309feeb088839db"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_a0cedcddbd7e41fd97c33b465fd58574",
+            "revisionId": "r_e22e67665e0941eea92102b6210a03b5",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-architecture-01/timber-hoarding.kiln.js",
+            "glb": "castle-world/assets/source/bible-architecture-01/timber-hoarding.glb",
+            "image": "castle-world/assets/source/bible-architecture-01/timber-hoarding-cpu.png",
+            "sourceSha256": "f182fbc4d77f99cae2ae94337dc7593cc002671c99441a11039f381b36ad972f",
+            "glbSha256": "3afe5c52a86dbbecfea61a60fad276a23f2dd152f0cafbe2e0dd2c81eab258a6",
+            "imageSha256": "0acd199ba79033445600051f3de1395713fa148172cb6c136309feeb088839db"
+          }
+        ]
+      }
+    },
+    {
+      "id": "service-building",
+      "family": "architecture",
+      "priority": "P2",
+      "name": "Storehouse and stable kit assembly",
+      "dimensions": "12x6x6",
+      "contract": "two facade variants, shared structural kit",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "postern-frame",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Flank infantry postern",
+      "dimensions": "4x2x5",
+      "contract": "2.2m clearance; visible external access",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "postern-door",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Independent postern door",
+      "dimensions": "2.2x0.2x3",
+      "contract": "hinge origin",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "ground-platform",
+      "family": "architecture",
+      "priority": "P0",
+      "name": "Ward ground and support slab",
+      "dimensions": "variable",
+      "contract": "matches terrain and local walkable collision",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "siege-court"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    },
+    {
+      "id": "cliff-module",
+      "family": "architecture",
+      "priority": "P1",
+      "name": "Rock outcrop family",
+      "dimensions": "variable",
+      "contract": "support boundaries distinct from backdrop",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "slice-cliff-support"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    },
+    {
+      "id": "bow-station",
+      "family": "defenses",
+      "priority": "P1",
+      "name": "Bow position with ammunition rack",
+      "dimensions": "3x2x2",
+      "contract": "crew and muzzle anchors",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "crossbow-station",
+      "family": "defenses",
+      "priority": "P0",
+      "name": "Crossbow position behind mantlet",
+      "dimensions": "3x2x2",
+      "contract": "crew and muzzle anchors",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "partial-embedded-or-related",
+        "assetRefs": [
+          "siege-mantlet"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Mantlet exists; station crossbow, ammunition and armed operator are missing. Ballista is a different weapon."
+      }
+    },
+    {
+      "id": "stone-hoarding",
+      "family": "defenses",
+      "priority": "P1",
+      "name": "Stone-drop position and pile",
+      "dimensions": "4x3x3",
+      "contract": "drop anchor outside wall, named gates",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "barricade",
+      "family": "defenses",
+      "priority": "P1",
+      "name": "Timber infantry choke barrier",
+      "dimensions": "4x1x1.3",
+      "contract": "authored gap and break state",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "siege-barricade"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    },
+    {
+      "id": "battering-ram",
+      "family": "defenses",
+      "priority": "P1",
+      "name": "Covered ram, wheels and swinging head",
+      "dimensions": "3x7x4",
+      "contract": "moving rigid joints; crew sockets; collision",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "crossbow",
+      "family": "equipment",
+      "priority": "P0",
+      "name": "Crossbow and bolt",
+      "dimensions": "0.8x0.7x0.3",
+      "contract": "hand grip and muzzle; reload parts",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-equipment-01/crossbow.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_09e55cbd56c641889b6afa9cf1105f6d",
+          "revisionId": "r_55a520be082c42c7a38ba51a63b3ad41",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-equipment-01/crossbow.kiln.js",
+          "glb": "castle-world/assets/source/bible-equipment-01/crossbow.glb",
+          "image": "castle-world/assets/source/bible-equipment-01/crossbow-cpu.png",
+          "sourceSha256": "8d1d6aaf06a21d6bf7a3383f22883ba7c80f02ef6095f63a07669cb1cce6d965",
+          "glbSha256": "3ae42b338f907a2003543f41d2a85b8269b422026efa2ca9fa2648fc84a0ad07",
+          "imageSha256": "6ef703d483a6e1fb8913e96a4ab9017ae84bf8d2d3ee52c8499511559676f87f"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_09e55cbd56c641889b6afa9cf1105f6d",
+            "revisionId": "r_55a520be082c42c7a38ba51a63b3ad41",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-equipment-01/crossbow.kiln.js",
+            "glb": "castle-world/assets/source/bible-equipment-01/crossbow.glb",
+            "image": "castle-world/assets/source/bible-equipment-01/crossbow-cpu.png",
+            "sourceSha256": "8d1d6aaf06a21d6bf7a3383f22883ba7c80f02ef6095f63a07669cb1cce6d965",
+            "glbSha256": "3ae42b338f907a2003543f41d2a85b8269b422026efa2ca9fa2648fc84a0ad07",
+            "imageSha256": "6ef703d483a6e1fb8913e96a4ab9017ae84bf8d2d3ee52c8499511559676f87f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "bow-quiver",
+      "family": "equipment",
+      "priority": "P1",
+      "name": "Bow, quiver and arrow",
+      "dimensions": "1.5x0.25x0.2",
+      "contract": "hand and back sockets",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "spear-poleaxe",
+      "family": "equipment",
+      "priority": "P1",
+      "name": "Spear and sergeant poleaxe variants",
+      "dimensions": "2.2x0.2x0.2",
+      "contract": "hand grip and weapon tip",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-equipment-01/poleaxe.kiln.js",
+          "castle-world/assets/source/bible-equipment-01/spear.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_fd5bec43afa946118c35a099e96c79ea",
+          "revisionId": "r_071d83bb66584438b316a4670205ad04",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-equipment-01/spear.kiln.js",
+          "glb": "castle-world/assets/source/bible-equipment-01/spear.glb",
+          "image": "castle-world/assets/source/bible-equipment-01/spear-cpu.png",
+          "sourceSha256": "63eadedafc4df26a7f9e6df2348af544836e9247d47abd5b1a92a388fca1c977",
+          "glbSha256": "d0b392f63146383a70c58a10a09f5d2559958ab6ccfd8758b67a52e9289e2f61",
+          "imageSha256": "2d59ee016b12ccedc2d4544df442ed93c8abf0752d80e17c4581ee804a417563"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_fd5bec43afa946118c35a099e96c79ea",
+            "revisionId": "r_071d83bb66584438b316a4670205ad04",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-equipment-01/spear.kiln.js",
+            "glb": "castle-world/assets/source/bible-equipment-01/spear.glb",
+            "image": "castle-world/assets/source/bible-equipment-01/spear-cpu.png",
+            "sourceSha256": "63eadedafc4df26a7f9e6df2348af544836e9247d47abd5b1a92a388fca1c977",
+            "glbSha256": "d0b392f63146383a70c58a10a09f5d2559958ab6ccfd8758b67a52e9289e2f61",
+            "imageSha256": "2d59ee016b12ccedc2d4544df442ed93c8abf0752d80e17c4581ee804a417563"
+          },
+          {
+            "assetId": "a_be49b5e3d57a41abb92a8b0d3a0d3ab3",
+            "revisionId": "r_44ea1a9f0ffd44b9bb09b8c1897d73d8",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-equipment-01/poleaxe.kiln.js",
+            "glb": "castle-world/assets/source/bible-equipment-01/poleaxe.glb",
+            "image": "castle-world/assets/source/bible-equipment-01/poleaxe-cpu.png",
+            "sourceSha256": "6260cf90ba0ed7f0a0f887574804b29ecbb71d79e6e297ff15b028282b2d20e6",
+            "glbSha256": "db4ea7757c66dc9d92a94c09904a2dc165a57609d8afd4123ca06c5a3bbb0163",
+            "imageSha256": "b78f5a7b64ff04b558e172f2fd655fff0fb4f8378c4b613fec889b5f84262148"
+          }
+        ]
+      }
+    },
+    {
+      "id": "shield",
+      "family": "equipment",
+      "priority": "P1",
+      "name": "Attacker shield",
+      "dimensions": "0.7x0.15x1.0",
+      "contract": "hand grip; directional facing",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-equipment-01/shield.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_6e4bd10851ce400eb26146d0e92d1c82",
+          "revisionId": "r_b9ef5bce0a924f78872f6c0c32481fe4",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-equipment-01/shield.kiln.js",
+          "glb": "castle-world/assets/source/bible-equipment-01/shield.glb",
+          "image": "castle-world/assets/source/bible-equipment-01/shield-cpu.png",
+          "sourceSha256": "ea45c692533e71f8622a172082430bc94681ee7cd7823ab3e03db5cb47895c96",
+          "glbSha256": "e086cc5b981354deaff127b66966fbebc99013f3acba46693ce1c8ba73660015",
+          "imageSha256": "4c2d537302ad9d38d95865d811d475b339d16cea1836bd3ebbd79cd5c080035b"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_6e4bd10851ce400eb26146d0e92d1c82",
+            "revisionId": "r_b9ef5bce0a924f78872f6c0c32481fe4",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-equipment-01/shield.kiln.js",
+            "glb": "castle-world/assets/source/bible-equipment-01/shield.glb",
+            "image": "castle-world/assets/source/bible-equipment-01/shield-cpu.png",
+            "sourceSha256": "ea45c692533e71f8622a172082430bc94681ee7cd7823ab3e03db5cb47895c96",
+            "glbSha256": "e086cc5b981354deaff127b66966fbebc99013f3acba46693ce1c8ba73660015",
+            "imageSha256": "4c2d537302ad9d38d95865d811d475b339d16cea1836bd3ebbd79cd5c080035b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sapper-tools",
+      "family": "equipment",
+      "priority": "P1",
+      "name": "Axe and satchel",
+      "dimensions": "0.8x0.3x0.4",
+      "contract": "hand and belt sockets",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "helmet-armor-kit",
+      "family": "equipment",
+      "priority": "P0",
+      "name": "Helmet, brigandine and mail collar family",
+      "dimensions": "human-scale",
+      "contract": "body attachment contract; deformation audit",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "partial-embedded-or-related",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Helmet/mail/clothing are embedded soldier components, not an independently swappable armor family."
+      }
+    },
+    {
+      "id": "infantry-base",
+      "family": "characters",
+      "priority": "P0",
+      "name": "Common body and skeleton proof",
+      "dimensions": "1.8m height",
+      "contract": "Kiln source feasibility; Blender rigging gate; two delivery profiles",
+      "status": "static-study-rejected-as-production-baseline",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "holodeck-rigid-preview",
+        "unity-skinned-candidate"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln authoring plus qualified rigging stage",
+      "readiness": {
+        "visual": false,
+        "rigging": false,
+        "crowdPerformance": "unmeasured",
+        "reason": "Adversarial review: capped shoulders, primitive face, no skin/animation; see docs/siege-character-readiness.md"
+      },
+      "productionEvidence": {
+        "coverage": "native-runtime-verified-base",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": true,
+          "nativeRuntimeVerified": true,
+          "ownerApproved": false
+        },
+        "scope": "One unarmed boxed-beard base, 22-bone rig and Idle/Walk/LookAround; no role-specific weapon actions, possession, navigation or IK qualification.",
+        "betaTechnicalEvidence": {
+          "editor": "6000.7.0b6",
+          "bundleSha256": "3b5fcfa46ec54e6d34ef1b41640ea14e8c4ef0beacacbed4c276eb825afbd552",
+          "scope": "Animated base in legacy r10 native technical smoke; visual composition rejected, new candidate unqualified."
+        }
+      }
+    },
+    {
+      "id": "crossbowman",
+      "family": "characters",
+      "priority": "P0",
+      "name": "Defender crossbowman variant",
+      "dimensions": "1.8m height",
+      "contract": "shared rig, original burgundy/ivory identity",
+      "status": "static-study-rejected-as-production-baseline",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "holodeck-rigid-preview",
+        "unity-skinned-candidate"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln authoring plus qualified rigging stage",
+      "readiness": {
+        "visual": false,
+        "rigging": false,
+        "crowdPerformance": "unmeasured",
+        "reason": "Adversarial review: capped shoulders, primitive face, no skin/animation; see docs/siege-character-readiness.md"
+      },
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "shield-infantry",
+      "family": "characters",
+      "priority": "P1",
+      "name": "Attacker shield infantry variant",
+      "dimensions": "1.8m height",
+      "contract": "shared rig, mustard/charcoal identity",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "holodeck-rigid-preview",
+        "unity-skinned-candidate"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln authoring plus qualified rigging stage",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "sapper",
+      "family": "characters",
+      "priority": "P1",
+      "name": "Attacker sapper variant",
+      "dimensions": "1.8m height",
+      "contract": "shared rig, tools and work clips",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "holodeck-rigid-preview",
+        "unity-skinned-candidate"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln authoring plus qualified rigging stage",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "sergeant",
+      "family": "characters",
+      "priority": "P2",
+      "name": "Defender armored reserve variant",
+      "dimensions": "1.85m height",
+      "contract": "shared rig, armor deformation qualification",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "holodeck-rigid-preview",
+        "unity-skinned-candidate"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln authoring plus qualified rigging stage",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "wagon",
+      "family": "props",
+      "priority": "P1",
+      "name": "Evacuation wagon",
+      "dimensions": "2.2x4.5x2.3",
+      "contract": "wheels independent; prototype crew-driven, no horse rig initially",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "banner-kit",
+      "family": "props",
+      "priority": "P0",
+      "name": "Two original faction banners",
+      "dimensions": "1.2x2.5m cloth",
+      "contract": "pole and cloth separate; no cloth physics required",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-dressing-01/banner-kit.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_5b22df1e6acf4e289ab02cd3e8ebb8ab",
+          "revisionId": "r_d89d328eb83646d89e011668c223cf67",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-dressing-01/banner-hanging-reviewed.kiln.js",
+          "glb": "castle-world/assets/source/bible-dressing-01/banner-hanging.glb",
+          "image": "castle-world/assets/source/bible-dressing-01/banner-hanging-cpu.png",
+          "sourceSha256": "294bd42e398854a9d1798f86b5d75bc9487a36214b167db5f087918058e2e1ef",
+          "glbSha256": "d85de12f33d50a1adcc3325f4cf7b3ddec8c46bacfcdaaae993ff7ce1a3baa7b",
+          "imageSha256": "41457272d7a3f75530ac2ba72cb5a1f67243a95605c8a2f469136e5805e04d5d"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_5b22df1e6acf4e289ab02cd3e8ebb8ab",
+            "revisionId": "r_d89d328eb83646d89e011668c223cf67",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-dressing-01/banner-hanging-reviewed.kiln.js",
+            "glb": "castle-world/assets/source/bible-dressing-01/banner-hanging.glb",
+            "image": "castle-world/assets/source/bible-dressing-01/banner-hanging-cpu.png",
+            "sourceSha256": "294bd42e398854a9d1798f86b5d75bc9487a36214b167db5f087918058e2e1ef",
+            "glbSha256": "d85de12f33d50a1adcc3325f4cf7b3ddec8c46bacfcdaaae993ff7ce1a3baa7b",
+            "imageSha256": "41457272d7a3f75530ac2ba72cb5a1f67243a95605c8a2f469136e5805e04d5d"
+          },
+          {
+            "assetId": "a_c97b7b5b6e2e451aa76acb2a6a981f57",
+            "revisionId": "r_d792c3b65c424d039aa78f0de3730171",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-dressing-01/banner-pole-reviewed.kiln.js",
+            "glb": "castle-world/assets/source/bible-dressing-01/banner-pole.glb",
+            "image": "castle-world/assets/source/bible-dressing-01/banner-pole-cpu.png",
+            "sourceSha256": "3dcdce8b00339526ea9140b9c7bf65395a1f3b016a30ea1de70968346a31f807",
+            "glbSha256": "e269434ec4e469df8d335c5d7b8ba809d2adadf42da6f80681de71aaca9e6faa",
+            "imageSha256": "b4b4696e88724667f1950689166146f299d4e98b7f57dca1c320e6a0fe012e8e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "supplies-kit",
+      "family": "props",
+      "priority": "P1",
+      "name": "Crates, barrels, sacks and bolt bundles",
+      "dimensions": "variable",
+      "contract": "reusable subassets; keep traffic clear",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "saved-geometry-reviewed",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved in hub project collection and portable source/GLB transferred; CPU geometry reviewed, no PBR or exact-artifact image claim. Windows library not imported; not scene integrated.",
+        "sourceFiles": [
+          "castle-world/assets/source/bible-dressing-01/supplies-kit.kiln.js"
+        ],
+        "savedAsset": {
+          "assetId": "a_cacb4381f5fd413c88dfa170ace38352",
+          "revisionId": "r_5d686f48a5c54fadb77ce709025ddfaa",
+          "collection": "project",
+          "collectionHost": "isolated remote Kiln review workspace",
+          "source": "castle-world/assets/source/bible-dressing-01/supplies-kit-reviewed.kiln.js",
+          "glb": "castle-world/assets/source/bible-dressing-01/supplies-kit.glb",
+          "image": "castle-world/assets/source/bible-dressing-01/supplies-kit-cpu.png",
+          "sourceSha256": "f46362b296b909d19bd251b4ceeff8e047b21ce59c8f8abce5ed13b8bb847b1d",
+          "glbSha256": "d93a23e5be0f4eccfce12be619eb67011aff3e5c632883b93d95f208e72c87fd",
+          "imageSha256": "fb013cf00860c66073fd7dd6bc884736cde7b6ccfd2e8128cc5ba6ad71c683f4"
+        },
+        "savedAssets": [
+          {
+            "assetId": "a_cacb4381f5fd413c88dfa170ace38352",
+            "revisionId": "r_5d686f48a5c54fadb77ce709025ddfaa",
+            "collection": "project",
+            "collectionHost": "isolated remote Kiln review workspace",
+            "source": "castle-world/assets/source/bible-dressing-01/supplies-kit-reviewed.kiln.js",
+            "glb": "castle-world/assets/source/bible-dressing-01/supplies-kit.glb",
+            "image": "castle-world/assets/source/bible-dressing-01/supplies-kit-cpu.png",
+            "sourceSha256": "f46362b296b909d19bd251b4ceeff8e047b21ce59c8f8abce5ed13b8bb847b1d",
+            "glbSha256": "d93a23e5be0f4eccfce12be619eb67011aff3e5c632883b93d95f208e72c87fd",
+            "imageSha256": "fb013cf00860c66073fd7dd6bc884736cde7b6ccfd2e8128cc5ba6ad71c683f4"
+          }
+        ]
+      }
+    },
+    {
+      "id": "forge-well-kit",
+      "family": "props",
+      "priority": "P2",
+      "name": "Forge lean-to and courtyard well",
+      "dimensions": "variable",
+      "contract": "placement support and work area",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "not-evidenced",
+        "assetRefs": [],
+        "stages": {
+          "sourceDraft": false,
+          "rendered": false,
+          "savedExported": false,
+          "integrated": false,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "No independently delivered implementation located in the audited slice and production receipts."
+      }
+    },
+    {
+      "id": "camp-kit",
+      "family": "props",
+      "priority": "P2",
+      "name": "Tent and mantlet dressing",
+      "dimensions": "variable",
+      "contract": "no blockers in attack lanes",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "partial-embedded-or-related",
+        "assetRefs": [
+          "siege-mantlet"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Mantlet only; tent and camp dressing kit absent."
+      }
+    },
+    {
+      "id": "vegetation-kit",
+      "family": "props",
+      "priority": "P2",
+      "name": "Sparse grass, shrubs and background tree",
+      "dimensions": "variable",
+      "contract": "shared material, explicit keep-out zones",
+      "status": "planned",
+      "assetId": null,
+      "revisionId": null,
+      "sha256": null,
+      "delivery": [
+        "shared-static-glb"
+      ],
+      "qa": [
+        "dimensions-pivot",
+        "material-neutral-light",
+        "eye-level-and-tactical-view",
+        "destination-import"
+      ],
+      "owner": "Kiln workspace",
+      "productionEvidence": {
+        "coverage": "integrated-implementation",
+        "assetRefs": [
+          "slice-ground-cover",
+          "slice-oak"
+        ],
+        "stages": {
+          "sourceDraft": true,
+          "rendered": true,
+          "savedExported": true,
+          "integrated": true,
+          "rigged": false,
+          "nativeRuntimeVerified": false,
+          "ownerApproved": false
+        },
+        "scope": "Saved implementation exists; original design dimensions and full contract compliance remain separate checks."
+      }
+    }
+  ],
+  "productionReconciliation": {
+    "schema": "siege-production-coverage/v1",
+    "conceptCounts": {
+      "integrated-implementation": 8,
+      "not-evidenced": 18,
+      "saved-geometry-reviewed": 8,
+      "partial-embedded-or-related": 5,
+      "native-runtime-verified-base": 1
+    },
+    "note": "Original status fields describe the design proposal. Additive productionEvidence records implementation stages, not fulfillment of every design contract. No asset approval is implied.",
+    "preparedSourcePrograms": 9,
+    "sourceDraftConcepts": 0,
+    "savedGeometryReviewedConcepts": 8,
+    "potentialSelectorOutputs": 15,
+    "holodeckSceneRevision": 10,
+    "stationRepairAppliedAndObserved": true,
+    "stationNativeVerification": "Passed bounded legacy r10 beta smoke; new composition candidate pending",
+    "characterNativeQualification": "Historical 6.2 crowd fixture plus 6000.7.0b6 legacy r10 animated-raider technical smoke; no beta crowd capacity or art acceptance",
+    "localSourceSnapshots": 14,
+    "remoteSavedRevisions": 10
+  }
+}

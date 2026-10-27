@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="940" viewBox="0 0 1280 940"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6" fill="context-stroke"/></marker></defs><style>text{font-family:Arial,sans-serif;fill:#e5eaf1}.title{font-size:25px;font-weight:bold}.small{font-size:14px}.body{font-size:17px}.dim{fill:#9dabb9;font-size:13px}</style><rect width="1280" height="940" fill="#16222e"/>
+<text x="32" y="42" class="title">03 / ONE SIMULATION, MULTIPLE CONTROL MODES</text>
+<text x="32" y="69" class="small">Design proposal. Current implementation: collision walking + station operation + one wave. Possession/TPS/TD UI not built.</text>
+<rect x="50" y="130" width="320" height="135" rx="4" fill="#304454" stroke="#748896"/>
+<text x="65" y="160" class="body">TACTICAL COMMAND</text>
+<text x="65" y="185" class="small">Select crews and deploy at sockets</text>
+<text x="65" y="206" class="small">Prep / repair / prioritize lanes</text>
+<text x="65" y="227" class="small">Pause semantics proposed, not built</text>
+<rect x="480" y="130" width="320" height="135" rx="4" fill="#304454" stroke="#748896"/>
+<text x="495" y="160" class="body">INHABIT DEFENDER FPS / TPS</text>
+<text x="495" y="185" class="small">Choose existing stable actor ID</text>
+<text x="495" y="206" class="small">Promote full rig before control</text>
+<text x="495" y="227" class="small">Camera choice keeps same body</text>
+<rect x="910" y="130" width="320" height="135" rx="4" fill="#304454" stroke="#748896"/>
+<text x="925" y="160" class="body">OPERATE BALLISTA</text>
+<text x="925" y="185" class="small">Reserve station + verify proximity</text>
+<text x="925" y="206" class="small">Use station aim + muzzle LOS</text>
+<text x="925" y="227" class="small">Same health, supplies and wave</text>
+<polyline points="370.00,195.00 480.00,195.00" fill="none" stroke="#77d4c4" stroke-width="3" marker-end="url(#arrow)"/>
+<polyline points="800.00,195.00 910.00,195.00" fill="none" stroke="#77d4c4" stroke-width="3" marker-end="url(#arrow)"/>
+<polyline points="1065.00,265.00 1065.00,320.00 640.00,320.00 640.00,265.00" fill="none" stroke="#d2b7ed" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="760" y="307" class="small">Leave station: restore inhabited actor</text>
+<polyline points="640.00,320.00 210.00,320.00 210.00,265.00" fill="none" stroke="#d2b7ed" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="270" y="307" class="small">Return control to tactics, keep entity</text>
+<rect x="140" y="390" width="1000" height="135" rx="4" fill="#354b4d" stroke="#748896"/>
+<text x="165" y="423" class="body">AUTHORITATIVE ACTOR + WORLD STATE</text>
+<text x="165" y="448" class="small">Stable ID / team / transform / health / equipment / action tick / target / phase / event cursor.</text>
+<text x="165" y="469" class="small">One movement authority; one damage and resource ledger. Mode switches never respawn or heal an actor.</text>
+<text x="165" y="490" class="small">Station ownership is a reservation. Death, breach, pause and restart use the same simulation clock.</text>
+<polyline points="640.00,320.00 640.00,390.00" fill="none" stroke="#8298ad" stroke-width="3"/>
+<rect x="50" y="595" width="555" height="195" rx="4" fill="#304454" stroke="#748896"/>
+<text x="70" y="630" class="body">NEAR / POSSESSED — FULL RIG</text>
+<text x="70" y="655" class="small">Possessed and active melee actors stay full skeleton.</text>
+<text x="70" y="676" class="small">Start capacity hypothesis: 1 possessed + 11 nearby rigs;</text>
+<text x="70" y="697" class="small">must be measured, not a shipping limit. Reserve promotion</text>
+<text x="70" y="718" class="small">before control transfer; retain transform/action phase.</text>
+<text x="70" y="739" class="small">Pin interaction actors; throttle distant work if pool fills.</text>
+<rect x="675" y="595" width="555" height="195" rx="4" fill="#304454" stroke="#748896"/>
+<text x="695" y="630" class="body">DISTANT CROWD — PROPOSED GPU BONES</text>
+<text x="695" y="655" class="small">Shared baked bone clips before per-vertex VAT.</text>
+<text x="695" y="676" class="small">Earlier tuning proposal: promote &lt;12m; demote &gt;16m</text>
+<text x="695" y="697" class="small">after .5s hold, .15s visual blend; test continuity.</text>
+<text x="695" y="718" class="small">Only demote safe actors; preserve entity and event cursor.</text>
+<text x="695" y="739" class="small">VAT stays optional for non-skeletal distant effects.</text>
+<polyline points="605.00,690.00 675.00,690.00" fill="none" stroke="#e4bc6b" stroke-width="3" stroke-dasharray="8 5" marker-end="url(#arrow)"/>
+<text x="60" y="840" class="body">NON-NEGOTIABLE TRANSFER CHECK</text>
+<text x="60" y="865" class="small">No duplicate actor, damage event, root motion or collider. No unarmed Idle/Walk/LookAround clip presented as combat.</text>
+</svg>
