@@ -123,6 +123,7 @@ h1 em{color:#ffe9c7}
 .button:hover{transform:translateY(-1px)}
 .button.primary{background:var(--cream);color:var(--ink)}
 .button.primary::after{content:"↗"}
+.button.primary.down::after{content:"↓"}
 .button.glass{position:relative}
 .capture{font-size:12px;opacity:.55;margin:20px 0 0}
 
