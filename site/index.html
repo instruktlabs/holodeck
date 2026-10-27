@@ -25,8 +25,9 @@
   <meta name="twitter:image" content="https://holodeck.kilnstudio.tools/images/card.jpg">
   <meta name="twitter:image:alt" content="Four Holodeck worlds: Meridian Sanctuary's marble terraces above the clouds, Crescent Cove's lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard's fountain among cypress and olive trees.">
   <link rel="preload" href="fonts/InstrumentSerif-Regular.woff2" as="font" type="font/woff2" crossorigin>
-  <!-- preload:start --><link rel="preload" as="image" href="images/hero-meridian-sanctuary.webp" imagesrcset="images/hero-meridian-sanctuary-960.webp 960w, images/hero-meridian-sanctuary.webp 1920w" imagesizes="(max-aspect-ratio:1/1) 100vw, 50vw" fetchpriority="high"><!-- preload:end -->
+  <!-- preload:start --><link rel="preload" as="image" href="images/hero-meridian-sanctuary.webp" imagesrcset="images/hero-meridian-sanctuary-960.webp 960w, images/hero-meridian-sanctuary.webp 1920w" imagesizes="(max-width:860px) 80vw, 66vw" fetchpriority="high"><!-- preload:end -->
   <link rel="stylesheet" href="shelf.css">
+  <script src="reel.js" defer></script>
   <!-- jsonld:start --><script type="application/ld+json">{
  "@context": "https://schema.org",
  "@graph": [
@@ -135,23 +136,31 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div class="hero-collage"><!-- hero:start -->
-        <a class="hero-tile" href="worlds/meridian-sanctuary/"><img src="images/hero-meridian-sanctuary.webp" srcset="images/hero-meridian-sanctuary-960.webp 960w, images/hero-meridian-sanctuary.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" fetchpriority="high" alt="Meridian Sanctuary: a causeway between mirror pools toward a marble gate tower, with floating statues and a mirrored orb above the clouds."><span>Meridian Sanctuary</span></a>
-        <a class="hero-tile" href="worlds/crescent-cove/"><img src="images/hero-crescent-cove.webp" srcset="images/hero-crescent-cove-960.webp 960w, images/hero-crescent-cove.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" alt="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon."><span>Crescent Cove</span></a>
-        <a class="hero-tile" href="worlds/courtyard/"><img src="images/hero-courtyard.webp" srcset="images/hero-courtyard-960.webp 960w, images/hero-courtyard.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" alt="The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."><span>The Quiet Courtyard</span></a>
-        <a class="hero-tile" href="worlds/winter-mountainside-cabin/"><img src="images/hero-winter-mountainside-cabin.webp" srcset="images/hero-winter-mountainside-cabin-960.webp 960w, images/hero-winter-mountainside-cabin.webp 1920w" sizes="(max-aspect-ratio:1/1) 100vw, 50vw" width="1920" height="1080" alt="Winter Mountainside Cabin: a timber cabin on a snowy slope among snow-laden pines."><span>Winter Mountainside Cabin</span></a>
-      <!-- hero:end --></div>
-      <div class="hero-copy">
-        <div>
+    <section class="hero home">
+      <div class="hero-ambient" aria-hidden="true"><i></i><i></i></div>
+      <div class="home-grid">
+        <div class="home-title">
           <p class="eyebrow">Early source prototype</p>
           <h1>Describe a place.<br><em>Then walk into it.</em></h1>
         </div>
-        <div>
+        <div class="home-pitch">
           <p class="lede">Holodeck is a local workspace where you and your coding agent build 3D worlds together, then explore them on foot, right in the browser.</p>
-          <p class="ctas"><a class="button primary" id="first-world" href="worlds/meridian-sanctuary/">Enter Meridian Sanctuary</a><a class="button glass" href="#build">Build your own</a></p>
-          <p class="capture">Meridian Sanctuary, Crescent Cove, Winter Mountainside Cabin and the Quiet Courtyard, each rendered live in the browser.</p>
+          <p class="capture">Meridian Sanctuary, Crescent Cove, the Quiet Courtyard and Winter Mountainside Cabin, each rendered live in the browser.</p>
         </div>
+        <div class="reel" role="region" aria-roledescription="carousel" aria-label="Scenes"><!-- hero:start -->
+        <a class="hero-tile" href="worlds/meridian-sanctuary/"><img src="images/hero-meridian-sanctuary.webp" srcset="images/hero-meridian-sanctuary-960.webp 960w, images/hero-meridian-sanctuary.webp 1920w" sizes="(max-width:860px) 80vw, 66vw" width="1920" height="1080" fetchpriority="high" alt="Meridian Sanctuary: a causeway between mirror pools toward a marble gate tower, with floating statues and a mirrored orb above the clouds."><span>Meridian Sanctuary</span></a>
+        <a class="hero-tile" href="worlds/crescent-cove/"><img src="images/hero-crescent-cove.webp" srcset="images/hero-crescent-cove-960.webp 960w, images/hero-crescent-cove.webp 1920w" sizes="(max-width:860px) 80vw, 66vw" width="1920" height="1080" alt="Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon."><span>Crescent Cove</span></a>
+        <a class="hero-tile" href="worlds/courtyard/"><img src="images/hero-courtyard.webp" srcset="images/hero-courtyard-960.webp 960w, images/hero-courtyard.webp 1920w" sizes="(max-width:860px) 80vw, 66vw" width="1920" height="1080" alt="The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."><span>The Quiet Courtyard</span></a>
+        <a class="hero-tile" href="worlds/winter-mountainside-cabin/"><img src="images/hero-winter-mountainside-cabin.webp" srcset="images/hero-winter-mountainside-cabin-960.webp 960w, images/hero-winter-mountainside-cabin.webp 1920w" sizes="(max-width:860px) 80vw, 66vw" width="1920" height="1080" alt="Winter Mountainside Cabin: a timber cabin on a snowy slope among snow-laden pines."><span>Winter Mountainside Cabin</span></a>
+      <!-- hero:end --></div>
+        <div class="reel-bar" hidden>
+          <button class="reel-btn reel-arrow" type="button" data-step="-1" aria-label="Previous scene"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4.5 6.5 10l5.5 5.5"/></svg></button>
+          <ol class="reel-dots"></ol>
+          <button class="reel-btn reel-arrow" type="button" data-step="1" aria-label="Next scene"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4.5 13.5 10 8 15.5"/></svg></button>
+          <button class="reel-btn reel-play" type="button" aria-label="Pause the slideshow"><svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 5v10M12.5 5v10"/></svg><svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4.8v10.4l8.5-5.2z"/></svg></button>
+        </div>
+        <p class="reel-status sr-only" aria-live="off"></p>
+        <p class="ctas"><a class="button primary" id="first-world" href="worlds/meridian-sanctuary/">Enter Meridian Sanctuary</a><a class="button glass" href="#build">Build your own</a></p>
       </div>
     </section>
 
