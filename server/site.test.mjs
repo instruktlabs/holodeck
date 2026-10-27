@@ -20,7 +20,7 @@ const exists=file=>stat(file).then(info=>info.isFile(),()=>false);
 const attr=(tag,name)=>tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
 const ldBlocks=html=>[...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1]));
 
-test('the committed shelf, sitemap and robots.txt match a fresh render of scenes.json',async()=>{
+test('the committed shelf, sitemap, robots.txt and llms.txt match a fresh render of scenes.json',async()=>{
  for(const [name,text] of Object.entries(await renderSite(site)))assert.equal(await readFile(path.join(site,name),'utf8'),text,`${name} is stale; run node scripts/render-site.mjs`);
 });
 
@@ -143,4 +143,16 @@ test('sitemap dates are not older than the git history of each page',async t=>{
   assert.ok(page.paths,`/${page.path} has no source paths to check`);
   const changed=await newest(page.paths);if(changed)assert.ok(page.updated>=changed,`/${page.path} lastmod ${page.updated} is older than its last change on ${changed}; update it`);
  }
+});
+
+test('llms.txt names every scene at its canonical URL and links only over https',async()=>{
+ const text=await readFile(path.join(built,'llms.txt'),'utf8'),scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
+ assert.match(text,/^# Holodeck\n\n/);
+ const links=[...text.matchAll(/\]\(([^)]+)\)/g)].map(match=>match[1]);
+ for(const scene of scenes){
+  const url=new URL(scene.path,SITE_URL).href;assert.ok(links.includes(url),`llms.txt lacks ${url}`);
+  assert.ok(await exists(path.join(built,scene.path,'index.html')),`${scene.path} is not in the built site`);
+ }
+ for(const link of links)assert.match(link,/^https:\/\//,`${link} is not an absolute https URL`);
+ assert.ok(links.includes(new URL('about/',SITE_URL).href));
 });

@@ -36,8 +36,10 @@ Winter Mountainside Cabin and the Cove (from `construct`). Each scene's 1200×63
 `site/cards/<id>.jpg`.
 
 `npm run render:site` prerenders `site/index.html` from `site/scenes.json`, with
-the home page JSON-LD, `sitemap.xml` and `robots.txt`; the shelf needs no script
-at runtime. Each sitemap URL carries a `<lastmod>`: a scene's catalog `updated` date (when
+the home page JSON-LD, `sitemap.xml`, `robots.txt` and `llms.txt` (a plain-text summary
+for language models, in the kilnstudio.tools/llms.txt format: every scene from the
+catalog with its Kiln pack, the About page, getting started and the repository); the
+shelf needs no script at runtime. Each sitemap URL carries a `<lastmod>`: a scene's catalog `updated` date (when
 its example or card last changed) and, for the shelf and `site/about/`, the dates in
 `PAGES` in `scripts/render-site.mjs`. Update the date in the commit that changes the page;
 with full git history the site test fails a date older than the page's last commit.

@@ -1,5 +1,5 @@
 // Prerender the project site's scene shelf from site/scenes.json, with its JSON-LD,
-// sitemap.xml and robots.txt. The shelf needs no script at runtime.
+// sitemap.xml, robots.txt and llms.txt. The shelf needs no script at runtime.
 // Usage: node scripts/render-site.mjs [--check] [site directory]
 import {readFile,writeFile,lstat} from 'node:fs/promises';
 import path from 'node:path';
@@ -105,7 +105,30 @@ export async function renderSite(site){
  const urls=[...PAGES,...scenes].map(page=>({loc:new URL(page.path,SITE_URL).href,lastmod:page.updated}));
  const sitemap=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(url=>`  <url><loc>${url.loc}</loc><lastmod>${url.lastmod}</lastmod></url>`).join('\n')}\n</urlset>\n`;
  const robots=`User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}sitemap.xml\n`;
- return {'index.html':index,'sitemap.xml':sitemap,'robots.txt':robots};
+ return {'index.html':index,'sitemap.xml':sitemap,'robots.txt':robots,'llms.txt':llmsText(scenes)};
+}
+
+// llms.txt (llmstxt.org), in the same shape as kilnstudio.tools/llms.txt: what Holodeck is, each
+// scene from the catalog with its Kiln pack, and how to use and build it. Rendered from scenes.json
+// with the shelf, so a new scene cannot be missing from it. Links are canonical URLs only.
+function llmsText(scenes){
+ const line=(name,url,text)=>`- [${name}](${url})${text?`: ${text}`:''}`;
+ return [
+  '# Holodeck','',
+  'Holodeck is an early source prototype: a local workspace where you and your coding agent build 3D worlds from Kiln assets, then explore them on foot in the browser. The scenes on this site are exports of its bundled example worlds. They render with WebGPU where the browser supports it and fall back to WebGL2.','',
+  '## Scenes','',
+  ...scenes.map(scene=>line(scene.title,new URL(scene.path,SITE_URL).href,scene.summary)),'',
+  '## Use and build','',
+  line('About and how to use it',new URL('about/',SITE_URL).href,'What Holodeck is, how to walk the scenes with a keyboard, mouse or touchscreen, and how to build your own world with your coding agent.'),
+  line('Getting started',`${REPOSITORY}/blob/main/docs/getting-started.md`,'Run Holodeck locally with Git, Node.js and npm, then connect Codex, Cursor or Claude Code and describe what to build.'),
+  line('Repository',REPOSITORY,'Source. Code is MIT; the bundled example worlds and the scenes on this site are CC0. Your own worlds are not automatically CC0.'),'',
+  '## Assets','',
+  line('Kiln','https://kilnstudio.tools/','The tool the models come from.'),
+  line('Asset packs on Kiln',KILN_PACKS,'Downloadable packs, including one for each scene.'),
+  ...scenes.filter(scene=>scene.gallery).map(scene=>line(`${scene.title} assets`,scene.gallery)),'',
+  '## Optional','',
+  line('Sitemap',`${SITE_URL}sitemap.xml`),'',
+ ].join('\n');
 }
 
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
