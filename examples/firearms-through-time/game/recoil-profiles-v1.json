@@ -1,0 +1,1397 @@
+{
+ "schemaVersion": 1,
+ "id": "recoil-profiles-v1",
+ "scope": "Entertainment game model. The physical inputs are Estimates from cited public figures for each service load; they size the guns' kicks relative to each other. Hold gains, patterns, variation and recovery are gameplay tuning, not measured, calibrated or historical recoil.",
+ "units": {
+  "angle": "deg (pitch up and yaw right are positive)",
+  "time": "s",
+  "mass": "g or kg as labelled",
+  "impulse": "N*s",
+  "energy": "J"
+ },
+ "model": {
+  "resolution": "A shot travels along the aim at the moment the trigger is accepted; its kick applies after it.",
+  "kick": "pitch = baseKick x row[0] x (1 + pitchScale x a); yaw = baseKick x (row[1] + yawScale x b); a and b are uniform in [-1, 1) from the shot's seed",
+  "aim": "Each kick adds (1 - residual) x kick to the recovering part and the rest to where the aim settles. The aim rises into the kick with the rise time constant while the recovering part decays with the recovery time constant; the host turns its look by the change.",
+  "pattern": "Consecutive shots step through the rows; a shot resetAfter or more after the previous one, or the first shot, uses row 0.",
+  "seed": {
+   "hash": "FNV-1a 32-bit over UTF-8",
+   "prng": "mulberry32",
+   "sessionSeed": "fnv1a32(sessionId) as an unsigned decimal",
+   "key": "<sessionSeed>|<shotId>|<profile revision>|<channel>",
+   "channel": "weapon-response",
+   "draws": [
+    "a (pitch scale)",
+    "b (yaw offset)"
+   ]
+  }
+ },
+ "references": {
+  "m1911-wikipedia": {
+   "title": "M1911 pistol (Wikipedia infobox)",
+   "url": "https://en.wikipedia.org/wiki/M1911_pistol",
+   "supports": "39 oz (1,100 g) empty, with magazine"
+  },
+  "sierra-45acp": {
+   "title": "Sierra .45 Auto (ACP) load data",
+   "url": "https://sierrabullets.com/content/load-data/handgun/451/45-auto-(ACP).pdf",
+   "supports": "230 gr FMJ at about 810–850 ft/s from about 5 gr of powder"
+  },
+  "henry-44-wikipedia": {
+   "title": ".44 Henry (Wikipedia)",
+   "url": "https://en.wikipedia.org/wiki/.44_Henry",
+   "supports": "200 gr bullet at about 1,125 ft/s over 26–28 gr of black powder"
+  },
+  "winchester-rifle-wikipedia": {
+   "title": "Winchester rifle (Wikipedia infobox)",
+   "url": "https://en.wikipedia.org/wiki/Winchester_rifle",
+   "supports": "9.5 lb (4.3 kg) for the rifle family; not specific to the Model 1866"
+  },
+  "winchester-1866-listing": {
+   "title": "Winchester Model 1866 retail listing (weak: modern reproduction, search snippet)",
+   "url": "https://gun.deals/catalog/209936/winchester-model-1866",
+   "supports": "7–8 lb for a modern reproduction"
+  },
+  "303-canadiansoldiers": {
+   "title": ".303 British ammunition (canadiansoldiers.com)",
+   "url": "https://www.canadiansoldiers.com/weapons/ammunition/303.htm",
+   "supports": "Mark VII 174 gr bullet at 2,440 ft/s"
+  },
+  "303-ssusa": {
+   "title": "Last cartridge of an empire: .303 British (SSUSA)",
+   "url": "https://ssusa.org/content/last-cartridge-of-an-empire-303-british",
+   "supports": "Mark VII ball and its cordite charge"
+  },
+  "303-rmr-museum": {
+   "title": ".303 bullets (Royal Montreal Regiment Museum)",
+   "url": "https://hub.catalogit.app/royal-montreal-regiment-museum/folder/entry/.303-bullets",
+   "supports": "about 37 gr of cordite in Mark VII ball"
+  },
+  "no4-mccord": {
+   "title": "Lee-Enfield No. 4 Mk I (McCord Stewart Museum)",
+   "url": "https://collections.musee-mccord-stewart.ca/en/objects/details/431071",
+   "supports": "4.1 kg"
+  },
+  "m4-wikipedia": {
+   "title": "M4 carbine (Wikipedia infobox)",
+   "url": "https://en.wikipedia.org/wiki/M4_carbine",
+   "supports": "6.43 lb (2.92 kg) empty; 7.75 lb (3.52 kg) with a loaded 30-round magazine and sling; 2,887 ft/s (880 m/s) with M855; 700–970 rounds/min cyclic"
+  },
+  "556-wikipedia": {
+   "title": "5.56×45mm NATO (Wikipedia)",
+   "url": "https://en.wikipedia.org/wiki/5.56%C3%9745mm_NATO",
+   "supports": "M855 4.02 g (62 gr); case capacity 1.85 cm3 (28.5 gr H2O); V4 bullet velocity 866 m/s at 360 mm and 878 m/s at 390 mm barrels"
+  },
+  "brown-bess-wikipedia": {
+   "title": "Brown Bess (Wikipedia)",
+   "url": "https://en.wikipedia.org/wiki/Brown_Bess",
+   "supports": "ball 1.3 oz (37 g, derived); powder 8.9–10.7 g, of which 0.65 g primed the pan; the common 1,500 ft/s figure rests on incorrectly executed tests; 3.95–4.59 kg across the family"
+  },
+  "historyofwar-brown-bess": {
+   "title": "Brown Bess (historyofwar.org, P. Antill 2006)",
+   "url": "https://www.historyofwar.org/articles/weapons_brown_bess.html",
+   "supports": "one ounce lead ball; .71 in projectile in a .75 in bore"
+  },
+  "revwar-brown-bess": {
+   "title": "Brown Bess (Revolutionary War Journal; weak: search snippet)",
+   "url": "https://revolutionarywarjournal.com/brown-bess-2/",
+   "supports": "a smooth-bore ball leaves at about 1,000 ft/s on average"
+  }
+ },
+ "profiles": {
+  "pistol": {
+   "revision": "recoil-profiles-v1:pistol:1",
+   "configuration": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+   "physics": {
+    "projectileMass": {
+     "value": 14.9037,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "sierra-45acp"
+     ],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": 0,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1",
+     "note": "230 gr"
+    },
+    "muzzleVelocity": {
+     "value": 252.98,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "sierra-45acp"
+     ],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": 6.1,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1",
+     "note": "830 ft/s"
+    },
+    "chargeMass": {
+     "value": 0.324,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "sierra-45acp"
+     ],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": 0.052,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1",
+     "note": "5 gr"
+    },
+    "gasVelocityFactor": {
+     "value": 1.5,
+     "units": "x muzzle velocity",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": 0.25,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1",
+     "note": "Engineering rule of thumb for the propellant gas leaving the muzzle; no measured source."
+    },
+    "gunMass": {
+     "value": 1.1,
+     "units": "kg",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "m1911-wikipedia"
+     ],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": 0.05,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    },
+    "impulse": {
+     "value": 3.89336,
+     "units": "N*s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1",
+     "note": "projectile mass x velocity + charge mass x gas factor x velocity"
+    },
+    "recoilVelocity": {
+     "value": 3.53942,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1",
+     "note": "impulse / gun mass"
+    },
+    "freeRecoilEnergy": {
+     "value": 6.89011,
+     "units": "J",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1",
+     "note": "gun mass x recoil velocity^2 / 2"
+    }
+   },
+   "response": {
+    "hold": "two-hand-pistol",
+    "holdGain": {
+     "value": 0.72,
+     "units": "deg/sqrt(J)",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": "A handgun pivots at the wrists with no shoulder behind it, so it turns the aim more per joule than a shouldered rifle.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    },
+    "baseKick": {
+     "value": 1.889929,
+     "units": "deg",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": "Hold gain x sqrt(free recoil energy): sized from the cartridge and the gun's mass.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    },
+    "pattern": {
+     "value": [
+      [
+       1,
+       0.1
+      ],
+      [
+       1.06,
+       0.16
+      ],
+      [
+       1.1,
+       0.05
+      ],
+      [
+       1.12,
+       -0.1
+      ],
+      [
+       1.14,
+       -0.16
+      ],
+      [
+       1.15,
+       -0.04
+      ],
+      [
+       1.16,
+       0.12
+      ]
+     ],
+     "units": "[pitch, yaw] x base kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": "Learnable string for consecutive shots (explicit gameplay choice, not a historical spray). Climbs and drifts right, swings left mid-magazine, then back right.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    },
+    "variation": {
+     "pitchScale": {
+      "value": 0.06,
+      "units": "fraction of row pitch",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded scatter, bounded to +/- this fraction.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:pistol:1"
+     },
+     "yawScale": {
+      "value": 0.05,
+      "units": "x base kick",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded sideways scatter, bounded to +/- this much.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:pistol:1"
+     }
+    },
+    "recovery": {
+     "value": 0.12,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the recoverable part of each kick to return.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    },
+    "rise": {
+     "value": 0.02,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the aim to rise into each kick, so the view never snaps.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    },
+    "residual": {
+     "value": 0.12,
+     "units": "fraction of kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": "Share of each kick that stays: the player pulls it back with the mouse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    },
+    "resetAfter": {
+     "value": 0.6,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1911-style pistol, virtual .45 ACP 230 gr ball profile",
+     "uncertainty": null,
+     "tuningReason": "A shot this long after the previous one starts the pattern again (the action allows one shot per 0.22 s).",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:pistol:1"
+    }
+   }
+  },
+  "rifle1866": {
+   "revision": "recoil-profiles-v1:rifle1866:1",
+   "configuration": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+   "physics": {
+    "projectileMass": {
+     "value": 12.9598,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "henry-44-wikipedia"
+     ],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": 0,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1",
+     "note": "200 gr"
+    },
+    "muzzleVelocity": {
+     "value": 342.9,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "henry-44-wikipedia"
+     ],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": 15.2,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1",
+     "note": "1125 ft/s"
+    },
+    "chargeMass": {
+     "value": 1.7496,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "henry-44-wikipedia"
+     ],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": 0.065,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1",
+     "note": "27 gr"
+    },
+    "gasVelocityFactor": {
+     "value": 1.5,
+     "units": "x muzzle velocity",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": 0.25,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1",
+     "note": "Engineering rule of thumb for the propellant gas leaving the muzzle; no measured source."
+    },
+    "gunMass": {
+     "value": 4,
+     "units": "kg",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "winchester-rifle-wikipedia",
+      "winchester-1866-listing"
+     ],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": 0.5,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    },
+    "impulse": {
+     "value": 5.3438,
+     "units": "N*s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1",
+     "note": "projectile mass x velocity + charge mass x gas factor x velocity"
+    },
+    "recoilVelocity": {
+     "value": 1.33595,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1",
+     "note": "impulse / gun mass"
+    },
+    "freeRecoilEnergy": {
+     "value": 3.56953,
+     "units": "J",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1",
+     "note": "gun mass x recoil velocity^2 / 2"
+    }
+   },
+   "response": {
+    "hold": "shoulder",
+    "holdGain": {
+     "value": 0.52,
+     "units": "deg/sqrt(J)",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": "Shouldered long gun: the stock and the shooter's mass absorb more of the impulse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    },
+    "baseKick": {
+     "value": 0.982446,
+     "units": "deg",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": "Hold gain x sqrt(free recoil energy): sized from the cartridge and the gun's mass.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    },
+    "pattern": {
+     "value": [
+      [
+       1,
+       0.08
+      ],
+      [
+       1.05,
+       0.18
+      ],
+      [
+       1.08,
+       0.26
+      ],
+      [
+       1.1,
+       0.14
+      ],
+      [
+       1.12,
+       -0.04
+      ],
+      [
+       1.12,
+       -0.14
+      ]
+     ],
+     "units": "[pitch, yaw] x base kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": "Learnable string for consecutive shots (explicit gameplay choice, not a historical spray). A gentle climb that walks right as the lever is worked, then eases back left.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    },
+    "variation": {
+     "pitchScale": {
+      "value": 0.06,
+      "units": "fraction of row pitch",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded scatter, bounded to +/- this fraction.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:rifle1866:1"
+     },
+     "yawScale": {
+      "value": 0.05,
+      "units": "x base kick",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded sideways scatter, bounded to +/- this much.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:rifle1866:1"
+     }
+    },
+    "recovery": {
+     "value": 0.2,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the recoverable part of each kick to return.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    },
+    "rise": {
+     "value": 0.03,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the aim to rise into each kick, so the view never snaps.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    },
+    "residual": {
+     "value": 0.25,
+     "units": "fraction of kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": "Share of each kick that stays: the player pulls it back with the mouse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    },
+    "resetAfter": {
+     "value": 1.6,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "1866 sporting-form lever rifle, virtual .44 Henry 200 gr black-powder profile",
+     "uncertainty": null,
+     "tuningReason": "A shot this long after the previous one starts the pattern again (the action allows one shot per 0.95 s).",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:rifle1866:1"
+    }
+   }
+  },
+  "boltNo4": {
+   "revision": "recoil-profiles-v1:boltNo4:1",
+   "configuration": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+   "physics": {
+    "projectileMass": {
+     "value": 11.275,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "303-canadiansoldiers"
+     ],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": 0,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1",
+     "note": "174 gr"
+    },
+    "muzzleVelocity": {
+     "value": 743.71,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "303-canadiansoldiers",
+      "303-ssusa"
+     ],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": 12.2,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1",
+     "note": "2440 ft/s"
+    },
+    "chargeMass": {
+     "value": 2.3976,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "303-rmr-museum",
+      "303-ssusa"
+     ],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": 0.13,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1",
+     "note": "37 gr"
+    },
+    "gasVelocityFactor": {
+     "value": 1.5,
+     "units": "x muzzle velocity",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": 0.25,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1",
+     "note": "Engineering rule of thumb for the propellant gas leaving the muzzle; no measured source."
+    },
+    "gunMass": {
+     "value": 4.1,
+     "units": "kg",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "no4-mccord"
+     ],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": 0.1,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    },
+    "impulse": {
+     "value": 11.06,
+     "units": "N*s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1",
+     "note": "projectile mass x velocity + charge mass x gas factor x velocity"
+    },
+    "recoilVelocity": {
+     "value": 2.69756,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1",
+     "note": "impulse / gun mass"
+    },
+    "freeRecoilEnergy": {
+     "value": 14.91752,
+     "units": "J",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1",
+     "note": "gun mass x recoil velocity^2 / 2"
+    }
+   },
+   "response": {
+    "hold": "shoulder",
+    "holdGain": {
+     "value": 0.52,
+     "units": "deg/sqrt(J)",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": "Shouldered long gun: the stock and the shooter's mass absorb more of the impulse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    },
+    "baseKick": {
+     "value": 2.008406,
+     "units": "deg",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": "Hold gain x sqrt(free recoil energy): sized from the cartridge and the gun's mass.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    },
+    "pattern": {
+     "value": [
+      [
+       1,
+       0.12
+      ],
+      [
+       1.04,
+       0.2
+      ],
+      [
+       1.08,
+       0.24
+      ],
+      [
+       1.1,
+       0.16
+      ],
+      [
+       1.12,
+       0.04
+      ],
+      [
+       1.13,
+       -0.08
+      ],
+      [
+       1.14,
+       -0.16
+      ],
+      [
+       1.14,
+       -0.2
+      ],
+      [
+       1.15,
+       -0.1
+      ],
+      [
+       1.15,
+       0.04
+      ]
+     ],
+     "units": "[pitch, yaw] x base kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": "Learnable string for consecutive shots (explicit gameplay choice, not a historical spray). The stoutest kick of the cartridge rifles: climbs up and right through the first charger, then back left through the second.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    },
+    "variation": {
+     "pitchScale": {
+      "value": 0.06,
+      "units": "fraction of row pitch",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded scatter, bounded to +/- this fraction.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:boltNo4:1"
+     },
+     "yawScale": {
+      "value": 0.05,
+      "units": "x base kick",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded sideways scatter, bounded to +/- this much.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:boltNo4:1"
+     }
+    },
+    "recovery": {
+     "value": 0.24,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the recoverable part of each kick to return.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    },
+    "rise": {
+     "value": 0.035,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the aim to rise into each kick, so the view never snaps.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    },
+    "residual": {
+     "value": 0.2,
+     "units": "fraction of kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": "Share of each kick that stays: the player pulls it back with the mouse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    },
+    "resetAfter": {
+     "value": 2,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Lee-Enfield No.4 Mk I* bolt rifle, virtual .303 Mk VII 174 gr cordite profile",
+     "uncertainty": null,
+     "tuningReason": "A shot this long after the previous one starts the pattern again (the action allows one shot per 1.25 s).",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:boltNo4:1"
+    }
+   }
+  },
+  "carbineM4": {
+   "revision": "recoil-profiles-v1:carbineM4:1",
+   "configuration": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+   "physics": {
+    "projectileMass": {
+     "value": 4.0175,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "556-wikipedia"
+     ],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": 1,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "62 gr; M855, 4.02 g; a Belgian listing gives 61 gr"
+    },
+    "muzzleVelocity": {
+     "value": 879.96,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "m4-wikipedia",
+      "556-wikipedia"
+     ],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": 12.2,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "2887 ft/s; M855 from the M4; the V4 barrel table interpolates to about 869 m/s at 368 mm"
+    },
+    "chargeMass": {
+     "value": 1.6848,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "556-wikipedia"
+     ],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": 0.13,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "26 gr; Estimated fill of the 28.5 gr H2O case capacity; no published M855 charge mass was found"
+    },
+    "gasVelocityFactor": {
+     "value": 1.5,
+     "units": "x muzzle velocity",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": 0.25,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "Engineering rule of thumb for the propellant gas leaving the muzzle; no measured source."
+    },
+    "gunMass": {
+     "value": 3.4,
+     "units": "kg",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "m4-wikipedia"
+     ],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": 0.12,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "Between 2.92 kg empty and 3.52 kg with a loaded magazine and sling; the game gun carries a loaded magazine and no sling"
+    },
+    "impulse": {
+     "value": 5.75905,
+     "units": "N*s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "projectile mass x velocity + charge mass x gas factor x velocity"
+    },
+    "recoilVelocity": {
+     "value": 1.69384,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "impulse / gun mass"
+    },
+    "freeRecoilEnergy": {
+     "value": 4.87745,
+     "units": "J",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1",
+     "note": "gun mass x recoil velocity^2 / 2"
+    }
+   },
+   "response": {
+    "hold": "shoulder",
+    "holdGain": {
+     "value": 0.52,
+     "units": "deg/sqrt(J)",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": "Shouldered long gun: the stock and the shooter's mass absorb more of the impulse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1"
+    },
+    "baseKick": {
+     "value": 1.148417,
+     "units": "deg",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": "Hold gain x sqrt(free recoil energy): sized from the cartridge and the gun's mass.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1"
+    },
+    "pattern": {
+     "value": [
+      [
+       0.8,
+       0.04
+      ],
+      [
+       0.84,
+       0.08
+      ],
+      [
+       0.88,
+       0.12
+      ],
+      [
+       0.91,
+       0.16
+      ],
+      [
+       0.93,
+       0.19
+      ],
+      [
+       0.95,
+       0.21
+      ],
+      [
+       0.95,
+       0.21
+      ],
+      [
+       0.95,
+       0.17
+      ],
+      [
+       0.94,
+       0.1
+      ],
+      [
+       0.93,
+       0
+      ],
+      [
+       0.92,
+       -0.1
+      ],
+      [
+       0.91,
+       -0.19
+      ],
+      [
+       0.9,
+       -0.26
+      ],
+      [
+       0.9,
+       -0.3
+      ],
+      [
+       0.9,
+       -0.31
+      ],
+      [
+       0.9,
+       -0.29
+      ],
+      [
+       0.9,
+       -0.23
+      ],
+      [
+       0.9,
+       -0.14
+      ],
+      [
+       0.9,
+       -0.03
+      ],
+      [
+       0.9,
+       0.08
+      ],
+      [
+       0.9,
+       0.17
+      ],
+      [
+       0.9,
+       0.24
+      ],
+      [
+       0.9,
+       0.28
+      ],
+      [
+       0.9,
+       0.28
+      ],
+      [
+       0.9,
+       0.24
+      ],
+      [
+       0.9,
+       0.17
+      ],
+      [
+       0.9,
+       0.08
+      ],
+      [
+       0.9,
+       -0.03
+      ],
+      [
+       0.9,
+       -0.12
+      ],
+      [
+       0.9,
+       -0.18
+      ]
+     ],
+     "units": "[pitch, yaw] x base kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": "Learnable string for consecutive shots (explicit gameplay choice, not a historical spray). Bursts climb and drift right through the first ten rounds, swing left mid-magazine, then come back right. Rows below 1 stand for the straight-line stock, which lifts the muzzle less per joule than the dropped-stock rifles.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1"
+    },
+    "variation": {
+     "pitchScale": {
+      "value": 0.06,
+      "units": "fraction of row pitch",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded scatter, bounded to +/- this fraction.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:carbineM4:1"
+     },
+     "yawScale": {
+      "value": 0.05,
+      "units": "x base kick",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded sideways scatter, bounded to +/- this much.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:carbineM4:1"
+     }
+    },
+    "recovery": {
+     "value": 0.12,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the recoverable part of each kick to return.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1"
+    },
+    "rise": {
+     "value": 0.02,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the aim to rise into each kick, so the view never snaps.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1"
+    },
+    "residual": {
+     "value": 0.22,
+     "units": "fraction of kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": "Share of each kick that stays: the player pulls it back with the mouse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1"
+    },
+    "resetAfter": {
+     "value": 0.5,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Colt M4 carbine (R0977), virtual 5.56x45mm M855 62 gr profile from the 14.5 in barrel",
+     "uncertainty": null,
+     "tuningReason": "A shot this long after the previous one starts the pattern again (the action allows one shot per 0.075 s).",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:carbineM4:1"
+    }
+   }
+  },
+  "flintlock1742": {
+   "revision": "recoil-profiles-v1:flintlock1742:1",
+   "configuration": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+   "physics": {
+    "projectileMass": {
+     "value": 32.7234,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "brown-bess-wikipedia",
+      "historyofwar-brown-bess"
+     ],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": 68,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "505 gr; Midpoint of one ounce and 1.3 oz (32.7 g); a pure-lead .71 in ball weighs about 34.8 g"
+    },
+    "muzzleVelocity": {
+     "value": 304.8,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "revwar-brown-bess",
+      "brown-bess-wikipedia"
+     ],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": 45.7,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "1000 ft/s; Smooth-bore ball; weak source, and Wikipedia rejects the common 1,500 ft/s"
+    },
+    "chargeMass": {
+     "value": 9.1366,
+     "units": "g",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "brown-bess-wikipedia"
+     ],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": 0.972,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "141 gr; Main charge: 8.9–10.7 g in the cartridge less 0.65 g primed into the pan (midpoint 9.15 g)"
+    },
+    "gasVelocityFactor": {
+     "value": 1.5,
+     "units": "x muzzle velocity",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": 0.25,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "Engineering rule of thumb for the propellant gas leaving the muzzle; no measured source."
+    },
+    "gunMass": {
+     "value": 4.6,
+     "units": "kg",
+     "provenanceClass": "estimated",
+     "referenceIds": [
+      "brown-bess-wikipedia"
+     ],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": 0.2,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "Top of the family range (3.95–4.59 kg); the Long Land is the longest pattern"
+    },
+    "impulse": {
+     "value": 14.15138,
+     "units": "N*s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "projectile mass x velocity + charge mass x gas factor x velocity"
+    },
+    "recoilVelocity": {
+     "value": 3.07639,
+     "units": "m/s",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "impulse / gun mass"
+    },
+    "freeRecoilEnergy": {
+     "value": 21.76757,
+     "units": "J",
+     "provenanceClass": "estimated",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": null,
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1",
+     "note": "gun mass x recoil velocity^2 / 2"
+    }
+   },
+   "response": {
+    "hold": "shoulder",
+    "holdGain": {
+     "value": 0.52,
+     "units": "deg/sqrt(J)",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": "Shouldered long gun: the stock and the shooter's mass absorb more of the impulse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1"
+    },
+    "baseKick": {
+     "value": 2.426098,
+     "units": "deg",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": "Hold gain x sqrt(free recoil energy): sized from the cartridge and the gun's mass.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1"
+    },
+    "pattern": {
+     "value": [
+      [
+       1,
+       0.14
+      ]
+     ],
+     "units": "[pitch, yaw] x base kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": "Learnable string for consecutive shots (explicit gameplay choice, not a historical spray). One heavy shot per load: a big climb with a kick to the right.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1"
+    },
+    "variation": {
+     "pitchScale": {
+      "value": 0.06,
+      "units": "fraction of row pitch",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded scatter, bounded to +/- this fraction.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:flintlock1742:1"
+     },
+     "yawScale": {
+      "value": 0.05,
+      "units": "x base kick",
+      "provenanceClass": "gameplay-tuned",
+      "referenceIds": [],
+      "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+      "uncertainty": null,
+      "tuningReason": "Slight seeded sideways scatter, bounded to +/- this much.",
+      "approvedBy": null,
+      "revision": "recoil-profiles-v1:flintlock1742:1"
+     }
+    },
+    "recovery": {
+     "value": 0.3,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the recoverable part of each kick to return.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1"
+    },
+    "rise": {
+     "value": 0.04,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": "Time constant for the aim to rise into each kick, so the view never snaps.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1"
+    },
+    "residual": {
+     "value": 0.3,
+     "units": "fraction of kick",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": "Share of each kick that stays: the player pulls it back with the mouse.",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1"
+    },
+    "resetAfter": {
+     "value": 3,
+     "units": "s",
+     "provenanceClass": "gameplay-tuned",
+     "referenceIds": [],
+     "configurationScope": "Pattern 1742 Land Service musket, virtual .75 bore paper-cartridge round-ball load",
+     "uncertainty": null,
+     "tuningReason": "A shot this long after the previous one starts the pattern again (the action allows one shot per 10.6 s).",
+     "approvedBy": null,
+     "revision": "recoil-profiles-v1:flintlock1742:1"
+    }
+   }
+  }
+ }
+}

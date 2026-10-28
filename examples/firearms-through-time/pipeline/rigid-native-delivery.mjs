@@ -1,0 +1,15 @@
+import fs from 'node:fs/promises';import crypto from 'node:crypto';import assert from 'node:assert/strict';
+import * as THREE from 'three';
+export const hash=b=>'sha256:'+crypto.createHash('sha256').update(b).digest('hex');
+// reviewAnimations: named Kiln review clips that only animate the listed pivot nodes (a bare name allows rotation, 'Name.translation' allows that path); the destination drives those pivots from shared motion data, so the clips are dropped from the derivative.
+export async function nativeDelivery(row,out,{reviewAnimations={}}={}){
+ const bytes=await fs.readFile(row.glb);assert.equal(hash(bytes),row.sha256);const j=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)));assert(!j.skins?.length);
+ for(const a of j.animations??[]){const pivots=reviewAnimations[a.name];assert(pivots,`Unexpected animation ${a.name}`);for(const c of a.channels)assert((c.target.path==='rotation'&&pivots.includes(j.nodes[c.target.node].name))||pivots.includes(j.nodes[c.target.node].name+'.'+c.target.path),`${a.name} targets ${j.nodes[c.target.node].name}.${c.target.path}`);}
+ const d=structuredClone(j),nodes=[],meshes=[];d.meshes=[];delete d.animations;
+ function walk(i,parent=null,pm=new THREE.Matrix4(),pp=[0,0,0]){const n=j.nodes[i],lm=n.matrix?new THREE.Matrix4().fromArray(n.matrix):new THREE.Matrix4().compose(new THREE.Vector3(...n.translation??[0,0,0]),new THREE.Quaternion(...n.rotation??[0,0,0,1]),new THREE.Vector3(...n.scale??[1,1,1])),m=pm.clone().multiply(lm),p=new THREE.Vector3().setFromMatrixPosition(m).toArray(),key='N'+String(i).padStart(3,'0')+'_'+(n.name??'Node').replace(/[^a-zA-Z0-9_]/g,'_');d.nodes[i].name=key;
+  if(n.mesh!==undefined){const mesh=structuredClone(j.meshes[n.mesh]);assert.equal(mesh.primitives.length,1);mesh.name=key;d.nodes[i].mesh=d.meshes.length;d.meshes.push(mesh);const a=j.accessors[mesh.primitives[0].attributes.POSITION],b=new THREE.Box3(new THREE.Vector3(...a.min),new THREE.Vector3(...a.max)).applyMatrix4(m),lo=b.min.toArray(),hi=b.max.toArray();meshes.push({key,semantic:n.name,parent,parentPosition:pp,nativeMin:[lo[0]*100,lo[2]*100,lo[1]*100],nativeMax:[hi[0]*100,hi[2]*100,hi[1]*100]});}
+  else{assert(!n.matrix&&!n.rotation&&!n.scale);nodes.push({key,semantic:n.name,parent,position:p,localPosition:p.map((v,k)=>v-pp[k])});}
+  for(const c of n.children??[])walk(c,n.mesh===undefined?key:parent,m,n.mesh===undefined?p:pp);
+ }for(const i of j.scenes[j.scene??0].nodes)walk(i);
+ const json=Buffer.from(JSON.stringify(d)),pad=Buffer.alloc((4-json.length%4)%4,32),tail=bytes.subarray(20+bytes.readUInt32LE(12)),head=Buffer.alloc(20);head.writeUInt32LE(0x46546c67);head.writeUInt32LE(2,4);head.writeUInt32LE(20+json.length+pad.length+tail.length,8);head.writeUInt32LE(json.length+pad.length,12);head.writeUInt32LE(0x4e4f534a,16);const derivative=Buffer.concat([head,json,pad,tail]);await fs.writeFile(out,derivative);return {...row,nativeFile:out,nativeHash:hash(derivative),nodes,meshes,nativeDestination:'/Game/Qualification/RangeV8Generated/'+row.id};
+}

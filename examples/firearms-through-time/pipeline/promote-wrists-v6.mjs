@@ -1,0 +1,15 @@
+import {readFile,writeFile,copyFile,mkdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import assert from 'node:assert/strict';
+const read=async p=>JSON.parse((await readFile(p,'utf8')).replace(/^\uFEFF/,''));
+const saved=await read('evidence/wrist-v6-saved.json'),proof=await read('evidence/wrist-v6-preservation.json'),render=await read('evidence/wrist-v6-render.json'),pins=await read('game/asset-pins.json');
+assert(saved.ok&&proof.ok&&render.ok);const a=saved.asset;
+assert.equal(a.parentRevision,pins.assets.hands.revisionId);
+for(const [path,key]of [['authoring/first-hands-v6.glb','asset.glb'],['authoring/first-hands-v6-exact.kiln.js','source.kiln.js']])assert.equal('sha256:'+createHash('sha256').update(await readFile(path)).digest('hex'),a.files[key].sha256);
+await mkdir('evidence/wrist-v6-before',{recursive:true});
+await copyFile('game/asset-pins.json','evidence/wrist-v6-before/asset-pins.json');
+pins.assets.hands={...pins.assets.hands,revisionId:a.revisionId,programRef:render.programRef,sha256:a.files['asset.glb'].sha256.slice(7),sourceSha256:a.files['source.kiln.js'].sha256.slice(7),bytes:a.files['asset.glb'].bytes,triangles:render.tris};
+await copyFile('authoring/first-hands-v6.glb','authoring/first-hands.glb');
+await copyFile('authoring/first-hands-v6-exact.kiln.js','authoring/first-hands.kiln.js');
+await writeFile('game/asset-pins.json',JSON.stringify(pins,null,2));
+console.log(JSON.stringify(pins.assets.hands));

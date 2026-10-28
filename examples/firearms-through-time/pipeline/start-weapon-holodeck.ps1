@@ -1,0 +1,6 @@
+param([switch]$Restart)
+$ErrorActionPreference='Stop';$root=Split-Path $PSScriptRoot -Parent;$receipt=Join-Path $root 'evidence/weapon-server.json';$hostRoot=(Resolve-Path (Join-Path $root '../..')).Path
+if(Test-Path -LiteralPath $receipt){$old=Get-Content -LiteralPath $receipt -Raw|ConvertFrom-Json;$process=Get-CimInstance Win32_Process -Filter "ProcessId=$($old.pid)";if($process){if($process.Name -ne 'node.exe' -or $process.CommandLine -notmatch 'vite.+--port.+4202'){throw 'Recorded process no longer matches this host'};if(-not $Restart){Write-Output 'Weapon host already running on 4202';return};Stop-Process -Id $old.pid}}
+$env:HOLODECK_WORKSPACE=Join-Path $root 'holodeck-range-slice';$env:HOLODECK_CLIENT_EXTENSION=Join-Path $root 'weapon-extension.jsx'
+$p=Start-Process -FilePath 'node.exe' -ArgumentList @('node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','4202','--strictPort') -WorkingDirectory $hostRoot -WindowStyle Hidden -RedirectStandardOutput (Join-Path $root 'evidence/weapon-server.log') -RedirectStandardError (Join-Path $root 'evidence/weapon-server-error.log') -PassThru
+@{pid=$p.Id;port=4202;world=$env:HOLODECK_WORKSPACE;extension=$env:HOLODECK_CLIENT_EXTENSION}|ConvertTo-Json|Set-Content -LiteralPath $receipt

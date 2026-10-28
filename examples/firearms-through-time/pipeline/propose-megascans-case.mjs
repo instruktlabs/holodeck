@@ -1,0 +1,13 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const root=new URL('../',import.meta.url),base='http://127.0.0.1:4196';
+const saved=JSON.parse(await readFile(new URL('evidence/megascans-case-saved.json',root),'utf8'));
+assert(saved.ok);
+const response=await fetch(base+'/api/session');assert(response.ok);
+const cookie=response.headers.get('set-cookie')?.split(';')[0],s=await response.json();
+const scene=structuredClone(s.world.scene),a=scene.assets.find(a=>a.id==='transport-case');
+assert.equal(a.provenance.revisionId,'r_b8eb01baa98d4382a2f1fba14e52c82a','Unexpected current revision');
+a.file='assets/imports/transport-case-'+saved.asset.revisionId+'.glb';
+a.provenance={assetId:saved.asset.assetId,revisionId:saved.asset.revisionId,collection:saved.collection};
+const result=await fetch(base+'/api/propose',{method:'POST',headers:{'Content-Type':'application/json',Origin:base,...(cookie?{Cookie:cookie}:{}),'X-Holodeck-World':s.context.worldId,'X-Holodeck-Epoch':s.context.epoch},body:JSON.stringify({baseRevision:s.world.revision,scene,summary:'Compare Quixel wood veneer on the case; preserve all placement, interaction and other materials'})});
+const text=await result.text();await writeFile(new URL('evidence/megascans-holodeck-proposal.json',root),text);assert(result.ok,text);console.log(text);

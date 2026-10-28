@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "weapon": "collection-pistol-01",
+  "frame": {"units": "metres", "forward": "+X", "up": "+Y", "right": "+Z"},
+  "slots": {
+    "grip": {"nodes": ["Joint_Grip_L", "Joint_Grip_R"], "compatible": ["walnut", "charcoal"], "delivery": "appearance variants on the same original panel geometry"},
+    "optic": {"nodes": [], "compatible": [], "reason": "No compatible mount authored for this model"},
+    "muzzle": {"nodes": [], "compatible": [], "reason": "Effect origin is not a physical attachment mount"}
+  },
+  "contacts": {"rightHand": "Joint_Contact_RightHand", "leftHand": "Joint_Contact_LeftHand", "sight": "Joint_Sight", "effectOrigin": "Joint_MuzzleFX"},
+  "movingParts": {"slide": "Joint_Slide", "magazine": "Joint_Magazine"},
+  "notes": ["Compatibility is per model and mount, never inferred from era", "Exterior game prop; no internal mechanical assembly", "No ballistics or functional manufacturing data"]
+}

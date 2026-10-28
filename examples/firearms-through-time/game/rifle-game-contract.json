@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "profile": "rifle1866",
+  "id": "winchester-1866-sporting-authored-01",
+  "title": "1866 sporting rifle",
+  "capacity": 6,
+  "reserve": 24,
+  "cooldown": 0.95,
+  "reload": 2.4,
+  "inspect": 3.6,
+  "reloadCommitPhase": 0.65,
+  "reloadPolicy": "one-round-per-cycle-until-full",
+  "initialFinish": "satin-brass",
+  "slots": {"grip": [], "optic": [], "muzzle": [], "finish": ["satin-brass"]},
+  "scope": "Prototype game tuning and visual animation timing, not historical capacity or calibrated firearm behavior. Fire includes a visual lever cycle; no functional internal mechanism is modeled."
+}

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 2,
+  "profile": "rifle1866",
+  "space": "camera-local metres, +X right, +Y up, -Z forward",
+  "hipPosition": [
+    0.09,
+    -0.25,
+    -0.58
+  ],
+  "aimPosition": [
+    0,
+    -0.200286,
+    -0.189999
+  ],
+  "assetForwardRotationY": 1.5707963267948966,
+  "aimPitch": 0.0026201,
+  "recoilBack": 0.035,
+  "recoilPitch": 0.07,
+  "eye": {
+    "position": [
+      -0.189999,
+      0.200286,
+      0
+    ],
+    "distanceToRear": 0.3,
+    "source": "anchor_eye"
+  },
+  "sightLine": {
+    "rear": [
+      0.11,
+      0.1995,
+      0
+    ],
+    "front": [
+      0.568,
+      0.1983,
+      0
+    ],
+    "radius": 0.4580016,
+    "slopeRadians": -0.0026201
+  },
+  "aimFovDeg": 45,
+  "aimNear": 0.03,
+  "gun": {
+    "assetId": "a_a8c8a92ae979442dbcf5836c8e72ee2e",
+    "revisionId": "r_efaced2294e24e9890f47971a737d375",
+    "pins": "authoring/rifle-1866-v3-pins.json"
+  },
+  "scope": "Owner-approved sight presentation (docs/sight-research-v1.md section 8). Eye distance, aim FOV and pupil are Targets; the ghost ring is an analytic aperture vignette and targets stay sharp."
+}

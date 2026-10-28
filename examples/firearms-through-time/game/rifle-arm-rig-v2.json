@@ -1,0 +1,99 @@
+{
+  "version": 2,
+  "profile": "rifle1866",
+  "units": "metres",
+  "forward": "+X",
+  "up": "+Y",
+  "right": "+Z",
+  "bones": 41,
+  "maxReachMargin": 0.00001,
+  "twistFractions": [
+    0.4,
+    0.8
+  ],
+  "arms": {
+    "right": {
+      "shoulder": [
+        -0.43,
+        0.015,
+        0.2
+      ],
+      "wrist": [
+        -0.21,
+        0.042,
+        0.04
+      ],
+      "pole": [
+        -0.35,
+        -0.31,
+        0.36
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    },
+    "left": {
+      "shoulder": [
+        -0.39,
+        0.015,
+        -0.2
+      ],
+      "wrist": [
+        0.1604,
+        0.06311,
+        -0.0465
+      ],
+      "pole": [
+        -0.01105,
+        -0.13503,
+        -0.399
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    }
+  },
+  "restHandRotations": {
+    "right": [
+      0,
+      0,
+      0
+    ],
+    "left": [
+      -1.7766910124398598,
+      -0.23898927681656562,
+      -0.7229392199890127
+    ]
+  },
+  "poseFields": {
+    "right": [
+      "rightHandX",
+      "rightHandY",
+      "rightHandZ"
+    ],
+    "left": [
+      "handX",
+      "handY",
+      "handZ"
+    ]
+  },
+  "derivation": {
+    "from": "game/rifle-arm-rig-v1.json",
+    "hands": "authoring/rifle-hands-v2.glb",
+    "design": "pipeline/support-grip-v13-author.mjs (pipeline/support-grip-v13-design.mjs)",
+    "measurement": "pipeline/measure-support-grip-v13.mjs",
+    "reason": "Support hand rebuilt to wrap the forend (owner report 27 Oct 2026). The left forearm now runs along the left hand axis (wrist to knuckle midpoint), so the support wrist is straight; to put the palm under the forend with the thumb on the near side and the fingers round the far side, the left wrist moves toward the near side and the pole puts the elbow out and down-left. The left shoulder, both arm lengths and the whole right arm are unchanged. The hands revision is rebuilt from this exact rig, so use the two together.",
+    "leftArm": {
+      "forearmYawDeg": 40,
+      "forearmPitchDeg": 18,
+      "elbow": [
+        -0.06545,
+        -0.03269,
+        -0.23601
+      ],
+      "elbowInteriorDeg": 127.2,
+      "reach": 0.896,
+      "designWristBendDeg": 0.001
+    },
+    "restHandRotationsLeft": "Euler XYZ of the left hand frame [axis, thumb side, palmar normal] in gun axes; used only to author the bind pose. Runtime IK keeps the clip wrist orientation.",
+    "shoulderStatus": "Unchanged view-model placement from game/rifle-arm-rig-v1.json"
+  }
+}

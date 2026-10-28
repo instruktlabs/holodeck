@@ -1,4 +1,5 @@
 import React,{useEffect,useLayoutEffect,useMemo,useRef} from 'react';
+import ClientExtension from '@holodeck/client-extension';
 import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {Cove,PlacedAsset,Construct,probe} from '../prototype/scene.jsx';
@@ -62,12 +63,15 @@ function useUnderwaterModels(models,placed,scene,runtime){
 function Driver({runtime}){useFrame((_,dt)=>runtime.step(dt),-2);return null;}
 const axis=v=>Math.max(-1,Math.min(1,v));
 const NO_STICK={forward:0,strafe:0,sprint:false};
-function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}){
+function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes,extensionLook}){
  const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),lastPick=useRef({time:-Infinity,pose:[]}),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
  const actor=useRef(null),free=useRef(null),follow=useRef(createFollowCamera()),skipFrame=useRef(false),wheel=useMemo(()=>emotes??createEmoteInput(),[emotes]),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
  // A hidden page is throttled or paused; the first interval after it returns spans
  // the whole absence. Neither is a frame anyone saw, so neither is recorded.
  useEffect(()=>{const changed=()=>{skipFrame.current=true;};document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[]);
+ // Experimental client-extension hook (docs/client-extensions.md): gameplay such as recoil turns the walking look,
+ // inside the mouse-look pitch clamp, and learns how much of the turn was applied.
+ useEffect(()=>{if(!extensionLook)return;extensionLook.current={turn:(yaw,pitch)=>{const w=walk.current;if(mode!=='walk'||!w||!Number.isFinite(yaw)||!Number.isFinite(pitch))return [0,0];const before=w.pitch;w.yaw+=yaw;w.pitch=THREE.MathUtils.clamp(w.pitch+pitch,-1.5,1.3);return [yaw,w.pitch-before];}};return()=>{extensionLook.current=null;};},[extensionLook,mode]);
  const config=runtime.scene.runtime;
  const cameraConfig=JSON.stringify([config.spawn,config.look,config.overview,config.target,config.possession]);
  const far=viewFar(runtime.scene);
@@ -243,22 +247,25 @@ function EnvironmentLighting({environment,fill=true}){
 }
 export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
  const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
+ const extensionLook=useRef(null);
  // Identical materials become one instance across assets, and static pieces in a
  // shared material bake into one mesh per material (H100).
  const placed=useMemo(()=>placedObjects(s),[s]),shared=useMemo(()=>shareMaterials(bundle.models).models,[bundle.models]),models=useUnderwaterModels(shared,placed,s,runtime),staticPlan=useMemo(()=>planStaticBatches(placed,models,{apart:new Set(s.assets.filter(a=>a.reflection==='live').map(a=>a.id))}),[placed,models,s.assets]);
  const merge=useMemo(()=>planStaticMerge(staticPlan.batches,models,s.assets),[staticPlan,models,s.assets]);
  return <WorldMaterialsProvider>
   <color attach="background" args={[e.fogColor]}/><fog attach="fog" args={[e.fogColor,e.fogNear??28,e.fogFar??85]}/>
-  <EnvironmentLighting environment={e} fill={!(e.sky?.light&&(s.terrain||s.water))}/>
+  <EnvironmentLighting environment={e} fill={!e.sky?.light}/>
   {/* Optional sky.light.bounce (H76): light rising from sunlit ground, which a probe low over water does not see. */}
-  {e.sky?.light?.bounce&&(s.terrain||s.water)&&<hemisphereLight args={['#000000',e.sky.light.bounce.color,e.sky.light.bounce.intensity]}/>}
+  {e.sky?.light?.bounce&&<hemisphereLight args={['#000000',e.sky.light.bounce.color,e.sky.light.bounce.intensity]}/>}
   <Sun runtime={runtime} environment={e} cameraMode={cameraMode}/><WorldGrade environment={e}/>
-  {(s.terrain||s.water)&&<><Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/><LandscapeSky environment={e} runtime={runtime}/></>}
+  {(s.terrain||s.water)&&<Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/>}
+  {(s.terrain||s.water||e.sky)&&<LandscapeSky environment={e} runtime={runtime}/>}
   {!s.terrain&&(e.type==='construct'?<Construct/>:!s.water&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[180,180]}/><WorldSurfaceMaterial surface="soil" color={e.groundColor}/></mesh>)}
   <group visible={cove} userData={{skyLightExclude:true}}><Cove gltf={bundle.models[s.origin]}/>{s.moodboard&&<MoodBoard model={bundle.models[s.moodboard.asset]} board={s.moodboard} references={bundle.payload.world.references||[]} pins={bundle.payload.world.bible.referenceIds||[]} select={controls.select}/>}</group>
   {merge.buckets.map(bucket=><StaticMergedMesh key={bucket.key} bucket={bucket} runtime={runtime} select={controls.select}/>)}
   {staticPlan.batches.map(batch=><StaticAssetBatch key={batch.key} batch={batch} model={models[batch.asset]} asset={s.assets.find(a=>a.id===batch.asset)} runtime={runtime} select={controls.select} skip={merge.skip.get(batch.key)??null}/>)}
   {staticPlan.individual.map(item=>item.behavior?.type==='flock'?<FlockAsset key={item.id} item={item} model={models[item.asset]} runtime={runtime} select={controls.select}/>:<Entity key={item.id} item={item} model={models[item.asset]} runtime={runtime} select={controls.select}/>)}
-  <Driver runtime={runtime}/><ViewController runtime={runtime} mode={cameraMode} {...controls}/>
+  <Driver runtime={runtime}/><ViewController runtime={runtime} mode={cameraMode} {...controls} extensionLook={extensionLook}/>
+  <ClientExtension runtime={runtime} cameraMode={cameraMode} inhabiting={controls.inhabiting} person={controls.person} look={extensionLook}/>
  </WorldMaterialsProvider>;
 }

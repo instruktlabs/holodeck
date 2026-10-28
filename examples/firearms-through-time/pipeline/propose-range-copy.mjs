@@ -1,0 +1,5 @@
+import {writeFile} from 'node:fs/promises';import assert from 'node:assert/strict';
+const base='http://127.0.0.1:4201',r=await fetch(base+'/api/session'),cookie=r.headers.get('set-cookie')?.split(';')[0],s=await r.json();assert.equal(s.world.revision,2);
+const scene=structuredClone(s.world.scene),labels={'collection-bay':'Collection bay','booth-console':'Target console','target-reset':'Target'};
+for(const o of scene.objects)if(labels[o.id])o.label=labels[o.id];
+const response=await fetch(base+'/api/propose',{method:'POST',headers:{Cookie:cookie,Origin:base,'Content-Type':'application/json','X-Holodeck-World':s.context.worldId,'X-Holodeck-Epoch':s.context.epoch},body:JSON.stringify({baseRevision:2,scene,summary:'Use noun labels so generated Start, Stop and Reset prompts read clearly'})});const data=await response.json();assert(response.ok,JSON.stringify(data));await writeFile(new URL('../evidence/range-slice-copy-proposal.json',import.meta.url),JSON.stringify(data,null,2));console.log(data);

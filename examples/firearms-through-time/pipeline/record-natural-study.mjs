@@ -1,0 +1,17 @@
+// Update local editable research indexes without changing old recipe records.
+import {readFile,writeFile,copyFile} from 'node:fs/promises';
+const root=new URL('../',import.meta.url);
+const read=async p=>JSON.parse(await readFile(new URL(p,root),'utf8'));
+const write=async(p,v)=>writeFile(new URL(p,root),JSON.stringify(v,null,2)+'\n');
+const r=await read('materials/procedural-wood/natural-v1/receipt.json');
+const delivery=await read('evidence/natural-wood-delivery-check.json');
+const index=await read('materials/procedural-wood/recipes.json');
+const entry={id:'original-natural-timber',version:r.recipeVersion,source:'../../pipeline/wood-natural-recipe.mjs',baker:'../../pipeline/bake-wood-material.mjs',inspiredByCatalogIds:['polyhaven-fine_grained_wood'],inputImages:[],license:'LicenseRef-Local-Unpublished',variants:[{id:'natural-v1',label:'Natural timber with knots and cut ends',config:'natural.json',delivery:'natural-v1/receipt.json',pin:r.pins[0],parameters:r.parameters}],atlas:'natural-v1/atlas.json',qualification:{report:'../../docs/natural-wood-and-lighting-results.md',case:delivery.holodeck[0],specimen:delivery.holodeck[1]},limits:['Long and end fields are independent; not one volumetric tree model','Atlas is not tileable as a whole','Bevel transitions and distant mip sweep unqualified','Current case package not rerun']};
+index.recipes=index.recipes.filter(x=>x.id!==entry.id);index.recipes.push(entry);await write('materials/procedural-wood/recipes.json',index);
+const catalog=await read('materials/catalog.json'),wood=catalog.entries.find(x=>x.id==='polyhaven-fine_grained_wood');
+if(!wood)throw Error('Missing wood reference');
+await copyFile(new URL('materials/catalog.json',root),new URL('materials/catalog-backups/'+Date.now()+'-before-natural-wood.json',root));
+wood.extensions??={};wood.extensions.naturalWoodRecipe={index:'procedural-wood/recipes.json',recipeId:entry.id,report:'../docs/natural-wood-and-lighting-results.md'};await write('materials/catalog.json',catalog);
+const ledger=await read('evidence/integration-learning-ledger.json');
+const note={id:'NATURAL-WOOD-ATLAS-001',topic:'procedural material, orientation-aware UVs and destination qualification',status:'observed-pass-with-rendering-limits',question:'Can original knots and end grain improve the existing case without breaking its runtime ownership?',sourceRevision:delivery.holodeck[0].revisionId,observed:'Case geometry and non-wood UVs preserved; 72 end triangles and 144 long-grain triangles; 10 source pixel matches; exact Holodeck deliveries; native overrides and nine interaction checks pass.',performanceMeasurements:{bakeMs:r.bakeMs,totalMs:r.totalMs,pixels:2048*1024},owner:'optional-material-tool plus destination adapters',reuseDecision:'Retain recipe, physical atlas layout, face mapper, pinned revisions, read-back and visual qualification. Begin the first modern-range asset slice.',evidence:['docs/natural-wood-and-lighting-results.md','docs/first-asset-slice.md','evidence/natural-wood-delivery-check.json','evidence/natural-wood-geometry-uv-check.json','evidence/natural-wood-editor-game.json'],limits:entry.limits,nextTest:'Representative display-bay joinery, bevels/mips and a package of the completed slice.'};
+ledger.entries=ledger.entries.filter(x=>x.id!==note.id);ledger.entries.push(note);await write('evidence/integration-learning-ledger.json',ledger);console.log(JSON.stringify({recipe:entry.id,case:note.sourceRevision,ledger:note.id}));

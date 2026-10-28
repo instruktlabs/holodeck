@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "profile": "boltNo4",
+  "units": "metres",
+  "forward": "+X",
+  "up": "+Y",
+  "right": "+Z",
+  "bones": 41,
+  "maxReachMargin": 0.00001,
+  "twistFractions": [
+    0.4,
+    0.8
+  ],
+  "arms": {
+    "right": {
+      "shoulder": [
+        -0.47,
+        -0.025,
+        0.2
+      ],
+      "wrist": [
+        -0.268,
+        0,
+        0.047
+      ],
+      "pole": [
+        -0.39,
+        -0.35,
+        0.36
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    },
+    "left": {
+      "shoulder": [
+        -0.37,
+        -0.02,
+        -0.2
+      ],
+      "wrist": [
+        0.19,
+        0.038,
+        0.024
+      ],
+      "pole": [
+        -0.26,
+        -0.335,
+        -0.34
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    }
+  },
+  "restHandRotations": {
+    "right": [
+      0,
+      0,
+      0
+    ],
+    "left": [
+      -1.5707963267948966,
+      0,
+      0
+    ]
+  },
+  "poseFields": {
+    "right": [
+      "rightHandX",
+      "rightHandY",
+      "rightHandZ"
+    ],
+    "left": [
+      "handX",
+      "handY",
+      "handZ"
+    ]
+  }
+}

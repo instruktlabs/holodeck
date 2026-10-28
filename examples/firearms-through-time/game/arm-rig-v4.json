@@ -1,0 +1,8 @@
+{
+ "version":2,"units":"metres","forward":"+X","up":"+Y","right":"+Z",
+ "bones":37,"maxReachMargin":0.00001,
+ "arms":{
+  "right":{"shoulder":[-0.43,-0.04,0.19],"wrist":[-0.105,-0.079,0.040],"pole":[-0.34,-0.39,0.36],"upperLength":0.29,"forearmLength":0.27},
+  "left":{"shoulder":[-0.43,-0.04,-0.19],"wrist":[-0.102,-0.088,-0.052],"pole":[-0.34,-0.39,-0.36],"upperLength":0.29,"forearmLength":0.27}
+ }
+}

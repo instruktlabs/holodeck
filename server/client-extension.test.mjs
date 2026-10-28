@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {fileURLToPath} from 'node:url';import {clientExtension} from './client-extension.mjs';
+test('unconfigured host has only a no-op module',()=>{const c=clientExtension();assert.equal(c.root,null);assert(c.entry.endsWith('no-client-extension.jsx'));});
+test('explicit local entry resolves without an extra runtime installation',()=>{const entry=fileURLToPath(new URL('../src/world/no-client-extension.jsx',import.meta.url));assert.equal(clientExtension(entry).entry,entry);});
+test('relative entries, directories and data files are rejected',()=>{assert.throws(()=>clientExtension('relative.jsx'),/absolute/);assert.throws(()=>clientExtension(fileURLToPath(new URL('../',import.meta.url))),/module/);assert.throws(()=>clientExtension(fileURLToPath(new URL('../package.json',import.meta.url))),/module/);});

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "profile": "boltNo4",
+  "assets": {
+    "gun": {
+      "assetId": "a_84c94455cca54d4baba72eef11958017",
+      "revisionId": "r_7a36158e3c3b4db99eacb702f1785f64",
+      "source": "authoring/assets/kiln/a_84c94455cca54d4baba72eef11958017/revisions/r_7a36158e3c3b4db99eacb702f1785f64/asset.glb",
+      "alias": "authoring/bolt-no4-v2.glb",
+      "sha256": "d145f7eb441bdcd0031de2342f1cc581f34de6a513754249de546a564de30153",
+      "bytes": 651760,
+      "receipt": "authoring/firearm-bolt-v2-pins.json"
+    },
+    "hands": {
+      "assetId": "a_50e7dd03d75544139214de00422ee64e",
+      "revisionId": "r_ab70dc958c86494cbc5364fcd7bf5ff9",
+      "source": "authoring/assets/kiln/a_50e7dd03d75544139214de00422ee64e/revisions/r_ab70dc958c86494cbc5364fcd7bf5ff9/asset.glb",
+      "alias": "authoring/bolt-no4-hands-v1.glb",
+      "sha256": "2dc8d05d8f4570d063e33f6e8876dc920dd28127c440fc946b50191429814703",
+      "bytes": 11111828,
+      "receipt": "authoring/bolt-hands-v1-pins.json"
+    },
+    "token": {
+      "assetId": "a_b8c5e0a20e25430f9fe79b6525197701",
+      "revisionId": "r_49898e81929849fb8d73d96c4700132a",
+      "source": "authoring/assets/kiln/a_b8c5e0a20e25430f9fe79b6525197701/revisions/r_49898e81929849fb8d73d96c4700132a/asset.glb",
+      "alias": "authoring/bolt-no4-charger-v1.glb",
+      "sha256": "491ce09f7765ab914e0728bbd994158a655ccf7b2cd839084936d85db15fd3e4",
+      "bytes": 81112,
+      "receipt": "authoring/bolt-charger-cue-v1-pins.json"
+    }
+  }
+}

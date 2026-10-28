@@ -26,6 +26,8 @@ asset revisions and enabled capabilities. Running activity owns movement, phase
 and camera possession. Saving layout and resetting activity are separate actions.
 Simulation checkpoints are not implemented.
 
+For an operable rigid child of a static asset, see [rigid joint interaction](rigid-joint-interaction.md).
+
 Existing schema v1 worlds remain supported without automatic migration. New
 examples use schema v2 and scene.runtime.version 1. Shape blockouts and pinned
 Kiln GLBs share the placement model. The capability registry covers camera and
@@ -38,6 +40,10 @@ exports; omitted values preserve the existing appearance. Dependencies and
 bounded records are validated before accepting a revision. See
 [terrain and inhabitants](terrain-and-inhabitants.md),
 [gait](articulated-gait.md) and [flocks](flock-behavior.md).
+
+An explicit environment sky also applies to construct worlds without terrain or
+water. Its optional sky light supplies the environment reflection and replaces
+hemisphere fill; the landscape geometry and sky have independent lifetimes.
 
 Hinge and spin own transient yaw. State survives appearance and placement edits
 to the same ID. Changing behavior configuration resets that entity; removal drops

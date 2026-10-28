@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "range-study-v1",
+  "units": "metres; points are game tuning, not a proficiency rating",
+  "shotBudget": 7,
+  "maxShots": 2000,
+  "surfaceTolerance": 0.000001,
+  "occlusionTolerance": 0.001,
+  "maxDistance": 100,
+  "travelDistance": 3.2,
+  "travelSpeed": 0.8,
+  "plateAngle": 1.25,
+  "plateSpeed": 3,
+  "paper": {"width": 0.56, "height": 0.74, "center": [0,-0.005], "radii": [0.051,0.092,0.133,0.174,0.215], "points": [10,8,6,4,2]},
+  "original": {"width": 0.59, "height": 0.67, "center": [0,0], "radii": [0.065,0.12,0.175,0.23], "points": [10,8,6,4]},
+  "plates": {"radius": 0.136, "points": 10}
+}

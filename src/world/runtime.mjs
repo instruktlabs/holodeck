@@ -12,6 +12,12 @@ const hinge={requires:['collision.boxes@1'],init:()=>({angle:0,open:false}),tick
  if(!hingeSweepBlocked(o,runtime.playerBody,s.angle,next))s.angle=next;
 },act:s=>{s.open=!s.open;}};
 const spin={requires:[],init:()=>({angle:0,running:true}),tick:(s,b,dt)=>{if(s.running)s.angle=(s.angle+b.speed*dt)%(Math.PI*2);},act:s=>{s.running=!s.running;}};
+const joint={requires:[],init:()=>({angle:0,open:false}),tick:(s,b,dt)=>{
+ const d=(s.open?b.angle:0)-s.angle;s.angle+=Math.sign(d)*Math.min(Math.abs(d),b.speed*dt);
+},act:s=>{s.open=!s.open;}};
+// Explicit opt-in routing: an interaction can operate one named rigid joint.
+// No callbacks, arbitrary code, recursive relays or saved-world mutations.
+const relay={requires:['interaction.joint@1'],init:()=>({activations:0,lastAction:null}),tick:()=>{}};
 // Drift (motion.drift@1): a slow bob, spin and sway for floating things, from a
 // clock of its own and a phase taken from the placement ID, so copies drift out
 // of step. Visual only: drifting placements carry no collider.
@@ -52,14 +58,15 @@ const patrol={
 };
 export const MODULES=Object.freeze({
  'collision.boxes@1':{requires:[]},'camera.walk-orbit@1':{requires:['collision.boxes@1']},
- 'interaction.hinge@1':hinge,'motion.spin@1':spin,'motion.drift@1':drift,
+ 'interaction.hinge@1':hinge,'interaction.joint@1':joint,'motion.spin@1':spin,'motion.drift@1':drift,
+ 'interaction.relay@1':relay,
  'motion.patrol@1':patrol,'motion.gait@1':{requires:[]},
  'motion.boids@1':{requires:[],init:createFlock,tick:stepFlock,act:s=>{s.running=!s.running;}},
  'terrain.heightfield@1':{requires:[]},'water.ocean@1':{requires:[]},
  'inhabitant.maker@1':{requires:['camera.walk-orbit@1','collision.boxes@1']},
  'scatter.seeded@1':{requires:['terrain.heightfield@1']},
 });
-const behaviorModule={hinge:'interaction.hinge@1',spin:'motion.spin@1',drift:'motion.drift@1',patrol:'motion.patrol@1',flock:'motion.boids@1'};
+const behaviorModule={hinge:'interaction.hinge@1',joint:'interaction.joint@1',relay:'interaction.relay@1',spin:'motion.spin@1',drift:'motion.drift@1',patrol:'motion.patrol@1',flock:'motion.boids@1'};
 const assert=(ok,message)=>{if(!ok)throw new Error(message);};
 const exact=(value,keys,label)=>assert(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(k=>keys.includes(k)),`Invalid ${label} fields`);
 const vector=(v,n=3)=>Array.isArray(v)&&v.length===n&&v.every(x=>Number.isFinite(x)&&Math.abs(x)<=1000);
@@ -146,9 +153,15 @@ export function validateRuntimeScene(scene){
   if(o.collider)assert(o.rotation[0]===0&&o.rotation[2]===0,'Box collision supports yaw rotation only');
   if(o.behavior&&boxesOf(o.collider).some(b=>b.walkable))throw new Error('Walkable colliders cannot move; remove walkable or the behavior');
   if(!o.behavior)continue;const b=o.behavior;assert(Object.hasOwn(behaviorModule,b.type),'Unknown behavior');
-  exact(b,b.type==='hinge'?['type','angle','speed']:b.type==='patrol'?['type','path','speed','waitSeconds','waterPolicy','heightOffset','radius','height','gait']:b.type==='flock'?['type','count','bounds','speed','neighborRadius','separationRadius','terrainClearance','seed','gait']:b.type==='drift'?['type','bob','period','spin','sway']:['type','speed'],'behavior');
+  exact(b,b.type==='relay'?['type','target','action','requiresOpen']:b.type==='joint'?['type','node','axis','angle','speed','remoteOnly']:b.type==='hinge'?['type','angle','speed']:b.type==='patrol'?['type','path','speed','waitSeconds','waterPolicy','heightOffset','radius','height','gait']:b.type==='flock'?['type','count','bounds','speed','neighborRadius','separationRadius','terrainClearance','seed','gait']:b.type==='drift'?['type','bob','period','spin','sway']:['type','speed'],'behavior');
   assert(r.modules.includes(behaviorModule[b.type]),`Behavior requires ${behaviorModule[b.type]}`);
-  if(b.type==='flock'){
+  if(b.type==='relay'){
+   const target=scene.objects.find(x=>x.id===b.target);
+   assert(target&&target.id!==o.id&&target.behavior?.type==='joint','Relay target must be another rigid joint');
+   assert(['toggle','reset'].includes(b.action),'Relay action must be toggle or reset');
+   if(b.requiresOpen!==undefined){const gate=scene.objects.find(x=>x.id===b.requiresOpen);assert(gate&&gate.id!==o.id&&gate.id!==target.id&&gate.behavior?.type==='joint','Relay prerequisite must be a separate rigid joint');}
+   continue;
+  }else if(b.type==='flock'){
    validateFlock(b);flockCount+=b.count;assert(flockCount<=96,'A scene allows at most 96 flock agents');
    assert(o.asset&&!o.shape&&o.materialStyle!=='cove'&&!o.collider,'Flock requires an imported unbatched asset without a collider');
   }else if(b.type==='drift'){
@@ -159,6 +172,12 @@ export function validateRuntimeScene(scene){
   }else assert(Number.isFinite(b.speed)&&b.speed>0&&b.speed<=4,'Behavior speed must be greater than zero and at most four');
   if(b.gait!==undefined){assert(r.modules.includes('motion.gait@1'),'Behavior gait requires motion.gait@1');assert(o.asset&&!o.shape&&o.materialStyle!=='cove','Behavior gait requires an imported unbatched asset');validateGait(b.gait);}
   if(b.type==='hinge')assert(Number.isFinite(b.angle)&&Math.abs(b.angle)>=.1&&Math.abs(b.angle)<=Math.PI&&o.collider,'Hinge requires a box collider and bounded opening angle');
+  if(b.type==='joint'){
+   if(b.remoteOnly!==undefined)assert(typeof b.remoteOnly==='boolean','remoteOnly must be boolean');
+   assert(o.asset&&!o.shape&&o.materialStyle!=='cove','Joint requires an imported asset');
+   assert(typeof b.node==='string'&&/^[-A-Za-z0-9_]{1,64}$/.test(b.node)&&['x','y','z'].includes(b.axis),'Joint requires a named node and axis');
+   assert(Number.isFinite(b.angle)&&Math.abs(b.angle)>=.1&&Math.abs(b.angle)<=Math.PI,'Joint requires a bounded opening angle');
+  }
   if(b.type==='patrol'){
    assert(++patrolCount<=16,'A scene allows at most 16 patrol entities');
    assert(Array.isArray(b.path)&&b.path.length>=2&&b.path.length<=16&&b.path.every(p=>vector(p,2)),'Patrol path needs 2 to 16 bounded x/z points');
@@ -194,20 +213,28 @@ export class WorldRuntime{
   const delta=Math.atan2(Math.sin(s.angle-a),Math.cos(s.angle-a));
   return {...s,position:s.position.map((v,i)=>previous[i]+(v-previous[i])*t),angle:a+delta*t,distance:(s.previousDistance??s.distance)+(s.distance-(s.previousDistance??s.distance))*t};
  }
- yaw(o){return (o.yaw??o.rotation[1])+(this.states.get(o.id)?.angle||0);}
+ yaw(o){return (o.yaw??o.rotation[1])+(o.behavior?.type==='joint'?0:(this.states.get(o.id)?.angle||0));}
  interaction(id,position){
   const o=this.scene.objects.find(o=>o.id===id),result={id,label:null,action:null,available:false,reason:null,distance:null,state:null};
   if(!o)return {...result,reason:'missing'};
   if(!this.visible(o))return {...result,reason:'hidden'};
   if(!o.behavior)return {...result,reason:'not-interactive'};
-  const state=this.states.get(id),action=o.behavior.type==='hinge'?(state.open?'close':'open'):(state.running?'stop':'start');
+  if(o.behavior.remoteOnly)return {...result,reason:'remote-only'};
+  const state=this.states.get(id),target=o.behavior.type==='relay'?this.scene.objects.find(x=>x.id===o.behavior.target):null,targetState=target?this.states.get(target.id):null;
+  const action=target?(o.behavior.action==='reset'?'reset':targetState.open?'stop':'start'):['hinge','joint'].includes(o.behavior.type)?(state.open?'close':'open'):(state.running?'stop':'start');
+  if(o.behavior.type==='joint'&&this.gaitDiagnostics.get(id)?.length)return {...result,reason:'joint-binding-failed'};
   Object.assign(result,{action,label:`${action[0].toUpperCase()}${action.slice(1)} ${o.label||o.id}`,state:structuredClone(state)});
+  if(target){
+   if(!this.visible(target))return {...result,reason:'target-hidden'};
+   if(this.gaitDiagnostics.get(target.id)?.length)return {...result,reason:'joint-binding-failed'};
+   if(action==='start'&&o.behavior.requiresOpen){const gate=this.scene.objects.find(x=>x.id===o.behavior.requiresOpen);if(!this.visible(gate)||!this.states.get(gate.id)?.open)return {...result,reason:'prerequisite-closed',label:`Select ${gate.label||gate.id} first`};}
+  }
   if(!vector(position))return {...result,reason:'invalid-position'};
   const boxes=o.collider?(o.collider.type==='compound'?o.collider.boxes:[o.collider]):o.shape?[o.shape]:[];
   const posed={...o,position:this.position(o)},distance=boxes.length?Math.min(...boxes.map(box=>boxDistance(position,posed,this.yaw(o),box))):Math.hypot(...position.map((v,i)=>v-posed.position[i]));
   return {...result,distance,available:distance<=INTERACTION_REACH,reason:distance<=INTERACTION_REACH?null:'out-of-reach'};
  }
- act(id,position){if(!this.interaction(id,position).available)return false;const o=this.scene.objects.find(o=>o.id===id);MODULES[behaviorModule[o.behavior.type]].act(this.states.get(id));return true;}
+ act(id,position){if(!this.interaction(id,position).available)return false;const o=this.scene.objects.find(o=>o.id===id);if(o.behavior.type==='relay'){const target=this.states.get(o.behavior.target),s=this.states.get(id);if(o.behavior.action==='reset'){target.open=false;target.angle=0;}else target.open=!target.open;s.activations++;s.lastAction=o.behavior.action;return true;}MODULES[behaviorModule[o.behavior.type]].act(this.states.get(id));return true;}
  reset(){this.signatures.clear();this.reconcile(this.scene);this.time=0;this.droppedSeconds=0;this.accumulator=0;}
  step(seconds){if(this.paused||!Number.isFinite(seconds)||seconds<=0)return;this.droppedSeconds+=Math.max(0,seconds-.1);this.accumulator+=Math.min(seconds,.1);let ticks=0;while(this.accumulator>=1/60&&ticks++<6){for(const o of this.scene.objects)if(o.behavior&&this.visible(o))MODULES[behaviorModule[o.behavior.type]].tick(this.states.get(o.id),o.behavior,1/60,this,o);this.time+=1/60;this.accumulator-=1/60;}}
  // Walkable tops over x/z, highest first, and the highest one not above maxTop.

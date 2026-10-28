@@ -24,6 +24,7 @@
     "design.html",
     "walkthrough.html",
     "!**/*.test.mjs",
+    "!examples/firearms-through-time/",
     "docs/",
     "LICENSES/",
     "LICENSING.md",

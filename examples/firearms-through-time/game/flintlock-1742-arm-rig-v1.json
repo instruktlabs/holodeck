@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "profile": "flintlock1742",
+  "units": "metres",
+  "forward": "+X",
+  "up": "+Y",
+  "right": "+Z",
+  "bones": 41,
+  "maxReachMargin": 0.00001,
+  "twistFractions": [
+    0.4,
+    0.8
+  ],
+  "arms": {
+    "right": {
+      "shoulder": [
+        -0.56327,
+        0.02575,
+        0.12727
+      ],
+      "wrist": [
+        -0.1978,
+        -0.07483,
+        0.08715
+      ],
+      "pole": [
+        -0.31592,
+        -0.0338,
+        0.55953
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    },
+    "left": {
+      "shoulder": [
+        -0.24981,
+        -0.07681,
+        -0.26605
+      ],
+      "wrist": [
+        0.28928,
+        -0.08234,
+        -0.05382
+      ],
+      "pole": [
+        -0.31097,
+        -0.26028,
+        -0.49539
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    }
+  },
+  "restHandRotations": {
+    "right": [
+      -1.854977,
+      -0.247901,
+      1.088574
+    ],
+    "left": [
+      -1.908255,
+      -0.121807,
+      -0.746618
+    ]
+  },
+  "poseFields": {
+    "right": [
+      "rightHandX",
+      "rightHandY",
+      "rightHandZ"
+    ],
+    "left": [
+      "handX",
+      "handY",
+      "handZ"
+    ]
+  },
+  "derivation": {
+    "source": "pipeline/flintlock-hand-author.mjs (round v14)",
+    "gun": {
+      "assetId": "a_0a31fd5eeb864b529202724a65de4623",
+      "revisionId": "r_f052d566fab74b82b005050758dd180a",
+      "glb": "authoring/flintlock-1742-v3.glb",
+      "pins": "authoring/firearm-flintlock-v3-pins.json"
+    },
+    "wrists": "Each wrist is the Ready glove wrist designed against the v3 musket (right on the stock wrist and trigger, left on the fore-end; pipeline/flintlock-hand-design.mjs), so the Ready clip has zero hand deltas.",
+    "shoulders": "From camera-space elbows at the hip view (sight-policy hipPosition [0.09,-0.25,-0.55]): elbow 0.31 m back along each forearm, shoulder 0.33 m from it toward a nominal camera-space shoulder; expressed in the gun frame.",
+    "rightPole": "0.2 m beyond the Ready elbow, away from the shoulder-wrist line (the Ready elbow is the pole-plane solution).",
+    "leftPole": {
+      "directionFromShoulder": [
+        -0.2,
+        -0.6,
+        -0.75
+      ],
+      "length": 0.3,
+      "basis": "The Ready elbow direction alone leaves the left elbow pointing up once the musket is turned muzzle-up for loading; this gun-frame direction (back, down and to the near side) keeps it down and out at Ready, priming and loading."
+    },
+    "shoulderShift": "Per-key shoulder translations (gun frame) are in the motion (shoulderShift). The hands asset bakes them as shoulder-bone translation tracks; the browser IK solves from the rig shoulder and the baked translation carries the solved arm. Hosts that solve against absolute goals add the sampled shift to the wrist effector and to the pole goal.",
+    "restHandRotations": "Euler XYZ of each glove frame (x hand axis, y little-finger side for the right and thumb side for the left, z palmar) in gun axes; informational. The hands are built directly in the gun frame and every bone has an identity bind rotation.",
+    "elbows": {
+      "right": [
+        -0.33717,
+        -0.03169,
+        0.36067
+      ],
+      "left": [
+        0.06494,
+        -0.17414,
+        -0.24706
+      ]
+    }
+  }
+}

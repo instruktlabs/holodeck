@@ -1,0 +1,453 @@
+{
+ "schemaVersion": 1,
+ "id": "trigger-fixtures-v1",
+ "generatedBy": "pipeline/generate-trigger-fixtures-v1.mjs",
+ "sources": {
+  "game/trigger.mjs": "a4a5d155db71a81851167d2da56742c51cff24e64b8dda73f386989591b7cc10",
+  "game/fire-frame.mjs": "aaadbca9daac2eac4f36f48c6af8cddd3a1fe991e0493b170d7f3d7a1ac087bc",
+  "game/trigger-replay.mjs": "49314fbea712521905db4c2f31064bcb8740c93ac5ecfbd91a004c7110237470",
+  "game/weapon.mjs": "72da75c3c0c3afab7a4364b79c28f3aa45ebc54b07d3d461b98e68acda380862",
+  "game/carbine-m4-game-contract.json": "c51d4aab2cf7da532b0eff7ac29845d34ceb96d88ce543e825cbb7af5b84beef",
+  "game/flintlock-1742-game-contract.json": "e7442fc69687acb906bd59b2fc817d55f8d35ef29a0f8e1205a923f7a72f7be2",
+  "game/recoil-profiles-v1.json": "1dfb44377fd675e5869d5413477498737e097ca785eb292540dfa33698e990cb"
+ },
+ "note": "Replays must agree at any frame rate: event times within 1e-9 s, aims within 1e-9 degrees. aim is [pitch up, yaw right] from the starting look, including the recoil turned earlier in the same frame. Shot ids are <sessionId>:shot:<n>.",
+ "scenarios": {
+  "m4-semi": {
+   "profile": "carbineM4",
+   "note": "One round per pull; the third pull comes 50 ms after a shot and waits for the 75 ms cycle.",
+   "sessionId": "trigger-fixture",
+   "until": 1,
+   "initialAmmo": null,
+   "inputs": [
+    [
+     0.1,
+     "pull"
+    ],
+    [
+     0.3,
+     "release"
+    ],
+    [
+     0.4,
+     "pull"
+    ],
+    [
+     0.41,
+     "release"
+    ],
+    [
+     0.45,
+     "pull"
+    ],
+    [
+     0.5,
+     "release"
+    ]
+   ],
+   "events": [
+    {
+     "type": "shot",
+     "t": 0.1,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:1",
+     "aim": [
+      0,
+      0
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.4,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:2",
+     "aim": [
+      0.2678204948567101,
+      0.004052235681322197
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.47500000000000003,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:3",
+     "aim": [
+      0.8795661143693589,
+      0.06350829296848315
+     ]
+    }
+   ],
+   "final": {
+    "look": [
+     0.6546299508375246,
+     0.056493232865199014
+    ],
+    "ammo": 27,
+    "reserve": 90,
+    "shots": 3,
+    "mode": "idle",
+    "fireMode": "semi",
+    "cam": 0
+   }
+  },
+  "m4-burst-cam": {
+   "profile": "carbineM4",
+   "note": "A full burst; a 20 ms pull fires one round and leaves the cam; the next held pull fires the remaining two and stops; then a full burst.",
+   "sessionId": "trigger-fixture",
+   "until": 3,
+   "initialAmmo": null,
+   "inputs": [
+    [
+     0,
+     "mode"
+    ],
+    [
+     0.1,
+     "pull"
+    ],
+    [
+     0.62,
+     "release"
+    ],
+    [
+     0.7,
+     "pull"
+    ],
+    [
+     0.72,
+     "release"
+    ],
+    [
+     0.9,
+     "pull"
+    ],
+    [
+     1.4,
+     "release"
+    ],
+    [
+     2.2,
+     "pull"
+    ],
+    [
+     2.6,
+     "release"
+    ]
+   ],
+   "events": [
+    {
+     "type": "shot",
+     "t": 0.1,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:1",
+     "aim": [
+      0,
+      0
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.175,
+     "camBefore": 1,
+     "shotId": "trigger-fixture:shot:2",
+     "aim": [
+      0.6260080675311532,
+      0.00947176290374082
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.25,
+     "camBefore": 2,
+     "shotId": "trigger-fixture:shot:3",
+     "aim": [
+      1.0838427331084008,
+      0.0665990833269921
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.7,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:4",
+     "aim": [
+      0.675776332617471,
+      0.05854293887812603
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.9,
+     "camBefore": 1,
+     "shotId": "trigger-fixture:shot:5",
+     "aim": [
+      1.0738862362853774,
+      0.11640549946518393
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.975,
+     "camBefore": 2,
+     "shotId": "trigger-fixture:shot:6",
+     "aim": [
+      1.6784000256527025,
+      0.2264493449460252
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 2.2,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:7",
+     "aim": [
+      1.323460124168596,
+      0.18517720102843377
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 2.2750000000000004,
+     "camBefore": 1,
+     "shotId": "trigger-fixture:shot:8",
+     "aim": [
+      1.994416484703593,
+      0.20421078898594455
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 2.3500000000000005,
+     "camBefore": 2,
+     "shotId": "trigger-fixture:shot:9",
+     "aim": [
+      2.457047306581942,
+      0.2504437217908223
+     ]
+    }
+   ],
+   "final": {
+    "look": [
+     1.9791910055595578,
+     0.24650800879946294
+    ],
+    "ammo": 21,
+    "reserve": 90,
+    "shots": 9,
+    "mode": "idle",
+    "fireMode": "burst",
+    "cam": 0
+   }
+  },
+  "m4-empty-burst-reload": {
+   "profile": "carbineM4",
+   "note": "The magazine runs dry one round into the second burst: the refused round leaves the cam. The empty reload (2.9 s, seat at half way) refills it. A pull at 4.0 s, after a standard 2.3 s reload would have finished, is refused because the empty reload is still running, and leaves the cam; the next pull fires the two rounds left in the burst.",
+   "sessionId": "trigger-fixture",
+   "until": 5.5,
+   "initialAmmo": 4,
+   "inputs": [
+    [
+     0,
+     "mode"
+    ],
+    [
+     0.1,
+     "pull"
+    ],
+    [
+     0.5,
+     "release"
+    ],
+    [
+     0.8,
+     "pull"
+    ],
+    [
+     1.3,
+     "release"
+    ],
+    [
+     1.4,
+     "reload"
+    ],
+    [
+     4,
+     "pull"
+    ],
+    [
+     4.05,
+     "release"
+    ],
+    [
+     4.5,
+     "pull"
+    ],
+    [
+     5,
+     "release"
+    ]
+   ],
+   "events": [
+    {
+     "type": "shot",
+     "t": 0.1,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:1",
+     "aim": [
+      0,
+      0
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.175,
+     "camBefore": 1,
+     "shotId": "trigger-fixture:shot:2",
+     "aim": [
+      0.6260080675311532,
+      0.00947176290374082
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.25,
+     "camBefore": 2,
+     "shotId": "trigger-fixture:shot:3",
+     "aim": [
+      1.0838427331084008,
+      0.0665990833269921
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 0.8,
+     "camBefore": 0,
+     "shotId": "trigger-fixture:shot:4",
+     "aim": [
+      0.6531868873814871,
+      0.05609673118243303
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 4.5,
+     "camBefore": 1,
+     "shotId": "trigger-fixture:shot:5",
+     "aim": [
+      0.8456983987579821,
+      0.05793055464675871
+     ]
+    },
+    {
+     "type": "shot",
+     "t": 4.575,
+     "camBefore": 2,
+     "shotId": "trigger-fixture:shot:6",
+     "aim": [
+      1.4453723753333727,
+      0.061536877333089074
+     ]
+    }
+   ],
+   "final": {
+    "look": [
+     1.237847649407945,
+     0.08415258602737553
+    ],
+    "ammo": 28,
+    "reserve": 60,
+    "shots": 6,
+    "mode": "idle",
+    "fireMode": "burst",
+    "cam": 0
+   }
+  },
+  "musket-lock": {
+   "profile": "flintlock1742",
+   "note": "The lock falls on the pull and the ball leaves 60 ms later. The empty musket refuses the next pull; the 10 s drill rams a round at 75%, and the gun fires again.",
+   "sessionId": "trigger-fixture",
+   "until": 12,
+   "initialAmmo": null,
+   "inputs": [
+    [
+     0.2,
+     "pull"
+    ],
+    [
+     0.21,
+     "release"
+    ],
+    [
+     1,
+     "pull"
+    ],
+    [
+     1.05,
+     "release"
+    ],
+    [
+     1.2,
+     "reload"
+    ],
+    [
+     11.5,
+     "pull"
+    ],
+    [
+     11.52,
+     "release"
+    ]
+   ],
+   "events": [
+    {
+     "type": "lock",
+     "t": 0.2,
+     "camBefore": 0,
+     "aim": [
+      0,
+      0
+     ]
+    },
+    {
+     "type": "ignite",
+     "t": 0.26,
+     "shotId": "trigger-fixture:shot:1",
+     "aim": [
+      0,
+      0
+     ]
+    },
+    {
+     "type": "lock",
+     "t": 11.5,
+     "camBefore": 0,
+     "aim": [
+      0.7349375368327089,
+      0.06787691799577315
+     ]
+    },
+    {
+     "type": "ignite",
+     "t": 11.56,
+     "shotId": "trigger-fixture:shot:2",
+     "aim": [
+      0.7349375368327089,
+      0.06787691799577315
+     ]
+    }
+   ],
+   "final": {
+    "look": [
+     1.9493470493974907,
+     0.23109992560593487
+    ],
+    "ammo": 0,
+    "reserve": 23,
+    "shots": 2,
+    "mode": "idle",
+    "fireMode": "semi",
+    "cam": 0
+   }
+  }
+ }
+}

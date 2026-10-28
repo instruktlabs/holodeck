@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "profile": "carbineM4",
+  "units": "metres",
+  "forward": "+X",
+  "up": "+Y",
+  "right": "+Z",
+  "bones": 41,
+  "maxReachMargin": 0.00001,
+  "twistFractions": [
+    0.4,
+    0.8
+  ],
+  "arms": {
+    "right": {
+      "shoulder": [
+        -0.68012,
+        -0.22247,
+        0.30536
+      ],
+      "wrist": [
+        -0.19,
+        -0.0115,
+        0.0505
+      ],
+      "pole": [
+        -0.59286,
+        0.1389,
+        0.06116
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    },
+    "left": {
+      "shoulder": [
+        -0.44636,
+        -0.02,
+        -0.2
+      ],
+      "wrist": [
+        0.105,
+        0.00933,
+        -0.0465
+      ],
+      "pole": [
+        -0.07508,
+        -0.2012,
+        -0.38752
+      ],
+      "upperLength": 0.33,
+      "forearmLength": 0.31
+    }
+  },
+  "restHandRotations": {
+    "right": [
+      0,
+      0.2617993877991494,
+      0
+    ],
+    "left": [
+      -1.7766910124398598,
+      -0.23898927681656562,
+      -0.7229392199890127
+    ]
+  },
+  "poseFields": {
+    "right": [
+      "rightHandX",
+      "rightHandY",
+      "rightHandZ"
+    ],
+    "left": [
+      "handX",
+      "handY",
+      "handZ"
+    ]
+  },
+  "derivation": {
+    "from": "game/bolt-no4-arm-rig-v2.json (41 bones, joint names, arm lengths and poseFields kept)",
+    "hands": "authoring/carbine-m4-hands-v1.glb",
+    "design": "pipeline/carbine-hand-author.mjs (pipeline/carbine-hand-design.mjs)",
+    "measurement": "pipeline/measure-carbine-grip.mjs",
+    "reason": "Hands refitted to the Colt M4 v3 (r_f0ad6458af8b40c48ca99eca88d48abe): right hand on the pistol grip, left hand round the handguard. Each forearm runs along its hand axis (wrist to the knuckle midpoint), so both wrists are straight at Ready. The left shoulder is placed so the elbow sits one upper arm from it (support grip v13 method); the right shoulder sits off-screen back, below and out from a 135 degree elbow, as the pistol rig v6. The hands revision is rebuilt from this exact rig, so use the two together.",
+    "rightElbow": [
+      -0.48938,
+      -0.01748,
+      0.13072
+    ],
+    "leftElbow": [
+      -0.12465,
+      -0.08645,
+      -0.2314
+    ],
+    "restHandRotations": "Euler XYZ of each glove frame (x hand axis, y thumb side, z dorsal for the right, palmar for the left) in gun axes; used to author the bind pose. Runtime IK keeps the clip wrist orientation.",
+    "shoulderStatus": "Target view-model placement, not measured anatomy"
+  }
+}

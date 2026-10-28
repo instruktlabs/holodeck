@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "source": "docs/sight-research-v1.md (owner decisions, section 8)",
+  "units": "metres, degrees; eye distances and pupil are Targets, aperture diameters are labelled",
+  "profiles": {
+    "boltNo4": {
+      "eyeDistance": 0.1,
+      "aimFovDeg": 45,
+      "aimNear": 0.01,
+      "hipPosition": [
+        0.1,
+        -0.2,
+        -0.4
+      ],
+      "recoilBack": 0.03,
+      "recoilPitch": 0.06,
+      "ghostRing": {
+        "node": "Joint_RearSight",
+        "apertureDiameter": 0.0062,
+        "apertureStatus": "Estimate (no measured source; owner decision 8)",
+        "pupil": 0.004,
+        "darken": 0.35
+      },
+      "frontSight": {
+        "node": "Joint_FrontSight",
+        "anchor": "anchor_sight_front",
+        "minPixels": 2.5,
+        "referenceHeightPx": 1080
+      }
+    },
+    "pistol": {
+      "eyeDistance": 0.55,
+      "aimFovDeg": 52,
+      "aimNear": 0.05,
+      "hipPosition": [
+        0.1,
+        -0.17,
+        -0.42
+      ],
+      "recoilBack": 0.035,
+      "recoilPitch": 0.07,
+      "notes": "Open notch: anchor_sight_rear sits at the notch-shoulder top (owner decision 27 Oct). No ghost ring; the 1.8 mm blade is 2.7 px at 52 degrees, above the floor."
+    },
+    "rifle1866": {
+      "eyeDistance": 0.3,
+      "aimFovDeg": 45,
+      "aimNear": 0.03,
+      "hipPosition": [
+        0.09,
+        -0.25,
+        -0.58
+      ],
+      "recoilBack": 0.035,
+      "recoilPitch": 0.07,
+      "notes": "Open notch at the shoulder top (owner decision 27 Oct); Ready holds the hammer cocked so the spur clears the line. No ghost ring; the 2 mm blade is 3.4 px at 45 degrees."
+    },
+    "flintlock1742": {
+      "eyeDistance": 0.22,
+      "aimFovDeg": 55,
+      "aimNear": 0.05,
+      "eyeLift": 0.0015,
+      "eyeLiftStatus": "Estimate presentation offset (owner decision 27 Oct): the drill's head-kept-up posture; shows the stud about 0.2 degrees above the breech",
+      "notes": "No rear sight and no aid. Hip position and recoil presentation are Targets (M4 and 1742 round v14) for the hands author to refine.",
+      "hipPosition": [
+        0.09,
+        -0.25,
+        -0.55
+      ],
+      "recoilBack": 0.05,
+      "recoilPitch": 0.09
+    },
+    "carbineM4": {
+      "eyeDistance": 0.07,
+      "aimFovDeg": 45,
+      "aimNear": 0.01,
+      "hipPosition": [
+        0.1,
+        -0.2,
+        -0.4
+      ],
+      "recoilBack": 0.02,
+      "recoilPitch": 0.035,
+      "ghostRing": {
+        "node": "Joint_RearSight",
+        "apertureDiameter": 0.00508,
+        "apertureStatus": "Documented (secondary, S3): the large 0.200 in aperture, default for range work under 200 m (sight research 4.5); the small 1.78 mm aperture is not selectable yet",
+        "pupil": 0.004,
+        "darken": 0.35
+      },
+      "frontSight": {
+        "node": "Joint_FrontSight",
+        "anchor": "anchor_sight_front",
+        "minPixels": 2.5,
+        "referenceHeightPx": 1080
+      },
+      "notes": "Owner decisions 2 to 4 and 7 (sight research section 8). anchor_eye is 0.07 m behind the aperture (Derived/Estimate). Hip position and recoil presentation are Targets (round v14) for the hands author to refine."
+    }
+  }
+}

@@ -1,0 +1,16 @@
+import {readFile,writeFile} from 'node:fs/promises';
+const root=new URL('../',import.meta.url),base='http://127.0.0.1:4196';
+const r=await fetch(base+'/api/session'),cookie=r.headers.get('set-cookie').split(';')[0],s=await r.json();
+const saved=JSON.parse(await readFile(new URL('evidence/opening-case-delivery-saved.json',root),'utf8'));
+const scene=structuredClone(s.world.scene);
+const object=scene.objects.find(o=>o.id==='museum-case');
+if(object.behavior.type!=='spin')throw Error('Expected original spin case; inspect current world before updating');
+const asset=scene.assets.find(a=>a.id==='transport-case');
+asset.file='assets/imports/opening-case-'+saved.asset.revisionId+'.glb';asset.provenance={assetId:saved.asset.assetId,revisionId:saved.asset.revisionId,collection:saved.collection};
+object.behavior={type:'joint',node:'Joint_Lid',axis:'x',angle:-105*Math.PI/180,speed:1.5};
+object.collider={type:'box',size:[1.01,.62,.67],offset:[0,.31,0]};
+scene.runtime.modules=[...new Set([...scene.runtime.modules,'interaction.joint@1'])];
+await writeFile(new URL('evidence/opening-case-world-before.json',root),JSON.stringify(s.world,null,2));
+const response=await fetch(base+'/api/propose',{method:'POST',headers:{Cookie:cookie,Origin:base,'Content-Type':'application/json','X-Holodeck-World':s.context.worldId,'X-Holodeck-Epoch':s.context.epoch},body:JSON.stringify({baseRevision:s.world.revision,scene,summary:'Open and close the transport case lid about its named hinge; retain the case body, materials and existing exhibit'})});
+const result=await response.json();if(!response.ok)throw Error(JSON.stringify(result));
+await writeFile(new URL('evidence/opening-case-proposal.json',root),JSON.stringify(result,null,2));console.log(JSON.stringify({proposal:result.proposalId,baseRevision:s.world.revision}));

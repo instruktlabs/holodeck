@@ -1,0 +1,3 @@
+import {readFile,writeFile} from 'node:fs/promises';
+let p='pipeline/author-hands-v3.mjs',s=await readFile(p,'utf8');s=s.replace('else v=[0,p.open*[24,38,18][segment]*(1+finger*.03),p.open*(finger-1.5)*1.5];','else{const release=Math.max(0,p.open),grasp=Math.max(0,-p.open/.15);v=[0,release*[24,38,18][segment]*(1+finger*.03)+grasp*[-65,20,-45][segment],release*(finger-1.5)*1.5];}');await writeFile(p,s);
+p='game/weapon.test.mjs';s=await readFile(p,'utf8');s=s.replace("const s=createWeapon();command(s,'reload');const old=structuredClone(s);","const s=createWeapon();command(s,'fire');command(s,'reload');step(s,.1);const old=structuredClone(s);");await writeFile(p,s);

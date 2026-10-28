@@ -1,0 +1,61 @@
+{
+  "version": 4,
+  "units": "metres",
+  "forward": "+X",
+  "up": "+Y",
+  "right": "+Z",
+  "bones": 41,
+  "maxReachMargin": 0.00001,
+  "arms": {
+    "right": {
+      "shoulder": [
+        -0.5915,
+        -0.2153,
+        0.1864
+      ],
+      "wrist": [
+        -0.105,
+        -0.079,
+        0.04
+      ],
+      "pole": [
+        -0.3157,
+        -0.3942,
+        -0.0468
+      ],
+      "upperLength": 0.29,
+      "forearmLength": 0.27
+    },
+    "left": {
+      "shoulder": [
+        -0.5515,
+        -0.2597,
+        -0.2652
+      ],
+      "wrist": [
+        -0.102,
+        -0.088,
+        -0.052
+      ],
+      "pole": [
+        -0.4097,
+        -0.2601,
+        0.112
+      ],
+      "upperLength": 0.29,
+      "forearmLength": 0.27
+    }
+  },
+  "twistFractions": [
+    0.4,
+    0.8
+  ],
+  "profile": "pistol",
+  "derivation": {
+    "from": "game/arm-rig-v5.json",
+    "hands": "authoring/first-hands-v7.glb",
+    "reason": "Eye 0.55 m behind the rear sight (owner decision 9). Each forearm now runs along its authored hand axis (wrist to knuckle midpoint), so the wrist is straight; elbows sit under the gun line with about 140 degrees interior angle, and shoulders sit off-screen below and beside the eye. The hands revision is rebuilt from this exact rig so the skinned rest skeleton matches it. Every authored wrist goal stays within 95% reach (pipeline/pistol-reach.mjs).",
+    "shoulderStatus": "Target view-model placement, not measured anatomy",
+    "measurement": "pipeline/measure-pistol-grip-v6.mjs"
+  }
+}
