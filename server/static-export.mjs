@@ -3,6 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {readRevisionBundle} from './history.mjs';
+import {clientExtension} from './client-extension.mjs';
 import {validateWorld,validateGlb,MAX_ASSET_BYTES} from '../src/world/contract.mjs';
 import {renameTerrainTextures,pngInfo,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
 import {admitHeight,heightBlob,HEIGHT_FILE_BYTES} from './terrain-heights.mjs';
@@ -93,7 +94,9 @@ export function pageHead(page){
 
 // A static artifact is an explicit scene-only projection of an accepted receipt.
 // It never opens a WorldStore, loads host plugins or copies a workspace/public dir.
-export async function exportStaticWorld(root,{out,revision,page}={}){
+export async function exportStaticWorld(root,{out,revision,page,clientExtension:extensionPath}={}){
+ // A trusted local launch setting, like HOLODECK_CLIENT_EXTENSION: the scene page bundles that one extension. Scene JSON never selects it.
+ const extension=clientExtension(extensionPath);
  if(typeof out!=='string'||!out.trim())throw new Error('Choose a new export directory with --out');
  const output=path.resolve(out);await absent(output);const metadata=await pageMetadata(page);
  if(revision==null)try{await lstat(path.join(root,'.holodeck/accepted-bundle.json'));}catch(error){if(error.code==='ENOENT')throw new Error('Open this world with holodeck dev first to create an accepted snapshot.');throw error;}
@@ -132,8 +135,8 @@ export async function exportStaticWorld(root,{out,revision,page}={}){
  await writeFile(path.join(output,'EXPORT-INCOMPLETE.txt'),'Export did not finish. Do not deploy this directory. Choose a fresh directory to retry.\n',{flag:'wx'});
  const {build}=await import('vite');
  await build({configFile:false,envDir:false,root:path.join(packageRoot,'src/viewer'),base:'./',publicDir:false,logLevel:'warn',
-  // Static export is not extension-aware: the scene page always gets the no-op client extension.
-  resolve:{alias:[{find:path.join(packageRoot,'src/world/moodboard.jsx').replaceAll('\\','/'),replacement:path.join(packageRoot,'src/viewer/excluded-board.jsx')},{find:'@holodeck/client-extension',replacement:path.join(packageRoot,'src/world/no-client-extension.jsx')}]},
+  // The scene page gets the extension named at export, or the no-op component.
+  resolve:{alias:[{find:path.join(packageRoot,'src/world/moodboard.jsx').replaceAll('\\','/'),replacement:path.join(packageRoot,'src/viewer/excluded-board.jsx')},{find:'@holodeck/client-extension',replacement:extension.entry}],dedupe:['three','react','react-dom','@react-three/fiber']},
   plugins:[{name:'scene-only-viewer',enforce:'pre',resolveId(source,importer){if(importer&&/\/(world\/runtime-scene|prototype\/scene)\.jsx$/.test(importer.replaceAll('\\','/'))&&source.endsWith('/moodboard.jsx'))return path.join(packageRoot,'src/viewer/excluded-board.jsx');}}],
   build:{outDir:output,emptyOutDir:false,sourcemap:false,target:'es2022',minify:true,assetsDir:'assets',chunkSizeWarningLimit:2500}});
  if(metadata){

@@ -19,7 +19,7 @@ A Pattern 1742 flintlock musket is being authored. See
 | `weapon-extension.jsx` | The React Three Fiber client extension: view model, skinned hands with arm IK, sights, recoil on the host's look, the HUD and the range session. |
 | `game/` | Engine-independent rules and data: weapon state, the held trigger (semi, burst, flintlock lock delay), recoil, the range session, and per-weapon contracts, motion clips, arm rigs and views. Shared fixtures (`trigger-fixtures-v1.json`, `recoil-fixtures-v1.json`) are replayed by both hosts. |
 | `authoring/` | The ten pinned browser GLBs: four guns, their hands, the 1866 loading token and the No.4 charger. Pins with revision IDs and hashes are in `game/*-asset-pins-*.json`. |
-| `holodeck-range-slice/` | The range world (Holodeck schema v2) and the 19 GLBs it places. |
+| `range-sources/` | Kiln programs for the cove pieces the range reuses. The range world itself is the bundle [examples/firearms-range](../firearms-range/example.json). |
 | `native/ToolchainValidation/` | The Unreal Engine 5.8 C++ project, source only: weapon actors, the data-asset profile, the trigger and recoil ports and the in-engine test ticks. |
 | `pipeline/` | The scripts that made and checked the assets: Kiln programs, glTF analysis, native staging, Unreal Python import, PowerShell runners and a standalone MSVC check of the native trigger rules. |
 | `docs/` | Round reports with measurements. Start with [M4 and Pattern 1742](docs/m4-1742-v14.md), [controls](docs/controls-v12.md) and [recoil](docs/recoil-v1.md). |
@@ -27,18 +27,20 @@ A Pattern 1742 flintlock musket is being authored. See
 
 ## Play it in the browser
 
-From the repository root, after `npm ci`:
+The range world is the bundled example `firearms-range`. From the repository root, after `npm ci`:
 
 ```powershell
-$env:HOLODECK_WORKSPACE = "$PWD\examples\firearms-through-time\holodeck-range-slice"
+node bin/holodeck.mjs init ..\firearms-range --example firearms-range
+$env:HOLODECK_WORKSPACE = (Resolve-Path ..\firearms-range).Path
 $env:HOLODECK_CLIENT_EXTENSION = "$PWD\examples\firearms-through-time\weapon-extension.jsx"
 npm run dev
 ```
 
 Open `http://127.0.0.1:4186/prototype.html?weapon=carbineM4`. The other
-weapons are `pistol`, `rifle1866` and `boltNo4`, and the panel switches
-between them. Add `&backend=webgl` to force WebGL2. The host runs the world in
-place, so edits you make in Holodeck change this folder's `world.json`.
+weapons are `pistol`, `rifle1866` and `boltNo4`; take them from the wall rack with X.
+Add `&backend=webgl` to force WebGL2. It is also playable on the
+[Holodeck Lab](https://holodeck.kilnstudio.tools/lab/firearms-through-time/), built by
+`holodeck export --client-extension`.
 
 | Action | Keys |
 |---|---|

@@ -1,0 +1,147 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "firearms-range",
+  "title": "Firearms range",
+  "description": "In progress: the Firearms Through Time shooting range, a booth bank with paper, plate and turning-target lanes. Playable with the guns only where the game's client extension is loaded.",
+  "sourceRevision": 9,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "inhabitant.maker@1",
+      "interaction.joint@1",
+      "interaction.relay@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "faa5c9f22fcb9119840307e411ee2dfb17cb8d5010a6d42f907bc5750cff9b77",
+    "bytes": 34701
+  },
+  "assets": [
+    {
+      "id": "booth-console",
+      "file": "assets/imports/7b8e3cef94101daa0ebeb41c9bf6a5c1290135dda327b80b5bc6f906ea23782b.glb",
+      "sha256": "7b8e3cef94101daa0ebeb41c9bf6a5c1290135dda327b80b5bc6f906ea23782b",
+      "bytes": 3988512
+    },
+    {
+      "id": "canopy",
+      "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+      "sha256": "0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0",
+      "bytes": 929100
+    },
+    {
+      "id": "collection-bay",
+      "file": "assets/imports/2db454ca9b71b89b2d46e1312c2c765eaa8aa0ad8a63102f833deae1820f9c4d.glb",
+      "sha256": "2db454ca9b71b89b2d46e1312c2c765eaa8aa0ad8a63102f833deae1820f9c4d",
+      "bytes": 3870580
+    },
+    {
+      "id": "dressing-empty-padded-rest",
+      "file": "assets/imports/dafe86e1f5700c49476274232b6d6c3df1a650fb5860ab5d13f7f3816ebfe15e.glb",
+      "sha256": "dafe86e1f5700c49476274232b6d6c3df1a650fb5860ab5d13f7f3816ebfe15e",
+      "bytes": 42044
+    },
+    {
+      "id": "hearth",
+      "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+      "sha256": "07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba",
+      "bytes": 1656308
+    },
+    {
+      "id": "lamp",
+      "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+      "sha256": "c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808",
+      "bytes": 254364
+    },
+    {
+      "id": "moodboard",
+      "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+      "sha256": "0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
+    },
+    {
+      "id": "paper-support",
+      "file": "assets/imports/79ffca50f4d95565ba07826777d1e45942e1c6a932fdfc54b4b0d539c88e78ea.glb",
+      "sha256": "79ffca50f4d95565ba07826777d1e45942e1c6a932fdfc54b4b0d539c88e78ea",
+      "bytes": 27960
+    },
+    {
+      "id": "paper-travel-rail",
+      "file": "assets/imports/4421e9677254c491c872d210d8e0879a5eb2f4c7285861ea361be634983be69d.glb",
+      "sha256": "4421e9677254c491c872d210d8e0879a5eb2f4c7285861ea361be634983be69d",
+      "bytes": 47232
+    },
+    {
+      "id": "planting",
+      "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+      "sha256": "cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8",
+      "bytes": 1053324
+    },
+    {
+      "id": "range-canopy",
+      "file": "assets/imports/170f1482ff8fb109fa601341fda42668d0354411fdd22fe05d5cfeb87a364a54.glb",
+      "sha256": "170f1482ff8fb109fa601341fda42668d0354411fdd22fe05d5cfeb87a364a54",
+      "bytes": 183032
+    },
+    {
+      "id": "range-endpanel",
+      "file": "assets/imports/c7e7b42b4d3bc2ed888698f3bdb76b153fb97260bd8aa4938140e748f482f48f.glb",
+      "sha256": "c7e7b42b4d3bc2ed888698f3bdb76b153fb97260bd8aa4938140e748f482f48f",
+      "bytes": 73280
+    },
+    {
+      "id": "range-gallery",
+      "file": "assets/imports/ef0938e9ddc4dcd89362555c74f0b3e8f04605a2258a66b8b0049e079f4f3e66.glb",
+      "sha256": "ef0938e9ddc4dcd89362555c74f0b3e8f04605a2258a66b8b0049e079f4f3e66",
+      "bytes": 3727080
+    },
+    {
+      "id": "rug",
+      "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+      "sha256": "4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857",
+      "bytes": 121880
+    },
+    {
+      "id": "seating",
+      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "bytes": 890340
+    },
+    {
+      "id": "structure",
+      "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+      "sha256": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "bytes": 1398268
+    },
+    {
+      "id": "target-module",
+      "file": "assets/imports/55638d4fb8da7b4692c7e68fbedf3ca859f9d2346f6656f32b8ca80b4e9bd80e.glb",
+      "sha256": "55638d4fb8da7b4692c7e68fbedf3ca859f9d2346f6656f32b8ca80b4e9bd80e",
+      "bytes": 135876
+    },
+    {
+      "id": "target-paper",
+      "file": "assets/imports/5d75343beef29bbd6fb6269f5aba0ca3891969739a2e38ae9868153a2d74bba9.glb",
+      "sha256": "5d75343beef29bbd6fb6269f5aba0ca3891969739a2e38ae9868153a2d74bba9",
+      "bytes": 72408
+    },
+    {
+      "id": "target-rack",
+      "file": "assets/imports/64acbf01e6c4038ba27f165f26edb6a4653564be7e056e930a59e5c194cd634e.glb",
+      "sha256": "64acbf01e6c4038ba27f165f26edb6a4653564be7e056e930a59e5c194cd634e",
+      "bytes": 88244
+    }
+  ],
+  "preview": {
+    "file": "preview.png",
+    "sha256": "141cc141f0b8234bf2b286945bcf9c3b785d27068239214721286ba29543a102",
+    "bytes": 282018,
+    "width": 1280,
+    "height": 720
+  },
+  "integrity": "163745be61e53bef27c07d04c0b68ce0e9b10a38399bbe2ed26af78486ea4d86"
+}

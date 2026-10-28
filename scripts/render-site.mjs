@@ -176,7 +176,8 @@ export async function readLab(site){
    if(info.width!==video.width||info.height!==video.height)fail(`${label} is ${info.width}×${info.height}, not the listed ${video.width}×${video.height}`);
    const poster=imageSize(await file(site,video.poster,'Lab poster'));if(poster.width!==video.width||poster.height!==video.height)fail(`${label} poster must be ${video.width}×${video.height}`);
   }
-  if(entry.scene!==undefined&&(typeof entry.scene!=='object'||!entry.scene||Object.keys(entry.scene).join()!=='example'||!SLUG.test(entry.scene.example)))fail(`Lab entry ${entry.id} scene names only the example it is built from`);
+  // A scene may also name a client extension inside examples/ that its page bundles (a trusted repository setting, not scene data).
+  if(entry.scene!==undefined&&(typeof entry.scene!=='object'||!entry.scene||!['example','example,extension'].includes(Object.keys(entry.scene).join())||!SLUG.test(entry.scene.example)||(entry.scene.extension!==undefined&&!/^examples\/[a-z0-9-]+\/[A-Za-z0-9._-]+\.jsx?$/.test(entry.scene.extension))))fail(`Lab entry ${entry.id} scene names only the example it is built from and an optional examples/ client extension`);
   entry.path=folder;
   const allowed=new Set(['index.html','card.jpg',...entry.videos.flatMap(video=>[video.mp4,video.poster].map(name=>name.slice(folder.length)))]);
   for(const name of await readdir(path.join(site,folder)))if(!allowed.has(name))fail(`site/${folder}${name} is not listed in site/lab.json`);
@@ -185,7 +186,7 @@ export async function readLab(site){
  return entries;
 }
 // The playable Lab scenes, in the shape scripts/build-site.mjs exports and checks.
-export const labScenes=entries=>(entries??[]).filter(entry=>entry.scene).map(entry=>({id:entry.id,example:entry.scene.example,
+export const labScenes=entries=>(entries??[]).filter(entry=>entry.scene).map(entry=>({id:entry.id,example:entry.scene.example,...(entry.scene.extension?{extension:entry.scene.extension}:{}),
  title:`${entry.title} (Lab, experimental)`,summary:`Experimental: ${entry.blurb}`,path:`${entry.path}play/`,card:`${entry.path}card.jpg`,shots:[{alt:entry.cardAlt}]}));
 
 const labHead=({title,description,url,image,imageAlt,data})=>`<!DOCTYPE html>

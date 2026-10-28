@@ -12,7 +12,7 @@ import {WorldRuntime} from '../src/world/runtime.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 test('the picker offers the starter templates and every shipped bundle, each intact',async()=>{
  const examples=await listExamples();
- assert.deepEqual(examples.map(entry=>entry.id),['construct','kinetic','courtyard','crescent-cove','medieval-castle','meridian-sanctuary','tidemark','winter-mountainside-cabin']);
+ assert.deepEqual(examples.map(entry=>entry.id),['construct','kinetic','courtyard','crescent-cove','firearms-range','medieval-castle','meridian-sanctuary','tidemark','winter-mountainside-cabin']);
  // The in-progress castle has no runtime capture yet; a generated image is not a preview.
  for(const entry of examples.filter(entry=>entry.kind==='bundle')){
   // Every receipt, GLB and terrain texture hash is checked, not just the manifest.

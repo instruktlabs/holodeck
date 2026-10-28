@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 9,
+  "revision": 0,
   "scene": {
     "environment": {
       "type": "construct",
@@ -39,7 +39,7 @@
     "assets": [
       {
         "id": "structure",
-        "file": "assets/imports/cove-structure-r_2387ce274123402dbdafd818e6fb0043.glb",
+        "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
         "provenance": {
           "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
           "revisionId": "r_2387ce274123402dbdafd818e6fb0043",
@@ -48,7 +48,7 @@
       },
       {
         "id": "canopy",
-        "file": "assets/imports/cove-canopy-r_df0485467228414780cfa44c0f2e32ad.glb",
+        "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
         "provenance": {
           "assetId": "a_4f6ce20d78fd4aefa27b934c7a9224c2",
           "revisionId": "r_df0485467228414780cfa44c0f2e32ad",
@@ -57,7 +57,7 @@
       },
       {
         "id": "seating",
-        "file": "assets/imports/cove-seating-r_e35c94ed7da74b32a49f2d9933babba8.glb",
+        "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
         "provenance": {
           "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
           "revisionId": "r_e35c94ed7da74b32a49f2d9933babba8",
@@ -66,7 +66,7 @@
       },
       {
         "id": "hearth",
-        "file": "assets/imports/cove-hearth-r_5ef43760979043d48f358fe2932147dc.glb",
+        "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
         "provenance": {
           "assetId": "a_10ec25ce83e242e3a5f2c7d8ae0f8e2c",
           "revisionId": "r_5ef43760979043d48f358fe2932147dc",
@@ -75,7 +75,7 @@
       },
       {
         "id": "planting",
-        "file": "assets/imports/cove-planting-r_cdb8552ccdde43f28d3995b2a5a30d25.glb",
+        "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
         "provenance": {
           "assetId": "a_83fa946f4c18476991c1e130c07dd5f9",
           "revisionId": "r_cdb8552ccdde43f28d3995b2a5a30d25",
@@ -101,7 +101,7 @@
       },
       {
         "id": "rug",
-        "file": "assets/imports/cove-rug-r_651bc2867976426996191865ea931163.glb",
+        "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
         "provenance": {
           "assetId": "a_695ec90542974d739fb93ae8c9876e26",
           "revisionId": "r_651bc2867976426996191865ea931163",
@@ -110,7 +110,7 @@
       },
       {
         "id": "lamp",
-        "file": "assets/imports/cove-lamp-r_3b14d66959f942c887c5550f60d6d8ce.glb",
+        "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
         "provenance": {
           "assetId": "a_0e6e95f9c49d445fa83af41f12cabde1",
           "revisionId": "r_3b14d66959f942c887c5550f60d6d8ce",
@@ -119,7 +119,7 @@
       },
       {
         "id": "moodboard",
-        "file": "assets/imports/cove-moodboard-r_aedc5a07c6d34c1fb19f5cf959ce679c.glb",
+        "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
         "provenance": {
           "assetId": "a_98506f22579948249e81029d5b605ab2",
           "revisionId": "r_aedc5a07c6d34c1fb19f5cf959ce679c",
@@ -128,7 +128,7 @@
       },
       {
         "id": "collection-bay",
-        "file": "assets/imports/collection-bay-r_c42f26530ab84bb8ba8366dd07f732f1.glb",
+        "file": "assets/imports/2db454ca9b71b89b2d46e1312c2c765eaa8aa0ad8a63102f833deae1820f9c4d.glb",
         "provenance": {
           "assetId": "a_f5c9848431864421b231f891a33ccd29",
           "revisionId": "r_c42f26530ab84bb8ba8366dd07f732f1",
@@ -137,7 +137,7 @@
       },
       {
         "id": "booth-console",
-        "file": "assets/imports/booth-console-r_5ff8d00018224e7fa3ee926f0add1d6f.glb",
+        "file": "assets/imports/7b8e3cef94101daa0ebeb41c9bf6a5c1290135dda327b80b5bc6f906ea23782b.glb",
         "provenance": {
           "assetId": "a_9509119312ea40b8a15d66f2361cd3eb",
           "revisionId": "r_5ff8d00018224e7fa3ee926f0add1d6f",
@@ -146,7 +146,7 @@
       },
       {
         "id": "target-module",
-        "file": "assets/imports/target-module-r_458c6011724a440d8db54686d99d02e5.glb",
+        "file": "assets/imports/55638d4fb8da7b4692c7e68fbedf3ca859f9d2346f6656f32b8ca80b4e9bd80e.glb",
         "provenance": {
           "assetId": "a_e41c45e87b264bbc8678e462c6f737ba",
           "revisionId": "r_458c6011724a440d8db54686d99d02e5",
@@ -155,7 +155,7 @@
       },
       {
         "id": "range-canopy",
-        "file": "assets/imports/range-canopy-r_48fdd253350d4ef98ee3204f41183322.glb",
+        "file": "assets/imports/170f1482ff8fb109fa601341fda42668d0354411fdd22fe05d5cfeb87a364a54.glb",
         "provenance": {
           "assetId": "a_5e93cd05edec4d6491d98b1b083f3584",
           "revisionId": "r_48fdd253350d4ef98ee3204f41183322",
@@ -164,7 +164,7 @@
       },
       {
         "id": "range-endpanel",
-        "file": "assets/imports/range-endpanel-r_c2eafcc4202d41eba20780292e0af32a.glb",
+        "file": "assets/imports/c7e7b42b4d3bc2ed888698f3bdb76b153fb97260bd8aa4938140e748f482f48f.glb",
         "provenance": {
           "assetId": "a_11aabce49758458995b6470cf2ec0fc9",
           "revisionId": "r_c2eafcc4202d41eba20780292e0af32a",
@@ -173,7 +173,7 @@
       },
       {
         "id": "range-gallery",
-        "file": "assets/imports/range-gallery-r_2104c8edeed149e2b173d024128249ff.glb",
+        "file": "assets/imports/ef0938e9ddc4dcd89362555c74f0b3e8f04605a2258a66b8b0049e079f4f3e66.glb",
         "provenance": {
           "assetId": "a_f4362d51b72f4f44b8471e8747b8a9a1",
           "revisionId": "r_2104c8edeed149e2b173d024128249ff",
@@ -182,7 +182,7 @@
       },
       {
         "id": "target-paper",
-        "file": "assets/imports/target-paper-r_946b8c27076f409fbfd96fe8ee4ab139.glb",
+        "file": "assets/imports/5d75343beef29bbd6fb6269f5aba0ca3891969739a2e38ae9868153a2d74bba9.glb",
         "provenance": {
           "assetId": "a_9cddb328290e4240b56374d95649e4ca",
           "revisionId": "r_946b8c27076f409fbfd96fe8ee4ab139",
@@ -191,7 +191,7 @@
       },
       {
         "id": "target-rack",
-        "file": "assets/imports/target-rack-r_109f31045d71412fba9f6ca6f65852c3.glb",
+        "file": "assets/imports/64acbf01e6c4038ba27f165f26edb6a4653564be7e056e930a59e5c194cd634e.glb",
         "provenance": {
           "assetId": "a_ce363b39d8f144fd9893f445cc25731b",
           "revisionId": "r_109f31045d71412fba9f6ca6f65852c3",
@@ -200,7 +200,7 @@
       },
       {
         "id": "paper-support",
-        "file": "assets/imports/paper-support-r_dfc4d696292148e4acc428cc3cfe16a2.glb",
+        "file": "assets/imports/79ffca50f4d95565ba07826777d1e45942e1c6a932fdfc54b4b0d539c88e78ea.glb",
         "provenance": {
           "assetId": "a_c8f201db93454d2bb3d09bc9c015d610",
           "revisionId": "r_dfc4d696292148e4acc428cc3cfe16a2",
@@ -209,7 +209,7 @@
       },
       {
         "id": "paper-travel-rail",
-        "file": "assets/imports/paper-travel-rail-r_acf7d9fe86504eb299d788f9ddf13671.glb",
+        "file": "assets/imports/4421e9677254c491c872d210d8e0879a5eb2f4c7285861ea361be634983be69d.glb",
         "provenance": {
           "assetId": "a_1e848fabc2274391abc6e832db004173",
           "revisionId": "r_acf7d9fe86504eb299d788f9ddf13671",
@@ -218,7 +218,7 @@
       },
       {
         "id": "dressing-empty-padded-rest",
-        "file": "assets/imports/dressing-empty-padded-rest-r_365a891fc8b34f9cb7288180dbc2d67d.glb",
+        "file": "assets/imports/dafe86e1f5700c49476274232b6d6c3df1a650fb5860ab5d13f7f3816ebfe15e.glb",
         "provenance": {
           "assetId": "a_c8c326a77ad64596a791ee40c93afe68",
           "revisionId": "r_365a891fc8b34f9cb7288180dbc2d67d",
@@ -1608,7 +1608,7 @@
         0
       ],
       "page": 0,
-      "title": "The world we are imagining",
+      "title": "World board",
       "theme": "linen",
       "collider": {
         "size": [
@@ -1665,25 +1665,9 @@
     }
   },
   "bible": {
-    "title": "Range 01 — first playable modules",
-    "intent": "Modern industrial collection bay, booth console and turning target in one continuous concourse. Select the collection bay, walk to the console, start/stop the target and reset it. A separate prototype game extension provides a first-person firearm and animated hands with shots/hits counters. Prototype materials and environment, not final hero art. The intended larger campus retains varied configurable lanes and the chronological collection wall; this one-booth slice is a milestone, not a reduction of scope.",
-    "rules": "Stable placement and joint IDs own interaction. Source assets may change appearance without recreating gameplay. Maker is the Holodeck walkthrough inhabitant. Current built-in runtime supports joint/relay target interaction; prototype firing and animated hands are provided by game code, not these built-in modules. Aggregate hit counters are not full zone scoring or shot review.\n\nPlanned scope, not implemented: paper/precision, reactive plates, moving targets, timed/arcade sequences, long field and configurable practice profiles. The six-bank/48-station layout remains an exploratory option, not a fixed count; multiple activities can reuse a compatible lane. Retain the existing activity research and visual/reference direction.\n\nTarget-game design requirement: an authoritative versioned session/string/shot event ledger records accepted shots and resolved scoring hits, non-scoring hits or misses. Store target/surface identity, activation and scoring revisions, shot/query-time transform snapshots, target-local impacts, surface UV and zone results. Cosmetic feedback never independently awards points. Numbered marks follow the current target for display; historical shot snapshots remain immutable. The console and world target share that ledger, with per-string and session results.\n\nProposed paper-target loop: preview, deploy, ready, active string, end, return, docked review, then redeploy/retry or finish. End string and return blocks accepted fire during travel/review, clears held input and preserves results. Carrier failures stop with explicit recovery; new sheets archive the old result and receive new identity. Other target types use compatible reset/electronic review instead of assuming physical retrieval. All targets are abstract game surfaces; scoring values, motion, lane counts and difficulty remain versioned design decisions. See docs/range-targets-and-shot-review.md for the proposed contract and acceptance checks.\n\nPer-firearm fidelity requirement, not implemented: resolve behavior from an exact weapon/configuration/ammunition profile, never era alone. Version accuracy/dispersion, projectile simulation, handling, weapon motion, moving parts, camera response and effects separately. Give each value field-level provenance: reference-backed, estimated or gameplay-tuned. Recoil tendencies and bounded seeded variation are distinct from a fixed authored spray pattern. Do not label the generic pistol prototype or its placeholder recoil/flash as historically verified.\n\nOne accepted/resolved shot event drives muzzle effects, smoke, weapon/hands motion, camera feedback, audio, surface-local hit marks and material-specific impact effects. Store query-time target transforms, impact point/normal and surface identity; rendering effects never recalculate score or authoritative ballistics. Validate obstruction, moving targets, first-person projection, event timing and browser/native replay before fidelity claims. See docs/shot-feedback-fidelity.md. User reports hub and PC under load; current timing/FPS measurements cannot qualify performance."
+    "title": "Firearms range",
+    "intent": "A first-person shooting range for the Firearms Through Time game: booths facing paper, plate and turning targets.",
+    "rules": "The guns, hands and range rules come from the game's client extension in examples/firearms-through-time; without it this is a walkable range."
   },
-  "references": [
-    {
-      "id": "cove-intention",
-      "kind": "note",
-      "title": "A place to make worlds",
-      "notes": "An unmade grid construct with a reusable cove for conversation, references and world planning. The surrounding world takes shape from accepted ideas.",
-      "group": "Experience",
-      "status": "exploring",
-      "page": 0,
-      "layout": {
-        "x": 840,
-        "y": 115,
-        "w": 330,
-        "h": 385
-      }
-    }
-  ]
+  "references": []
 }
