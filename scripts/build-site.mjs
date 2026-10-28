@@ -1,6 +1,7 @@
 // Build the deployable site into a new folder: the committed shelf from site/
 // (without its cards) plus each scene, installed fresh from its bundled example
-// and exported with its page metadata. site/ itself is never written.
+// and exported with its page metadata, and each playable Lab scene at
+// lab/<id>/play/. site/ itself is never written.
 // Usage: node scripts/build-site.mjs --out <new-directory>
 import {execFile} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -9,7 +10,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {promisify} from 'node:util';
-import {SITE_URL,imageSize,renderSite} from './render-site.mjs';
+import {SITE_URL,imageSize,labScenes,readLab,renderSite} from './render-site.mjs';
 
 const ROOT=fileURLToPath(new URL('../',import.meta.url));
 const CC0='https://creativecommons.org/publicdomain/zero/1.0/';
@@ -23,11 +24,21 @@ export function exportArgs(scene,{world,out,card}){
   '--url',new URL(scene.path,SITE_URL).href,'--image',card,'--image-alt',scene.shots[0].alt,'--license',CC0];
 }
 
+// Every exported scene: the shelf's under worlds/, each with its card in cards/, then the
+// Lab's playable scenes under lab/<id>/play/, each with its entry's card.
+export async function siteScenes(site){
+ const shelf=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8')).map(scene=>({...scene,card:`cards/${scene.id}.jpg`}));
+ return [...shelf,...labScenes(await readLab(site))];
+}
+
 // Shelf files outside worlds/ are the committed site files, byte for byte; each
 // scene export carries its canonical link, its card and an intact hash manifest.
 export async function verifySite(dir,site){
- const scenes=JSON.parse(await readFile(path.join(dir,'scenes.json'),'utf8'));
- if(digest(await readFile(path.join(site,'scenes.json')))!==digest(await readFile(path.join(dir,'scenes.json'))))fail('The built catalog differs from site/scenes.json.');
+ for(const name of ['scenes.json','lab.json']){
+  const [committed,built]=await Promise.all([site,dir].map(root=>readFile(path.join(root,name)).catch(error=>{if(error.code==='ENOENT')return null;throw error;})));
+  if((committed&&digest(committed))!==(built&&digest(built)))fail(`The built catalog differs from site/${name}.`);
+ }
+ const scenes=await siteScenes(site);
  for(const scene of scenes){
   const root=path.join(dir,scene.path),url=new URL(scene.path,SITE_URL).href,page=await readFile(path.join(root,'index.html'),'utf8').catch(()=>fail(`Scene ${scene.id} was not exported.`));
   if(!page.includes(`<link rel="canonical" href="${url}">`))fail(`Scene ${scene.id} export lacks its canonical link.`);
@@ -44,16 +55,16 @@ export async function buildSite({root=ROOT,out,run=runFile,log=console.log}={}){
  try{await lstat(out);fail(`The output folder already exists: ${out}`);}catch(error){if(error.code!=='ENOENT')throw error;}
  // The build never rewrites site/; a stale shelf is reported for review instead.
  for(const [name,text] of Object.entries(await renderSite(site)))if((await readFile(path.join(site,name),'utf8').catch(()=>null))!==text)fail(`site/${name} is stale. Run npm run render:site, review and commit.`);
- const scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
+ const scenes=await siteScenes(site);
  await mkdir(path.dirname(out),{recursive:true});
  await cp(site,out,{recursive:true,errorOnExist:true,force:false,verbatimSymlinks:true,filter:source=>!['cards','worlds'].includes(path.relative(site,source).split(path.sep)[0])});
  const work=await mkdtemp(path.join(os.tmpdir(),'holodeck-site-'));
  try{
   for(const scene of scenes){
-   const world=path.join(work,scene.id);
+   const world=path.join(work,scene.path.startsWith('lab/')?'lab':'',scene.id);await mkdir(path.dirname(world),{recursive:true});
    await run(process.execPath,[cli,'init',world,'--example',scene.example]);
-   await run(process.execPath,[cli,...exportArgs(scene,{world,out:path.join(out,scene.path),card:path.join(site,'cards',`${scene.id}.jpg`)})]);
-   log(`Exported ${scene.id} from the ${scene.example} example.`);
+   await run(process.execPath,[cli,...exportArgs(scene,{world,out:path.join(out,scene.path),card:path.join(site,scene.card)})]);
+   log(`Exported ${scene.path} from the ${scene.example} example.`);
   }
  }finally{await rm(work,{recursive:true,force:true});}
  await verifySite(out,site);

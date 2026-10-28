@@ -61,6 +61,47 @@ canonical URL, card, image alt and CC0 licence from the catalog. Exports are
 deterministic: an unchanged example rebuilds byte for byte. The site's GLBs are
 the examples' GLBs, so git stores them once. Four scenes build in about 7 s.
 
+### The Lab
+
+The Lab, at `site/lab/`, holds experiments that are not ready for the shelf: an
+unfinished scene, or the same scene built in different engines. It is linked
+from the shelf's and the About page's footers and is kept out of the shelf, the
+hero carousel, the Scenes menu and the scene list in `llms.txt`, which links the
+Lab once under Optional, marked experimental. The sitemap lists the Lab and each
+entry's page.
+
+`site/lab.json` lists its entries in order; the file is optional. An entry is:
+
+```json
+{
+ "id": "medieval-castle",
+ "title": "Medieval Castle",
+ "blurb": "What it is, in a sentence or two (at most 260 characters).",
+ "status": "An honest status note: in progress, what pass this is, what comes next (at most 240).",
+ "updated": "2026-10-27",
+ "cardAlt": "Alt text for the entry's 1200×630 card.",
+ "videos": [
+  {"engine": "Unity", "mp4": "lab/medieval-castle/unity.mp4", "poster": "lab/medieval-castle/unity.jpg", "width": 1920, "height": 1080, "caption": "Optional."},
+  {"engine": "React Three Fiber", "mp4": "lab/medieval-castle/r3f.mp4", "poster": "lab/medieval-castle/r3f.jpg", "width": 1920, "height": 1080}
+ ],
+ "scene": {"example": "medieval-castle"}
+}
+```
+
+Each entry's folder `site/lab/<id>/` holds `card.jpg` (1200×630), each
+video's MP4 and JPEG poster, and the rendered `index.html`, and nothing else.
+An entry has two or more videos. Each is H.264 (`avc1`), at most 8 MB, with
+its `moov` box first so it streams at once (`ffmpeg -c:v libx264 -pix_fmt
+yuv420p -movflags +faststart`); its poster and its listed `width` and `height`
+match the video's coded size. `npm run render:site` checks all of this and
+renders `site/lab/index.html` and each entry's page, where the videos sit side
+by side (`controls muted playsinline`, `preload="none"`, with the poster) under
+the status note. `scene` is optional: when present, `npm run build:site` exports
+that bundled example to `lab/<id>/play/` the same way as a shelf scene, with the
+entry's card and a page title marked experimental, and the entry links to it.
+`updated` is the entry page's lastmod; `LAB` in `scripts/render-site.mjs`
+dates the Lab's index.
+
 The shelf plays those scenes and points visitors to the clone and launch
 commands. It does not connect an agent, accept uploads, or publish the npm
 package. Contribution and direct publishing from the local app come later, on
@@ -94,7 +135,8 @@ the workflow never uses `pull_request_target`.
 - any file in `site/` is not committed;
 - the shelf is stale;
 - the built folder differs from the committed shelf outside `worlds/`;
-- the built folder has a file outside the shelf and the catalog's scenes;
+- the built folder has a file outside the shelf, the catalog's scenes and the
+  Lab's playable scenes;
 - a scene export lacks its canonical link or card, or fails its hash manifest;
 - an export is unfinished;
 - a symlink, a Worker or Functions input is present;
@@ -113,8 +155,8 @@ the project.
 `site/_headers` sets the Pages response headers: `nosniff`, a strict referrer
 policy, no framing, and a Permissions-Policy without camera, microphone,
 location, payment or USB on every page. Viewer bundles, GLBs and terrain
-textures under `/worlds/<scene>/assets/` are named by content hash and cached as
-immutable. There is deliberately no script Content-Security-Policy, which
+textures under `/worlds/<scene>/assets/` and `/lab/<entry>/play/assets/` are
+named by content hash and cached as immutable. There is deliberately no script Content-Security-Policy, which
 could break the WebGPU viewer. `server/site.test.mjs` checks that every file the immutable rule
 covers has a hashed name.
 

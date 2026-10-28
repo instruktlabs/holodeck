@@ -43,8 +43,8 @@ async function siteFiles(site){
 }
 
 // The deployed bytes are a site built from a clean HEAD: the committed shelf in
-// site/ (current, without its cards) plus complete scene exports under worlds/,
-// with no Worker or Functions inputs.
+// site/ (current, without its cards) plus complete scene exports under worlds/
+// and the Lab's lab/<id>/play/, with no Worker or Functions inputs.
 export async function preflight({root=ROOT,siteDir,run=execute}={}){
  root=path.resolve(root);const site=path.join(root,'site');
  if(typeof siteDir!=='string'||!siteDir)fail('Choose the built site folder.');const built=path.resolve(siteDir);
@@ -64,7 +64,8 @@ export async function preflight({root=ROOT,siteDir,run=execute}={}){
  }
  const scenes=await verifySite(built,site);
  for(const name of files.keys()){
-  if(name.startsWith('worlds/')?!scenes.some(scene=>name.startsWith(scene.path)):!sources.has(name)||name.startsWith('cards/'))fail(`The built site has ${name}, which is neither in site/ nor in a catalog scene.`);
+  if(scenes.some(scene=>name.startsWith(scene.path)))continue;
+  if(name.startsWith('worlds/')||!sources.has(name)||name.startsWith('cards/'))fail(`The built site has ${name}, which is neither in site/ nor in a catalog scene.`);
  }
  // No pathspec on status: a change anywhere in the checkout invalidates the reviewed commit.
  const git=async(...args)=>String(await run('git',['-C',root,...args],{cwd:root})).trim();

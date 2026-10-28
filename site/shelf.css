@@ -199,6 +199,30 @@ footer a{text-decoration:none}
 .about-section{padding-top:clamp(72px,10vw,120px)}
 .about-section .sub{margin:20px 0 0}
 
+/* lab: experiments kept off the shelf, each with its engines' videos side by side */
+.lab-hero{min-height:min(64svh,620px)}
+.lab-hero .eyebrow a{text-decoration:none}
+.lab-entries{display:grid;gap:18px;margin-top:clamp(40px,6vw,64px)}
+.lab-entry{display:grid;grid-template-columns:1.2fr 1fr;border-radius:var(--r-surface);overflow:hidden;background:var(--olive);color:var(--on-olive)}
+.lab-card img{width:100%;height:100%;aspect-ratio:1200/630;object-fit:cover}
+.lab-copy{padding:clamp(28px,4vw,48px);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.lab-copy .kicker{color:rgba(255,252,239,.7)}
+.lab-copy h3{font:400 clamp(32px,3.4vw,48px)/1 var(--serif);margin:0 0 14px}
+.lab-copy h3 a{color:inherit;text-decoration:none}
+.lab-copy h3 a:hover{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
+.lab-copy p{color:rgba(255,252,239,.78);margin:0}
+.lab-copy .lab-note{margin-top:14px;font-size:14px;color:rgba(255,252,239,.66)}
+.lab-copy .scene-links{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px}
+.lab-status{margin:0 0 clamp(40px,6vw,64px);padding:16px 20px;border:1px solid var(--signal);border-radius:var(--r-card);background:var(--signal-soft);color:var(--ink);max-width:760px}
+.lab-status strong{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--signal-ink);margin-bottom:4px}
+.lab-videos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;margin-top:clamp(32px,5vw,56px)}
+.lab-video{margin:0;border-radius:var(--r-surface);overflow:hidden;border:1px solid var(--line);background:var(--card)}
+.lab-video video{display:block;width:100%;height:auto;background:var(--night)}
+.lab-video figcaption{padding:12px 16px;font-size:14px;color:var(--ink-soft)}
+.lab-video figcaption strong{color:var(--ink);font-weight:600;margin-right:6px}
+.lab-play{display:flex;flex-wrap:wrap;align-items:center;gap:12px 22px;margin:28px 0 0;color:var(--ink-soft);font-size:14px}
+.lab-play .enter{background:var(--olive);color:var(--on-olive)}
+
 @media (max-width:860px){
   .by,.top nav a:not(.gh),.scenes-menu{display:none}
   .home-grid{--slide-w:80cqw;--gap:10px;--back:.94;grid-template-columns:var(--edge) minmax(0,1fr) var(--edge);grid-template-areas:". title ." "reel reel reel" ". bar ." ". pitch ." ". ctas .";align-content:start;padding-top:96px}
@@ -207,7 +231,7 @@ footer a{text-decoration:none}
   .home-title h1{font-size:clamp(40px,12cqw,64px)}
   .home-pitch{padding:0;margin-top:28px}
   .button{flex:1 1 auto}
-  .section-head,.step,.step:nth-of-type(even),.status,.scene,.build-grid{grid-template-columns:1fr}
+  .section-head,.step,.step:nth-of-type(even),.status,.scene,.build-grid,.lab-entry{grid-template-columns:1fr}
   .step:nth-of-type(even) .copy{order:0}
   .shot{border-radius:12px}
 }

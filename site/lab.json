@@ -1,0 +1,15 @@
+[
+ {
+  "id": "medieval-castle",
+  "title": "Medieval Castle",
+  "blurb": "A fortress holding a mountain pass: a bridge across a gorge to an open gate, a walled courtyard, a stair to a wall ballista and an inner barricade. The same layout in Unity and in the browser, along the same 20-second camera path.",
+  "status": "In progress. This is an earlier blockout pass, not final quality. A rebuild is underway and will replace it.",
+  "updated": "2026-10-27",
+  "cardAlt": "The Medieval Castle blockout from above: a crenellated gatehouse and walled courtyard beyond a long stone bridge over a gorge, with rounded hills and a few oaks.",
+  "videos": [
+   {"engine": "Unity", "mp4": "lab/medieval-castle/unity.mp4", "poster": "lab/medieval-castle/unity.jpg", "width": 1920, "height": 1080, "caption": "Unity 6 with URP on Vulkan, as the project is configured: no anti-aliasing."},
+   {"engine": "R3F (WebGPU)", "mp4": "lab/medieval-castle/r3f.mp4", "poster": "lab/medieval-castle/r3f.jpg", "width": 1920, "height": 1080, "caption": "Holodeck's React Three Fiber viewer, captured with WebGPU. It also renders with WebGL2 when that is forced."}
+  ],
+  "scene": {"example": "medieval-castle"}
+ }
+]
