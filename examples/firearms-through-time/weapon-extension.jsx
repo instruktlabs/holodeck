@@ -26,10 +26,12 @@ function ghostRingMaterial(source,ring){
  return {material:m,aim,axis,core,outer};
 }
 
-function WeaponWorkbench({runtime,cameraMode,inhabiting,person,look}){
- const profile=useMemo(()=>browserProfile(new URLSearchParams(window.location.search).get('weapon')??'pistol'),[]),motion=profile.motion,armRig=profile.rig,weaponSpec=specFor(profile.id);
+// The full workbench (profile menu, action buttons, rig readouts) is a test surface: ?weaponDebug=1 shows it, play shows a short HUD.
+const debugHud=()=>{const q=new URLSearchParams(window.location.search);return q.get('weaponDebug')==='1'||q.get('weaponReview')==='1';};
+function WeaponWorkbench({runtime,cameraMode,inhabiting,person,look,weaponId,choose}){
+ const profile=useMemo(()=>browserProfile(weaponId),[weaponId]),motion=profile.motion,armRig=profile.rig,weaponSpec=specFor(profile.id);
  const {camera,gl,scene}=useThree(),[kit,setKit]=useState(null),[error,setError]=useState('');
- const range=useRef(null),binding=useRef(null),consoles=useRef(null),rangeHud=useRef(null),wasActive=useRef(false),saved=useRef('');
+ const rackHover=useRef(null),range=useRef(null),binding=useRef(null),consoles=useRef(null),rangeHud=useRef(null),wasActive=useRef(false),saved=useRef('');
  const storageKey='range-study-v1:fd10d5d1-cb96-42e6-bd1b-36485ffe9019'+(profile.id==='pistol'?'':':'+profile.id);
  if(!range.current){try{const stored=localStorage.getItem(storageKey);range.current=stored?restoreRange(JSON.parse(stored)):createRange(crypto.randomUUID());}catch{range.current=createRange(crypto.randomUUID());}}
  range.current.weaponId=weaponSpec.id;
@@ -56,7 +58,7 @@ function WeaponWorkbench({runtime,cameraMode,inhabiting,person,look}){
  useEffect(()=>{const save=()=>{try{localStorage.setItem(storageKey,JSON.stringify(range.current));}catch{range.current.message='Local save unavailable — export this session';}};
   const rangeDo=(action,arg)=>{if(!gate.current||!binding.current||review.current.clip!=='Live')return false;const ok=rangeAction(range.current,action,arg);save();return ok;};
   const exportSession=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(range.current,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='range-session-'+range.current.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-  rangeHud.current=rangeUI(rangeDo,exportSession);
+  rangeHud.current=rangeUI(rangeDo,exportSession);/* In play the string and target review opens with J; the debug view shows it from the start. */rangeHud.current.shown=debugHud();rangeHud.current.host.style.display=rangeHud.current.shown?'':'none';
   // Range keys work with the mouse locked (owner decision, 27 Oct): Unreal's keys where the host leaves them free, plus L and P because the host keeps 1-3 and T for emotes and Enter for the composer.
   const keys=e=>{if(e.repeat||!gate.current||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName))return;const s=range.current,lanes=['paper','plates','original'];
    if(e.code==='KeyL'){if(!rangeDo('select',lanes[(lanes.indexOf(s.lane)+1)%lanes.length])&&s.phase==='active')s.message='Lane is fixed during a string — Backspace ends it';}
@@ -90,7 +92,7 @@ function WeaponWorkbench({runtime,cameraMode,inhabiting,person,look}){
  useEffect(()=>{
   const host=document.createElement('section');host.setAttribute('aria-label','Weapon workbench');Object.assign(host.style,{position:'fixed',left:'24px',top:'78px',zIndex:20,background:'#0d161ce8',color:'#e2e9e8',padding:'14px 18px',border:'1px solid #52615d',borderRadius:'10px',font:'13px system-ui',maxWidth:'min(620px, calc(100vw - 418px))'});
   const title=document.createElement('strong');title.textContent=profile.title+' / skinned gloves';host.append(title);
-  const equipment=document.createElement('select');equipment.setAttribute('aria-label','Weapon profile');equipment.style.marginLeft='10px';for(const [id,p]of Object.entries(browserProfiles)){const option=document.createElement('option');option.value=id;option.textContent=p.title;equipment.append(option);}equipment.value=profile.id;equipment.onchange=()=>{const id=equipment.value;if(id===profile.id)return;if(state.current.mode!=='idle'||state.current.cooldown>0||['active','returning','deploying','blocked'].includes(range.current.phase)){equipment.value=profile.id;return;}rangeAction(range.current,'leave');try{localStorage.setItem(storageKey,JSON.stringify(range.current));}catch{equipment.value=profile.id;state.current.message='Profile unchanged: export the session before retrying; local save unavailable';return;}const url=new URL(window.location.href);url.searchParams.set('weapon',id);window.location.assign(url.href);};host.append(equipment);
+  const equipment=document.createElement('select');equipment.setAttribute('aria-label','Weapon profile');equipment.style.marginLeft='10px';for(const [id,p]of Object.entries(browserProfiles)){const option=document.createElement('option');option.value=id;option.textContent=p.title;equipment.append(option);}equipment.value=profile.id;const trySwitch=id=>{if(id===profile.id)return;if(state.current.mode!=='idle'||state.current.cooldown>0||['active','returning','deploying','blocked'].includes(range.current.phase)){equipment.value=profile.id;return;}rangeAction(range.current,'leave');try{localStorage.setItem(storageKey,JSON.stringify(range.current));}catch{equipment.value=profile.id;state.current.message='Profile unchanged: export the session before retrying; local save unavailable';return;}choose(id);};equipment.onchange=()=>trySwitch(equipment.value);host.append(equipment);
   const status=document.createElement('div');status.setAttribute('role','status');status.style.margin='8px 0';host.append(status);
   const act=(action)=>{if(!gate.current||!kit||review.current.clip!=='Live'||document.hidden)return;
    // A click (workbench button) on a held-trigger gun is a pull and a release; the round falls in the next frame.
@@ -107,14 +109,15 @@ function WeaponWorkbench({runtime,cameraMode,inhabiting,person,look}){
   }
   // Held-trigger guns pull on F down and release on F up; B switches the fire mode.
   const pull=()=>{if(gate.current&&kit&&review.current.clip==='Live'&&!document.hidden)pullTrigger(state.current.trigger);},release=()=>{if(fire)releaseTrigger(state.current.trigger);};
-  const key=e=>{if(e.repeat||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName))return;if(fire&&e.code==='KeyF'){if(gate.current){e.preventDefault();pull();}return;}const action={KeyI:'inspect',KeyQ:'aim',KeyF:'fire',KeyR:'reload',KeyC:'grip',KeyB:fire?'mode':null}[e.code];if(action&&gate.current){e.preventDefault();act(action);}};
+  const key=e=>{if(e.repeat||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName))return;if(e.code==='KeyJ'&&gate.current&&rangeHud.current){e.preventDefault();const r=rangeHud.current;r.shown=!r.shown;r.host.style.display=r.shown?'':'none';return;}if(e.code==='KeyX'&&gate.current&&rackHover.current){e.preventDefault();trySwitch(rackHover.current);return;}if(fire&&e.code==='KeyF'){if(gate.current){e.preventDefault();pull();}return;}const action={KeyI:'inspect',KeyQ:'aim',KeyF:'fire',KeyR:'reload',KeyC:'grip',KeyB:fire?'mode':null}[e.code];if(action&&gate.current){e.preventDefault();act(action);}};
   const keyUp=e=>{if(fire&&e.code==='KeyF')release();};
   const locked=()=>document.pointerLockElement===gl.domElement;
   // Presses and releases come from the buttons mask: LMB pressed while RMB holds aim arrives as pointermove, not pointerdown.
   const pointer=createMouseButtons(),mouse=e=>{const b=readMouseButtons(pointer,e.buttons);if(b.aimUp&&holdAim.current)holdAim.current=false;if(b.triggerUp)release();if(!locked()||!gate.current)return;if(b.aimDown){e.preventDefault();holdAim.current=true;}if(b.triggerDown){if(fire)pull();else act('fire');}};
   const unlock=()=>{if(locked())return;pointer.buttons=0;release();if(holdAim.current)holdAim.current=false;};
   const menu=e=>{if(locked())e.preventDefault();};
-  document.body.append(host);window.addEventListener('keydown',key);window.addEventListener('keyup',keyUp);window.addEventListener('blur',release);for(const t of ['pointerdown','pointermove','pointerup'])gl.domElement.addEventListener(t,mouse);gl.domElement.addEventListener('contextmenu',menu);document.addEventListener('pointerlockchange',unlock);ui.current={host,status,buttons,equipment};return()=>{host.remove();ui.current=null;window.removeEventListener('keydown',key);window.removeEventListener('keyup',keyUp);window.removeEventListener('blur',release);release();for(const t of ['pointerdown','pointermove','pointerup'])gl.domElement.removeEventListener(t,mouse);gl.domElement.removeEventListener('contextmenu',menu);document.removeEventListener('pointerlockchange',unlock);};
+  document.body.append(host);window.addEventListener('keydown',key);window.addEventListener('keyup',keyUp);window.addEventListener('blur',release);for(const t of ['pointerdown','pointermove','pointerup'])gl.domElement.addEventListener(t,mouse);gl.domElement.addEventListener('contextmenu',menu);document.addEventListener('pointerlockchange',unlock);const debug=debugHud();if(!debug){title.style.display=equipment.style.display='none';buttons.forEach(b=>{b.style.display='none';});Object.assign(host.style,{top:'auto',left:'auto',right:'24px',bottom:'92px',padding:'8px 12px',font:'14px system-ui',maxWidth:'420px'});status.style.margin='0';}
+  ui.current={host,status,buttons,equipment,trySwitch,debug};return()=>{host.remove();ui.current=null;window.removeEventListener('keydown',key);window.removeEventListener('keyup',keyUp);window.removeEventListener('blur',release);release();for(const t of ['pointerdown','pointermove','pointerup'])gl.domElement.removeEventListener(t,mouse);gl.domElement.removeEventListener('contextmenu',menu);document.removeEventListener('pointerlockchange',unlock);};
  },[kit,camera,direction,runtime,gl,profile]);
  useFrame((_,dt)=>{
   if(!binding.current)binding.current=bindRange(scene,runtime,range.current);
@@ -125,7 +128,8 @@ function WeaponWorkbench({runtime,cameraMode,inhabiting,person,look}){
   const inspecting=review.current.clip!=='Live';root.visible=active&&!!kit;if(gate.current&&!document.hidden&&kit&&!inspecting){const turn=fire?runFireFrame(state.current,fire,recoil.current,dt,roundEvent):(step(state.current,dt),stepRecoil(recoil.current,Math.min(dt,.1)));look?.current?.turn(-turn[1]*Math.PI/180,turn[0]*Math.PI/180);const h=holdAim.current;if(h===true&&!state.current.aim)command(state.current,'aim');else if(h===false){if(state.current.aim)command(state.current,'aim');if(!state.current.aim)holdAim.current=null;}}const s=state.current;
   const frozen={...s,mode:'idle',timer:0,cooldown:0,flash:0,aim:false};if(inspecting){const {clip,phase}=review.current,duration=motion.clips[clip].duration;if(clip==='Reload'||clip==='ReloadEmpty'||clip==='Inspect'){frozen.mode=clip==='Inspect'?'inspect':'reload';frozen.reloadKind=clip==='ReloadEmpty'?'empty':'standard';frozen.timer=duration*(1-phase);}if(clip==='Fire'){frozen.cooldown=Math.max(1e-9,duration*(1-phase));frozen.flash=Math.max(0,.09-duration*phase);}if(motion.clips.Fired)frozen.ammo=clip==='Fired'?0:Math.max(1,s.ammo);}
   const p=pose(inspecting?frozen:s,motion);
-  if(ui.current){ui.current.status.textContent=error||(!kit?'Loading pinned rig…':!active?'Enter world, then V for first person.':`${inspecting?"POSE REVIEW "+Math.round(review.current.phase*100)+"%":s.message} · ${s.mode} · ${s.aim?'AIM':'HIP'}${fire?.modes.length>1?' · '+s.trigger.mode.toUpperCase()+(s.trigger.mode==='burst'?' '+burstLeft(s.trigger,fire)+'/'+fire.burst.rounds:''):''} · Recoil ${look?.current?'row '+(recoil.current.index+1):'needs host look'} · Ammo ${s.ammo}/${weaponSpec.capacity} · Reserve ${s.reserve} · Shots ${s.shots} · Hits ${s.hits} · ${profile.id==='pistol'?'Grip '+s.grip+' · ':s.finish?'Finish '+s.finish+' · ':''}Skin 41 bones · Arm IK + twist · Clip ${p.clip} / ${p.phase}`);ui.current.buttons.forEach(b=>b.disabled=!gate.current||!kit||inspecting||(b.dataset.action==='grip'&&!weaponSpec.grips.length));ui.current.equipment.disabled=inspecting||s.mode!=='idle'||s.cooldown>0||['active','returning','deploying','blocked'].includes(range.current.phase);ui.current.host.style.borderColor=s.flash>0?(s.message==='Target hit'?'#a7f7ce':'#ffc171'):'#52615d';}
+  if(ui.current&&!ui.current.debug){const rack=rackHover.current;ui.current.status.textContent=error||(!kit?'Loading '+profile.title+'…':!active?'Enter world, then V for first person.':rack?(rack===profile.id?browserProfiles[rack].title+' (in hand)':'X · Take '+browserProfiles[rack].title):`${profile.title} · ${s.aim?'AIM':'HIP'}${fire?.modes.length>1?' · '+s.trigger.mode.toUpperCase()+(s.trigger.mode==='burst'?' '+burstLeft(s.trigger,fire)+'/'+fire.burst.rounds:''):''} · ${s.ammo}/${weaponSpec.capacity} · Reserve ${s.reserve}${s.message?' · '+s.message:''}`);ui.current.host.style.borderColor=s.flash>0?(s.message==='Target hit'?'#a7f7ce':'#ffc171'):'#52615d';}
+  else if(ui.current){ui.current.status.textContent=error||(!kit?'Loading pinned rig…':!active?'Enter world, then V for first person.':`${inspecting?"POSE REVIEW "+Math.round(review.current.phase*100)+"%":s.message} · ${s.mode} · ${s.aim?'AIM':'HIP'}${fire?.modes.length>1?' · '+s.trigger.mode.toUpperCase()+(s.trigger.mode==='burst'?' '+burstLeft(s.trigger,fire)+'/'+fire.burst.rounds:''):''} · Recoil ${look?.current?'row '+(recoil.current.index+1):'needs host look'} · Ammo ${s.ammo}/${weaponSpec.capacity} · Reserve ${s.reserve} · Shots ${s.shots} · Hits ${s.hits} · ${profile.id==='pistol'?'Grip '+s.grip+' · ':s.finish?'Finish '+s.finish+' · ':''}Skin 41 bones · Arm IK + twist · Clip ${p.clip} / ${p.phase}`);ui.current.buttons.forEach(b=>b.disabled=!gate.current||!kit||inspecting||(b.dataset.action==='grip'&&!weaponSpec.grips.length));ui.current.equipment.disabled=inspecting||s.mode!=='idle'||s.cooldown>0||['active','returning','deploying','blocked'].includes(range.current.phase);ui.current.host.style.borderColor=s.flash>0?(s.message==='Target hit'?'#a7f7ce':'#ffc171'):'#52615d';}
   if(ui.current)ui.current.host.hidden=!active;
   if(lens.current&&profile.view.aimFovDeg&&(!active||!kit)&&(camera.fov!==lens.current.fov||camera.near!==lens.current.near)){camera.fov=lens.current.fov;camera.near=lens.current.near;camera.updateProjectionMatrix();}
   if(!kit)return;
@@ -145,10 +149,38 @@ function WeaponWorkbench({runtime,cameraMode,inhabiting,person,look}){
   kit.actions[p.clip].time=p.clipTime;kit.mixer.update(0);applyArmIK(kit.hands,kit.chains,p);
   for(const m of kit.grips)m.color.set(s.grip==='walnut'?0xffffff:0x667986);
  });
- return <primitive object={root}/>;
+ return <><primitive object={root}/><WeaponRack active={active} hover={rackHover}/></>;
 }
 
-export default function WeaponExtension(props){return ['range-target','booth-console','collection-bay'].every(id=>props.runtime.scene.objects.some(o=>o.id===id))?<WeaponWorkbench {...props}/>:null;}
+// The extension draws first-person hands, so the host hides the maker's body in first person.
+export const firstPersonBody='hidden';
+// A wall rack behind the booths holds every playable gun; looking at one and pressing X takes it.
+const RACK={position:[15.6,0,-4.05],yaw:0,width:2.2,rows:[1.72,1.42,1.12,.82],reach:3};
+function WeaponRack({active,hover}){
+ const {camera,scene}=useThree(),group=useMemo(()=>new THREE.Group(),[]),guns=useRef([]),ray=useMemo(()=>new THREE.Raycaster(),[]),center=useMemo(()=>new THREE.Vector2(0,0),[]);
+ useEffect(()=>{
+  let live=true;group.name='WeaponRack';group.position.fromArray(RACK.position);group.rotation.y=RACK.yaw;scene.add(group);
+  const wood=new THREE.MeshStandardMaterial({color:'#5b4632',roughness:.8}),steel=new THREE.MeshStandardMaterial({color:'#2d3134',roughness:.5,metalness:.6});
+  const board=new THREE.Mesh(new THREE.BoxGeometry(RACK.width,1.35,.04),wood);board.position.set(0,1.27,-.03);group.add(board);
+  for(const x of [-RACK.width/2+.05,RACK.width/2-.05]){const post=new THREE.Mesh(new THREE.BoxGeometry(.06,1.95,.06),steel);post.position.set(x,.975,-.03);group.add(post);}
+  const loader=new GLTFLoader();
+  Object.values(browserProfiles).forEach((p,i)=>loader.load(p.gunUrl,g=>{if(!live)return;const gun=g.scene,box=new THREE.Box3().setFromObject(gun),size=box.getSize(new THREE.Vector3());
+   // Lay the gun's longest axis along the rack and sit it just in front of the board.
+   if(size.z>size.x)gun.rotation.y=Math.PI/2;box.setFromObject(gun);const mid=box.getCenter(new THREE.Vector3());
+   const holder=new THREE.Group();holder.add(gun);gun.position.sub(mid);holder.position.set(0,RACK.rows[i%RACK.rows.length],.06);holder.userData.weapon=p.id;group.add(holder);
+   const peg=new THREE.Mesh(new THREE.BoxGeometry(.03,.03,.1),steel);peg.position.set(0,RACK.rows[i%RACK.rows.length]-.05,.03);group.add(peg);guns.current.push(holder);}));
+  return()=>{live=false;scene.remove(group);group.traverse(n=>{if(n.isMesh){n.geometry.dispose();}});wood.dispose();steel.dispose();guns.current=[];};
+ },[group,scene]);
+ useFrame(()=>{hover.current=null;if(!active||!guns.current.length)return;ray.setFromCamera(center,camera);ray.far=RACK.reach;const hit=ray.intersectObjects(guns.current,true)[0];if(!hit)return;let n=hit.object;while(n&&!n.userData.weapon)n=n.parent;hover.current=n?.userData.weapon??null;});
+ return null;
+}
+export default function WeaponExtension(props){
+ const [weapon,setWeapon]=useState(()=>new URLSearchParams(window.location.search).get('weapon')??'pistol');
+ if(!['range-target','booth-console','collection-bay'].every(id=>props.runtime.scene.objects.some(o=>o.id===id)))return null;
+ // Switching keeps the session: the URL records the gun, and the workbench remounts with the new profile.
+ const choose=id=>{const url=new URL(window.location.href);url.searchParams.set('weapon',id);window.history.replaceState(null,'',url.href);setWeapon(id);};
+ return <WeaponWorkbench key={weapon} weaponId={weapon} choose={choose} {...props}/>;
+}
 
 
 

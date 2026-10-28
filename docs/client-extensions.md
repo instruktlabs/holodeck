@@ -14,7 +14,11 @@ otherwise it applies nothing and returns `[0, 0]`, and outside walking views
 recoil the player corrects with the mouse. A turn shows from the next frame.
 Cosmetic shake should offset the camera instead and must not use it.
 
-Without that setting the host imports a no-op component. Scene JSON cannot turn
+An extension that draws its own first-person hands can also export
+`firstPersonBody = 'hidden'`; the host then hides the whole maker in first
+person (third person and free camera still show it).
+
+Without `HOLODECK_CLIENT_EXTENSION` the host imports a no-op component. Scene JSON cannot turn
 it on. Assets and gameplay owned by an external project stay in that project; the
 one exception is [examples/firearms-through-time](../examples/firearms-through-time/README.md),
 a complete game kept here as a reference for the hook (R3F extension, shared game
