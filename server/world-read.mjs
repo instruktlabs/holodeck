@@ -54,7 +54,7 @@ function capabilityEntries(capabilities){
 }
 
 export function worldReadSection(source,{section='overview',asset,cursor}={}){
-  const {world,hashes={},textures={},workspace,diagnostic,files=[],capabilities}=source;
+  const {world,hashes={},textures={},height=null,workspace,diagnostic,files=[],capabilities}=source;
   if(!WORLD_READ_SECTIONS.includes(section))throw new Error(`Unknown world_read section ${section}; use one of ${WORLD_READ_SECTIONS.join(', ')}`);
   if(asset!==undefined&&section!=='objects')throw new Error('asset filters only the objects section');
   if(cursor!==undefined&&!PAGED.has(section))throw new Error(`The ${section} section has no pages`);
@@ -71,6 +71,16 @@ export function worldReadSection(source,{section='overview',asset,cursor}={}){
     // settings, to their own sections.
     if(size(overview)>budget)overview.bible='Too large for the overview; read section bible.';
     if(size(overview)>budget)overview.scene=`Too large for the overview; read section scene. Keys: ${Object.keys(settings).join(', ')}`;
+    // A world with hundreds of unique assets (a modular kit) has one group per
+    // asset, more than the overview holds. Keep the most-placed groups, in their
+    // original order, and say where the rest are.
+    if(size(overview)>budget){
+      const groups=overview.objectsByAsset,rank=groups.map((g,i)=>i).sort((a,b)=>groups[b].count-groups[a].count||a-b);
+      const keep=n=>{const kept=new Set(rank.slice(0,n));const shown=groups.filter((_,i)=>kept.has(i));const omitted=groups.filter((_,i)=>!kept.has(i));
+        return {...overview,objectsByAsset:shown,objectsByAssetOmitted:{groups:omitted.length,objects:omitted.reduce((n,g)=>n+g.count,0),note:'The least-placed asset groups are left out to keep the overview small; read section assets for every asset, or section objects with an asset filter.'}};};
+      let lo=0,hi=groups.length;while(lo<hi){const mid=Math.ceil((lo+hi)/2);if(size(keep(mid))<=budget)lo=mid;else hi=mid-1;}
+      return keep(lo);
+    }
     return overview;
   }
   if(section==='bible')return {...head,bible:world.bible};
@@ -80,7 +90,8 @@ export function worldReadSection(source,{section='overview',asset,cursor}={}){
     return paged(asset?objects.filter(o=>(o.asset??`shape:${o.shape?.type??'none'}`)===asset):objects);
   }
   if(section==='scatters')return paged(scene.scatters??[]);
-  if(section==='assets')return paged([...(scene.assets??[]).map(a=>({...a,hash:hashes[a.file]??null})),...Object.entries(textures).map(([file,hash])=>({texture:file,hash}))]);
+  // A heightmap's samples are listed by file, hash, byte count and size; never the samples.
+  if(section==='assets')return paged([...(scene.assets??[]).map(a=>({...a,hash:hashes[a.file]??null})),...Object.entries(textures).map(([file,hash])=>({texture:file,hash})),...(height?[{height:height.file,hash:height.hash,bytes:height.bytes,size:height.size}]:[])]);
   if(section==='files')return paged(files);
   if(section==='references')return paged(world.references??[]);
   const {items,...p}=paged(capabilityEntries(capabilities));return {...p,capabilities:Object.fromEntries(items)};

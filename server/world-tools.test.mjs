@@ -34,6 +34,15 @@ test('world_read lists every terrain appearance setting, what is fixed, and how 
   assert.match(terrainRendering,/seabed/);
 });
 
+test('world_read states the heightmap terrain contract and gives a structurally valid example',async()=>{
+  const {terrain,terrainHeightmap,limits,examples}=(await read(2)).spatial;
+  assert.match(terrain,/type:"heightmap"/);
+  for(const fact of ['little-endian float32','row 0 at zmin','column 0 at xmin','2..1025','sha256','128 MiB','new file name','segments','one lattice','stamps','never the samples'])assert.ok(terrainHeightmap.includes(fact),fact);
+  assert.match(limits,/heightmap/);
+  const {validateTerrain}=await import('../src/world/terrain.mjs');
+  assert.equal(validateTerrain(examples.terrainHeightmap),examples.terrainHeightmap);
+});
+
 test('world_read says what each environment type renders',async()=>{
   const v2=await read(2),v1=await read(1);
   for(const text of [v2.environmentTypes,v2.spatial.environments])for(const fact of ['construct','meadow','With scene.terrain both types render identically','clearPath'])assert.ok(text.includes(fact),fact);
@@ -67,9 +76,11 @@ test('world_read advertises optional lighting defaults and bounds with a valid e
  assert.equal((await read(1)).spatial,null);
 });
 
-test('world_read gives a budget strategy for the 64-asset cap',async()=>{
-  const {budgetStrategy}=await read(2);
-  for(const fact of ['64-asset cap usually binds','two or three shaped variants per family','yaw','scale','lean'])assert.ok(budgetStrategy.includes(fact),fact);
+test('world_read gives a budget strategy that leaves room for modular kits',async()=>{
+  const {budgetStrategy,limits}=await read(2),{MAX_ASSETS,MAX_PLACEMENTS}=await import('../src/world/asset-budget.mjs');
+  for(const fact of [`${MAX_ASSETS} unique assets`,`${MAX_PLACEMENTS} placements`,'modular kit','one draw per mesh part','one shared set of saved materials','two or three shaped variants per family','yaw','scale','lean'])assert.ok(budgetStrategy.includes(fact),fact);
+  assert.ok(!/cap usually binds|leave a few asset slots/.test(budgetStrategy),'the asset cap is no longer the budget to plan around');
+  assert.ok(limits.startsWith(`${MAX_ASSETS} assets (64 for schema 1), ${MAX_PLACEMENTS} placements, 32 MiB per GLB, 128 MiB per scene`),limits);
 });
 
 test('world_read describes scatter records, and its example expands on the example terrain',async()=>{

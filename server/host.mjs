@@ -8,8 +8,12 @@ import { CursorAgent } from './cursor.mjs';
 import { ClaudeAgent } from './claude.mjs';
 import { MAX_ASSET_BYTES } from '../src/world/contract.mjs';
 import {ensureKilnWorkspace} from './kiln-workspace.mjs';
+import {syncOptionalSkills} from './world-skills.mjs';
+import {enabledOptionalSkills} from '../src/world/optional-skills.mjs';
 import {checkWorld} from './coherence.mjs';
 import {listRevisions,restoreRevision,remixRevision} from './history.mjs';
+import {retainHeightSamples,releaseHeightSamples,heightSamples} from '../src/world/terrain.mjs';
+import {heightmapOf,admitHeight,heightBlob} from './terrain-heights.mjs';
 
 async function body(req,limit=1024*1024){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>limit)throw new Error('Request is too large');chunks.push(chunk);}return Buffer.concat(chunks);}
 const json=(res,value,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(value));};
@@ -19,8 +23,12 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
   // images download once. HOLODECK_SHARED_TEXTURES=0 serves the pinned bytes.
   const textures=createTextureStore(hash=>readFile(path.join(store.root,'.holodeck/blobs',`${hash}.glb`)));let proposal=null,observation=null,closing=false,closePromise=null,historyActive=false,agentStarting=false,storeWork=0;
   const serial=store.serial.bind(store);store.serial=work=>{storeWork++;return serial(work).finally(()=>storeWork--);};
-  const scope=entries=>Object.fromEntries(Object.entries(entries).map(([id,asset])=>[id,{...asset,url:`${asset.url}?worldId=${context.worldId}&epoch=${context.epoch}`}]));
-  const scoped=value=>{if(!context||!value||typeof value!=='object')return value;const result={...value};if(result.world)result.context=context;if(result.assets)result.assets=scope(result.assets);if(result.textures)result.textures=scope(result.textures);if(result.proposal)result.proposal=scoped(result.proposal);return result;};
+  const scopeUrl=entry=>({...entry,url:`${entry.url}?worldId=${context.worldId}&epoch=${context.epoch}`});
+  const scope=entries=>Object.fromEntries(Object.entries(entries).map(([id,asset])=>[id,scopeUrl(asset)]));
+  const scoped=value=>{if(!context||!value||typeof value!=='object')return value;const result={...value};if(result.world)result.context=context;if(result.assets)result.assets=scope(result.assets);if(result.textures)result.textures=scope(result.textures);if(result.height)result.height=scopeUrl(result.height);if(result.proposal)result.proposal=scoped(result.proposal);return result;};
+  // A staged proposal's height samples stay resident until it is replaced,
+  // applied or discarded, for world_sample and world_check on the proposal.
+  const stage=next=>{if(next?.height)retainHeightSamples(next.height.hash);if(proposal?.height)releaseHeightSamples(proposal.height.hash);proposal=next;};
   const send=(res,value,status)=>json(res,scoped(value),status);
   const broadcast=message=>{
     if(closing)return;
@@ -33,9 +41,10 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
   const propose=async(change,isActive=()=>true)=>{
     if(change.baseRevision!==store.current.revision)throw new Error('World changed; read the current revision first');
     const world={...store.snapshot(),scene:change.scene??store.current.scene,bible:change.bible??store.current.bible,references:change.references??store.current.references??[]};
-    const {assets,textures:terrainTextures}=await store.prepareBundle(world);
+    const {assets,textures:terrainTextures,height}=await store.prepareBundle(world);
     if(!isActive()||change.baseRevision!==store.current.revision)throw new Error('Proposal canceled or superseded');
-    proposal={id:randomUUID(),baseRevision:change.baseRevision,summary:String(change.summary||'World change').slice(0,1000),world,assets,textures:terrainTextures};emit('proposal',proposal);return {proposalId:proposal.id,status:'awaiting user review',baseRevision:proposal.baseRevision};
+    if(height&&!heightSamples(height.hash))admitHeight(heightmapOf(world),await readFile(path.join(store.root,heightBlob(height.hash))));
+    stage({id:randomUUID(),baseRevision:change.baseRevision,summary:String(change.summary||'World change').slice(0,1000),world,assets,textures:terrainTextures,height});emit('proposal',proposal);return {proposalId:proposal.id,status:'awaiting user review',baseRevision:proposal.baseRevision};
   };
   const codexAgent=agentFactory?agentFactory(store,{propose,observe:()=>observation,staged:()=>proposal}):new CodexAgent(store,{propose,observe:()=>observation,staged:()=>proposal});
   let cursor=null,claude=null,agent=codexAgent;
@@ -51,7 +60,11 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
     }
     return agent;
   };
-  const onWorld=data=>{proposal=null;emit('proposal',null);emit('world',data);},onDiagnostic=message=>emit('diagnostic',message),onAgent=s=>emit('agent',s);
+  // Optional skills follow scene.destinations: synced on every connection and
+  // whenever an accepted revision changes the declared set.
+  let skillSync=Promise.resolve(),syncedSkills=null;
+  const syncSkills=()=>skillSync=skillSync.catch(()=>{}).then(async()=>{syncedSkills=JSON.stringify(await syncOptionalSkills(store.root,store.current));});
+  const onWorld=data=>{stage(null);emit('proposal',null);emit('world',data);if(syncedSkills!==null&&JSON.stringify(enabledOptionalSkills(store.current))!==syncedSkills)syncSkills().catch(e=>emit('diagnostic',`World skills could not be updated: ${e.message}`));},onDiagnostic=message=>emit('diagnostic',message),onAgent=s=>emit('agent',s);
   store.on('world',onWorld);store.on('diagnostic',onDiagnostic);agent.on('agent',onAgent);
   const keepalive=setInterval(()=>broadcast(': heartbeat\n\n'),15000);keepalive.unref();
   async function middleware(req,res,next){
@@ -86,6 +99,12 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
         if(!texture)return send(res,{error:'Unknown texture'},404);
         res.writeHead(200,{'Content-Type':TEXTURE_CONTENT_TYPES[name.split('.')[1]],'Cache-Control':'private, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'});return res.end(texture.bytes);
       }
+      // Pinned terrain height samples, named by their sha256 like the GLBs.
+      if(route.startsWith('/api/heights/')&&req.method==='GET'){
+        const name=route.slice('/api/heights/'.length);if(!/^[a-f0-9]{64}\.r32$/.test(name))return send(res,{error:'Invalid height hash'},400);
+        const data=await readFile(path.join(store.root,'.holodeck/blobs',name)).catch(()=>null);if(!data)return send(res,{error:'Unknown terrain height'},404);
+        res.writeHead(200,{'Content-Type':'application/octet-stream','Cache-Control':'private, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'});return res.end(data);
+      }
       if(route.startsWith('/api/references/')&&req.method==='GET'){
         const name=route.slice('/api/references/'.length);if(!/^[a-f0-9]{64}\.(png|md|txt|json|pdf|glb)$/.test(name))throw new Error('Invalid reference revision');
         const file=await store.contained(`references/files/${name}`),data=await readFile(file);res.writeHead(200,{'Content-Type':name.endsWith('.png')?'image/png':'application/octet-stream',...(name.endsWith('.png')?{}:{'Content-Disposition':`attachment; filename="${name}"`}), 'Cache-Control':'private, max-age=31536000, immutable','X-Content-Type-Options':'nosniff'});return res.end(data);
@@ -119,7 +138,7 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
         if(!proposal||proposal.id!==data.id)throw new Error('Proposal is no longer current');
         return send(res,await store.commit({baseRevision:proposal.baseRevision,scene:proposal.world.scene,bible:proposal.world.bible,references:proposal.world.references}));
       }
-      if(route==='/api/proposal/discard'){if(proposal?.id===data.id){proposal=null;emit('proposal',null);}return send(res,{ok:true});}
+      if(route==='/api/proposal/discard'){if(proposal?.id===data.id){stage(null);emit('proposal',null);}return send(res,{ok:true});}
       if(route==='/api/observation'){
         if(!Number.isSafeInteger(data.revision)||!Array.isArray(data.position)||data.position.length!==3||data.position.some(n=>!Number.isFinite(n)))throw new Error('Invalid observation');
         observation={...data,receivedAt:new Date().toISOString()};return send(res,{ok:true});
@@ -127,7 +146,8 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
       if(route==='/api/agent/connect'){
         const provider=data.provider||agent.snapshot?.().provider||'codex';selectAgent(provider);
         const upgrade=await ensureWorkspace(root,{provider});
-        // Kiln 1.4.0's upgrade report lists the files it rewrote in `changed`.
+        await syncSkills();
+        // Kiln's upgrade report (1.4.0 and 1.6.0) lists the files it rewrote in `changed`.
         const files=upgrade?.changed?.length;
         if(files)emit('notice',`Kiln workspace upgraded for the installed Kiln · ${files} Kiln-managed file${files===1?'':'s'} refreshed`);
         return send(res,await agent.connect());
@@ -153,10 +173,10 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
     // Closing the RPC emits a final disconnect synchronously. Detach producers
     // and remove destinations before ending streams so that event cannot write
     // into an ended response during a Vite restart or normal host shutdown.
-    store.off('world',onWorld);store.off('diagnostic',onDiagnostic);agent.off('agent',onAgent);
+    store.off('world',onWorld);store.off('diagnostic',onDiagnostic);agent.off('agent',onAgent);stage(null);
     const responses=[...clients];clients.clear();
     for(const res of responses)if(!res.destroyed&&!res.writableEnded)res.end();
-    closePromise=(async()=>{try{await codexAgent.persistQueue;codexAgent.close?.();if(cursor){await cursor.persistQueue;cursor.close?.();}if(claude){await claude.persistQueue;claude.close?.();}}finally{await store.close();}})();return closePromise;
+    closePromise=(async()=>{try{await codexAgent.persistQueue;codexAgent.close?.();if(cursor){await cursor.persistQueue;cursor.close?.();}if(claude){await claude.persistQueue;claude.close?.();}}finally{await skillSync.catch(()=>{});await store.close();}})();return closePromise;
   }};
 }
 

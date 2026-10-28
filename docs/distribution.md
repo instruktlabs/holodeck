@@ -11,7 +11,9 @@ requirements, without private implementations or dependencies on private repos.
 New example data is independently authored for Holodeck. Cove provenance retains
 revision identities without machine-specific workspace paths.
 
-package.json.files is an explicit npm allowlist. Git and npm are separate exposure
+package.json.files is an explicit npm allowlist. It includes every skill in
+`skills/`; optional skills such as `holodeck-export-unity` reach a world only when
+its scene opts in (see [architecture](architecture.md)). Git and npm are separate exposure
 boundaries. Local evidence and private directories are ignored; candidate source
 and the npm dry-run manifest are checked separately. Automated checks catch common
 path/artifact mistakes, not arbitrary semantic disclosure. Review source and asset

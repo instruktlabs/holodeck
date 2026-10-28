@@ -1,12 +1,13 @@
-import {readFile,readdir,stat,realpath,mkdir,writeFile,cp,unlink} from 'node:fs/promises';
+import {readFile,readdir,stat,realpath,mkdir,writeFile,unlink} from 'node:fs/promises';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {validateWorld,validateGlb,MAX_ASSET_BYTES} from '../src/world/contract.mjs';
 import {SKILLS_GUIDE,KILN_GUIDE} from './world-guide.mjs';
+import {installWorldSkills} from './world-skills.mjs';
 import {terrainTextureFiles,checkTerrainTextures,pngInfo,renameTerrainTextures,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
+import {heightSamples} from '../src/world/terrain.mjs';
+import {heightmapOf,admitHeight,heightBlob,HEIGHT_FILE_BYTES} from './terrain-heights.mjs';
 
-const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const revisionId=value=>{if(!Number.isSafeInteger(value)||value<0)throw new Error('Choose a non-negative integer revision');return value;};
 async function containedBytes(root,file,limit){
@@ -15,12 +16,20 @@ async function containedBytes(root,file,limit){
  const info=await stat(target);if(!info.isFile()||info.size>limit)throw new Error('Snapshot dependency exceeds its size limit');
  return readFile(target);
 }
+// A heightmap snapshot's pinned samples, verified against the hash its record
+// names. They load before validation, since counting scatters builds the terrain.
+async function pinnedHeight(root,receipt){
+ const terrain=heightmapOf(receipt?.world);if(!terrain)return null;
+ if(receipt.height?.hash!==terrain.height.sha256)throw new Error('Snapshot terrain height hash is missing or invalid');
+ return admitHeight(terrain,await containedBytes(root,heightBlob(terrain.height.sha256),HEIGHT_FILE_BYTES));
+}
 function validateReceipt(receipt,revision){
  validateWorld(receipt.world);
  if(revision!==undefined&&receipt.world.revision!==revision)throw new Error('Snapshot revision does not match its receipt');
  if(!receipt.assets||typeof receipt.assets!=='object')throw new Error('Snapshot has no pinned asset receipt');
  for(const asset of receipt.world.scene.assets)if(!/^[a-f0-9]{64}$/.test(receipt.assets[asset.id]?.hash))throw new Error('Snapshot asset hash is missing or invalid');
  for(const file of terrainTextureFiles(receipt.world.scene.terrain).keys())if(!/^[a-f0-9]{64}$/.test(receipt.textures?.[file]?.hash))throw new Error('Snapshot terrain texture hash is missing or invalid');
+ if(receipt.world.scene.terrain?.type==='heightmap'&&receipt.height?.hash!==receipt.world.scene.terrain.height.sha256)throw new Error('Snapshot terrain height hash is missing or invalid');
 }
 // Accepted receipts bind a scene revision to its actual imported bytes, even
 // when a mutable import path has subsequently been replaced or removed.
@@ -28,8 +37,9 @@ export async function readRevisionBundle(root,revision){
  const selected=revision==null?undefined:revisionId(revision);
  const file=selected===undefined?'.holodeck/accepted-bundle.json':`.holodeck/history/${selected}.bundle.json`;
  const receipt=JSON.parse((await containedBytes(root,file,8*1024*1024)).toString('utf8'));
+ const height=await pinnedHeight(root,receipt);
  validateReceipt(receipt,selected);
- let total=0;const assets={};
+ let total=height?.bytes??0;const assets={};
  for(const asset of receipt.world.scene.assets){
   const pinned=receipt.assets[asset.id],bytes=await containedBytes(root,`.holodeck/blobs/${pinned.hash}.glb`,MAX_ASSET_BYTES);
   if(hash(bytes)!==pinned.hash)throw new Error(`Pinned asset hash mismatch: ${asset.id}`);
@@ -49,7 +59,7 @@ export async function readRevisionBundle(root,revision){
   const bytes=await containedBytes(root,reference.file,12*1024*1024);
   if(hash(bytes)!==path.parse(reference.file).name)throw new Error('Pinned reference content changed');
  }
- return {world:structuredClone(receipt.world),assets,...(Object.keys(textures).length?{textures}:{})};
+ return {world:structuredClone(receipt.world),assets,...(Object.keys(textures).length?{textures}:{}),...(height?{height}:{})};
 }
 export async function listRevisions(root){
  const files=await readdir(path.join(root,'.holodeck/history'));
@@ -58,7 +68,11 @@ export async function listRevisions(root){
  for(const revision of revisions){
   const file=`.holodeck/history/${revision}.bundle.json`;
   try{
-   const receipt=JSON.parse((await containedBytes(root,file,8*1024*1024)).toString('utf8'));validateReceipt(receipt,revision);
+   const receipt=JSON.parse((await containedBytes(root,file,8*1024*1024)).toString('utf8'));
+   // Only counting scatter placements needs the samples here; samples already
+   // resident (the accepted world's, a recent snapshot's) are not read again.
+   if(receipt.world?.scene?.scatters?.length&&!heightSamples(heightmapOf(receipt.world)?.height.sha256))await pinnedHeight(root,receipt);
+   validateReceipt(receipt,revision);
    rows.push({revision,title:receipt.world.bible.title,objects:receipt.world.scene.objects.length,assets:receipt.world.scene.assets.length,savedAt:(await stat(path.join(root,file))).mtime.toISOString()});
   }catch{rows.push({revision,unavailable:true,title:'Unreadable snapshot'});}
  }
@@ -94,6 +108,19 @@ async function materializeAssets(source,destination,bundle){
   }
   world.scene.terrain=renameTerrainTextures(world.scene.terrain,file=>`assets/imports/terrain/snapshot-${bundle.textures[file].hash}.png`);
  }
+ // The height file follows its pinned blob, named by the hash the record keeps.
+ if(bundle.height){
+  const candidate=path.join(directory,'terrain');await mkdir(candidate).catch(error=>{if(error.code!=='EEXIST')throw error;});
+  const terrainDirectory=await realpath(candidate),relative=path.relative(base,terrainDirectory);
+  if(relative.startsWith('..')||path.isAbsolute(relative))throw new Error('Asset destination escapes the workspace');
+  const pinned=bundle.height.hash,bytes=await containedBytes(source,heightBlob(pinned),HEIGHT_FILE_BYTES),file=`assets/imports/terrain/snapshot-${pinned}.r32`;
+  if(hash(bytes)!==pinned)throw new Error('Pinned terrain height changed during copy');
+  try{await writeFile(path.join(terrainDirectory,path.basename(file)),bytes,{flag:'wx'});}catch(error){
+   if(error.code!=='EEXIST')throw error;
+   if(hash(await containedBytes(destination,file,HEIGHT_FILE_BYTES))!==pinned)throw new Error('Existing snapshot terrain height is corrupt');
+  }
+  world.scene.terrain={...world.scene.terrain,height:{...world.scene.terrain.height,file}};
+ }
  return world;
 }
 export function restoreRevision(store,{baseRevision,revision}){
@@ -122,9 +149,9 @@ export async function remixRevision(root,revision,destination){
   copiedReferences.add(reference.file);
  }
  await writeFile(path.join(output,'world/world.json'),JSON.stringify(world,null,2)+'\n');
- await cp(path.join(packageRoot,'skills'),path.join(output,'.agents/skills'),{recursive:true});
+ await installWorldSkills(output,world);
  await writeFile(path.join(output,'AGENTS.md'),`# Remixed Holodeck world\n\nUse the installed Holodeck skills and world_read/world_propose. ${SKILLS_GUIDE} This scene starts a new revision history. Imported assets retain exact saved bytes and source provenance; their external Kiln library and unversioned source files are not copied. Never edit installed engine packages.\n${KILN_GUIDE}\n`);
- await writeFile(path.join(output,'REMIX.json'),JSON.stringify({format:'holodeck-remix-v1',sourceRevision:bundle.world.revision,title:world.bible.title,assets:bundle.assets,...(bundle.textures?{textures:bundle.textures}:{}),includes:'Scene, bible, board references, pinned GLBs and terrain textures. No agent sessions, credentials, external Kiln library or unversioned source.'},null,2)+'\n');
+ await writeFile(path.join(output,'REMIX.json'),JSON.stringify({format:'holodeck-remix-v1',sourceRevision:bundle.world.revision,title:world.bible.title,assets:bundle.assets,...(bundle.textures?{textures:bundle.textures}:{}),...(bundle.height?{height:bundle.height}:{}),includes:'Scene, bible, board references, pinned GLBs, terrain textures and terrain height samples. No agent sessions, credentials, external Kiln library or unversioned source.'},null,2)+'\n');
  await unlink(path.join(output,'REMIX-INCOMPLETE.txt'));
  return {path:output,world};
 }

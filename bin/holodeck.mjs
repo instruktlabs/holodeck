@@ -41,10 +41,12 @@ try{
   const {exportStaticWorld}=await import('../server/static-export.mjs');const result=await exportStaticWorld(root,{out:options['--out'],revision,...(Object.keys(page).length?{page}:{})});
   console.log(`Exported revision ${result.revision}: ${result.files} files, ${result.assets} pinned assets at ${result.path}. Upload the entire directory to a static host.`);
  }else if(command==='check'){
-  const world=JSON.parse(await readFile(path.join(root,'world/world.json'),'utf8'));validateWorld(world);
+  const world=JSON.parse(await readFile(path.join(root,'world/world.json'),'utf8'));
+  // The height file the terrain names is verified (size, sha256, finite samples) before the world.
+  const {loadWorkspaceHeight}=await import('../server/terrain-heights.mjs'),height=await loadWorkspaceHeight(root,world);validateWorld(world);
   const resolvedRoot=await realpath(root);
   for(const asset of world.scene.assets){const file=await realpath(path.resolve(root,asset.file)),relative=path.relative(resolvedRoot,file);if(relative.startsWith('..')||path.isAbsolute(relative))throw new Error('Asset escapes workspace');validateGlb(await readFile(file),{foliage:asset.foliage,flow:asset.flow});}
-  console.log(`Valid schema v${world.schemaVersion} world: ${world.bible.title}. Browser behavior and performance are separate checks.`);
+  console.log(`Valid schema v${world.schemaVersion} world: ${world.bible.title}.${height?` Terrain height ${height.hash.slice(0,12)} (${height.size[0]}×${height.size[1]} samples) verified.`:''} Browser behavior and performance are separate checks.`);
  }else{
   const i=args.indexOf('--port'),port=i<0?4186:Number(args[i+1]);
   if(!Number.isInteger(port)||port<1024||port>65535)throw new Error('Invalid port');

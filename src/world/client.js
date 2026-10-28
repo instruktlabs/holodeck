@@ -2,6 +2,7 @@ import {createContext,useCallback,useContext,useEffect,useMemo,useRef,useState} 
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {createWorldClient,worldContextKey,createSessionRecovery} from './world-client.mjs';
 import {loadTerrainTextures} from './terrain-textures.js';
+import {loadTerrainHeight} from './terrain-heights.js';
 import {tagGltfTextures} from './material-share.mjs';
 export const WorldClientContext=createContext(null);
 export function useWorldClient(){const context=useContext(WorldClientContext);return useMemo(()=>createWorldClient(context),[context?.worldId,context?.epoch]);}
@@ -25,10 +26,12 @@ function acquire(url){
 export function useAssetBundle(payload){
   const [bundle,setBundle]=useState(null),[error,setError]=useState(null),sequence=useRef(0),[loading,setLoading]=useState(false);
   useEffect(()=>{
-    if(!payload)return;const seq=++sequence.current,held=[];let adopted=false;setLoading(true);setError(null);
-    Promise.all([Promise.all(Object.entries(payload.assets).map(async([id,asset])=>{const h=acquire(asset.url);held.push(h);return [id,await h.promise];})),loadTerrainTextures(payload.textures)]).then(([entries,textures])=>{
+    if(!payload)return;const seq=++sequence.current,held=[];let adopted=false,settled=false;setLoading(true);setError(null);
+    // A heightmap's samples are registered and held for as long as the bundle is.
+    const height=loadTerrainHeight(payload.height).then(release=>{if(settled&&!adopted)release();else held.push({release});});
+    Promise.all([Promise.all(Object.entries(payload.assets??{}).map(async([id,asset])=>{const h=acquire(asset.url);held.push(h);return [id,await h.promise];})),loadTerrainTextures(payload.textures),height]).then(([entries,textures])=>{
       if(seq!==sequence.current)return;adopted=true;setBundle({payload,models:Object.fromEntries(entries),textures,release:()=>held.forEach(h=>h.release())});setLoading(false);
-    }).catch(e=>{if(seq===sequence.current){setError(e.message);setLoading(false);}}).finally(()=>{if(!adopted)held.splice(0).forEach(h=>h.release());});
+    }).catch(e=>{if(seq===sequence.current){setError(e.message);setLoading(false);}}).finally(()=>{settled=true;if(!adopted)held.splice(0).forEach(h=>h.release());});
     return()=>{sequence.current++;};
   },[payload]);
   useEffect(()=>()=>bundle?.release(),[bundle]);

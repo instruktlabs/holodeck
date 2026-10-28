@@ -42,7 +42,7 @@ The service bench, cabinet and wall sign use the Kiln library wood `procedural-w
 ## 7. Holodeck host
 
 - **The client-extension hook is experimental.** Static export always uses the no-op extension. There is no versioned lifecycle, error isolation or manifest validation yet.
-- **An opt-in installer for optional skills** is on the Holodeck branch `skills/unity-export-opt-in`. Until it lands, copy `skills/holodeck-game-pipeline` into a project's skill folder by hand.
+- **Optional skills install by destination.** Holodeck installs an optional skill when a world lists its destination in scene.destinations; Unity is the first. This example's holodeck-game-pipeline skill isn't registered there yet, so copy it into a project's skill folder by hand.
 
 ## 8. Roadmap after this
 

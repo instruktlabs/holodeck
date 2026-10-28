@@ -34,10 +34,20 @@ to a corridor and a standing area. Moving the parent place should preserve its
 terrain support, interaction frames, collision and lights. Test the actual actor
 through these relationships, including after the cove is hidden.
 
+Prove reachability before refining stairs. Build an adjacency graph of walkable
+collider tops from every placement (step height, gaps, rails and guards) and
+confirm a path from spawn to every station. Stair rise, run and headroom can all
+pass while a whole upper circuit is unreachable behind a guard rail. Every visual
+walking surface needs walkable collision at the same height.
+
 For modular architecture, define shared connection planes, wall thickness,
-corner ownership and top heights before arranging segments. Verify joins in plan
-and at player height; intended openings remain distinct from accidental gaps.
-Avoid coplanar overlapping skins that shimmer. Keep planting envelopes and roots
+corner ownership and top heights before arranging segments. Keep one source of
+module dimensions and derive inventories, blueprints and placement scripts from
+it; separately written lists drift apart. Verify joins in plan and at player
+height; intended openings remain distinct from accidental gaps.
+Avoid coplanar overlapping skins that shimmer. Where terrain and paving share a
+footprint, give it one visible, walkable floor owner: recess the terrain below
+the slab with clearance, or drop the slab (holodeck#30). Keep planting envelopes and roots
 inside their intended soil/support areas, with clear separation from circulation.
 A water surface needs an actual basin recess and rim relationship, not only a
 water-colored top face. Preserve these relationships when modules are moved.

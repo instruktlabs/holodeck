@@ -32,7 +32,7 @@ including while walking with the HUD hidden. Sections open in a sheet above the
 dock.
 
 The **World** sheet groups placements by family and asset, with a filter, meters
-for the 64-asset, 1200-placement and two-million-triangle budgets, and inline
+for the 128-asset, 1200-placement and two-million-triangle budgets, and inline
 position, rotation and scale editing for the selected placement. It also holds
 the environment choice, GLB import, the raw scene document and **Undo last world
 edit**. The **Observe** sheet shows this browser's backend, draw and triangle
@@ -102,9 +102,10 @@ without the CLI serves `HOLODECK_WORKSPACE`, or `../holodeck-worlds/hearth` when
 it is unset. Asset authoring uses the world's configured `kiln_workspace` setup;
 installed package/engine code is outside ordinary world editing. Environment choices
 are currently construct/meadow/woodland with static GLB placements and simple
-blockers. Schema 2 also supports a bounded heightfield with up to four texture
-layers, an ocean with optional surf, an optional gradient sky with clouds, seeded
-scatter, and optional maker possession with first/third-person cameras. Placed
+blockers. Schema 2 also supports bounded terrain, a stamped heightfield or a
+sampled heightmap pinned by hash, with up to four texture layers, an ocean with
+optional surf, an optional gradient sky with clouds, seeded scatter, and
+optional maker possession with first/third-person cameras. Placed
 objects below the water are tinted automatically. General imported-rig
 possession, custom physics and XR are future capabilities. See
 [terrain and inhabitants](terrain-and-inhabitants.md).

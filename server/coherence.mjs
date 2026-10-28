@@ -18,7 +18,7 @@ function probeTime(time,observation,current){
 const probeLimits=driver=>[
  'Support and box samples are not a traversal test, physics certification or visual review.',
  'Samples freeze moving objects and water at the reported pose and time; they do not simulate motion along a path.',
- driver==='terrain-heightfield'?'Terrain support uses the rendered heightfield triangles. Collider boxes marked walkable add their tops as support; other placed mesh surfaces are not ground support.':'No terrain support is present; this driver assumes a flat ground plane at the declared spawn ground height.',
+ driver==='terrain-heightfield'?'Terrain support uses the rendered terrain triangles (a heightfield, or a heightmap at its lattice). Collider boxes marked walkable add their tops as support; other placed mesh surfaces are not ground support.':'No terrain support is present; this driver assumes a flat ground plane at the declared spawn ground height.',
  'Input x/z is projected onto controller support. Input y is an eye height: where walkable tops overlap, it picks the highest level at or below y - 1.72 + 0.35 (one step), as the walker does at spawn; levels lists every one. It is not an alternative flight height.',
  'No global quality score or universal performance threshold is inferred.',
 ];

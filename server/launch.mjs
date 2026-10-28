@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {scaffold} from './scaffold.mjs';
 import {validateWorld} from '../src/world/contract.mjs';
+import {loadWorkspaceHeight} from './terrain-heights.mjs';
 
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 
@@ -48,7 +49,8 @@ export async function prepareLaunchDirectory(root){
   }
   if(!info.isDirectory())throw new Error(`Refusing to use ${resolved}: it exists and is not a Holodeck world.`);
   const world=await readWorld(resolved);
-  try{if(!world)throw new Error('missing');validateWorld(world);}
+  // A heightmap's samples load first; validating scatters builds the terrain.
+  try{if(!world)throw new Error('missing');await loadWorkspaceHeight(resolved,world,{pinnedFirst:true}).catch(()=>null);validateWorld(world);}
   catch{throw new Error(`Refusing to use ${resolved}: it exists and is not a Holodeck world.`);}
   return {root:resolved,created:false,title:world.bible.title};
 }

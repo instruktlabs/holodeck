@@ -2,6 +2,7 @@ import {spawn} from 'node:child_process';
 import {access,cp,lstat,mkdir,readFile,readdir,rm,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {enabledOptionalSkills,isOptionalSkill} from '../src/world/optional-skills.mjs';
 // Kiln registers skills per harness: Claude Code's layout is .claude/skills,
 // Codex and Cursor read .agents/skills. Kiln's optional compose skill is not
 // installed: it teaches Kiln's own terrain and scene composition, which
@@ -33,7 +34,7 @@ async function upgradeIfStale(root){
   try{return JSON.parse(output);}catch{return {status:'current',changed:[]};}
 }
 function runInitializer(root,flags,{check=false}={}){
-  // Kiln exports lib/index.js for ESM (1.3.1 and 1.4.0); resolve it without evaluating the
+  // Kiln exports lib/index.js for ESM (1.3.1 through 1.6.0); resolve it without evaluating the
   // engine. Normal package lookup supports both nested and hoisted installs.
   const initializer=fileURLToPath(new URL('../scripts/create-workspace.mjs',import.meta.resolve('@instruktlabs/kiln')));
   return new Promise((resolve,reject)=>{
@@ -47,15 +48,18 @@ function runInitializer(root,flags,{check=false}={}){
 // project skills, CLAUDE.md or AGENTS.md (measured on Claude Code 2.1.300).
 // Copy the world's installed skills into a session-only plugin instead, so
 // they load as skills without the world's settings, hooks or MCP files.
+// Optional Holodeck skills load only while the world's scene declares their
+// destination, even if a stale copy is still in the world folder.
 export const PLUGIN_NAME='holodeck-world';
 const SKILL_REGISTRIES=['.claude/skills','.agents/skills','skills'],EXCLUDED_SKILLS=new Set(['kiln-compose-scene']);
-export async function worldSkillsPlugin(root,directory){
+export async function worldSkillsPlugin(root,directory,{world}={}){
   await rm(directory,{recursive:true,force:true});
-  const names=[];
+  if(world===undefined)try{world=JSON.parse(await readFile(path.join(root,'world/world.json'),'utf8'));}catch{world=null;}
+  const names=[],enabled=enabledOptionalSkills(world);
   for(const registry of SKILL_REGISTRIES){
     let entries=[];try{entries=await readdir(path.join(root,registry),{withFileTypes:true});}catch{continue;}
     for(const entry of entries){
-      if(!entry.isDirectory()||names.includes(entry.name)||EXCLUDED_SKILLS.has(entry.name)||!/^[a-z0-9][-a-z0-9]{0,63}$/.test(entry.name))continue;
+      if(!entry.isDirectory()||names.includes(entry.name)||EXCLUDED_SKILLS.has(entry.name)||isOptionalSkill(entry.name)&&!enabled.includes(entry.name)||!/^[a-z0-9][-a-z0-9]{0,63}$/.test(entry.name))continue;
       const source=path.join(root,registry,entry.name);
       try{await access(path.join(source,'SKILL.md'));}catch{continue;}
       await cp(source,path.join(directory,'skills',entry.name),{recursive:true,filter:async file=>!(await lstat(file)).isSymbolicLink()});

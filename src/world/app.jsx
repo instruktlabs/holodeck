@@ -138,8 +138,9 @@ function WorldSession({host}){
   useEffect(()=>{
     if(!world)return;const report=()=>{if(!canObserveWorld(probe,contextKey,world.revision))return;const sorted=[...probe.frames].sort((a,b)=>a-b);api('observation',{revision:world.revision,position:probe.position,selected,backend:probe.backend||'initializing',frameP95Ms:sorted[Math.floor(sorted.length*.95)]||null,firstFrameMs:probe.firstFrameMs??null,pageHidden:document.hidden,drawCalls:probe.drawCalls||0,triangles:probe.triangles||0,loadError:loaded.error||null,cameraMode:probe.cameraMode||'walk',activity:probe.runtime||null,actor:probe.actor||null,originVisible:cove}).catch(()=>{});};report();const timer=setInterval(report,2500);return()=>clearInterval(timer);
   },[world,selected,loaded.error,cove,contextKey,api]);
-  // Proposed placements appear as ghosts in the world before Apply.
-  const ghostPayload=useMemo(()=>proposal?.assets?{assets:proposal.assets}:null,[proposal]);
+  // Proposed placements appear as ghosts in the world before Apply. A proposed
+  // heightmap's samples load with them, so the review can expand its scatters.
+  const ghostPayload=useMemo(()=>proposal?.assets?{assets:proposal.assets,height:proposal.height??null}:null,[proposal]);
   const ghostBundle=useAssetBundle(ghostPayload);
   const ghost=useMemo(()=>proposal&&runtime?ghostPlacements(accepted,proposal.world):{items:[],total:0},[proposal,accepted,runtime]);
   useEffect(()=>{setPreview(true);},[proposal?.id]);

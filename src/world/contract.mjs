@@ -4,11 +4,12 @@ import {validateFlow,validateFlowBinding} from './flow-contract.mjs';
 import {validateShadow} from './shadow-contract.mjs';
 import {validateGrade} from './grade.mjs';
 import {validateEffects} from './effects-contract.mjs';
-import {MAX_PLACEMENTS} from './asset-budget.mjs';
+import {MAX_ASSETS,LEGACY_MAX_ASSETS,MAX_PLACEMENTS} from './asset-budget.mjs';
 import {validateAerial} from './aerial.mjs';
 import {expandScatters} from './scatter.mjs';
 import {validateSky} from './sky.mjs';
 import {validateLighting} from './lighting.mjs';
+import {DESTINATIONS} from './optional-skills.mjs';
 export const MAX_ASSET_BYTES=32*1024*1024;
 // Describes current host delivery, not every feature an authoring tool can export.
 export const ASSET_DELIVERY_PROFILE=Object.freeze({
@@ -51,7 +52,7 @@ export function validateWorld(w){
     if(r.layout){exact(r.layout,['x','y','w','h'],'card layout');const {x,y,w,h}=r.layout;if(![x,y,w,h].every(Number.isFinite)||x<0||y<100||w<160||h<120||x+w>1200||y+h>720)fail('Invalid card layout');}
   }
   if(w.bible.referenceIds&&(!Array.isArray(w.bible.referenceIds)||w.bible.referenceIds.some(x=>!refIds.has(x))))fail('Pinned bible references must exist on the board');
-  const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water','scatters']:[])],'scene');
+  const s=w.scene;exact(s,['environment','bridge','origin','assets','objects','moodboard',...(w.schemaVersion===2?['runtime','terrain','water','scatters','destinations']:[])],'scene');
   exact(s.environment,['type','clearPath','groundColor','fogColor','sunColor','sunIntensity',...(w.schemaVersion===2?['sunPosition','fogNear','fogFar','fogSky','aerial','sky','shadow','grade','effects','hemisphere','exposure']:[])],'environment');
   if(s.environment.sky!==undefined)validateSky(s.environment.sky);
   if(s.environment.shadow!==undefined)try{validateShadow(s.environment.shadow);}catch(error){fail(error.message);}
@@ -71,8 +72,8 @@ export function validateWorld(w){
   if(s.environment.aerial!==undefined){validateAerial(s.environment.aerial);if(!s.environment.sky)fail('aerial needs environment.sky');}
   if(s.environment.fogSky!==undefined){const k=s.environment.fogSky;if(typeof k!=='number'||!Number.isFinite(k)||k<0||k>1)fail('fogSky must be a number from 0 to 1');if(!s.environment.sky)fail('fogSky needs environment.sky');}
   if(![null,'low','high'].includes(s.bridge)||s.bridge&&s.environment.type!=='woodland')fail('Bridge requires the woodland crossing');
-  const placementLimit=w.schemaVersion===2?MAX_PLACEMENTS:200;
-  if(!Array.isArray(s.assets)||s.assets.length>64||!Array.isArray(s.objects)||s.objects.length>placementLimit)fail(`Scene exceeds 64 assets or ${placementLimit} placements`);
+  const placementLimit=w.schemaVersion===2?MAX_PLACEMENTS:200,assetLimit=w.schemaVersion===2?MAX_ASSETS:LEGACY_MAX_ASSETS;
+  if(!Array.isArray(s.assets)||s.assets.length>assetLimit||!Array.isArray(s.objects)||s.objects.length>placementLimit)fail(`Scene exceeds ${assetLimit} assets or ${placementLimit} placements`);
   const ids=new Set();for(const a of s.assets){
     exact(a,['id','file','provenance','foliage','flow','reflection'],'asset');id(a.id);if(ids.has(a.id))fail('Duplicate asset ID');ids.add(a.id);
     if(a.foliage!==undefined){if(w.schemaVersion!==2)fail('Foliage requires schema version 2');validateFoliage(a.foliage);if(a.id===s.origin||a.id===s.moodboard?.asset)fail('Foliage is only supported on ordinary imported placements');}
@@ -111,6 +112,8 @@ export function validateWorld(w){
   }
   if(s.moodboard){exact(s.moodboard,['asset','position','rotation','page','title','theme',...(w.schemaVersion===2?['collider']:[])],'mood board');if(!ids.has(s.moodboard.asset))fail('Mood board frame is missing');vec(s.moodboard.position,'board position');vec(s.moodboard.rotation,'board rotation');if(!Number.isInteger(s.moodboard.page)||s.moodboard.page<0||s.moodboard.page>33)fail('Invalid board page');if(s.moodboard.title!==undefined)str(s.moodboard.title,120,'board title');if(s.moodboard.theme!==undefined&&!['linen','charcoal','clay'].includes(s.moodboard.theme))fail('Invalid board theme');}
   if(w.schemaVersion===2){if(s.bridge!==null||s.environment.type==='woodland')fail('Version 2 uses authored world geometry instead of the legacy crossing');validateRuntimeScene(s);
+    // Export destinations only choose the world's optional agent skills; they never change the scene.
+    if(s.destinations!==undefined){if(!Array.isArray(s.destinations)||new Set(s.destinations).size!==s.destinations.length)fail('scene.destinations must be a list of distinct destinations');for(const d of s.destinations)if(!DESTINATIONS.includes(d))fail(`Unknown destination ${JSON.stringify(d)}; supported: ${DESTINATIONS.join(', ')}`);}
     if(s.scatters?.length){const {stats}=expandScatters(s),total=s.objects.length+stats.reduce((n,x)=>n+x.placed,0);if(total>placementLimit)fail(`Scene exceeds ${placementLimit} placements: ${s.objects.length} authored plus scatters ${stats.map(x=>`${x.id} ${x.placed}`).join(', ')}`);}}
   return w;
 }

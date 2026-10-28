@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {EventEmitter} from 'node:events';
-import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,readFile,rm,writeFile,readdir} from 'node:fs/promises';
 import {createServer} from 'node:http';
 import net from 'node:net';
 import path from 'node:path';
@@ -164,6 +164,22 @@ test('instructions replace the unloaded world CLAUDE.md and installed skills loa
   const instructions=value('--append-system-prompt');
   assert.equal(instructions,INSTRUCTIONS);
   for(const fact of [/CLAUDE\.md and AGENTS\.md of this world are not loaded/,/holodeck-world:<name> skills/,/read \.kiln\/AGENTS\.md/,/Kiln progress log at assets\/source\/KILN_PROGRESS\.md/,/export command in holodeck-integrate-asset/,/do not read Holodeck engine sources/])assert.match(instructions,fact);
+});
+
+test('an optional skill joins the session plugin only while the accepted scene declares its destination',async t=>{
+  const {agent,calls,root}=await fixture(t);
+  for(const name of ['holodeck-author-world','holodeck-export-unity']){await mkdir(path.join(root,'.agents/skills',name),{recursive:true});await writeFile(path.join(root,'.agents/skills',name,'SKILL.md'),`---\nname: ${name}\ndescription: ${name}\n---\n`);}
+  await mkdir(path.join(root,'skills/kiln-compose-scene'),{recursive:true});await writeFile(path.join(root,'skills/kiln-compose-scene/SKILL.md'),'---\nname: kiln-compose-scene\ndescription: compose\n---\n');
+  const plugin=async(destinations,text)=>{
+    agent.store.current={schemaVersion:2,revision:7,scene:{objects:[],assets:[],...(destinations?{destinations}:{})}};
+    await agent.startTurn({text,model:'default'});await settled(agent);
+    const argv=(await calls()).filter(c=>c.kind==='turn').at(-1).argv;
+    return (await readdir(path.join(argv[argv.indexOf('--plugin-dir')+1],'skills'))).sort();
+  };
+  await agent.connect();
+  assert.deepEqual(await plugin(undefined,'Default world'),['holodeck-author-world'],'absent by default');
+  assert.deepEqual(await plugin(['unity'],'Unity world'),['holodeck-author-world','holodeck-export-unity'],'present when declared');
+  assert.deepEqual(await plugin([],'Opted out'),['holodeck-author-world'],'removed when the destination is dropped, even with a stale copy');
 });
 
 test('exact model IDs are offered beside aliases and passed through unchanged',async t=>{

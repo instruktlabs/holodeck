@@ -1,6 +1,7 @@
 // Reviewable differences between the accepted world and a staged proposal.
 // Pure data for the review card: no DOM, no rendering, nothing applied.
 import {expandScatters} from './scatter.mjs';
+import {terrainSegments} from './terrain.mjs';
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const byId=list=>new Map((list||[]).map(item=>[item.id,item]));
 const changedKeys=(a={},b={})=>[...new Set([...Object.keys(a||{}),...Object.keys(b||{})])].filter(key=>!same(a?.[key],b?.[key])).sort();
@@ -36,6 +37,16 @@ function diffBoard(a,b){
   return {added:added.map(title),removed:removed.map(title),moved:changed.filter(c=>c.moved),changed:changed.filter(c=>!c.moved)};
 }
 
+// A terrain's source as the review shows it: a heightmap by its hash, sample
+// size and bounds, never its samples; a heightfield by its lattice.
+export function terrainSource(t){
+  if(!t)return null;
+  if(t.type!=='heightmap')return {type:t.type??'heightfield',bounds:t.bounds,segments:t.segments};
+  return {type:'heightmap',sha256:t.height?.sha256,size:t.size,bounds:t.bounds,segments:t.size?terrainSegments(t):t.segments,scale:t.scale??1,offset:t.offset??0};
+}
+// Record fields a source summary already covers.
+const SOURCE_KEYS=['type','bounds','size','height','scale','offset','segments','baseHeight'];
+
 function diffSettings(a,b){
   const settings=[];
   for(const field of ['environment','origin','moodboard','runtime','water'])if(!same(a[field],b[field]))settings.push({field,keys:typeof (a[field]??b[field])==='object'?changedKeys(a[field],b[field]):[]});
@@ -43,6 +54,8 @@ function diffSettings(a,b){
     const keys=changedKeys(a.terrain,b.terrain),detail={field:'terrain',keys};
     if(keys.includes('appearance'))detail.appearance=changedKeys(a.terrain?.appearance,b.terrain?.appearance);
     if(keys.includes('stamps')){const s=diffList(a.terrain?.stamps,b.terrain?.stamps,(x,y)=>y);detail.stamps={added:s.added.length,removed:s.removed.length,changed:s.changed.length};}
+    const before=terrainSource(a.terrain),after=terrainSource(b.terrain);
+    if((before?.type==='heightmap'||after?.type==='heightmap')&&!same(before,after))detail.source={before,after};
     settings.push(detail);
   }
   return settings;
@@ -89,6 +102,21 @@ export function diffProposal(accepted,proposed){
 }
 
 const SETTING_LABELS={environment:'Environment',origin:'Origin',moodboard:'Mood board frame',runtime:'Runtime',water:'Water'};
+const short=hash=>String(hash??'').slice(0,12);
+export function describeTerrainSource(source){
+  if(!source)return 'no terrain';
+  const [xmin,xmax,zmin,zmax]=source.bounds??[],extent=source.bounds?` over x ${xmin}…${xmax}, z ${zmin}…${zmax} m`:'';
+  if(source.type!=='heightmap')return `${source.type}${source.segments?` ${source.segments[0]}×${source.segments[1]} cells`:''}`;
+  return `heightmap ${short(source.sha256)}, ${source.size?.[0]}×${source.size?.[1]} samples${extent}`;
+}
+// One line for a heightmap change: what the terrain is now and what changed.
+export function terrainSourceSummary({before,after}){
+  if(after?.type!=='heightmap')return `${describeTerrainSource(after)} (was ${describeTerrainSource(before)})`;
+  if(before?.type!=='heightmap')return `${describeTerrainSource(after)} (was ${describeTerrainSource(before)})`;
+  if(before.sha256!==after.sha256)return `${describeTerrainSource(after)} (samples were ${short(before.sha256)})`;
+  const changed=['size','bounds','segments','scale','offset'].filter(key=>!same(before[key],after[key]));
+  return `${describeTerrainSource(after)}${changed.length?` (${changed.join(', ')} changed)`:''}`;
+}
 const plural=(n,word)=>`${n} ${word}${n===1?'':'s'}`;
 const sample=(ids,max=4)=>ids.length>max?`${ids.slice(0,max).join(', ')} and ${ids.length-max} more`:ids.join(', ');
 // A few short lines for the card. Detail stays in the diff object.
@@ -102,7 +130,7 @@ export function summarizeProposal(diff){
   if(scatterParts.length)lines.push(`Scatters: ${scatterParts.join('; ')}`);
   for(const s of settings){
     if(s.field==='terrain'){
-      const bits=[s.appearance?.length&&`appearance (${s.appearance.join(', ')})`,s.stamps&&`stamps +${s.stamps.added} −${s.stamps.removed} ~${s.stamps.changed}`,...s.keys.filter(k=>k!=='appearance'&&k!=='stamps')].filter(Boolean);
+      const bits=[s.source&&terrainSourceSummary(s.source),s.appearance?.length&&`appearance (${s.appearance.join(', ')})`,s.stamps&&`stamps +${s.stamps.added} −${s.stamps.removed} ~${s.stamps.changed}`,...s.keys.filter(k=>k!=='appearance'&&k!=='stamps'&&!(s.source&&SOURCE_KEYS.includes(k)))].filter(Boolean);
       lines.push(`Terrain: ${bits.join('; ')||'changed'}`);
     }else lines.push(`${SETTING_LABELS[s.field]}: ${s.keys.length?s.keys.join(', '):'changed'}`);
   }
