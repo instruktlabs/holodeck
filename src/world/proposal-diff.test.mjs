@@ -73,3 +73,25 @@ test('lighting changes and removal remain visible in proposal review',()=>{
  assert.deepEqual(summarizeProposal(diffProposal(after,revised)),['Environment: hemisphere']);
  assert.deepEqual(summarizeProposal(diffProposal(after,before)),['Environment: exposure, hemisphere']);
 });
+
+test('a heightmap change reads as its hash, sample size and bounds, never its samples',()=>{
+  const sampledHash='b1d9e0c4a7f2'+'3'.repeat(52),eroded='1a2b3c4d5e6f'+'7'.repeat(52);
+  const heightmap=(sha256,extra={})=>({type:'heightmap',bounds:[-64,64,-48,80],size:[257,257],height:{file:`assets/imports/terrain/site-${sha256.slice(0,8)}.r32`,sha256,format:'r32'},stamps:[],...extra});
+  const stamped=world([],{terrain:{type:'heightfield',bounds:[-40,40,-40,40],segments:[80,80],baseHeight:0,stamps:[{id:'basin',height:-6}]}});
+  const sampled=world([],{terrain:heightmap(sampledHash)});
+  const span='257×257 samples over x -64…64, z -48…80 m';
+  const diff=diffProposal(stamped,sampled);
+  assert.deepEqual(summarizeProposal(diff),[`Terrain: heightmap b1d9e0c4a7f2, ${span} (was heightfield 80×80 cells); stamps +0 −1 ~0`]);
+  assert.deepEqual(diff.scene.settings[0].source,{before:{type:'heightfield',bounds:[-40,40,-40,40],segments:[80,80]},after:{type:'heightmap',sha256:sampledHash,size:[257,257],bounds:[-64,64,-48,80],segments:[256,256],scale:1,offset:0}});
+  // New samples under a new file name say which samples they replace.
+  assert.deepEqual(summarizeProposal(diffProposal(sampled,world([],{terrain:heightmap(eroded)}))),[`Terrain: heightmap 1a2b3c4d5e6f, ${span} (samples were b1d9e0c4a7f2)`]);
+  // The same samples on a coarser lattice with a build pad name only what changed.
+  const padded=world([],{terrain:heightmap(sampledHash,{segments:[128,128],stamps:[{id:'build-pad',operation:'flatten',center:[10,-12],radius:[12,9],height:0,plateau:.9}]})});
+  assert.deepEqual(summarizeProposal(diffProposal(sampled,padded)),[`Terrain: heightmap b1d9e0c4a7f2, ${span} (segments changed); stamps +1 −0 ~0`]);
+  // A renamed copy of the same bytes is the same source; only the file differs.
+  const renamed=world([],{terrain:{...heightmap(sampledHash),height:{file:'assets/imports/terrain/restored.r32',sha256:sampledHash,format:'r32'}}});
+  assert.deepEqual(summarizeProposal(diffProposal(sampled,renamed)),['Terrain: height']);
+  assert.deepEqual(summarizeProposal(diffProposal(sampled,stamped)),[`Terrain: heightfield 80×80 cells (was heightmap b1d9e0c4a7f2, ${span}); stamps +1 −0 ~0`]);
+  // The diff is a summary: the record and its hash, never sample data.
+  assert.ok(JSON.stringify(diff).length<1500);
+});

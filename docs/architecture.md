@@ -29,7 +29,7 @@ Simulation checkpoints are not implemented.
 Existing schema v1 worlds remain supported without automatic migration. New
 examples use schema v2 and scene.runtime.version 1. Shape blockouts and pinned
 Kiln GLBs share the placement model. The capability registry covers camera and
-box collision, hinge and spin interactions, heightfields and ocean, maker
+box collision, hinge and spin interactions, heightfield and heightmap terrain and ocean, maker
 possession, patrols, articulated gait, airborne boid flocks and seeded scatter.
 Terrain texture layers, surf and the gradient sky are optional fields of the
 terrain, water and environment records. Optional schema-v2 hemisphere fill and
@@ -53,7 +53,7 @@ Define routes, destinations, support, clearance and sightlines before decoration
 Rendering, collision and interaction share placement frames. The current box query
 supports yaw and scale; pitch/roll collision is rejected. New worlds and bundled
 examples walk as the maker; a world without possession falls back to the legacy
-fixed-height ground-plane walk. Optional heightfield, ocean and maker possession share terrain
+fixed-height ground-plane walk. Optional terrain (heightfield or heightmap), ocean and maker possession share terrain
 triangles, water time and one actor support anchor across first/third person.
 Collider boxes marked `walkable` add their tops to that support, so the walker and
 patrols can cross a jetty deck or climb stair treads; walkable boxes are static and
@@ -99,6 +99,104 @@ diagnostics expose the state and pending count; applying a diagnostic camera res
 settling, and compilation during a recording invalidates that evidence. This does
 not prewarm unseen views or certify visual completeness or performance. A later
 settled recording can retry; the prior failed result retains its raw evidence.
+
+## Asset budget
+
+A schema-v2 scene admits `MAX_ASSETS` (128) unique assets, set in
+`src/world/asset-budget.mjs`; schema-v1 scenes keep 64. The earlier 64 had no
+measured basis. These are hub browser results (GTX 1660 Ti Max-Q laptop GPU,
+driver 615.78.08, headed Chrome through Playwright, 1600×900, nice 10), not PC,
+Windows or Unity results.
+
+**Harness.** Synthetic schema-v2 worlds on the starter cove: N unique assets in
+total (N−8 small GLBs of 1–3 mesh parts, each part its own material, about
+1,000 triangles), always 639 extra placements (646 in all) and about 630k placed
+synthetic triangles, so asset count is the variable. The camera orbits the
+whole field (radius 62 m, height 22 m) for 20 s after a 10 s warm-up orbit, so
+nearly every asset is in view. This is the worst case for draws: no two assets
+share a material, and most pieces are placed once, so nothing merges. Medians of
+two runs; frame times are rAF intervals, paced by the 120 Hz display unless
+uncapped (`--disable-gpu-vsync --disable-frame-rate-limit`).
+
+| N | Draws | WebGL2 p95 | WebGL2 p95 uncapped | WebGPU p95 | Ready, WebGL2 | `world_read`, all pages |
+|---:|---:|---:|---:|---:|---:|---:|
+| 64 | 305 | 16.7 ms | 12.4 ms | 12.6 ms | 7.0 s | 119 KB |
+| 128 | 563 | 25.0 ms | 19.6 ms | 24.9 ms | 9.8 s | 138 KB |
+| 256 | 1,073 | 41.8 ms | 44.4 ms | 41.6 ms | 15.7 s | 172 KB |
+| 512 | 1,527 | 83.2 ms | 82.2 ms | 75.0 ms | 11.5 s | 247 KB |
+
+- Frame time follows draws: about 20–30 µs per draw on WebGL2 here. The same
+  series at about 430 triangles per asset gives about the same p95 (16.6,
+  25.0, 50.0 and 95.8 ms), so draw submission, not triangles, dominates.
+- Planar water and a 120 m sun shadow raise the draws by half to double (469
+  at N=64, 2,973 at N=512); WebGL2 p95 is then 25 ms at 64 and 150 ms at 512.
+- The same 512 pieces in one shared palette of three materials draw 996 times,
+  not 1,527, and their uncapped WebGL2 p95 falls from 82 to 31 ms. They do not
+  bake into one mesh: static merging covers only assets placed more than once.
+- JS heap stayed between 110 and 510 MiB and GPU memory at 334–402 MiB at every
+  N. Load time grew with N but not monotonically.
+- Bundled examples on the same path family: Crescent Cove (49 assets, 154
+  draws) p95 8.4 ms; Winter Mountainside Cabin (56, 313) 16.7 ms; Meridian
+  Sanctuary (53, about 300) 33 ms, where effects rather than draws bind.
+
+**Rule.** Strictly, no N above 64 keeps this worst case inside the 64-asset
+WebGL2 budget (p95 16.7 ms, every other 120 Hz frame): 128 adds one refresh
+interval. Real modular content is not that worst case: a 70-asset modular world
+with shared kit materials and repeats measured 16.7 ms WebGL2 p95 at 650 draws
+on the same hub. The cap is therefore the largest N whose worst case stays at
+or under 33.3 ms WebGL2 p95 (30 fps, twice the 64-asset budget) at both
+triangle loads. That is 128; 256 misses it at 42–50 ms.
+
+The asset cap does not bound frame time on its own. A world under it can still
+draw thousands of times through parts, behaviours, water and shadows, so check
+`world_observe` draws and frame p95 after large edits. At 128 assets the
+`world_read` overview can outgrow its 24,000-character page; it then keeps the
+most-placed asset groups and reports the rest in `objectsByAssetOmitted`.
+
+## Terrain sources
+
+`scene.terrain` has two sources over one lattice: a `heightfield` (a base height
+and elliptical stamps) and a `heightmap` (sampled heights from a pinned
+little-endian float32 `.r32` file, named in the record by its SHA-256). Both
+take the same ordered stamps and appearance, and both require
+`terrain.heightfield@1`. `createTerrain` in `src/world/terrain.mjs` builds one
+Float32 lattice from either source, and the renderer, walker, aim, scatter,
+floor clearance, terrain layers, surf, ocean depth and the `world_sample` and
+`world_check` probes all read it. A heightmap's default lattice puts one vertex on
+each sample, so the drawn vertices are the samples; an explicit `segments`
+resamples them, and every consumer still reads that same resampled lattice. The
+runtime's terrain signature includes the height hash, so new samples rebuild the
+terrain while an appearance-only edit does not.
+
+Samples live in a registry keyed by SHA-256, and `createTerrain` refuses a
+heightmap whose samples are not loaded. Each reader loads and verifies them
+before it validates a world, because counting scatter placements builds the
+terrain. On the Node side that is the world store (accepted world and every
+proposal), history listing, restore and remix, static export, example bundles,
+and `holodeck check` and `launch`. In the browser it is the asset bundle loader
+and the static viewer, which fetch the pinned bytes by hash and check them where
+the page can compute SHA-256. The accepted world, a staged proposal and a loaded
+browser bundle retain their samples; up to eight other sample sets stay cached.
+The host pins the file as `.holodeck/blobs/<sha256>.r32`, counts it in the
+128 MiB world budget, records it in the revision receipt's `height` entry and
+serves it at `/api/heights/<sha256>.r32`. Writing over the pinned file never
+changes an accepted revision. See
+[terrain and inhabitants](terrain-and-inhabitants.md#heightmap) for the record.
+
+**Cost.** A heightmap's default lattice can carry sixteen times the triangles of
+the largest heightfield: 2,097,152 against 131,072. These are hub browser results
+(GTX 1660 Ti Max-Q laptop GPU, driver 615.78.08, headed Chrome through
+Playwright, 1600×900, nice 10, uncapped frame rate), not PC, Windows or Unity
+results. Terrain triangles cost far less than draws. A 690-draw modular world
+measured the same p95 with a 43,500-triangle stamped heightfield, a
+524,288-triangle heightmap and that heightmap resampled to 131,072 triangles
+(WebGPU 11.2–11.8 ms, WebGL2 10.0–10.4 ms). On a 94-draw world the largest
+lattice left WebGPU p95 unchanged; on WebGL2 it added about 2 ms at p95, and at
+least 1% of frames took over 70 ms. Building the lattice is main-thread CPU work,
+done once per change of shape: 0.11–0.14 s and 52 MiB of buffers at
+1024 × 1024 in Node on a desktop CPU. Walker support matched the drawn triangles
+within 7.1 × 10⁻¹⁵ m in every run. [Choosing segments](terrain-and-inhabitants.md#choosing-segments)
+has the table, the resampling error and the guidance.
 
 ## Local world activation
 

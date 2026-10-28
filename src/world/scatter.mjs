@@ -1,4 +1,4 @@
-import {createTerrain} from './terrain.mjs';
+import {sharedTerrain} from './terrain.mjs';
 // Seeded scatter: authored records that expand into ordinary static placements.
 // Scatter: {id, layer?, label?, seed, variants:[{asset,weight?}], region:{polygon:[[x,z]...]},
 // limits?:{height?:[min,max], slope?:[minDeg,maxDeg], waterDepth?:[min,max]},
@@ -158,12 +158,6 @@ function expandOne(s,{terrain,waterLevel,avoided}){
  return {placements,stats:{id:s.id,target,placed:placements.length,removed:accepted-placements.length,attempts}};
 }
 
-let terrainCache={signature:null,terrain:null};
-function sharedTerrain(t){
- const signature=JSON.stringify([t.type,t.bounds,t.segments,t.baseHeight,t.stamps]);
- if(terrainCache.signature!==signature)terrainCache={signature,terrain:createTerrain(t)};
- return terrainCache.terrain;
-}
 const expansions=new WeakMap();
 // Expanded placements and per-scatter counts. Results are cached per scene
 // object, so scene records are treated as immutable once expanded.

@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { DEFAULT_WORLD, MAX_ASSET_BYTES, validateWorld, validateGlb } from '../src/world/contract.mjs';
 import {MAX_PLACED_TRIANGLES,placedSourceTriangles} from '../src/world/asset-budget.mjs';
 import {terrainTextureFiles,checkTerrainTextures,pngInfo,renameTerrainTextures,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
+import {retainHeightSamples,releaseHeightSamples} from '../src/world/terrain.mjs';
+import {heightmapOf,admitHeight,heightBlob,HEIGHT_FILE_BYTES} from './terrain-heights.mjs';
 import { installStarter } from './starter.mjs';
 import { KILN_GUIDE } from './world-guide.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
@@ -21,10 +23,10 @@ export async function atomicJson(file,value){
   try{await writeFile(tmp,JSON.stringify(value,null,2)+'\n');await rename(tmp,file);}finally{await unlink(tmp).catch(()=>{});}
 }
 export class WorldStore extends EventEmitter {
-  constructor(root){super();this.root=path.resolve(root);this.queue=Promise.resolve();this.hashes={};this.textures={};this.diagnostic=null;this.closed=false;}
+  constructor(root){super();this.root=path.resolve(root);this.queue=Promise.resolve();this.hashes={};this.textures={};this.height=null;this.retainedHeight=null;this.diagnostic=null;this.closed=false;}
   static async open(root){const s=new WorldStore(root);await s.init();return s;}
   snapshot(){return structuredClone(this.current);}
-  payload(){return {world:this.snapshot(),assets:this.hashes,textures:this.textures,workspace:this.root,diagnostic:this.diagnostic};}
+  payload(){return {world:this.snapshot(),assets:this.hashes,textures:this.textures,height:this.height,workspace:this.root,diagnostic:this.diagnostic};}
   serial(work){const next=this.queue.then(work);this.queue=next.catch(()=>{});return next;}
   async init(){
     for(const dir of ['world','assets/imports','assets/source','references/files','reviews','.holodeck/history','.holodeck/blobs','.holodeck/session'])await mkdir(path.join(this.root,dir),{recursive:true});
@@ -35,6 +37,12 @@ export class WorldStore extends EventEmitter {
     try{
       let cached;try{cached=JSON.parse(await readFile(path.join(this.root,'.holodeck/accepted-bundle.json'),'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
       if(cached){
+        // Height samples load before validation: scatter counts need the terrain.
+        const cachedHeight=heightmapOf(cached.world);
+        if(cachedHeight){
+          if(cached.height?.hash!==cachedHeight.height.sha256)throw new Error('Cached accepted terrain height receipt is invalid');
+          admitHeight(cachedHeight,await readFile(await this.contained(heightBlob(cached.height.hash))));
+        }
         validateWorld(cached.world);
         for(const asset of cached.world.scene.assets){
           const hash=cached.assets?.[asset.id]?.hash;if(!/^[a-f0-9]{64}$/.test(hash))throw new Error('Cached accepted asset receipt is invalid');
@@ -45,25 +53,25 @@ export class WorldStore extends EventEmitter {
           const bytes=await readFile(await this.contained(`.holodeck/blobs/${texture.hash}.png`));pngInfo(bytes);if(digest(bytes)!==texture.hash)throw new Error(`Cached accepted terrain texture is corrupt: ${file}`);
         }
       }
-      let w,hashes,textures,offlineError;
+      let w,hashes,textures,height,offlineError;
       try{
         try{w=JSON.parse(await readFile(this.file,'utf8'));}catch(e){
           if(e.code!=='ENOENT'||cached)throw e;
           w=await installStarter(this.root);await atomicJson(this.file,w);
         }
-        ({assets:hashes,textures}=await this.prepareBundle(w));
+        ({assets:hashes,textures,height}=await this.prepareBundle(w));
       }catch(e){if(!cached)throw e;offlineError=e;}
       if(cached){
         // Reopening cannot rewrite the historical binding of an accepted revision.
         // Valid offline edits are a new commit; incomplete writes retain the cache.
-        this.current=cached.world;this.hashes=cached.assets;this.textures=cached.textures||{};
+        this.current=cached.world;this.hashes=cached.assets;this.textures=cached.textures||{};await this.adoptHeight(cached.world,cached.height??null);
         if(offlineError)this.diagnostic=`${offlineError.message}; showing cached accepted revision`;
-        else if(JSON.stringify({...w,revision:cached.world.revision})!==JSON.stringify(cached.world)||JSON.stringify(hashes)!==JSON.stringify(cached.assets)||JSON.stringify(textures)!==JSON.stringify(cached.textures||{})){
+        else if(JSON.stringify({...w,revision:cached.world.revision})!==JSON.stringify(cached.world)||JSON.stringify(hashes)!==JSON.stringify(cached.assets)||JSON.stringify(textures)!==JSON.stringify(cached.textures||{})||JSON.stringify(height)!==JSON.stringify(cached.height??null)){
           const scene=structuredClone(w.scene);for(const asset of scene.assets)if(hashes[asset.id].hash!==cached.assets[asset.id]?.hash)delete asset.provenance;
           await this.apply({baseRevision:cached.world.revision,scene,bible:w.bible,references:w.references||[]});
         }else if(w.revision!==cached.world.revision)await atomicJson(this.file,cached.world);
       }else{
-        this.current=w;this.hashes=hashes;this.textures=textures;await atomicJson(this.accepted,w);await atomicJson(path.join(this.root,`.holodeck/history/${w.revision}.json`),w);await this.checkpoint(w,hashes,textures);
+        this.current=w;this.hashes=hashes;this.textures=textures;await this.adoptHeight(w,height);await atomicJson(this.accepted,w);await atomicJson(path.join(this.root,`.holodeck/history/${w.revision}.json`),w);await this.checkpoint(w,hashes,textures,height);
       }
       this.lastRead=digest(await readFile(this.file).catch(e=>{if(e.code==='ENOENT')return Buffer.alloc(0);throw e;}));
       await writeFile(path.join(this.root,'AGENTS.md'),`# Holodeck world workspace\n\nUse the Holodeck world_read and world_propose tools for scene and bible edits.\nworld/world.json is the coherent scene and bible document. Proposals carry its base revision.\nAssets must be self-contained GLBs in assets/imports. Never edit installed Holodeck or Kiln engine code.\nPreserve accepted bible rules, stable object IDs and pinned Kiln provenance.\nOnly construct, meadow, woodland, static GLB placements and box blockers are supported initially.\nUse world_observe for displayed revision and browser measurements. A saved revision is not proof of browser acceptance.\n${KILN_GUIDE}\n`,{flag:'wx'}).catch(e=>{if(e.code!=='EEXIST')throw e;});
@@ -76,8 +84,16 @@ export class WorldStore extends EventEmitter {
     if(rel.startsWith('..')||path.isAbsolute(rel))throw new Error('Asset resolves outside the world workspace');return target;
   }
   async prepare(world){return (await this.prepareBundle(world)).assets;}
-  // Pins every GLB and terrain texture by hash and checks the shared budgets.
+  // Pins every GLB, terrain texture and terrain height file by hash and checks
+  // the shared budgets.
   async prepareBundle(world){
+    // A heightmap's samples load first: validating scatters builds the terrain.
+    const heightmap=heightmapOf(world);let height=null,heightBytes=null;
+    if(heightmap){
+      const file=await this.contained(heightmap.height.file),info=await stat(file);
+      if(!info.isFile()||info.size>HEIGHT_FILE_BYTES)throw new Error(`Terrain height ${heightmap.height.file} is not a file of at most ${HEIGHT_FILE_BYTES} bytes`);
+      heightBytes=await readFile(file);height=admitHeight(heightmap,heightBytes);
+    }
     validateWorld(world);const assets={},textures={};let total=0;
     for(const reference of world.references||[]){if(reference.kind==='note')continue;const file=await this.contained(reference.file),info=await stat(file);if(info.size>12*1024*1024)throw new Error('Reference exceeds 12 MiB');const bytes=await readFile(file);if(digest(bytes)!==path.parse(reference.file).name)throw new Error('Pinned reference content changed; import a new revision');}
     for(const a of world.scene.assets){
@@ -96,18 +112,33 @@ export class WorldStore extends EventEmitter {
       textures[file]={hash,url:`/api/textures/${hash}.png`,width,height,bytes:bytes.length};
     }
     checkTerrainTextures(world.scene.terrain,textures);
-    return {assets,textures};
+    // The height file counts inside the same 128 MiB world budget.
+    if(height){
+      total+=height.bytes;if(total>128*1024*1024)throw new Error('World exceeds 128 MiB of asset files');
+      await writeFile(path.join(this.root,heightBlob(height.hash)),heightBytes,{flag:'wx'}).catch(e=>{if(e.code!=='EEXIST')throw e;});
+    }
+    return {assets,textures,height};
   }
-  async checkpoint(world,assets,textures={}){const bundle={world,assets,...(Object.keys(textures).length?{textures}:{})};await atomicJson(path.join(this.root,`.holodeck/history/${world.revision}.bundle.json`),bundle);await atomicJson(path.join(this.root,'.holodeck/accepted-bundle.json'),bundle);}
+  // The accepted world's height samples stay resident while it is current.
+  async adoptHeight(world,height){
+    const next=height?.hash??null;
+    if(next!==this.retainedHeight){
+      if(next&&!retainHeightSamples(next)){admitHeight(heightmapOf(world),await readFile(path.join(this.root,heightBlob(next))));retainHeightSamples(next);}
+      if(this.retainedHeight)releaseHeightSamples(this.retainedHeight);
+      this.retainedHeight=next;
+    }
+    this.height=height;
+  }
+  async checkpoint(world,assets,textures={},height=null){const bundle={world,assets,...(Object.keys(textures).length?{textures}:{}),...(height?{height}:{})};await atomicJson(path.join(this.root,`.holodeck/history/${world.revision}.bundle.json`),bundle);await atomicJson(path.join(this.root,'.holodeck/accepted-bundle.json'),bundle);}
   commit(change){return this.serial(()=>this.apply(change));}
   async apply({baseRevision,scene,bible,references}){
     if(baseRevision!==this.current.revision)throw new Error('World changed; reload the latest revision before saving');
     const next={schemaVersion:this.current.schemaVersion,revision:this.current.revision+1,scene:scene??this.current.scene,bible:bible??this.current.bible,references:references??this.current.references??[]};
-    const {assets,textures}=await this.prepareBundle(next);
+    const {assets,textures,height}=await this.prepareBundle(next);
     await atomicJson(path.join(this.root,`.holodeck/history/${next.revision}.json`),next);
     await atomicJson(this.file,next);await atomicJson(this.accepted,next);
-    await this.checkpoint(next,assets,textures);
-    this.lastRead=digest(await readFile(this.file));this.current=next;this.hashes=assets;this.textures=textures;this.diagnostic=null;
+    await this.checkpoint(next,assets,textures,height);
+    this.lastRead=digest(await readFile(this.file));this.current=next;this.hashes=assets;this.textures=textures;await this.adoptHeight(next,height);this.diagnostic=null;
     this.emit('world',this.payload());return this.payload();
   }
   readExternal(){return this.serial(async()=>{
@@ -116,8 +147,8 @@ export class WorldStore extends EventEmitter {
     return this.apply({baseRevision:value.revision,scene:value.scene,bible:value.bible,references:value.references});
   });}
   refreshAssets(){return this.serial(async()=>{
-    const {assets:hashes,textures}=await this.prepareBundle(this.current);
-    if(JSON.stringify(hashes)!==JSON.stringify(this.hashes)||JSON.stringify(textures)!==JSON.stringify(this.textures)){
+    const {assets:hashes,textures,height}=await this.prepareBundle(this.current);
+    if(JSON.stringify(hashes)!==JSON.stringify(this.hashes)||JSON.stringify(textures)!==JSON.stringify(this.textures)||JSON.stringify(height)!==JSON.stringify(this.height)){
       const scene=structuredClone(this.current.scene);for(const asset of scene.assets)if(hashes[asset.id].hash!==this.hashes[asset.id]?.hash)delete asset.provenance;
       return this.apply({baseRevision:this.current.revision,scene});
     }
@@ -127,6 +158,13 @@ export class WorldStore extends EventEmitter {
     const prev=JSON.parse(await readFile(path.join(this.root,`.holodeck/history/${baseRevision-1}.json`),'utf8'));
     const receipt=await readFile(path.join(this.root,`.holodeck/history/${baseRevision-1}.bundle.json`),'utf8').then(JSON.parse).catch(()=>null);
     if(receipt)for(const asset of prev.scene.assets){const hash=receipt.assets[asset.id].hash;const bytes=await readFile(path.join(this.root,`.holodeck/blobs/${hash}.glb`));asset.file=`assets/imports/restored-${hash}.glb`;await writeFile(path.join(this.root,asset.file),bytes);}
+    // A heightmap names its own hash; its pinned blob is restored under that hash.
+    if(prev.scene.terrain?.type==='heightmap'){
+      const hash=prev.scene.terrain.height.sha256,file=`assets/imports/terrain/restored-${hash}.r32`;
+      await mkdir(path.join(this.root,'assets/imports/terrain'),{recursive:true});
+      await writeFile(path.join(this.root,file),await readFile(path.join(this.root,heightBlob(hash))));
+      prev.scene.terrain={...prev.scene.terrain,height:{...prev.scene.terrain.height,file}};
+    }
     if(receipt?.textures&&prev.scene.terrain){
       await mkdir(path.join(this.root,'assets/imports/terrain'),{recursive:true});
       for(const texture of Object.values(receipt.textures)){const bytes=await readFile(path.join(this.root,`.holodeck/blobs/${texture.hash}.png`));await writeFile(path.join(this.root,`assets/imports/terrain/restored-${texture.hash}.png`),bytes);}
@@ -164,5 +202,5 @@ export class WorldStore extends EventEmitter {
     return {reference:ref,bytes:bytes.length,note:'Binary attachment. Inspect the workspace file with a compatible tool; no text extraction is provided.'};
   }
   async catalog(){const files=await readdir(path.join(this.root,'assets/imports'));return files.filter(f=>f.endsWith('.glb')).map(f=>`assets/imports/${f}`);}
-  async close(){if(this.closed)return;this.closed=true;clearTimeout(this.timer);clearTimeout(this.assetTimer);this.watcher?.close();this.assetWatcher?.close();await this.queue;await unlink(this.lockfile).catch(()=>{});}
+  async close(){if(this.closed)return;this.closed=true;clearTimeout(this.timer);clearTimeout(this.assetTimer);this.watcher?.close();this.assetWatcher?.close();await this.queue;if(this.retainedHeight){releaseHeightSamples(this.retainedHeight);this.retainedHeight=null;}await unlink(this.lockfile).catch(()=>{});}
 }

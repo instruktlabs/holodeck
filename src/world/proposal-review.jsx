@@ -1,11 +1,20 @@
 import React,{useMemo,useState} from 'react';
-import {diffProposal,summarizeProposal} from './proposal-diff.mjs';
+import {diffProposal,summarizeProposal,terrainSourceSummary} from './proposal-diff.mjs';
 
 // The proposal card's review: a few summary lines, grouped detail on demand,
 // and the raw JSON last. Plain lists and tables; styling stays minimal.
 const MAX_IDS=24;
 const idList=list=>list.length>MAX_IDS?`${list.slice(0,MAX_IDS).join(', ')} and ${list.length-MAX_IDS} more`:list.join(', ');
 const text=value=>typeof value==='string'?value:JSON.stringify(value);
+// A heightmap change side by side: hash, samples, bounds and lattice, never the samples.
+const SOURCE_ROWS=[['Source',s=>s?.type??'none'],['sha256',s=>s?.sha256??''],['Samples',s=>s?.size?`${s.size[0]} × ${s.size[1]}`:''],['Bounds',s=>s?.bounds?`x ${s.bounds[0]}…${s.bounds[1]}, z ${s.bounds[2]}…${s.bounds[3]} m`:''],['Lattice',s=>s?.segments?`${s.segments[0]} × ${s.segments[1]} cells`:''],['Scale, offset',s=>s?.type==='heightmap'?`${s.scale} × sample + ${s.offset} m`:'']];
+function TerrainSource({source}){
+  return <div className="proposal-scroll"><table>
+    <caption>Terrain source</caption>
+    <thead><tr><th/><th>Accepted</th><th>Proposed</th></tr></thead>
+    <tbody>{SOURCE_ROWS.map(([label,read])=><tr key={label}><td>{label}</td><td>{read(source.before)}</td><td>{read(source.after)}</td></tr>)}</tbody>
+  </table></div>;
+}
 
 export function ProposalReview({accepted,proposal}){
   const diff=useMemo(()=>diffProposal(accepted,proposal.world),[accepted,proposal]);
@@ -22,7 +31,8 @@ export function ProposalReview({accepted,proposal}){
         </tr>)}</tbody>
       </table></div>}
       {(assets.added.length>0||assets.removed.length>0||assets.changed.length>0)&&<p><b>Assets</b>{assets.added.length>0&&<><br/>Added: {idList(assets.added)}</>}{assets.removed.length>0&&<><br/>Removed: {idList(assets.removed)}</>}{assets.changed.length>0&&<><br/>Changed: {idList(assets.changed.map(a=>`${a.id} (${a.fields.join(', ')})`))}</>}</p>}
-      {settings.length>0&&<p><b>Scene settings</b>{settings.map(s=><React.Fragment key={s.field}><br/>{s.field}: {[...(s.appearance?.length?[`appearance: ${s.appearance.join(', ')}`]:[]),...(s.stamps?[`stamps +${s.stamps.added} −${s.stamps.removed} ~${s.stamps.changed}`]:[]),...s.keys.filter(k=>!(k==='appearance'&&s.appearance)&&!(k==='stamps'&&s.stamps))].join('; ')||'changed'}</React.Fragment>)}</p>}
+      {settings.length>0&&<p><b>Scene settings</b>{settings.map(s=><React.Fragment key={s.field}><br/>{s.field}: {[...(s.source?[terrainSourceSummary(s.source)]:[]),...(s.appearance?.length?[`appearance: ${s.appearance.join(', ')}`]:[]),...(s.stamps?[`stamps +${s.stamps.added} −${s.stamps.removed} ~${s.stamps.changed}`]:[]),...s.keys.filter(k=>!(k==='appearance'&&s.appearance)&&!(k==='stamps'&&s.stamps)&&!(s.source&&['type','bounds','size','height','scale','offset','segments','baseHeight'].includes(k)))].join('; ')||'changed'}</React.Fragment>)}</p>}
+      {settings.filter(s=>s.source).map(s=><TerrainSource key="terrain-source" source={s.source}/>)}
       {diff.bible.length>0&&<div className="proposal-scroll"><table>
         <caption>Bible</caption>
         <thead><tr><th>Field</th><th>Accepted</th><th>Proposed</th></tr></thead>

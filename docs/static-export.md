@@ -49,8 +49,11 @@ the HUD. On screens narrower than 700 px the toolbar folds into one View button.
 See [selection and inhabiting](selection-and-inhabiting.md#touch).
 
 Exports contain the scene, only the GLBs used by its origin, placements and
-scatter variants, and its pinned terrain layer PNGs (renamed by hash under
-`assets/imports/terrain/`). The
+scatter variants, its pinned terrain layer PNGs, and a heightmap terrain's
+pinned height samples (both renamed by hash under `assets/imports/terrain/`).
+`scene.json` lists the height file with its hash, byte count and sample size.
+Where the page can compute SHA-256 (HTTPS or localhost), the viewer checks the
+samples against that hash before it builds the terrain. The
 bible's title is replaced by a generic title; intent, rules, references and the
 mood board are excluded. Agent history, credentials, source files, workspace paths
 and installed authoring skills are not copied. Safe collection/asset/revision IDs

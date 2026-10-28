@@ -1,7 +1,7 @@
 # Terrain, ocean and possession
 
-Schema 2 worlds can opt into a heightfield, a bounded ocean and the built-in maker
-inhabitant. New worlds and every bundled example start with the maker. These are reusable runtime capabilities. The world agent authors their
+Schema 2 worlds can opt into terrain (a stamped heightfield or a sampled
+heightmap), a bounded ocean and the built-in maker inhabitant. New worlds and every bundled example start with the maker. These are reusable runtime capabilities. The world agent authors their
 records through `world_propose`; the user applies the proposal. Existing worlds
 and installed workspace instructions are not rewritten. `world_read` returns the
 current host's complete spatial contract and valid examples on every read.
@@ -13,7 +13,7 @@ and remove the module when removing that record. Preserve existing behavior modu
 
 | Record | Required module |
 | --- | --- |
-| `scene.terrain` | `terrain.heightfield@1` |
+| `scene.terrain` (heightfield or heightmap) | `terrain.heightfield@1` |
 | `scene.water` | `water.ocean@1` |
 | `scene.runtime.possession` | `inhabitant.maker@1` |
 | `scene.scatters` | `scatter.seeded@1` (with `terrain.heightfield@1`) |
@@ -124,6 +124,164 @@ The renderer and controller share the same Float32 lattice. Each cell has triang
 triangles. Smooth display normals do not change the face slope used for walking.
 This surface has one height per X/Z point and cannot describe caves or overhangs.
 
+## Heightmap
+
+A heightmap is sampled terrain, for landforms that elliptical stamps cannot
+express: eroded gullies, angled ridges, talus and benches. It uses the same
+`terrain.heightfield@1` module, stamps, appearance, layers and support as a
+heightfield. This independent API example is not a saved scene:
+
+```json
+{
+  "type": "heightmap",
+  "bounds": [-32, 32, -32, 32],
+  "size": [129, 129],
+  "height": {
+    "file": "assets/imports/terrain/site-height-v1.r32",
+    "sha256": "<lowercase hex SHA-256 of that file>",
+    "format": "r32"
+  },
+  "stamps": [
+    {"id": "build-pad", "operation": "flatten", "center": [4, -6], "radius": [7, 5],
+     "height": 2.5, "plateau": 0.75, "falloff": 2}
+  ],
+  "appearance": {"rockSlope": 0.62}
+}
+```
+
+`size` is the sample count per axis, `[nx, nz]`, integers from 2 to 1025. The
+height file holds `nx × nz` little-endian float32 values, row-major: row 0 at
+`zmin`, rows increasing toward +z, column 0 at `xmin`. The outermost samples lie
+exactly on the bounds, so the spacing is `(xmax − xmin)/(nx − 1)`. `height.file`
+is an `.r32` file inside `assets/imports`, and `format` is always `"r32"`. A
+NumPy array of shape `(nz, nx)` with row 0 at `zmin` writes one directly:
+
+```python
+import hashlib, numpy as np
+samples = np.asarray(heights, dtype="<f4")  # shape (nz, nx), row 0 at zmin
+samples.tofile("assets/imports/terrain/site-height-v1.r32")
+print(hashlib.sha256(samples.tobytes()).hexdigest())  # height.sha256
+```
+
+A sample `s` stands at `s × scale + offset` metres. `scale` is greater than 0 and
+at most 1000 (default 1), `offset` is within ±1000 (default 0), and every
+resulting height must stay within ±1000. Optional `segments`, 1 to 1024 per
+axis, sets the lattice. It defaults to `[nx − 1, nz − 1]`, so the lattice
+vertices are the samples themselves; other values resample the samples
+bilinearly onto that lattice. Either way there is one surface: the renderer,
+walker, aim, scatter placement, floor clearance, terrain layers, surf, the
+ocean's depth, `world_sample` and `world_check` all read the same lattice
+triangles described above. Up to 32 stamps apply over the sampled base in order,
+exactly as on a heightfield, so `flatten` holds a build pad at its target height.
+
+The host checks the file before it accepts a revision: the byte count must be
+`nx × nz × 4`, its SHA-256 must equal `height.sha256`, and every sample must be
+finite. It then pins the bytes by hash, as `.holodeck/blobs/<sha256>.r32`
+beside the GLBs and terrain PNGs. The file counts inside the 128 MiB world asset
+budget; the largest, 1025 × 1025, is 4.2 MB. History, undo, restore, remix,
+static export and example bundles carry the pinned bytes, never a re-derivation.
+
+Because the record names a hash, its samples never change under it. To change
+the landform, write new samples under a new file name and propose that file and
+its sha256. Overwriting the pinned file in place does not change the accepted
+world: the host reports that the file no longer matches the record, and the
+accepted revision keeps its pinned samples until a proposal names new ones.
+Proposal review shows the heightmap's hash, sample size, bounds and lattice, and
+which of them changed; it never lists samples.
+
+Beyond its bounds a heightmap has no surface. As in a world without terrain,
+the ocean shades the floor there at 12 m below `water.level`.
+
+### Choosing segments
+
+The default lattice puts one vertex on each sample, so it has
+`(nx − 1) × (nz − 1) × 2` triangles: 524,288 for 513 × 513 samples and
+2,097,152 for the largest, 1025 × 1025, against at most 131,072 for a
+heightfield. The terrain is one draw. It receives shadows but casts none, so the
+shadow pass does not draw it; a pass that renders the world again, such as a
+planar water reflection, can.
+
+The lattice is built on the main thread whenever the terrain's shape changes,
+and scatter counting and the runtime share that one build. In Node 24.20.0 on a
+desktop CPU (Ryzen 7 3700X), 512 × 512 cells took about 30 ms and 13 MiB of
+buffers, and 1024 × 1024 0.11–0.14 s and 52 MiB. Hashing and decoding the
+largest file took about 15 ms.
+
+Fewer `segments` than sample intervals resample the base, which changes the
+landform as well as its cost. Every consumer reads the resampled lattice, so the
+walker still stands on the drawn ground; what moves is the ground itself. For a
+513 × 513 test terrain over 256 m with cliffs, the resampled surface differed
+from the full lattice inside the walkable bounds by:
+
+| Lattice cells | Triangles | Mean | p99 | Max |
+|---|---:|---:|---:|---:|
+| 384 × 384 | 294,912 | 0.03 m | 0.40 m | 4.42 m |
+| 256 × 256 | 131,072 | 0.04 m | 0.68 m | 4.97 m |
+| 128 × 128 | 32,768 | 0.15 m | 1.55 m | 7.47 m |
+
+The largest differences are at cliff edges, where a coarser cell cuts the corner.
+
+Frame cost was measured in the browser. These are hub browser results (GTX 1660
+Ti Max-Q laptop GPU, driver 615.78.08, headed Chrome 150 through Playwright,
+1600×900, nice 10), not PC, Windows or Unity results. The camera orbited for
+20 s after a 10 s warm-up revolution with the frame rate uncapped
+(`--disable-gpu-vsync --disable-frame-rate-limit`). Frame times are medians of
+two runs, p50 / p95 in ms. The modular rows are a scratch copy of a modular test
+world of about 690 draws, on its own stamped heightfield and on a 513 × 513
+heightmap of the same site. The largest rows are the starter world with water,
+scatter and a generated 1025 × 1025 heightmap over 256 m, at 94 draws.
+
+| Terrain | Lattice cells | Terrain triangles | WebGPU | WebGL2 |
+|---|---:|---:|---:|---:|
+| Modular, stamped heightfield | 150 × 145 | 43,500 | 7.2 / 11.2 | 7.6 / 10.4 |
+| Modular, heightmap, default | 512 × 512 | 524,288 | 7.7 / 11.8 | 7.3 / 10.0 |
+| Modular, heightmap, `segments: [256, 256]` | 256 × 256 | 131,072 | 7.3 / 11.3 | 7.3 / 10.0 |
+| Largest heightmap, default | 1024 × 1024 | 2,097,152 | 3.3 / 5.2 | 3.4 / 7.3 |
+| Largest heightmap, `segments: [256, 256]` | 256 × 256 | 131,072 | 3.7 / 5.6 | 3.5 / 5.1 |
+
+- On the modular world, twelve times the terrain triangles left frame time
+  within the spread of repeated runs: draws, not terrain triangles, set that
+  frame. Paced by the 120 Hz display, every variant there ran at p50 8.3 ms on
+  both backends, and single-run p95 moved between 8.5 and 16.7 ms whatever the
+  terrain.
+- The largest lattice left WebGPU unchanged. On WebGL2 it added about 2 ms at
+  p95, and in both runs at least 1% of frames took over 70 ms (p99 72 and
+  88 ms), where 256 × 256 kept p99 at 7.5 ms. In those runs it also became
+  ready about 0.6 s (WebGPU) and 1.3 s (WebGL2) later.
+- Walker support and the drawn triangles agreed within 7.1 × 10⁻¹⁵ m in every
+  run: about 221,000 grounded walker frames and 123,000 random points, checked
+  against the index and position buffers of the live terrain mesh.
+- No run had a page error.
+
+Up to 513 × 513 samples, keep the default lattice, whose vertices are the
+samples themselves. For larger heightmaps, profile the displayed world on WebGL2
+before keeping 1024 × 1024 cells. If you lower `segments`, use `world_sample`
+to check the pads, paths and cliff edges you depend on, because the walker will
+use the resampled ground. These figures come from one laptop GPU and one CPU.
+
+### Engine destinations
+
+Destination exporters, such as the Unity transfer, live outside this
+repository and have not been updated for heightmaps. To carry one faithfully,
+an exporter needs:
+
+- The record (`bounds`, `size`, `scale`, `offset`, `segments`, `stamps`) and
+  the pinned bytes from the accepted receipt or a static export, with their
+  SHA-256 checked before import. Reject a mismatch; never re-sample the source
+  file the record once named.
+- The lattice, not only the samples: stamps and any resampling to `segments`
+  are part of the surface. Building the lattice with Holodeck's own
+  `createTerrain` on the Node side and exporting its vertex heights avoids a
+  second implementation of the stamp and resampling rules.
+- The frame conversion applied once. Unity's glTF import reflects X, which
+  reverses the column order; row 0 stays at `zmin`.
+- A statement of how the destination surface differs. Unity's Terrain needs a
+  square `2^n + 1` height resolution, stores normalized 16-bit heights and
+  triangulates and simplifies by its own rules, so it can match this lattice
+  only at the samples. Where walking parity matters, compare the destination's
+  collision surface with the lattice triangles, or build a mesh collider from
+  those triangles.
+
 ## Ocean
 
 ```json
@@ -153,8 +311,9 @@ the same runtime activity clock. Pausing activity freezes it; reset returns it t
 zero. Detail normals and foam do not add hidden physics waves. Water exists only
 inside its bounds. There are no currents, boat dynamics or rigid-body buoyancy.
 
-The ocean has a bounded grid with at most 256 cells per axis. Terrain and ocean
-each have at most 131,072 triangles. Together with the analytic sky these are three
+The ocean has a bounded grid with at most 256 cells per axis. A heightfield and
+the ocean each have at most 131,072 triangles; a heightmap's lattice can reach
+2,097,152 (see [choosing segments](#choosing-segments)). Together with the analytic sky these are three
 surface draws before shadow and renderer passes. Large water extents with very
 short waves can exceed the available geometric sampling detail; use appropriate
 wavelengths and inspect motion. Analytic sky/sun reflection and terrain depth tint
@@ -205,7 +364,7 @@ texture, which the ocean avoids for WebGL2 stability.
   direction.
 
 `src/world/surf.mjs` builds a 512×512 map over the terrain bounds from the
-heightfield. The swell is marched along its direction, and each texel
+terrain lattice. The swell is marched along its direction, and each texel
 inherits from the one a step upstream:
 
 - Where depth falls below `breakDepth`, the swell is cut to the depth-limited
