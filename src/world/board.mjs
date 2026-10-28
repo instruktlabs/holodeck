@@ -16,4 +16,11 @@ export function placeCards(existing,count,page=0){
   return placed;
 }
 export const boardStyle=board=>({title:board?.title||'A feeling to build toward',theme:board?.theme||'linen'});
+// Identity of what the physical board paints. A new empty pin list must not count
+// as a change, or the cove redraws and blanks the pictures on every interface update.
+export function boardPaintKey(board,references=[],pins=[]){
+ const style=boardStyle(board);
+ const cards=(references||[]).map((r,i)=>{const layout=cardLayout(r,i);return [r.id,boardPage(r,i),layout.x,layout.y,layout.w,layout.h,r.kind||'',r.file||'',r.title||'',r.notes||'',r.group||'',r.status||''].join('\u001f');}).join('\u001e');
+ return [style.title,style.theme,board?.page||0,(pins||[]).join('\u001f'),cards].join('\0');
+}
 export const BOARD_THEMES={linen:{background:'#e9e3d4',card:'#faf6ec',ink:'#424c3f',muted:'#7e826d',accent:'#788763'},charcoal:{background:'#28312d',card:'#36403a',ink:'#e7e2d5',muted:'#abb5a4',accent:'#c3ab7e'},clay:{background:'#d8bda5',card:'#f0dfca',ink:'#554638',muted:'#8c715b',accent:'#8b6146'}};

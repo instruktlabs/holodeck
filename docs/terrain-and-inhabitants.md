@@ -436,17 +436,23 @@ these records.
 The maker is one 49-bone skeleton driving a skinned mesh per material, about a
 dozen draws in all. Its enamel shells stay rigid on their bones; the waist, neck,
 shawl and sash blend between bones. The pose is visual only: it reads the actor
-record each frame and never moves collision, support or cameras.
+record each frame and never moves collision or the gameplay support anchor.
+The third-person boom reads the pose's smoothed eye, so the view and the body
+share one vertical motion; it does not follow the gait bob.
 
 - **Gait.** Below about 1.9m/s the maker walks, above 2.5m/s it runs, blending
   between. Default walking speed (2.6m/s) is a jog; sprint is a run, and a
   partly tilted touch stick walks. Stride and cadence follow speed, and the gait
-  phase advances with distance actually travelled.
+  phase advances with distance actually travelled. The hip bounce stays a
+  shallow walk at the default jog and deepens only as the speed becomes a sprint.
 - **Feet.** Each foot is planted in world space for its stance, rolls from heel
   strike to toe-off about its heel and ball, and swings on a path that leaves
   and lands at zero ground speed. Two-bone IK places each ankle on the terrain or
   a walkable collider top, eases the last few percent of reach so knees never
-  snap straight, and lowers the pelvis only as far as a supporting leg needs.
+  snap straight, and lowers the pelvis only as far as a supporting sole needs.
+  Swing clearance and the heel-to-toe roll do not lift the hips. The visible
+  body eases over heightfield creases and treads, follows a settled slope, and
+  does not keep rising after a crest. The third-person boom uses that same eye.
 - **Starts, stops and turns.** A stop finishes the step in flight, then settles
   any foot that strayed from a comfortable stance, one at a time. Turning on the
   spot in first person shuffles the feet; a turn past 90 degrees re-plants both.

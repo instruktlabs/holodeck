@@ -52,8 +52,8 @@ const lab={
  input(){let t=lab.elapsed;for(const s of lab.script){if(t<s.seconds)return s.input;t-=s.seconds;}return lab.script.at(-1)?.input??{};},
  tick(){
   const a=lab.actor;stepInhabitant(a,lab.input(),DT,context);runtime.time+=DT;lab.elapsed+=DT;updateMakerPose(lab.model,a,lattice,lab.motion,DT,walkable);updateMakerEmote(lab.model,a,lab.emotes,{terrain:lattice,facing:lab.motion.facingYaw});
-  // The runtime's own follow camera, behind the walker's look and stepped with it.
-  stepFollowCamera(lab.follow,{eye:[a.position[0],a.position[1]+a.eyeHeight,a.position[2]],yaw:a.yaw,pitch:lab.view.pitch,...a.config.thirdPerson,ground:(x,z)=>lattice.sample(x,z),blocked:(x,z,r,y,h)=>blocked(x,z,r,y,h)},DT);
+  // The runtime's own follow camera. It copies the pose's smoothed eye, as the world does.
+  stepFollowCamera(lab.follow,{eye:[a.position[0],lab.motion.visualEye,a.position[2]],yaw:a.yaw,pitch:lab.view.pitch,...a.config.thirdPerson,ground:(x,z)=>lattice.sample(x,z),blocked:(x,z,r,y,h)=>blocked(x,z,r,y,h),vertical:'lock'},DT);
  },
  emote(id){return requestEmote(lab.actor,id,{seat:id==='sit'?chooseSeat(lab.seats,lab.actor):null});},
  seat({center=[-6,.6],size=[1.8,.45,.5],yaw=0}={}){
@@ -72,7 +72,7 @@ function Rig(){
  useLayoutEffect(()=>{configureSunShadow(light.current);light.current.target=target;},[target]);
  useFrame((_,seconds)=>{
   if(lab.auto&&lab.playing){lab.accumulator=(lab.accumulator??0)+Math.min(seconds,.1);while(lab.accumulator>=DT){lab.tick();lab.accumulator-=DT;}}
-  const a=lab.actor,v=lab.view,p=new THREE.Vector3(...a.position);
+  const a=lab.actor,v=lab.view,p=lab.model.root.position;
   target.position.copy(p);light.current.position.copy(p).add(new THREE.Vector3(...environment.sunPosition).normalize().multiplyScalar(40));target.updateMatrixWorld();
   if(v.mode==='first'){
    const eye=firstPersonEyePosition(a.position,a.eyeHeight,v.yaw,v.pitch);camera.position.set(...eye);camera.rotation.set(v.pitch,v.yaw,0,'YXZ');

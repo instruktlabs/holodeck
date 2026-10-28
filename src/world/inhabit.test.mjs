@@ -152,3 +152,12 @@ test('the follow boom retracts at once before a box and eases back out',()=>{
  assert.ok(lengths[1]-lengths[0]<.08,'it does not spring straight back out');
  assert.ok(Math.abs(lengths.at(-1)-open)<.01,'it eases back to its full length');
 });
+
+test('a locked follow boom copies the smoothed eye height and still trails sideways',()=>{
+ const state=createFollowCamera(),pitch=-.12,cp=Math.cos(pitch),sp=Math.sin(pitch),boomY=1.3*cp-3.6*sp;
+ stepFollowCamera(state,{...BOOM,eye:[0,1.72,0],vertical:'lock'},1/60);
+ stepFollowCamera(state,{...BOOM,eye:[.4,2.4,-.2],vertical:'lock'},1/60);
+ assert.equal(state.pivot[1].value,2.4);
+ assert.ok(Math.abs(state.position[1]-(2.4+boomY))<1e-6,'the boom height follows the eye this frame');
+ assert.ok(state.pivot[0].value>0&&state.pivot[0].value<.4,'horizontal still eases toward the eye');
+});
