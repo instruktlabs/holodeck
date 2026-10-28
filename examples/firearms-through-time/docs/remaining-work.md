@@ -16,9 +16,10 @@ The authoring is in progress: gun v3 with a separate ramrod, the hands, the pape
 
 ## 2. Owner requests (27 Oct)
 
-- **Pick the guns from a wall rack in the range,** instead of the panel's drop-down.
-- **Keep test readouts out of the play view.** The controls list, the compatibility check and the other test text move behind a debug switch.
-- **Side-by-side videos** of the same actions in Unreal and in the R3F host.
+- **Done:** the guns hang on a wall rack behind the booths; look at one and press X to take it, without leaving the world. The play view shows only a short line with the gun, mode and ammo. J opens the string and target review, and `?weaponDebug=1` brings back the full workbench. The Maker's body is hidden in first person, so only the FPS hands show (until there is a body with legs).
+- **Side-by-side videos** of the same actions in Unreal and in the R3F host, for the entry `site/lab/firearms-through-time/` on the Lab page the Last Crossing session is building (branch `site/lab`, catalog `site/lab.json`): H.264, at most 8 MB each, 1280×720 at 30 fps, no audio, with JPG posters.
+- **A playable WIP scene on the site** waits until static export can carry the extension, so visitors get the guns and hands. No asset pack yet.
+- **Check the rack's place with the owner:** it stands at (15.6, 0, -4.05), partly behind the booth posts.
 
 ## 3. Owner trial of recoil and the M4
 

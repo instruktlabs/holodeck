@@ -1,5 +1,7 @@
 import React,{useEffect,useLayoutEffect,useMemo,useRef} from 'react';
-import ClientExtension from '@holodeck/client-extension';
+import ClientExtension,* as clientExtension from '@holodeck/client-extension';
+// An extension that draws its own first-person hands hides the whole maker in first person.
+const hideBodyInFirstPerson=clientExtension.firstPersonBody==='hidden';
 import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {Cove,PlacedAsset,Construct,probe} from '../prototype/scene.jsx';
@@ -208,7 +210,7 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const look=mode==='free'?free.current:walk.current;
   probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
- },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} walkable={walkable} firstPerson={mode==='walk'&&person==='first'}/>:null;
+ },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} walkable={walkable} firstPerson={mode==='walk'&&person==='first'} hideBody={hideBodyInFirstPerson}/>:null;
 }
 // environment.grade (H77): the world's tone mapping while it is shown. Exposure is
 // environment.exposure, applied by EnvironmentLighting.

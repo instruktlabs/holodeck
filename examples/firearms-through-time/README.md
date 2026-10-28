@@ -47,6 +47,8 @@ place, so edits you make in Holodeck change this folder's `world.json`.
 | Aim | Hold RMB; Q toggles |
 | Reload, inspect, swap grips | R, I, C |
 | Semi or burst (M4) | B |
+| Take a gun from the wall rack | Look at it, then X |
+| Show the string and target review | J |
 | Change lane, end the string | L, Backspace |
 | Return the paper, new sheet | P, Y |
 | Review strings, export the session | PageUp and PageDown, F8 |
