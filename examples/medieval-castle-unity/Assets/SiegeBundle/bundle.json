@@ -1,0 +1,1925 @@
+{
+  "revision": 8,
+  "assets": [
+    {
+      "id": "siege-gate",
+      "file": "assets/imports/siege-gate-r_a697e45f0eee4f95b48933fb4bc66729.glb",
+      "provenance": {
+        "assetId": "a_fe2f3800043743b7aa95bfa8b56bd2e1",
+        "revisionId": "r_a697e45f0eee4f95b48933fb4bc66729",
+        "collection": "project"
+      },
+      "sha256": "sha256:3ed101aea8d9072475a9da1ceb533d1d5207b8c6e8759138a78c0252ed1c20c8"
+    },
+    {
+      "id": "siege-wall",
+      "file": "assets/imports/siege-wall-r_9ece2405f2984d4b97c9852674595315.glb",
+      "provenance": {
+        "assetId": "a_2720afd7f03f43d5b7dd0bab67f1580e",
+        "revisionId": "r_9ece2405f2984d4b97c9852674595315",
+        "collection": "project"
+      },
+      "sha256": "sha256:172e2b2a82ab8f3f68ef9fbada6851c21accb2d39fdc2e416b5fad0831a1527a"
+    },
+    {
+      "id": "siege-bridge",
+      "file": "assets/imports/siege-bridge-r_f23843d605d14861b1c59106dd006dd0.glb",
+      "provenance": {
+        "assetId": "a_782cb4ec968444c1a6a49ffddbe9de5b",
+        "revisionId": "r_f23843d605d14861b1c59106dd006dd0",
+        "collection": "project"
+      },
+      "sha256": "sha256:6b36185ca8176830b58365f090becbfeab31c9503676d1865ec0c5715d3386c4"
+    },
+    {
+      "id": "siege-court",
+      "file": "assets/imports/siege-court-r_691312409f3b4460bc5bc2d88f9e8833.glb",
+      "provenance": {
+        "assetId": "a_41a6af91cb45475ebd2bf506599470e8",
+        "revisionId": "r_691312409f3b4460bc5bc2d88f9e8833",
+        "collection": "project"
+      },
+      "sha256": "sha256:f68261c13aa356fbabaa7beb3e1ae578b180dd4117fe72975ae4a14a71ce8480"
+    },
+    {
+      "id": "siege-wall-corner",
+      "file": "assets/imports/siege-wall-corner-r_151cbde8c640491f8175de28c9ac01be.glb",
+      "sha256": "sha256:a9ccdc37a0e6e8b054c8bd77f41578cf74e903e71309f9c41ec8f08540891977",
+      "provenance": {
+        "assetId": "a_45b2f580d5e94a61b288123600d74766",
+        "revisionId": "r_151cbde8c640491f8175de28c9ac01be",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "siege-landing",
+      "file": "assets/imports/siege-landing-r_927c5901f5154fcc81bb4d7ef496424c.glb",
+      "sha256": "sha256:66ef9f49d973be882b338f2c5590f996be451d8076663610113290ef7420e60a",
+      "provenance": {
+        "assetId": "a_7f200fcff0e6471397694c20d35298b9",
+        "revisionId": "r_927c5901f5154fcc81bb4d7ef496424c",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "siege-soldier",
+      "file": "assets/imports/siege-soldier-r_c795cd28ac6549c6b2c8c7cfc98c79f0.glb",
+      "sha256": "sha256:11fc5d850260e9c8eb93c9d986e3f2b8bb4786abf49085768daf3656ec6d8c80",
+      "provenance": {
+        "assetId": "a_78129efc874a43f4892d03df77930ade",
+        "revisionId": "r_c795cd28ac6549c6b2c8c7cfc98c79f0",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "siege-mantlet",
+      "file": "assets/imports/siege-mantlet-r_a97df82cbbd94b57a8517648293a99a9.glb",
+      "sha256": "sha256:d62f56ac8a2216f9d17c8fd1267904bf98be171e63f90b225db14fbfb2e31057",
+      "provenance": {
+        "assetId": "a_0c09a1f042f44d8096b3ed7974013706",
+        "revisionId": "r_a97df82cbbd94b57a8517648293a99a9",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "siege-barricade",
+      "file": "assets/imports/siege-barricade-r_096261af0ad24a25a80486da3df82d1d.glb",
+      "sha256": "sha256:7a1c9dccb81c67a0ef84fc9be70038b175c842c6c5ae6a726483c597be633cf5",
+      "provenance": {
+        "assetId": "a_069155fcbe34487181f28c9309f372e2",
+        "revisionId": "r_096261af0ad24a25a80486da3df82d1d",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "siege-stair-flight-lower",
+      "file": "assets/imports/siege-stair-flight-lower-r_4d417c8f773e43bdbde73330ef75eea6.glb",
+      "sha256": "sha256:506ed59cc37cd2a57ebf4d71a53de99fed00580cfd127743e6ea0d642ce884b0",
+      "provenance": {
+        "assetId": "a_37351dc2f73643d28e6317d191c57388",
+        "revisionId": "r_4d417c8f773e43bdbde73330ef75eea6",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "siege-stair-flight-middle",
+      "file": "assets/imports/siege-stair-flight-middle-r_44e81d9c933d466d96d03b49ee594ee5.glb",
+      "sha256": "sha256:408221054cf01704572e898b752373120656599edd2c34c99cc2e7779459fd72",
+      "provenance": {
+        "assetId": "a_2e76bc2b955340c893487f576d594735",
+        "revisionId": "r_44e81d9c933d466d96d03b49ee594ee5",
+        "collection": "project"
+      }
+    },
+    {
+      "id": "siege-stair-flight-upper",
+      "file": "assets/imports/siege-stair-flight-upper-r_6f3cae3560514dcea2a26f738989011f.glb",
+      "sha256": "sha256:1453671be0fabfce47cfe79096c52047a2a3731ba8754ef239dea121c12b8521",
+      "provenance": {
+        "assetId": "a_d2ea5087908c4229813775d501526dd4",
+        "revisionId": "r_6f3cae3560514dcea2a26f738989011f",
+        "collection": "project"
+      }
+    }
+  ],
+  "placements": [
+    {
+      "id": "siege-outer-gate",
+      "asset": "siege-gate",
+      "position": [
+        60,
+        0,
+        -34
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              3,
+              8,
+              2
+            ],
+            "offset": [
+              0,
+              4,
+              -3.5
+            ]
+          },
+          {
+            "size": [
+              3,
+              8,
+              2
+            ],
+            "offset": [
+              0,
+              4,
+              3.5
+            ]
+          },
+          {
+            "size": [
+              3,
+              3,
+              5
+            ],
+            "offset": [
+              0,
+              6.5,
+              0
+            ]
+          },
+          {
+            "size": [
+              2.45,
+              4.5,
+              0.2
+            ],
+            "offset": [
+              -1.225,
+              2.25,
+              -2.5
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-bridge-0",
+      "asset": "siege-bridge",
+      "position": [
+        60,
+        0,
+        -68.5
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              6,
+              0.6,
+              7
+            ],
+            "offset": [
+              0,
+              -0.3,
+              0
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              -3.7
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              3.7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-bridge-1",
+      "asset": "siege-bridge",
+      "position": [
+        60,
+        0,
+        -62.5
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              6,
+              0.6,
+              7
+            ],
+            "offset": [
+              0,
+              -0.3,
+              0
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              -3.7
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              3.7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-bridge-2",
+      "asset": "siege-bridge",
+      "position": [
+        60,
+        0,
+        -56.5
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              6,
+              0.6,
+              7
+            ],
+            "offset": [
+              0,
+              -0.3,
+              0
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              -3.7
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              3.7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-bridge-3",
+      "asset": "siege-bridge",
+      "position": [
+        60,
+        0,
+        -50.5
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              6,
+              0.6,
+              7
+            ],
+            "offset": [
+              0,
+              -0.3,
+              0
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              -3.7
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              3.7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-bridge-4",
+      "asset": "siege-bridge",
+      "position": [
+        60,
+        0,
+        -44.5
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              6,
+              0.6,
+              7
+            ],
+            "offset": [
+              0,
+              -0.3,
+              0
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              -3.7
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              3.7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-bridge-5",
+      "asset": "siege-bridge",
+      "position": [
+        60,
+        0,
+        -38.5
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              6,
+              0.6,
+              7
+            ],
+            "offset": [
+              0,
+              -0.3,
+              0
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              -3.7
+            ]
+          },
+          {
+            "size": [
+              6,
+              1.1,
+              0.4
+            ],
+            "offset": [
+              0,
+              0.55,
+              3.7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-front-wall--1-0",
+      "asset": "siege-wall",
+      "position": [
+        53.5,
+        0,
+        -34
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              1,
+              6,
+              4
+            ],
+            "offset": [
+              0,
+              3,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-front-wall--1-1",
+      "asset": "siege-wall",
+      "position": [
+        49.5,
+        0,
+        -34
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              1,
+              6,
+              4
+            ],
+            "offset": [
+              0,
+              3,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-front-wall-1-0",
+      "asset": "siege-wall",
+      "position": [
+        66.5,
+        0,
+        -34
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              1,
+              6,
+              4
+            ],
+            "offset": [
+              0,
+              3,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-front-wall-1-1",
+      "asset": "siege-wall",
+      "position": [
+        70.5,
+        0,
+        -34
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              1,
+              6,
+              4
+            ],
+            "offset": [
+              0,
+              3,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-court-0-0",
+      "asset": "siege-court",
+      "position": [
+        54,
+        0,
+        -29.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              12,
+              0.4,
+              12
+            ],
+            "offset": [
+              0,
+              -0.2,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-court-0-1",
+      "asset": "siege-court",
+      "position": [
+        54,
+        0,
+        -17.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              12,
+              0.4,
+              12
+            ],
+            "offset": [
+              0,
+              -0.2,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-court-1-0",
+      "asset": "siege-court",
+      "position": [
+        66,
+        0,
+        -29.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              12,
+              0.4,
+              12
+            ],
+            "offset": [
+              0,
+              -0.2,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-court-1-1",
+      "asset": "siege-court",
+      "position": [
+        66,
+        0,
+        -17.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              12,
+              0.4,
+              12
+            ],
+            "offset": [
+              0,
+              -0.2,
+              0
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-stair-flight-lower",
+      "asset": "siege-stair-flight-lower",
+      "position": [
+        71.15,
+        0,
+        -33.3
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              0.3,
+              0.18,
+              2.4
+            ],
+            "offset": [
+              0.15,
+              0.09,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              0.36,
+              2.4
+            ],
+            "offset": [
+              0.44999999999999996,
+              0.18,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              0.54,
+              2.4
+            ],
+            "offset": [
+              0.75,
+              0.27,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              0.72,
+              2.4
+            ],
+            "offset": [
+              1.0499999999999998,
+              0.36,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              0.8999999999999999,
+              2.4
+            ],
+            "offset": [
+              1.3499999999999999,
+              0.44999999999999996,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              1.08,
+              2.4
+            ],
+            "offset": [
+              1.65,
+              0.54,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              1.26,
+              2.4
+            ],
+            "offset": [
+              1.9499999999999997,
+              0.63,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              1.44,
+              2.4
+            ],
+            "offset": [
+              2.25,
+              0.72,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              1.6199999999999999,
+              2.4
+            ],
+            "offset": [
+              2.55,
+              0.8099999999999999,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              1.7999999999999998,
+              2.4
+            ],
+            "offset": [
+              2.8499999999999996,
+              0.8999999999999999,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              1.98,
+              2.4
+            ],
+            "offset": [
+              3.15,
+              0.99,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              2.16,
+              2.4
+            ],
+            "offset": [
+              3.4499999999999997,
+              1.08,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              3.5999999999999996,
+              3.2600000000000002,
+              0.18
+            ],
+            "offset": [
+              1.7999999999999998,
+              1.6300000000000001,
+              -1.29
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              3.5999999999999996,
+              3.2600000000000002,
+              0.18
+            ],
+            "offset": [
+              1.7999999999999998,
+              1.6300000000000001,
+              1.29
+            ],
+            "walkable": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-stair-flight-middle",
+      "asset": "siege-stair-flight-middle",
+      "position": [
+        71.15,
+        0,
+        -33.3
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              0.3,
+              2.34,
+              2.4
+            ],
+            "offset": [
+              3.7499999999999996,
+              1.17,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              2.52,
+              2.4
+            ],
+            "offset": [
+              4.05,
+              1.26,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              2.6999999999999997,
+              2.4
+            ],
+            "offset": [
+              4.3500000000000005,
+              1.3499999999999999,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              2.88,
+              2.4
+            ],
+            "offset": [
+              4.65,
+              1.44,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              3.06,
+              2.4
+            ],
+            "offset": [
+              4.95,
+              1.53,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              3.2399999999999998,
+              2.4
+            ],
+            "offset": [
+              5.25,
+              1.6199999999999999,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              3.42,
+              2.4
+            ],
+            "offset": [
+              5.55,
+              1.71,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              3.5999999999999996,
+              2.4
+            ],
+            "offset": [
+              5.8500000000000005,
+              1.7999999999999998,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              3.78,
+              2.4
+            ],
+            "offset": [
+              6.15,
+              1.89,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              3.96,
+              2.4
+            ],
+            "offset": [
+              6.45,
+              1.98,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              4.14,
+              2.4
+            ],
+            "offset": [
+              6.75,
+              2.07,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              4.32,
+              2.4
+            ],
+            "offset": [
+              7.05,
+              2.16,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              3.5999999999999996,
+              5.42,
+              0.18
+            ],
+            "offset": [
+              5.3999999999999995,
+              2.71,
+              -1.29
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              3.5999999999999996,
+              5.42,
+              0.18
+            ],
+            "offset": [
+              5.3999999999999995,
+              2.71,
+              1.29
+            ],
+            "walkable": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-stair-flight-upper",
+      "asset": "siege-stair-flight-upper",
+      "position": [
+        71.15,
+        0,
+        -33.3
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              0.3,
+              4.5,
+              2.4
+            ],
+            "offset": [
+              7.35,
+              2.25,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              4.68,
+              2.4
+            ],
+            "offset": [
+              7.65,
+              2.34,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              4.859999999999999,
+              2.4
+            ],
+            "offset": [
+              7.95,
+              2.4299999999999997,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              5.04,
+              2.4
+            ],
+            "offset": [
+              8.25,
+              2.52,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              5.22,
+              2.4
+            ],
+            "offset": [
+              8.55,
+              2.61,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              5.3999999999999995,
+              2.4
+            ],
+            "offset": [
+              8.85,
+              2.6999999999999997,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              5.58,
+              2.4
+            ],
+            "offset": [
+              9.15,
+              2.79,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              5.76,
+              2.4
+            ],
+            "offset": [
+              9.45,
+              2.88,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              5.9399999999999995,
+              2.4
+            ],
+            "offset": [
+              9.75,
+              2.9699999999999998,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              6.12,
+              2.4
+            ],
+            "offset": [
+              10.05,
+              3.06,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3,
+              6.3,
+              2.4
+            ],
+            "offset": [
+              10.35,
+              3.15,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              1.8,
+              6.3,
+              2.4
+            ],
+            "offset": [
+              11.4,
+              3.15,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              5.100000000000001,
+              7.4,
+              0.18
+            ],
+            "offset": [
+              9.75,
+              3.7,
+              -1.29
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              5.100000000000001,
+              7.4,
+              0.18
+            ],
+            "offset": [
+              9.75,
+              3.7,
+              1.29
+            ],
+            "walkable": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-landing",
+      "asset": "siege-landing",
+      "position": [
+        72,
+        0,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              2.76,
+              6.3,
+              1
+            ],
+            "offset": [
+              -0.85,
+              3.15,
+              -6.5
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              0.3566666666666668,
+              1.1,
+              0.45333333333333303
+            ],
+            "offset": [
+              -2.0216666666666665,
+              6.85,
+              -6.833333333333334
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.3566666666666666,
+              1.1,
+              0.4533333333333339
+            ],
+            "offset": [
+              -1.7850000000000001,
+              6.85,
+              -6.5
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.356666666666667,
+              1.1,
+              0.45333333333333303
+            ],
+            "offset": [
+              -1.5483333333333333,
+              6.85,
+              -6.166666666666666
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.3566666666666667,
+              1.1,
+              0.45333333333333303
+            ],
+            "offset": [
+              0.32166666666666666,
+              6.85,
+              -6.833333333333334
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.3566666666666667,
+              1.1,
+              0.4533333333333339
+            ],
+            "offset": [
+              0.085,
+              6.85,
+              -6.5
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.35666666666666663,
+              1.1,
+              0.45333333333333303
+            ],
+            "offset": [
+              -0.15166666666666664,
+              6.85,
+              -6.166666666666666
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.54,
+              1.1,
+              0.245
+            ],
+            "offset": [
+              -0.06,
+              6.85,
+              -5.9375
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.12,
+              1.1,
+              6.19
+            ],
+            "offset": [
+              -1.43,
+              6.85,
+              -2.965
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              2.13,
+              1.1,
+              0.12
+            ],
+            "offset": [
+              -2.4349999999999996,
+              6.85,
+              0.07
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.12,
+              1.1,
+              1.6999999999999997
+            ],
+            "offset": [
+              -3.44,
+              6.85,
+              0.86
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              0.12,
+              1.1,
+              7.7700000000000005
+            ],
+            "offset": [
+              0.15,
+              6.85,
+              -2.175
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              3.71,
+              1.1,
+              0.12
+            ],
+            "offset": [
+              -1.645,
+              6.85,
+              1.65
+            ],
+            "walkable": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-east-corner",
+      "asset": "siege-wall-corner",
+      "position": [
+        72,
+        0,
+        -14
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              1,
+              6,
+              4
+            ],
+            "offset": [
+              0,
+              3,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              3,
+              6,
+              1
+            ],
+            "offset": [
+              -2,
+              3,
+              1.5
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              2,
+              0.3,
+              4
+            ],
+            "offset": [
+              -0.5,
+              6.15,
+              0
+            ],
+            "walkable": true
+          },
+          {
+            "size": [
+              2,
+              0.3,
+              2
+            ],
+            "offset": [
+              -2.5,
+              6.15,
+              1
+            ],
+            "walkable": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-east-wall",
+      "asset": "siege-wall",
+      "position": [
+        72,
+        0,
+        -18
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              1,
+              6,
+              4
+            ],
+            "offset": [
+              0,
+              3,
+              0
+            ],
+            "walkable": false
+          },
+          {
+            "size": [
+              2,
+              0.3,
+              4
+            ],
+            "offset": [
+              -0.5,
+              6.15,
+              0
+            ],
+            "walkable": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-mantlet",
+      "asset": "siege-mantlet",
+      "position": [
+        66,
+        0,
+        -28
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              2.175,
+              2.305,
+              2.98
+            ],
+            "offset": [
+              -0.1875,
+              1.1525,
+              0
+            ],
+            "walkable": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-barricade",
+      "asset": "siege-barricade",
+      "position": [
+        53,
+        0,
+        -28
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              1.3,
+              1.79,
+              3
+            ],
+            "offset": [
+              0,
+              0.895,
+              0
+            ],
+            "walkable": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "siege-soldier-study",
+      "asset": "siege-soldier",
+      "position": [
+        63,
+        0,
+        -30
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "layer": "world",
+      "collider": {
+        "type": "compound",
+        "boxes": [
+          {
+            "size": [
+              0.7,
+              1.81,
+              0.7
+            ],
+            "offset": [
+              0,
+              0.905,
+              0
+            ],
+            "walkable": false
+          }
+        ]
+      }
+    }
+  ],
+  "limitations": [
+    "Expanded assets require destination appearance and traversal review",
+    "Soldier is a static A-pose geometry study, not rigged",
+    "No siege game loop or gorge terrain yet",
+    "Defense collision uses conservative envelopes"
+  ]
+}

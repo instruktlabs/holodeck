@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="940" viewBox="0 0 1280 940"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6" fill="context-stroke"/></marker></defs><style>text{font-family:Arial,sans-serif;fill:#e5eaf1}.title{font-size:25px;font-weight:bold}.small{font-size:14px}.body{font-size:17px}.dim{fill:#9dabb9;font-size:13px}</style><rect width="1280" height="940" fill="#16222e"/>
+<text x="32" y="42" class="title">02 / VERTICAL ROUTES + CAMERA / COMBAT ENVELOPES</text>
+<text x="32" y="69" class="small">Metric longitudinal section at bridge/gate axis, with west stair projected. Camera envelopes are design hypotheses.</text>
+<polyline points="70.00,660.00 878.00,660.00" fill="none" stroke="#344959" stroke-width="1"/>
+<text x="20" y="660" class="dim">-22</text>
+<polyline points="70.00,620.00 878.00,620.00" fill="none" stroke="#344959" stroke-width="1"/>
+<text x="20" y="620" class="dim">-18</text>
+<polyline points="70.00,440.00 878.00,440.00" fill="none" stroke="#344959" stroke-width="1"/>
+<text x="20" y="440" class="dim">0</text>
+<polyline points="70.00,398.00 878.00,398.00" fill="none" stroke="#344959" stroke-width="1"/>
+<text x="20" y="398.0" class="dim">4.2</text>
+<polyline points="70.00,377.00 878.00,377.00" fill="none" stroke="#344959" stroke-width="1"/>
+<text x="20" y="377.0" class="dim">6.3</text>
+<polyline points="70.00,260.60 878.00,260.60" fill="none" stroke="#344959" stroke-width="1"/>
+<text x="20" y="260.6" class="dim">17.94</text>
+<polyline points="98.00,440.00 578.00,440.00" fill="none" stroke="#e5c18e" stroke-width="4"/>
+<polyline points="606.00,398.00 878.00,398.00" fill="none" stroke="#b99ad7" stroke-width="4" stroke-dasharray="8 5"/>
+<polyline points="94.00,620.00 390.00,620.00" fill="none" stroke="#65a8c5" stroke-width="4"/>
+<polyline points="94.00,660.00 390.00,660.00" fill="none" stroke="#8a8076" stroke-width="4"/>
+<polyline points="142.00,440.00 142.00,660.00" fill="none" stroke="#8294a2" stroke-width="7" stroke-dasharray="8 5"/>
+<polyline points="206.00,440.00 206.00,660.00" fill="none" stroke="#8294a2" stroke-width="7" stroke-dasharray="8 5"/>
+<polyline points="270.00,440.00 270.00,660.00" fill="none" stroke="#8294a2" stroke-width="7" stroke-dasharray="8 5"/>
+<polyline points="334.00,440.00 334.00,660.00" fill="none" stroke="#8294a2" stroke-width="7" stroke-dasharray="8 5"/>
+<polyline points="553.60,440.00 468.40,377.00 394.12,377.00" fill="none" stroke="#77d4c4" stroke-width="4"/>
+<polyline points="526.00,440.00 554.80,419.00 574.00,419.00 602.80,398.00 622.00,398.00" fill="none" stroke="#d2b7ed" stroke-width="3" stroke-dasharray="8 5"/>
+<polyline points="473.36,377.00 440.40,377.00 411.60,357.00 392.40,357.00" fill="none" stroke="#f2a9ce" stroke-width="3" stroke-dasharray="8 5"/>
+<text x="100" y="170" class="small">KEEP roof 17.94m; upper ward is architectural context only</text>
+<text x="510" y="320" class="small">West route: 35 × .18m rise = 6.3m</text>
+<text x="500" y="350" class="small">B3 ascent design: 2 × 12 risers × .175m; not qualified</text>
+<text x="90" y="490" class="small">Proposed piers extend to bed -22m; bearing checks required</text>
+<text x="90" y="650" class="small">Water -18m / bed -22m: static visual water, no swimming</text>
+<rect x="920" y="120" width="325" height="610" rx="4" fill="#223442" stroke="#748896"/>
+<text x="940" y="152" class="body">NEAR-PLAYER SPACE</text>
+<text x="940" y="177" class="small">Existing capsule: radius .28m,</text>
+<text x="940" y="198" class="small">height 1.8m; camera eye ~1.6m.</text>
+<text x="940" y="219" class="small">These are runtime dimensions,</text>
+<text x="940" y="240" class="small">not the new site clearance result.</text>
+<text x="940" y="280" class="body">FPS / TPS PROPOSAL</text>
+<text x="940" y="305" class="small">FPS: head/helmet clipping audit.</text>
+<text x="940" y="326" class="small">TPS: initial 2.5m boom, .20m</text>
+<text x="940" y="347" class="small">sphere sweep; shorten on collision.</text>
+<text x="940" y="368" class="small">Shoulder offset .35m is a tuning</text>
+<text x="940" y="389" class="small">hypothesis, not approved geometry.</text>
+<text x="940" y="410" class="small">Never move the body through walls</text>
+<text x="940" y="431" class="small">to preserve the camera distance.</text>
+<text x="940" y="470" class="body">MELEE / STATION PROPOSAL</text>
+<text x="940" y="495" class="small">Test a 3.6m clear sword pocket,</text>
+<text x="940" y="516" class="small">then actual weapon swept volumes.</text>
+<text x="940" y="537" class="small">2.2m polearm tip ≠ attack radius.</text>
+<text x="940" y="558" class="small">2×2m operator/reload pad is a</text>
+<text x="940" y="579" class="small">design reserve, not proven fit.</text>
+<text x="940" y="600" class="small">Check stock, wrists, arms, helmet,</text>
+<text x="940" y="621" class="small">feet and enter/leave transitions.</text>
+<text x="70" y="760" class="body">FLOOR OWNERSHIP GATE</text>
+<text x="70" y="785" class="small">Court top y=0, slab bottom -.4; candidate terrain recess -.6 leaves nominal .2m separation.</text>
+<text x="70" y="806" class="small">Clip actual terrain triangles against complete floor footprints; no coplanar terrain under paving.</text>
+<text x="70" y="827" class="small">Match visual and collision support; test grounded landings, both stair directions and station mounting.</text>
+<text x="32" y="891" class="small">B3 crown: rear gallery y=6.3 → external south stair, 12×1/6m rise → y=8.3. Design only.</text>
+<text x="32" y="915" class="small">2.4m clear stair/landing; supports outside ground lane. No internal roof penetration or inherited traversal acceptance.</text>
+</svg>

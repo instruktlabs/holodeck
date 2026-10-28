@@ -22,6 +22,12 @@ Speech model weights downloaded on first use retain their upstream terms and are
 
 Some Winter Mountainside Cabin GLBs embed texture maps from Kiln's built-in material library, which derives them from CC0 1.0 Poly Haven textures: Bark Brown 01, Oak Veneer 01, Rock Face 03, Brown Planks 03 and Rough Concrete (polyhaven.com). CC0 requires no attribution; the source is recorded here for provenance.
 
+## Hash without Sine
+
+The hash function in examples/medieval-castle-unity/Assets/LookDev/Shaders/CastleKit.shader follows "Hash without Sine" by David Hoskins (https://www.shadertoy.com/view/4djSRW), Copyright (c) 2014 David Hoskins, MIT License: Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The same shader's de-tiling follows a published technique (Inigo Quilez, "Texture repetition", technique 3); no code is copied from it.
+
 ## First-party provenance
 
 Cove asset source and revision metadata are in assets/cove/. Tidemark's manifest pins its delivered scene and asset bytes. Concept images were generated with Image Generator and are distinct from runtime captures. First-party licensing scope is defined in [LICENSING.md](LICENSING.md).

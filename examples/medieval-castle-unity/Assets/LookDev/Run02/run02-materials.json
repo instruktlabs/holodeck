@@ -1,0 +1,795 @@
+{
+ "materials": [
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-limestone-ashlar",
+   "existing": "Materials/CK_C_ck-limestone-ashlar.mat"
+  },
+  {
+   "kilnMaterial": "ck-limestone-ashlar",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 3.37,
+   "sharpness": 12,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_ck-limestone-ashlar",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-limestone-ashlar",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.8854,
+   "metallic": 0.0,
+   "note": ""
+  },
+  {
+   "kilnMaterial": "ck-limestone-ashlar",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 3.37,
+   "sharpness": 12,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_ck-limestone-ashlar",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-limestone-ashlar",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.8854,
+   "metallic": 0.0,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "ck-limestone-ashlar",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 3.37,
+   "sharpness": 12,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_ck-limestone-ashlar",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.6105,
+    0.4969,
+    0.3005
+   ],
+   "roughness": 0.8854,
+   "metallic": 0.0,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-granite-ashlar",
+   "existing": "Materials/CK_C_ck-granite-ashlar.mat"
+  },
+  {
+   "kilnMaterial": "ck-granite-ashlar",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 2.71,
+   "sharpness": 12,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_ck-granite-ashlar",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-granite-ashlar",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.746,
+   "metallic": 0.0,
+   "note": ""
+  },
+  {
+   "kilnMaterial": "ck-granite-ashlar",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 2.71,
+   "sharpness": 12,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_ck-granite-ashlar",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-granite-ashlar",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.746,
+   "metallic": 0.0,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "ck-granite-ashlar",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 2.71,
+   "sharpness": 12,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_ck-granite-ashlar",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "roughness": 0.746,
+   "metallic": 0.0,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-rubble",
+   "existing": "Materials/CK_C_ck-rubble.mat"
+  },
+  {
+   "kilnMaterial": "ck-rubble",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 2.93,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_ck-rubble",
+   "mode": "tiling",
+   "maps": "Textures/run02/ck-rubble",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.9066,
+   "metallic": 0.0,
+   "note": ""
+  },
+  {
+   "kilnMaterial": "ck-rubble",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 2.93,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_ck-rubble",
+   "mode": "tiling",
+   "maps": "Textures/run02/ck-rubble",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.9066,
+   "metallic": 0.0,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "ck-rubble",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 2.93,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_ck-rubble",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "roughness": 0.9066,
+   "metallic": 0.0,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-slate",
+   "existing": "Materials/CK_C_ck-slate.mat"
+  },
+  {
+   "kilnMaterial": "ck-slate",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_ck-slate",
+   "mode": "tiling",
+   "maps": "Textures/ck-slate",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.784,
+   "metallic": 0.0,
+   "note": ""
+  },
+  {
+   "kilnMaterial": "ck-slate",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_ck-slate",
+   "mode": "tiling",
+   "maps": "Textures/ck-slate",
+   "macro": true,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.784,
+   "metallic": 0.0,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "ck-slate",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_ck-slate",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.0482,
+    0.0612,
+    0.0844
+   ],
+   "roughness": 0.784,
+   "metallic": 0.0,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-oak-planks",
+   "existing": "Materials/CK_C_ck-oak-planks.mat"
+  },
+  {
+   "kilnMaterial": "ck-oak-planks",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_ck-oak-planks",
+   "mode": "tiling",
+   "maps": "Textures/ck-oak-planks",
+   "macro": false,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.801,
+   "metallic": 0.0,
+   "note": ""
+  },
+  {
+   "kilnMaterial": "ck-oak-planks",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_ck-oak-planks",
+   "mode": "tiling",
+   "maps": "Textures/ck-oak-planks",
+   "macro": false,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.801,
+   "metallic": 0.0,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "ck-oak-planks",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_ck-oak-planks",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.0685,
+    0.0369,
+    0.0194
+   ],
+   "roughness": 0.801,
+   "metallic": 0.0,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-iron",
+   "existing": "Materials/CK_C_ck-iron.mat"
+  },
+  {
+   "kilnMaterial": "ck-iron",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_ck-iron",
+   "mode": "tiling",
+   "maps": "Textures/run02/kiln-ck-iron",
+   "macro": false,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.707,
+   "metallic": 0.8454,
+   "note": "Kiln 1.6.0 ck-iron revision sha256:67f9f5578950ea74fc351bb8486efb6a20729beba86cf65e6c1c270e66828c0f via material export (byte copy)"
+  },
+  {
+   "kilnMaterial": "ck-iron",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_ck-iron",
+   "mode": "tiling",
+   "maps": "Textures/run02/kiln-ck-iron",
+   "macro": false,
+   "detile": false,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.707,
+   "metallic": 0.8454,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "ck-iron",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 1.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_ck-iron",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.0343,
+    0.0382,
+    0.0437
+   ],
+   "roughness": 0.707,
+   "metallic": 0.8454,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "kilnMaterial": "ck-rock-granite",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "C",
+   "asset": "CK_Cflat_ck-rock-granite",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "note": "run 01 had no rock map: flat Kiln factor"
+  },
+  {
+   "kilnMaterial": "ck-rock-granite",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_ck-rock-granite",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-rock",
+   "macro": true,
+   "detile": true,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1.32067,
+    1.33674,
+    1.73295
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "note": "ck-rock maps re-centred on the ck-rock-granite Kiln factor (base colour = factor / ck-rock factor)"
+  },
+  {
+   "kilnMaterial": "ck-rock-granite",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_ck-rock-granite",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-rock",
+   "macro": true,
+   "detile": true,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1.32067,
+    1.33674,
+    1.73295
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "ck-rock-granite",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_ck-rock-granite",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "kilnMaterial": "terrain-rock",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "C",
+   "asset": "CK_Cflat_terrain-rock",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.208,
+    0.215,
+    0.176
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "note": "run 01 had no rock map: flat Kiln factor"
+  },
+  {
+   "kilnMaterial": "terrain-rock",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "D",
+   "asset": "CK_D_terrain-rock",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-rock",
+   "macro": true,
+   "detile": true,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "note": "gorge crop with vertex colour 0.92 (cliff-skin tint)"
+  },
+  {
+   "kilnMaterial": "terrain-rock",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "Dalb",
+   "asset": "CK_Dalb_terrain-rock",
+   "mode": "triplanar",
+   "maps": "Textures/run02/ck-rock",
+   "macro": true,
+   "detile": true,
+   "detileScale": 9.0,
+   "baseColorLinear": [
+    1,
+    1,
+    1
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "normalStrength": 0.0,
+   "occlusionStrength": 0.0,
+   "note": "run-02 albedo only (normal and occlusion strength 0) for the rendered-mean check"
+  },
+  {
+   "kilnMaterial": "terrain-rock",
+   "shader": "LastCrossing/CastleKit",
+   "metersPerTile": 6.0,
+   "sharpness": 8,
+   "macroScale": 17.0,
+   "macroStrength": 0.05,
+   "macroHue": 0.012,
+   "vertexColorStrength": 1.0,
+   "variant": "F",
+   "asset": "CK_F_terrain-rock",
+   "mode": "flat",
+   "baseColorLinear": [
+    0.208,
+    0.215,
+    0.176
+   ],
+   "roughness": 0.876,
+   "metallic": 0.0,
+   "note": "flat Kiln factor; roughness and metallic = run-02 ORM means"
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ck-limestone-ashlar",
+   "asset": "CK_ID_ck-limestone-ashlar",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ck-granite-ashlar",
+   "asset": "CK_ID_ck-granite-ashlar",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ck-rubble",
+   "asset": "CK_ID_ck-rubble",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ck-slate",
+   "asset": "CK_ID_ck-slate",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    1.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ck-oak-planks",
+   "asset": "CK_ID_ck-oak-planks",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    1.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ck-iron",
+   "asset": "CK_ID_ck-iron",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    0.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ck-rock-granite",
+   "asset": "CK_ID_ck-rock-granite",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    1.0,
+    0.214041,
+    0.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "terrain-rock",
+   "asset": "CK_ID_terrain-rock",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    0.214041,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "variant": "ID",
+   "kilnMaterial": "ground",
+   "asset": "CK_ID_ground",
+   "shader": "Universal Render Pipeline/Unlit",
+   "mode": "unlit",
+   "baseColorLinear": [
+    0.214041,
+    0.214041,
+    0.214041
+   ]
+  },
+  {
+   "variant": "R",
+   "kilnMaterial": "ck-limestone-ashlar",
+   "asset": "CK_R_ck-limestone-ashlar",
+   "shader": "LastCrossing/CastleKitRun01Ref",
+   "mode": "reference",
+   "maps": "Materials/CK_C_ck-limestone-ashlar.mat",
+   "note": "CK_C properties on the run-01 shader source (renamed copy)"
+  },
+  {
+   "variant": "R",
+   "kilnMaterial": "ck-granite-ashlar",
+   "asset": "CK_R_ck-granite-ashlar",
+   "shader": "LastCrossing/CastleKitRun01Ref",
+   "mode": "reference",
+   "maps": "Materials/CK_C_ck-granite-ashlar.mat",
+   "note": "CK_C properties on the run-01 shader source (renamed copy)"
+  },
+  {
+   "variant": "R",
+   "kilnMaterial": "ck-rubble",
+   "asset": "CK_R_ck-rubble",
+   "shader": "LastCrossing/CastleKitRun01Ref",
+   "mode": "reference",
+   "maps": "Materials/CK_C_ck-rubble.mat",
+   "note": "CK_C properties on the run-01 shader source (renamed copy)"
+  }
+ ]
+}

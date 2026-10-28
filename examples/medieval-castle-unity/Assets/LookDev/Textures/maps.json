@@ -1,0 +1,240 @@
+{
+ "scope": "Shared CastleKit tiling maps decoded from Kiln material export payloads (bytes unchanged)",
+ "packing": "orm: R=occlusion G=roughness B=metallic (Kiln r-occlusion-g-roughness-b-metallic); normal: OpenGL +Y",
+ "materials": {
+  "ck-granite-ashlar": {
+   "revisionId": "sha256:7355d044adcb2b6cc169cb6ed5c6f782be27b132dffb3cf4f7d769e24d933583",
+   "name": "CastleKit granite ashlar",
+   "metersPerTile": {
+    "width": 2,
+    "height": 2
+   },
+   "payload": "ck-granite-ashlar-payload.json",
+   "payloadSha256": "061f6ab692e0f82829ccd80c2738c515f9078f933425096d5d35f72c621c1243",
+   "maps": {
+    "albedo": {
+     "file": "ck-granite-ashlar_albedo.png",
+     "sha256": "sha256:2cad974b0a29083e74b2dd3be85ad1e03650d293a04d592a33fc861d382411db",
+     "bytes": 620403,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "srgb",
+     "slot": "baseColor"
+    },
+    "normal": {
+     "file": "ck-granite-ashlar_normal.png",
+     "sha256": "sha256:65d2ef7438fad2fbb239758d89ffe9330dc440d3dcf5e6082c898c212ce68bd5",
+     "bytes": 742495,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "linear",
+     "slot": "normal"
+    },
+    "orm": {
+     "file": "ck-granite-ashlar_orm.png",
+     "sha256": "sha256:1ca0b8a4426b385d9bef46db4476fd015cdabb338fb6d9fa9b373a2655365476",
+     "bytes": 215393,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "linear",
+     "slot": "metallicRoughness"
+    }
+   }
+  },
+  "ck-iron": {
+   "revisionId": "sha256:85991e064803a858586ce530945761a04d82dd7df3e4bd73772915379e2e0759",
+   "name": "CastleKit wrought iron",
+   "metersPerTile": {
+    "width": 1,
+    "height": 1
+   },
+   "payload": "ck-iron-payload.json",
+   "payloadSha256": "4704310deeb9097c47cefb7f76f69d497fc0f3b368a628f2679aeb98b0e6ac56",
+   "maps": {
+    "albedo": {
+     "file": "ck-iron_albedo.png",
+     "sha256": "sha256:c13a75d3d0105fba8b9c18bdfe55142064cfcc9fc61772021b67f01f651f82c8",
+     "bytes": 94224,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "srgb",
+     "slot": "baseColor"
+    },
+    "normal": {
+     "file": "ck-iron_normal.png",
+     "sha256": "sha256:681a0bc49a1739fe5c50fa12424e63cfaefe75128c68381202d2ca7983ec4a8f",
+     "bytes": 176919,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "linear",
+     "slot": "normal"
+    },
+    "orm": {
+     "file": "ck-iron_orm.png",
+     "sha256": "sha256:699bf777312cd446a160dfaa341d072189d2131b8f0d4b45e3f3fd3ba7556126",
+     "bytes": 105789,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "linear",
+     "slot": "metallicRoughness"
+    }
+   }
+  },
+  "ck-limestone-ashlar": {
+   "revisionId": "sha256:49e32352652754d901d3051a15c56e22dfb1a3f69092d35d34a273121cf577b5",
+   "name": "CastleKit limestone ashlar",
+   "metersPerTile": {
+    "width": 2,
+    "height": 2
+   },
+   "payload": "ck-limestone-ashlar-payload.json",
+   "payloadSha256": "050b790587084a03865b95bbeac8eb465aa90bf462d601a35a4d161cbb34f5b5",
+   "maps": {
+    "albedo": {
+     "file": "ck-limestone-ashlar_albedo.png",
+     "sha256": "sha256:9566aa25b3b18457623fb49ff367aa172a2b6e4cb086fbb00e021181e3aba6c5",
+     "bytes": 407449,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "srgb",
+     "slot": "baseColor"
+    },
+    "normal": {
+     "file": "ck-limestone-ashlar_normal.png",
+     "sha256": "sha256:23b3d9d98bd8a7cfb1cf5d0c92e002acc11c027d4da86d82fef1b127c8bf34c1",
+     "bytes": 305624,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "linear",
+     "slot": "normal"
+    },
+    "orm": {
+     "file": "ck-limestone-ashlar_orm.png",
+     "sha256": "sha256:89b6055fd1ab7d9a85821c9a866cb98d20bb59112f0f1963a161a6d7b700e89a",
+     "bytes": 95180,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "linear",
+     "slot": "metallicRoughness"
+    }
+   }
+  },
+  "ck-oak-planks": {
+   "revisionId": "sha256:fe0047403ea52250eb272e07f66394b6b8a9fb83ad59aa5bcbf074f632e45c81",
+   "name": "CastleKit oak planks",
+   "metersPerTile": {
+    "width": 1,
+    "height": 1
+   },
+   "payload": "ck-oak-planks-payload.json",
+   "payloadSha256": "aaacbd03a254c460c447db43cab49e86d5b844a5742150283bbe64845a578e15",
+   "maps": {
+    "albedo": {
+     "file": "ck-oak-planks_albedo.png",
+     "sha256": "sha256:245249bde4d53711b5ca5835631b1acbee7904301bcb2607b7a17b9c2d206a4e",
+     "bytes": 19452,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "srgb",
+     "slot": "baseColor"
+    },
+    "normal": {
+     "file": "ck-oak-planks_normal.png",
+     "sha256": "sha256:8b53e8d647e8b33e16cee4877a53a04158ff4b1f7c722e87e53e626f6bf4f6ef",
+     "bytes": 3179,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "linear",
+     "slot": "normal"
+    },
+    "orm": {
+     "file": "ck-oak-planks_orm.png",
+     "sha256": "sha256:bc5d8b270d03c3594a8c907ce0615a6ebb600f64a55179875be5177c3d3f104c",
+     "bytes": 21821,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "linear",
+     "slot": "metallicRoughness"
+    }
+   }
+  },
+  "ck-rubble": {
+   "revisionId": "sha256:f47aba19398b3503415ebfe566def7dae7928ff0fa2846ae8f0b1ea9884f3f47",
+   "name": "CastleKit rubble masonry",
+   "metersPerTile": {
+    "width": 2,
+    "height": 2
+   },
+   "payload": "ck-rubble-payload.json",
+   "payloadSha256": "f0a2f40ad2f6498ea5cc01282ce09927c7d24a636e27e85785fcd9939ef0556c",
+   "maps": {
+    "albedo": {
+     "file": "ck-rubble_albedo.png",
+     "sha256": "sha256:0151db63190508293e03678cb18d889104215b2173ff1e0e07d6ed17175b1e63",
+     "bytes": 534747,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "srgb",
+     "slot": "baseColor"
+    },
+    "normal": {
+     "file": "ck-rubble_normal.png",
+     "sha256": "sha256:97ec08467b40408f2d6c131689735863d782247277db07051d588066cf660904",
+     "bytes": 380085,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "linear",
+     "slot": "normal"
+    },
+    "orm": {
+     "file": "ck-rubble_orm.png",
+     "sha256": "sha256:bdd08e88fa8e47a5a9c9ba92271461bd1e1b34fb5bb25fa17f2ee727ec5225fe",
+     "bytes": 92044,
+     "width": 1024,
+     "height": 1024,
+     "colorSpace": "linear",
+     "slot": "metallicRoughness"
+    }
+   }
+  },
+  "ck-slate": {
+   "revisionId": "sha256:997229620d38d5b4f1a204be78fecd01d57a28d8d78ae5e9b12f1354d89b48cc",
+   "name": "CastleKit slate",
+   "metersPerTile": {
+    "width": 1,
+    "height": 1
+   },
+   "payload": "ck-slate-payload.json",
+   "payloadSha256": "c1dc0574ff032154ed62f42492e379382cb497979a5e39d70bf5f20721308532",
+   "maps": {
+    "albedo": {
+     "file": "ck-slate_albedo.png",
+     "sha256": "sha256:8b938635ca83d4bade53195e3287866a00e305bf3cc231ddf274ec47a262e91a",
+     "bytes": 84883,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "srgb",
+     "slot": "baseColor"
+    },
+    "normal": {
+     "file": "ck-slate_normal.png",
+     "sha256": "sha256:dd6601235d4503eabb736723bff67b3cb9e282cae3a5b766e0e4275b27a7921d",
+     "bytes": 70563,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "linear",
+     "slot": "normal"
+    },
+    "orm": {
+     "file": "ck-slate_orm.png",
+     "sha256": "sha256:cbac164fb0384acdff445e1fa89a2151077737182972b8b2b576f3fe1f6f468c",
+     "bytes": 55546,
+     "width": 512,
+     "height": 512,
+     "colorSpace": "linear",
+     "slot": "metallicRoughness"
+    }
+   }
+  }
+ }
+}

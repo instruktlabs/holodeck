@@ -1,0 +1,5 @@
+{
+  "sourceSha256": "a1a7f8c75fbcfeed2fcef839bce4cbe0b216fcda574e3c873b9973d1b5a139b1",
+  "sourceMaterials": [0, 2, 7, 13],
+  "reason": "Preserve source tunic, mail, skin and boxed beard together. Independent simplification of these overlapping surfaces introduced collar penetration and beard gaps in actual Unity despite the normal-orientation guard passing. Numeric IDs belong only to the hash-pinned palette source and primitive mapping."
+}

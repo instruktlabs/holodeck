@@ -1,0 +1,105 @@
+{
+ "scope": "Kiln material name -> CastleKit material. Unknown names fail closed. Variant A keeps the glTFast-created materials.",
+ "entries": [
+  {
+   "variant": "B",
+   "kilnMaterial": "ck-limestone",
+   "baseColor": "#cdbb95",
+   "roughness": 0.95,
+   "metallic": 0,
+   "library": "",
+   "revisionId": "",
+   "metersPerTile": 0
+  },
+  {
+   "variant": "B",
+   "kilnMaterial": "ck-granite",
+   "baseColor": "#8f9296",
+   "roughness": 0.95,
+   "metallic": 0,
+   "library": "",
+   "revisionId": "",
+   "metersPerTile": 0
+  },
+  {
+   "variant": "B",
+   "kilnMaterial": "ck-slate",
+   "baseColor": "#3e4652",
+   "roughness": 0.85,
+   "metallic": 0,
+   "library": "",
+   "revisionId": "",
+   "metersPerTile": 0
+  },
+  {
+   "variant": "B",
+   "kilnMaterial": "ck-oak",
+   "baseColor": "#4a3626",
+   "roughness": 0.95,
+   "metallic": 0,
+   "library": "",
+   "revisionId": "",
+   "metersPerTile": 0
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-granite-ashlar",
+   "baseColor": "#ffffff",
+   "roughness": 1,
+   "metallic": 0,
+   "library": "ck-granite-ashlar",
+   "revisionId": "sha256:7355d044adcb2b6cc169cb6ed5c6f782be27b132dffb3cf4f7d769e24d933583",
+   "metersPerTile": 2
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-iron",
+   "baseColor": "#ffffff",
+   "roughness": 1,
+   "metallic": 0,
+   "library": "ck-iron",
+   "revisionId": "sha256:85991e064803a858586ce530945761a04d82dd7df3e4bd73772915379e2e0759",
+   "metersPerTile": 1
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-limestone-ashlar",
+   "baseColor": "#ffffff",
+   "roughness": 1,
+   "metallic": 0,
+   "library": "ck-limestone-ashlar",
+   "revisionId": "sha256:49e32352652754d901d3051a15c56e22dfb1a3f69092d35d34a273121cf577b5",
+   "metersPerTile": 2
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-oak-planks",
+   "baseColor": "#ffffff",
+   "roughness": 1,
+   "metallic": 0,
+   "library": "ck-oak-planks",
+   "revisionId": "sha256:fe0047403ea52250eb272e07f66394b6b8a9fb83ad59aa5bcbf074f632e45c81",
+   "metersPerTile": 1
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-rubble",
+   "baseColor": "#ffffff",
+   "roughness": 1,
+   "metallic": 0,
+   "library": "ck-rubble",
+   "revisionId": "sha256:f47aba19398b3503415ebfe566def7dae7928ff0fa2846ae8f0b1ea9884f3f47",
+   "metersPerTile": 2
+  },
+  {
+   "variant": "C",
+   "kilnMaterial": "ck-slate",
+   "baseColor": "#ffffff",
+   "roughness": 1,
+   "metallic": 0,
+   "library": "ck-slate",
+   "revisionId": "sha256:997229620d38d5b4f1a204be78fecd01d57a28d8d78ae5e9b12f1354d89b48cc",
+   "metersPerTile": 1
+  }
+ ]
+}

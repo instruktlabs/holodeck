@@ -1,0 +1,387 @@
+{
+  "revision": "B3-circulation-design-01",
+  "status": "Resolved construction proposal; not implemented or runtime validated",
+  "preservedCandidate": "504b1630-d107-4b6e-bb8e-58a7f3a9e2f9",
+  "frame": "Holodeck metres +Yup, +Znorth; Unity reflectsX",
+  "targets": {
+    "clearWidth": 2.4,
+    "headroom": 2.1,
+    "landings": [
+      2.4,
+      2.4
+    ],
+    "guardHeight": 1.1,
+    "bodyReference": {
+      "height": 1.8082,
+      "idleWidth": 0.653,
+      "walkDepth": 0.954,
+      "raisedArmsWidth": 1.513
+    },
+    "qualification": "Design targets and sampled existing character bounds; not collision, animation, combat or camera qualification."
+  },
+  "upperWard": {
+    "centerX": 68,
+    "routeFeet": [
+      [
+        68,
+        0,
+        -20.4
+      ],
+      [
+        68,
+        0,
+        -18
+      ],
+      [
+        68,
+        2.1,
+        -14.4
+      ],
+      [
+        68,
+        2.1,
+        -12
+      ],
+      [
+        68,
+        4.2,
+        -8.4
+      ],
+      [
+        68,
+        4.2,
+        -6
+      ],
+      [
+        68,
+        4.2,
+        0
+      ],
+      [
+        60,
+        4.2,
+        4
+      ],
+      [
+        60,
+        4.2,
+        7
+      ]
+    ],
+    "flights": [
+      {
+        "from": [
+          68,
+          0,
+          -18
+        ],
+        "to": [
+          68,
+          2.1,
+          -14.4
+        ],
+        "risers": 12,
+        "rise": 0.175,
+        "tread": 0.3,
+        "run": 3.6,
+        "clearWidth": 2.4
+      },
+      {
+        "from": [
+          68,
+          2.1,
+          -12
+        ],
+        "to": [
+          68,
+          4.2,
+          -8.4
+        ],
+        "risers": 12,
+        "rise": 0.175,
+        "tread": 0.3,
+        "run": 3.6,
+        "clearWidth": 2.4
+      }
+    ],
+    "landings": [
+      {
+        "name": "Bottom apron",
+        "x": [
+          66.8,
+          69.2
+        ],
+        "z": [
+          -20.4,
+          -18
+        ],
+        "y": 0,
+        "floorOwner": "Existing lower-court paving; no additional slab."
+      },
+      {
+        "name": "Intermediate",
+        "x": [
+          66.8,
+          69.2
+        ],
+        "z": [
+          -14.4,
+          -12
+        ],
+        "y": 2.1,
+        "floorOwner": "New landing solid, founded to excavated supportY-.6."
+      },
+      {
+        "name": "Upper",
+        "x": [
+          66.8,
+          69.2
+        ],
+        "z": [
+          -8.4,
+          -6
+        ],
+        "y": 4.2,
+        "floorOwner": "New0.4m connectorZ-8.4..-8; existing terrace ownsZ-8..-6. No overlapping floors."
+      }
+    ],
+    "reservedEnvelope": {
+      "x": [
+        66.5,
+        69.5
+      ],
+      "z": [
+        -20.4,
+        -6
+      ],
+      "vertical": "Stepped floor +2.1m minimum clear; keep props, door leaves and beams out."
+    },
+    "requiredChanges": [
+      {
+        "target": "Rear curtain atZ-10.5",
+        "action": "Replace existing wall bays spanningX64..72 with2.5m flank infills and3m clear stair portalX66.5..69.5. Portal beam undersideY5.85/top6.3 retains existing wallwalk datum. No door leaf across stair."
+      },
+      {
+        "target": "Terrace front retaining wallZ-9..-8",
+        "action": "Split aroundX66.5..69.5 notch; no solid retaining volume through final flight. Stair foundation carries stepped load."
+      },
+      {
+        "target": "Terrain beneath stair",
+        "action": "Excavate below supportY-.6 across reservedfootprint; preserve court/terrace surfaces through their existing slab ownership."
+      },
+      {
+        "target": "Lower court props",
+        "action": "Relocate mantlet and any furniture whose actual bounds intersect reservedenvelope; do not place props under ascent or landing."
+      }
+    ],
+    "support": "First flight rests on0.6m foundation toY0; intermediate and second-flight undercroft are solid founded blocks from-.6 to2.1. No suspended stair bottoms.",
+    "edgeProtection": "Continuous1.1m guards outside clearX66.8..69.2; sideguards continue around landing sides and stop at open approach/exit. No rail across circulation.",
+    "sectionCheck": {
+      "secondFlightHeightAtNorthCurtainFace": 3.325,
+      "portalUnderside": 5.85,
+      "remainingHeadroom": 2.525,
+      "target": 2.1
+    },
+    "requiredModules": [
+      "stair-flight-12x175x300-clear2400",
+      "stair-landing-2400-clear",
+      "curtain-stair-portal-clear3000-head5850",
+      "terrace-retaining-notch-3000",
+      "top-landing-adapter-depth400"
+    ]
+  },
+  "gateCircuit": {
+    "decision": "Retain existing crownY8.3 and build external open-air approach from tower rear doors. Do not climb inside roofed tower or lower the existing gate lintel/platform.",
+    "rationale": {
+      "towerRoomFloor": 6.3,
+      "towerDoorHead": 8.7,
+      "doorClearance": 2.4,
+      "crownTarget": 8.3,
+      "neededHeadLevelAtCrown": 10.4,
+      "internalStairRejected": "10.4m head level exceeds8.7m tower door/cap soffit; an internal ascent ends in roof space."
+    },
+    "towerRearDoorCenters": [
+      [
+        54.3,
+        6.3,
+        -26.14
+      ],
+      [
+        65.7,
+        6.3,
+        -26.14
+      ]
+    ],
+    "thresholdEndZ": -25.78,
+    "crossGallery": {
+      "x": [
+        53.1,
+        66.9
+      ],
+      "z": [
+        -25.78,
+        -23.38
+      ],
+      "floorY": 6.3,
+      "clearDepth": 2.4,
+      "slabUnderside": 6.05
+    },
+    "returnLink": {
+      "x": [
+        58.8,
+        61.2
+      ],
+      "z": [
+        -26.3,
+        -25.78
+      ],
+      "y": 6.3
+    },
+    "lowerLanding": {
+      "x": [
+        58.8,
+        61.2
+      ],
+      "z": [
+        -28.7,
+        -26.3
+      ],
+      "y": 6.3
+    },
+    "flight": {
+      "from": [
+        60,
+        6.3,
+        -28.7
+      ],
+      "to": [
+        60,
+        8.3,
+        -32.3
+      ],
+      "risers": 12,
+      "rise": 0.16666666666666666,
+      "tread": 0.3,
+      "run": 3.6,
+      "clearWidth": 2.4,
+      "direction": "South, -Z"
+    },
+    "topLanding": {
+      "x": [
+        58.8,
+        61.2
+      ],
+      "z": [
+        -34.7,
+        -32.3
+      ],
+      "y": 8.3,
+      "floorOwner": "Existing gateTopWalk; do not add duplicate floor."
+    },
+    "routeFeet": [
+      [
+        54.3,
+        6.3,
+        -26.14
+      ],
+      [
+        54.3,
+        6.3,
+        -24.58
+      ],
+      [
+        60,
+        6.3,
+        -24.58
+      ],
+      [
+        60,
+        6.3,
+        -27.5
+      ],
+      [
+        60,
+        6.3,
+        -28.7
+      ],
+      [
+        60,
+        8.3,
+        -32.3
+      ],
+      [
+        60,
+        8.3,
+        -33.5
+      ]
+    ],
+    "roofClearance": {
+      "leftRoofMaxX": 57.66,
+      "rightRoofMinX": 62.34,
+      "stairGuardOuterX": [
+        58.66,
+        61.34
+      ],
+      "horizontalSeparationEachSide": 1,
+      "headroom": "Open sky above flight; crown platform is not under tower roofs."
+    },
+    "lintelClearance": {
+      "existingGateBackFaceZ": -32.5,
+      "stairEndZ": -32.3,
+      "gap": 0.2,
+      "statement": "Flight stops at platform rear edge before the solid lintel volume. No stair penetrates lintel."
+    },
+    "supports": {
+      "postCentersX": [
+        54.3,
+        57.5,
+        62.5,
+        65.7
+      ],
+      "postSize": 0.35,
+      "crossGalleryPostZ": -24.58,
+      "returnLandingPostCenters": [
+        [
+          57.5,
+          0,
+          -28.1
+        ],
+        [
+          62.5,
+          0,
+          -28.1
+        ]
+      ],
+      "groundLaneClearX": [
+        57.675,
+        62.325
+      ],
+      "groundLaneWidth": 4.65,
+      "loadPath": "Cross-gallery beams span between trestles. Return landing carried by5.4m crossbeam atY5.85..6.3. Stair stringers bear on landing beam and gate structure; no center-lane posts."
+    },
+    "edgeProtection": "1.1m outer guards; openings only at tower thresholds and return stair. Add side guards on crown platform, retain existing outer merlons. Crown is ranged traversal, not a3.6m melee arena.",
+    "requiredModules": [
+      "tower-rear-cross-gallery-13800x2400",
+      "gallery-trestle-and-crossbeam",
+      "gallery-return-link-520",
+      "gate-crown-stair-12x166667x300-clear2400",
+      "gallery-landing-2400",
+      "crown-side-guard-kit"
+    ]
+  },
+  "cameraAndCombat": {
+    "firstPerson": "Use actual character eye/helmet height and shoulder envelope; do not infer visual fit from narrower0.56m collision capsule.",
+    "thirdPerson": "Collision-shorten boom at doors, stair turns and roofs; preserve same physics route. Default3mboom cannot remain fully extended everywhere.",
+    "combat": "Reserve≥3.6m diameter melee pockets in lowercourt/upperyard after prop placement. Stair, gallery and crown are passage/ranged zones, not full360-degree melee pockets.",
+    "operator": "Separate proposed2x2m reload/operator reservation owned by gameplay blueprint; currentcamera-only mount remains existingqualifiedfixture."
+  },
+  "acceptance": [
+    "Derive new geometry and<=16box colliders perplacement from common dimensions.",
+    "Verify exact triangle floor ownership at every seam; no coplanar duplicates.",
+    "Check roof/header clearance with full character bounds at intermediate stair poses.",
+    "Drive native controller up/down each new connection and throughboth towers.",
+    "Verify third-person camera shortening and first-person eye route with actual input.",
+    "Retest enemy lane, aiming and support-post visibility after introducing overhead gallery.",
+    "Do not mark upperward or crown routes playable until destination evidence passes."
+  ]
+}

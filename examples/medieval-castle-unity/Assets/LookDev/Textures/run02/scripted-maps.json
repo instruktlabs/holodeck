@@ -1,0 +1,233 @@
+{
+ "materials": {
+  "ck-rock": {
+   "material": "ck-rock",
+   "tileMetres": 6.0,
+   "size": 1024,
+   "supersample": 2,
+   "seed": 60401,
+   "factor": [
+    0.208,
+    0.215,
+    0.176
+   ],
+   "files": {
+    "albedo": {
+     "file": "ck-rock_albedo.png",
+     "sha256": "0b663704b31d7c530868bd607d619faadb379c719007950e85a13bae48b386f6",
+     "bytes": 731799
+    },
+    "normal": {
+     "file": "ck-rock_normal.png",
+     "sha256": "1327eb387aa62dacab62d1ec3f95ac2d1fbd1e0602ee47e78825b8a61cb6fca8",
+     "bytes": 1494004
+    },
+    "orm": {
+     "file": "ck-rock_orm.png",
+     "sha256": "e5cde26959bbb6c6a9e64db72cacd85a1ed94e3f3bf76882c8590b3fc48076bf",
+     "bytes": 884485
+    }
+   },
+   "albedoLinearMean": [
+    0.208,
+    0.215,
+    0.176
+   ],
+   "heightRangeMm": [
+    -346.59,
+    185.39
+   ],
+   "ormMean": [
+    0.8771,
+    0.876,
+    0.0
+   ],
+   "seconds": 93.9
+  },
+  "ck-limestone-ashlar": {
+   "material": "ck-limestone-ashlar",
+   "tileMetres": 3.37,
+   "size": 1024,
+   "supersample": 2,
+   "seed": 60201,
+   "factor": [
+    0.6105,
+    0.4969,
+    0.3005
+   ],
+   "files": {
+    "albedo": {
+     "file": "ck-limestone-ashlar_albedo.png",
+     "sha256": "ed7e7ba04bd9b72d6d48ed7b957a98e632d6a348537581e3e4099f4063334a52",
+     "bytes": 774381
+    },
+    "normal": {
+     "file": "ck-limestone-ashlar_normal.png",
+     "sha256": "46b45365bf66bdbda453e16009cff956e5580bb58cc874c9836a348dcf5ef08b",
+     "bytes": 808054
+    },
+    "orm": {
+     "file": "ck-limestone-ashlar_orm.png",
+     "sha256": "bbfbbb2a0e4259e1156624e35fe1d0771c684c0a7687458d90be060520b7408d",
+     "bytes": 759691
+    }
+   },
+   "albedoLinearMean": [
+    0.6105,
+    0.4969,
+    0.3005
+   ],
+   "heightRangeMm": [
+    -2.75,
+    1.0
+   ],
+   "ormMean": [
+    0.9754,
+    0.8854,
+    0.0
+   ],
+   "seconds": 77.9
+  },
+  "ck-granite-ashlar": {
+   "material": "ck-granite-ashlar",
+   "tileMetres": 2.71,
+   "size": 1024,
+   "supersample": 2,
+   "seed": 60301,
+   "factor": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "files": {
+    "albedo": {
+     "file": "ck-granite-ashlar_albedo.png",
+     "sha256": "9e99bc928af21ed53d49acb90d3c50a22d6652dcdeaa1a0b1947f694ed7b2cd7",
+     "bytes": 1924694
+    },
+    "normal": {
+     "file": "ck-granite-ashlar_normal.png",
+     "sha256": "4cc33ac65b83c4008868330424e91ff8b425e1a9da32ab084d576ab3c2688577",
+     "bytes": 1357228
+    },
+    "orm": {
+     "file": "ck-granite-ashlar_orm.png",
+     "sha256": "750d0424910f72b4af3cd317670d5ca5643dbd71e29c3cbbffaf0b6d907db429",
+     "bytes": 1566772
+    }
+   },
+   "albedoLinearMean": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "heightRangeMm": [
+    -1.81,
+    0.64
+   ],
+   "ormMean": [
+    0.9482,
+    0.746,
+    0.0
+   ],
+   "seconds": 53.6
+  },
+  "ck-rubble": {
+   "material": "ck-rubble",
+   "tileMetres": 2.93,
+   "size": 1024,
+   "supersample": 2,
+   "seed": 60501,
+   "factor": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "files": {
+    "albedo": {
+     "file": "ck-rubble_albedo.png",
+     "sha256": "b102638b2a025f7a0816fcf0787255641e7b94e87c50aa29fdc3e6545c354cd6",
+     "bytes": 941632
+    },
+    "normal": {
+     "file": "ck-rubble_normal.png",
+     "sha256": "7eb058dd36da9b47671acb3aa41e92353238e9ef0204bb6ae58f679a43bd345b",
+     "bytes": 2170954
+    },
+    "orm": {
+     "file": "ck-rubble_orm.png",
+     "sha256": "e435de90b15e3bba00fec25c6b9f1999a6d38ac5812ffdc1e94df8d70b5771bc",
+     "bytes": 861768
+    }
+   },
+   "albedoLinearMean": [
+    0.2747,
+    0.2874,
+    0.305
+   ],
+   "heightRangeMm": [
+    -25.33,
+    33.59
+   ],
+   "ormMean": [
+    0.7861,
+    0.9066,
+    0.0
+   ],
+   "seconds": 91.0
+  },
+  "ck-iron": {
+   "material": "ck-iron",
+   "tileMetres": 1.0,
+   "size": 512,
+   "supersample": 2,
+   "seed": 60601,
+   "factor": [
+    0.0343,
+    0.0382,
+    0.0437
+   ],
+   "files": {
+    "albedo": {
+     "file": "ck-iron_albedo.png",
+     "sha256": "9d9615e3362c4ec67d4b246cbc7d0c226cddf7a963e5ff8d54c4bdfe3667cb51",
+     "bytes": 115240
+    },
+    "normal": {
+     "file": "ck-iron_normal.png",
+     "sha256": "191eaad9934af7118b17339d73c2a0e5cf15843d057c1f027e4c61e269afc9d9",
+     "bytes": 215047
+    },
+    "orm": {
+     "file": "ck-iron_orm.png",
+     "sha256": "74b010bccecfb8de299ec6ab010d7e17b95730ae57902d3f61f0643e3e5812c8",
+     "bytes": 303709
+    }
+   },
+   "albedoLinearMean": [
+    0.0343,
+    0.0382,
+    0.0437
+   ],
+   "heightRangeMm": [
+    -0.36,
+    0.12
+   ],
+   "ormMean": [
+    0.8994,
+    0.6293,
+    0.8966
+   ],
+   "seconds": 7.9
+  }
+ },
+ "generator": "castle-world/assets/source/b6/lookdev/gen_maps.py",
+ "version": "run02-r6",
+ "generatorSha256": "cec0590d6ad8b0aec40af792bd4781d76759e86009d06fa94359582f1bb3880b",
+ "toolkitSha256": "644d3151b94aff008924b0ea556ea4b61c16cdab5deac946393bd23b13deeec1",
+ "python": "3.13.15",
+ "numpy": "2.5.4",
+ "pillow": "13.0.0",
+ "platform": "Windows-11-10.0.26200-SP0",
+ "license": "CC0-1.0 (maps); MIT (code)"
+}

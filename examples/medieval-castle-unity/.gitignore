@@ -1,0 +1,12 @@
+Library/
+Library.failed-*/
+Temp/
+Logs/
+obj/
+UserSettings/
+Builds/
+Evidence/
+__pycache__/
+*.pyc
+*.csproj
+*.sln
