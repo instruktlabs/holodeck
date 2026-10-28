@@ -74,7 +74,7 @@ test('long-lived caching covers only content-hashed scene files, and every page 
  assert.ok(cached.length>100);
  const lab=await readdir(path.join(built,'lab'),{recursive:true}).catch(()=>[]);
  cached.push(...lab.map(name=>name.replaceAll('\\','/')).filter(name=>/^[^/]+\/play\/assets\/.+\.\w+$/.test(name)));
- for(const name of cached)assert.match(name,/\/(?:[0-9a-f]{64}\.(?:glb|png|r32)|index-[\w-]{8}\.(?:js|css))$/,`${name} would be cached forever without a content hash`);
+ for(const name of cached)assert.match(name,/\/(?:[0-9a-f]{64}\.(?:glb|png|r32)|[\w.-]+-[\w-]{8}\.(?:js|css|glb))$/,`${name} would be cached forever without a content hash`);
 });
 
 test('the shelf head carries a canonical URL, a social card and structured data for each scene',async()=>{

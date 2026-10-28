@@ -19,9 +19,9 @@ const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const runFile=async(file,args)=>(await promisify(execFile)(file,args,{maxBuffer:16*1024*1024})).stdout;
 
 // The scene page metadata comes from the catalog, so the shelf card and the scene page agree.
-export function exportArgs(scene,{world,out,card}){
+export function exportArgs(scene,{world,out,card,root=ROOT}){
  return ['export',world,'--out',out,'--title',`${scene.title} · Holodeck`,'--description',`${scene.summary} Walk it in your browser.`,
-  '--url',new URL(scene.path,SITE_URL).href,'--image',card,'--image-alt',scene.shots[0].alt,'--license',CC0];
+  '--url',new URL(scene.path,SITE_URL).href,'--image',card,'--image-alt',scene.shots[0].alt,'--license',CC0,...(scene.extension?['--client-extension',path.join(root,scene.extension)]:[])];
 }
 
 // Every exported scene: the shelf's under worlds/, each with its card in cards/, then the
@@ -63,7 +63,7 @@ export async function buildSite({root=ROOT,out,run=runFile,log=console.log}={}){
   for(const scene of scenes){
    const world=path.join(work,scene.path.startsWith('lab/')?'lab':'',scene.id);await mkdir(path.dirname(world),{recursive:true});
    await run(process.execPath,[cli,'init',world,'--example',scene.example]);
-   await run(process.execPath,[cli,...exportArgs(scene,{world,out:path.join(out,scene.path),card:path.join(site,scene.card)})]);
+   await run(process.execPath,[cli,...exportArgs(scene,{world,out:path.join(out,scene.path),card:path.join(site,scene.card),root})]);
    log(`Exported ${scene.path} from the ${scene.example} example.`);
   }
  }finally{await rm(work,{recursive:true,force:true});}

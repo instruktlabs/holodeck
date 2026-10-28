@@ -35,10 +35,10 @@ try{
   const {WorldStore}=await import('../server/world-store.mjs');await (await WorldStore.open(root)).close();
  }else if(command==='export'){
   const pageFlags={'--title':'title','--description':'description','--url':'url','--image':'image','--image-alt':'imageAlt','--license':'license'};
-  const options={};for(let i=0;i<args.length;i+=2){const name=args[i],value=args[i+1];if(!['--out','--revision',...Object.keys(pageFlags)].includes(name)||!value||value.startsWith('--')||Object.hasOwn(options,name))throw new Error('Use --out <new-directory>, optional --revision <non-negative integer> and optional page metadata (--title, --description, --url, --image, --image-alt, --license)');options[name]=value;}
+  const options={};for(let i=0;i<args.length;i+=2){const name=args[i],value=args[i+1];if(!['--out','--revision','--client-extension',...Object.keys(pageFlags)].includes(name)||!value||value.startsWith('--')||Object.hasOwn(options,name))throw new Error('Use --out <new-directory>, optional --revision <non-negative integer>, optional --client-extension <absolute module path> and optional page metadata (--title, --description, --url, --image, --image-alt, --license)');options[name]=value;}
   const page=Object.fromEntries(Object.entries(pageFlags).filter(([flag])=>options[flag]!==undefined).map(([flag,key])=>[key,key==='image'?path.resolve(options[flag]):options[flag]]));
   const revision=options['--revision']===undefined?undefined:Number(options['--revision']);if(revision!==undefined&&(!/^\d+$/.test(options['--revision'])||!Number.isSafeInteger(revision)))throw new Error('Choose a non-negative integer revision');
-  const {exportStaticWorld}=await import('../server/static-export.mjs');const result=await exportStaticWorld(root,{out:options['--out'],revision,...(Object.keys(page).length?{page}:{})});
+  const {exportStaticWorld}=await import('../server/static-export.mjs');const result=await exportStaticWorld(root,{out:options['--out'],revision,...(options['--client-extension']?{clientExtension:path.resolve(options['--client-extension'])}:{}),...(Object.keys(page).length?{page}:{})});
   console.log(`Exported revision ${result.revision}: ${result.files} files, ${result.assets} pinned assets at ${result.path}. Upload the entire directory to a static host.`);
  }else if(command==='check'){
   const world=JSON.parse(await readFile(path.join(root,'world/world.json'),'utf8'));

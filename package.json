@@ -25,6 +25,7 @@
     "walkthrough.html",
     "!**/*.test.mjs",
     "!examples/firearms-through-time/",
+    "!examples/firearms-range/",
     "docs/",
     "LICENSES/",
     "LICENSING.md",

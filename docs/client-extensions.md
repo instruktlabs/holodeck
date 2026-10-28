@@ -19,7 +19,9 @@ An extension that draws its own first-person hands can also export
 person (third person and free camera still show it).
 
 Without `HOLODECK_CLIENT_EXTENSION` the host imports a no-op component. Scene JSON cannot turn
-it on. Assets and gameplay owned by an external project stay in that project; the
+it on. `holodeck export --client-extension <path>` bundles one extension into a static
+scene page the same way; the site build passes it only for a Lab scene whose entry in
+site/lab.json names an extension under examples/. Assets and gameplay owned by an external project stay in that project; the
 one exception is [examples/firearms-through-time](../examples/firearms-through-time/README.md),
 a complete game kept here as a reference for the hook (R3F extension, shared game
 rules and the matching Unreal C++ module). It is not part of the npm package.
@@ -32,7 +34,8 @@ not change the static world asset validator to sneak in unsupported asset types.
 An explicitly loaded skinned viewmodel is a separate runtime capability from the
 world's static import/export profile.
 
-This hook is experimental. Static export is not yet extension-aware and should
-not be represented as packaging an extension. Do not run a distribution build
+This hook is experimental. A static export bundles an extension only when one is
+named at export; the page then carries that extension's code and the files it
+imports, so export only extensions you can publish. Do not run a distribution build
 with a private extension configured. Versioned lifecycle, error isolation,
 manifest validation and portable export remain work before a public plugin API.
