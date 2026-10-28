@@ -15,7 +15,7 @@ const KILN_PACKS='https://kilnstudio.tools/packs/';
 // that changes the page: server/site.test.mjs checks each against git history when the checkout has it.
 export const PAGES=[{path:'',updated:'2026-10-27'},{path:'about/',updated:'2026-10-27'}];
 // The Lab's index, rendered from site/lab.json; each entry's page takes its catalog `updated`.
-export const LAB={path:'lab/',updated:'2026-10-27'};
+export const LAB={path:'lab/',updated:'2026-10-28'};
 // A Lab video is an H.264 MP4 of at most 8 MB with its moov box first (ffmpeg -movflags +faststart),
 // so it starts streaming at once, and a JPEG poster of the video's own size.
 export const MAX_LAB_VIDEO_BYTES=8*1000*1000;

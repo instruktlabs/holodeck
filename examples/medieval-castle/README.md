@@ -1,30 +1,65 @@
-# Medieval Castle: mountain-pass fortress (in progress)
+# Medieval Castle: mountain-pass fortress, B6 (in progress)
 
-**In progress.** This is the current castle: an earlier blockout pass that its
-owner judged not final quality. A rebuild is underway, and this bundle will be
-replaced when it lands. Treat the layout, proportions and art as provisional.
+**In progress.** This is the B6 rebuild of the castle as it stood on 2026-10-28,
+assembled into one scene for a work-in-progress showing. It is not finished, not
+reviewed and not a release. Some of it is saved work, some is unsaved draft and
+some is grey stand-in geometry, as set out below. It replaces the earlier B5
+blockout, which is no longer bundled.
 
 A fortress holding a mountain pass, composed in Holodeck from Kiln assets. A
-bridge crosses a gorge to an open gate, a walled lower courtyard, a stair up to a
-wall ballista and an inner barricade. The scene is the source revision 10 of the
-castle world, projected into the portable [example bundle](../../docs/example-world-bundles.md)
-format at revision zero. It pairs with the native Unity slice in
-[medieval-castle-unity](../medieval-castle-unity/), which imports the same layout.
+three-bay stone bridge on piers crosses a gorge to a gatehouse between two round
+gate towers. Behind it a coursed curtain wall with wall towers and bartizans,
+terraces and stairs climbs to a keep, with rock skins dressing the cliffs and the
+far bank. The scene is projected into the portable
+[example bundle](../../docs/example-world-bundles.md) format at revision zero.
+
+## What is saved, what is a draft and what is a stand-in
+
+Counted from the bundle's placements:
+
+- **Saved Kiln modules.** The curtain kit (curtain bays, parados, barbette,
+  corner and tee towers, portal bay, terrace walls, stairs, landings and the upper
+  ward paving), the gatehouse (passage, crown, crown stair, D-shaped wall towers
+  and bartizans), the bridge (bays, piers and both abutments) and eight rock
+  skins. The waymark at the origin is a saved module too.
+- **Drafts: both gate towers and the keep.** These are unsaved local builds,
+  shown here in place of the saved or stand-in versions. Their asset IDs start
+  with `draft-`, and their placements are labelled "DRAFT, not a Kiln save". They
+  have no Kiln revision, so the world records no provenance for them.
+- **Stand-ins.** Grey collider-box geometry, labelled "STAND-IN": the keep's
+  forebuilding, the lower ward paving, 11 wall footings and the B6 gate leaves.
+- **Retained from B5.** The ballista, barricade, mantlet, earlier gate leaves,
+  oaks and ground cover.
+
+## Known visible defects
+
+- **A floating river sheet.** The flat teal river is a built-in box shape that
+  sits about 12 m above the design river, so it floats in the gorge.
+- **Grey stand-in blocks** show plainly: the forebuilding beside the keep, the
+  lower paving, the footing blocks, and a thin grey slab that projects past the
+  far bridgehead.
+- **The draft gate towers are uncoursed.** Their shafts are flat tan with no
+  coursing, lighter than the curtain masonry, their loops read as small dark
+  wedges, and sky shows between the machicolation corbels and the parapet.
+- **The assembly gate still fails.** The B6 assembly checks, which look for
+  gaps, poke-through and terrain over faces between modules, still report many
+  failures, most of them in how the rock skins fit the terrain and the bridge.
+  The draft towers and keep were not in that gate run.
+- The cliffs read as large flat facets, the terrain uses its base slope colours
+  only, the far bridgehead has bare terrain with no rock skin, and an oak clips a
+  wall.
 
 ## What it demonstrates
 
-- **Stamped heightfield terrain.** A 150 × 145-cell heightfield over
-  150 m × 145 m, shaped by five ordered stamps: a flattened gorge, flattened
-  courtyard and approach plateaus, and raised north and east ridges. Walls,
-  cliff supports, trees and ground cover sit on that terrain. It uses no sampled
-  heightmap file and no terrain layer textures.
-- **A modular kit.** Walls, bridge spans, courtyard paving and stair flights are
-  shared blockout modules reused across placements: 15 wall, 6 bridge and 4
-  courtyard placements, plus 10 cliff supports, 5 oaks and 18 ground-cover clumps.
+- **Sampled heightmap terrain.** A 513 × 513-sample heightmap over
+  256 m × 256 m (`terrain.heightfield@1`), stored as a pinned `.r32` file under
+  `assets/imports/terrain/`. It has no stamps and no terrain layer textures.
+- **A modular kit.** Curtain bays, terrace walls, stair flights and parados
+  modules are shared across placements: for example 22 terrace-wall, 24 parados
+  and 11 stair-flight placements.
 - **The maker on terrain.** First-person walking with box collision
-  (`collision.boxes@1`, `camera.walk-orbit@1`, `inhabitant.maker@1`,
-  `terrain.heightfield@1`), with the modular cove and an empty World board at the
-  origin.
+  (`collision.boxes@1`, `camera.walk-orbit@1`, `inhabitant.maker@1`). The origin
+  is a waymark on the approach; there is no cove or World board in this scene.
 
 ## Open it
 
@@ -37,35 +72,38 @@ node bin/holodeck.mjs dev ../my-castle --port 4195
 ```
 
 Open /prototype.html on that port and choose **Enter world**. You start on the
-approach south of the bridge. The authored route crosses the bridge, passes the
-gate and climbs the courtyard stair to the ballista platform. The example also
-appears under **Start from an example** in the world picker.
+approach south of the bridge. The example also appears under **Start from an
+example** in the world picker.
 
 ## Measured and not measured
 
-Counted from the bundle files: 23 assets, 81 placements (7 of them built-in
-shapes), 6.9 MB of GLBs and 105,722 placed source triangles, within the schema-v2
-limits. `holodeck check` validates the installed world and its hashes.
+Counted from the bundle files: 49 assets, 159 placements (one of them, the
+river, a built-in shape), 32.6 MB of GLBs, a 1.05 MB height file and 620,127
+placed source triangles, within the schema-v2 limits. `holodeck check` validates
+the installed world and its hashes.
 
-Not measured for this revision in Holodeck: frame time, visual quality on
-either renderer backend, and walking the full route. `preview.png` is a real 1280×720 WebGPU render of this
-bundle from above the approach, not a generated concept, and it is not a
-quality judgment. The Unity slice's technical smoke results belong to that
-project and do not qualify this scene.
+The showing was rendered on the scene's own pose with Holodeck's React Three
+Fiber viewer on WebGPU, and a still with WebGL2 forced; both loaded with no page
+errors. `preview.png` is a real 1280×720 WebGPU render of this bundle from above
+the approach, not a generated concept, and it is not a quality judgment.
+
+Not measured: frame time, walking the full route in this revision, and a Unity
+build of B6, which has not been made yet.
 
 ## Content and licensing
 
-The scene data, manifest and GLBs are CC0 1.0, as set out in
-[LICENSING.md](../../LICENSING.md). Every GLB is Kiln-authored procedural
-geometry:
+The scene data, manifest, GLBs and height samples are CC0 1.0, as set out in
+[LICENSING.md](../../LICENSING.md). The heightmap is generated by first-party
+scripts from numeric parameters, with no third-party elevation data. Every GLB is
+first-party procedural geometry:
 
-- the cove, lamp, planting, rug, seating, hearth, canopy and World board are the
-  bundled Cove modules, byte-identical to those under `public/assets/`;
-- the castle and slice modules (gate, wall, wall corner, bridge, court, landing,
-  stair flights, mantlet, barricade, ballista, cliff support, oak and ground
-  cover) are untextured blockouts from native Kiln programs, with no external
-  meshes or textures.
+- the castle, bridge, rock skin, gatehouse, keep and waymark modules, the drafts
+  and the B5 props are generated by native Kiln programs. The only embedded
+  image is the waymark's 256 × 256 granite albedo, which its Kiln program
+  generates from noise; there are no external meshes or textures;
+- the stand-ins are plain boxes generated from the modules' collider
+  dimensions.
 
 Kiln asset and revision IDs remain in the world for provenance. The original
-`.kiln` programs, reference images, design notes and review material are not
-part of the bundle.
+`.kiln` programs, reference images, design notes, review material and assembly
+reports are not part of the bundle.
