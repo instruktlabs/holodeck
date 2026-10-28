@@ -29,7 +29,7 @@ With no directory, launch uses `cove` inside `holodeck-worlds` next to your curr
 
 To choose the folder yourself: `node bin/holodeck.mjs launch ../my-worlds/first-world`. Then choose **Connect** in the dock at the bottom of the screen, pick **Codex**, **Cursor** or **Claude Code**, connect, select a model or Cursor mode, and describe what to build. For Claude Code, sign in first by running `claude` in a terminal; Holodeck checks `claude auth status` and never handles your Claude credentials. Connect also configures Kiln tools in that world's workspace.
 
-The world-name menu lets you create and switch worlds or start from an editable example: **Meridian Sanctuary**, **Crescent Cove**, **Tidemark Island**, **Winter Mountainside Cabin** or the **Quiet Courtyard**. Each world has its own scene, references and revision history. Your worlds live outside the source checkout, in a parent folder you choose.
+The world-name menu lets you create and switch worlds or start from an editable example: **Meridian Sanctuary**, **Crescent Cove**, **Tidemark Island**, **Winter Mountainside Cabin**, the **Quiet Courtyard** or the in-progress **Medieval Castle**. Each world has its own scene, references and revision history. Your worlds live outside the source checkout, in a parent folder you choose.
 
 See [getting started](docs/getting-started.md) for the full flow. The current checkout has been tested with Node 24.20.0 and npm 11.19.0.
 

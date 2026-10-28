@@ -19,6 +19,12 @@ Winter Mountainside Cabin (`winter-mountainside-cabin`) is a snowy conifer
 mountainside at dusk with a trailhead, woodland loop and lake viewpoint, and a
 furnished two-storey timber cabin with a sleeping loft, deck and hinged doors.
 
+Medieval Castle (`medieval-castle`) is an in-progress blockout of a fortress
+holding a mountain pass: a bridge over a gorge, an open gate, a walled lower
+courtyard, a stair to a wall ballista and an inner barricade on stamped
+heightfield terrain. It is an earlier pass that is not final quality, and it has
+no runtime preview yet; see its [README](../examples/medieval-castle/README.md).
+
 The bundle contains the editable world document, exact pinned GLBs and curated
 public bible guidance. Its physical mood board starts empty. You can change
 placements, terrain, lighting and supported behavior, or replace an asset with a
@@ -43,6 +49,8 @@ node bin/holodeck.mjs init ../my-sanctuary --example meridian-sanctuary
 node bin/holodeck.mjs dev ../my-sanctuary --port 4194
 node bin/holodeck.mjs init ../my-cabin --example winter-mountainside-cabin
 node bin/holodeck.mjs dev ../my-cabin --port 4193
+node bin/holodeck.mjs init ../my-castle --example medieval-castle
+node bin/holodeck.mjs check ../my-castle
 node bin/holodeck.mjs init ../my-courtyard --example courtyard
 node bin/holodeck.mjs check ../my-courtyard
 node bin/holodeck.mjs dev ../my-courtyard --port 4190
@@ -65,6 +73,9 @@ Agent connection retains the existing Kiln setup workflow.
 - Winter Mountainside Cabin: Enter world at the trailhead and follow the trail
   markers up to the cabin. Press E near a door to open it; the interior stair
   leads to the loft, and the return path passes the lake viewpoint seat.
+- Medieval Castle: Enter world on the approach south of the bridge. The authored
+  route crosses the bridge, passes the gate and climbs the courtyard stair to the
+  ballista; this revision's walk has not been re-observed in Holodeck.
 - Courtyard: Enter world, approach and aim at the garden gate, then press E to
   open/close it within 3.5 metres of its current bounds. Follow the path to the basin.
 - Kinetic exhibit: independently Start / stop nearby mechanisms, pause/resume
