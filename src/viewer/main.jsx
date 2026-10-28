@@ -22,6 +22,7 @@ import {createTouchInput} from '../world/touch-input.mjs';
 import {TouchControls,useTouchMode} from '../world/touch.jsx';
 import {EmoteWheel} from '../world/emote-wheel.jsx';
 import {createEmoteInput} from '../world/emote-wheel.mjs';
+import {sceneHomeHref} from './scene-home.mjs';
 const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='1';
 const benchmarkScenario=benchmarkEnabled&&window.holodeckBenchmarkScenario?validateScenario(window.holodeckBenchmarkScenario):null;
 const benchmarkCamera=benchmarkScenario?scenarioCamera(benchmarkScenario):{};
@@ -34,40 +35,56 @@ function disposeModels(models){
  for(const resource of resources)resource.dispose();
 }
 function useStaticBundle(){
- const [result,setResult]=useState({bundle:null,error:null});
+ const [result,setResult]=useState({bundle:null,error:null,progress:0});
  useEffect(()=>{
   let stopped=false;const controller=new AbortController(),loaded=new Set();
+  const report=progress=>{if(!stopped)setResult(current=>current.bundle?current:{bundle:null,error:null,progress});};
   (async()=>{
+   report(0.04);
    const response=await fetch(new URL('./scene.json',document.baseURI),{signal:controller.signal});if(!response.ok)throw new Error('The exported scene file could not be loaded.');
    const payload=await response.json();if(payload.format!=='holodeck-view-v1')throw new Error('Unsupported static scene format');
    // A heightmap's samples load first: they are part of the terrain the world validates and builds.
-   const terrain=payload.world?.scene?.terrain;
-   if(terrain?.type==='heightmap'||payload.height){
+   const terrain=payload.world?.scene?.terrain,heightJob=terrain?.type==='heightmap'||!!payload.height;
+   if(heightJob){
     const entry=payload.height;if(terrain?.type!=='heightmap'||!/^\.\/assets\/imports\/terrain\/[a-f0-9]{64}\.r32$/.test(entry?.url)||entry.url!==`./${terrain.height.file}`||entry.hash!==terrain.height.sha256)throw new Error('Invalid exported terrain height path');
     await loadTerrainHeight({...entry,size:terrain.size},{signal:controller.signal});
    }
    validateWorld(payload.world);
    if(benchmarkScenario?.maker===false)payload.world=withoutMaker(payload.world);
-   const loader=new GLTFLoader(),byUrl=new Map();
-   const entries=await Promise.all(payload.world.scene.assets.map(async asset=>{
+   const loader=new GLTFLoader(),byUrl=new Map(),seen=new Set();
+   for(const asset of payload.world.scene.assets){
     const entry=payload.assets[asset.id];if(!entry||!/^\.\/assets\/imports\/[a-f0-9]{64}\.glb$/.test(entry.url)||entry.url!==`./assets/imports/${entry.hash}.glb`)throw new Error('Invalid exported asset path');
-    if(!byUrl.has(entry.url))byUrl.set(entry.url,loader.loadAsync(entry.url).then(tagGltfTextures).then(model=>{loaded.add(model);if(stopped)disposeModels([model]);return model;}));
+    seen.add(entry.url);
+   }
+   const textureJob=Object.keys(payload.textures||{}).length>0,total=seen.size+(textureJob?1:0)+(heightJob?1:0);let finished=heightJob?1:0;
+   const bump=()=>{finished++;report(total?finished/total:1);};
+   if(heightJob)report(total?finished/total:1);
+   const entries=await Promise.all(payload.world.scene.assets.map(async asset=>{
+    const entry=payload.assets[asset.id];
+    if(!byUrl.has(entry.url))byUrl.set(entry.url,loader.loadAsync(entry.url).then(tagGltfTextures).then(model=>{loaded.add(model);bump();if(stopped)disposeModels([model]);return model;}));
     return [asset.id,await byUrl.get(entry.url)];
    }));
    for(const [file,entry] of Object.entries(payload.textures||{}))if(!/^\.\/assets\/imports\/terrain\/[a-f0-9]{64}\.png$/.test(entry?.url)||entry.url!==`./${file}`)throw new Error('Invalid exported terrain texture path');
    const textures=await loadTerrainTextures(payload.textures,{signal:controller.signal});
-   if(!stopped)setResult({bundle:{payload,models:Object.fromEntries(entries),textures},error:null});
-  })().catch(error=>{if(!stopped)setResult({bundle:null,error:error.message});});
+   if(textureJob)bump();
+   if(!stopped)setResult({bundle:{payload,models:Object.fromEntries(entries),textures},error:null,progress:1});
+  })().catch(error=>{if(!stopped)setResult({bundle:null,error:error.message,progress:0});});
   return()=>{stopped=true;controller.abort();disposeModels(loaded);};
  },[]);return result;
+}
+function SceneLoader({label,progress,leaving,onLeave}){
+ return <section className={`viewer-load${leaving?' is-leaving':''}`} role="status" style={{'--p':progress}} onAnimationEnd={onLeave}>
+  <div className="viewer-load-orb" aria-hidden="true"><svg className="viewer-load-ring" viewBox="0 0 58 58"><circle className="track" cx="29" cy="29" r="24"/><circle className="progress" cx="29" cy="29" r="24" pathLength="1"/><circle className="gleam" cx="29" cy="29" r="24" pathLength="1"/></svg><i className="viewer-load-disc"/></div>
+  <p>{label}<span className="viewer-load-ellipsis" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></p>
+ </section>;
 }
 class RenderBoundary extends React.Component{
  state={error:null};static getDerivedStateFromError(error){return {error:error.message};}
  render(){return this.state.error?<div className="viewer-error" role="alert">The scene could not be rendered. {this.state.error}</div>:this.props.children;}
 }
 function Viewer(){
- const {bundle,error}=useStaticBundle(),runtime=useMemo(()=>bundle?new WorldRuntime(bundle.payload.world.scene):null,[bundle]);
- const [inhabiting,setInhabiting]=useState(benchmarkEnabled),[cameraMode,setCameraMode]=useState(benchmarkEnabled?'free':'walk'),[person,setPerson]=useState('first'),[cove,setCove]=useState(true),[homeTick,setHomeTick]=useState(0),[locked,setLocked]=useState(false),[aim,setAim]=useState(null),[hidden,setHidden]=useState(benchmarkEnabled),[paused,setPaused]=useState(false),[notice,setNotice]=useState(''),[observation,setObservation]=useState({});
+ const {bundle,error,progress}=useStaticBundle(),runtime=useMemo(()=>bundle?new WorldRuntime(bundle.payload.world.scene):null,[bundle]);
+ const [inhabiting,setInhabiting]=useState(benchmarkEnabled),[cameraMode,setCameraMode]=useState(benchmarkEnabled?'free':'walk'),[person,setPerson]=useState('first'),[cove,setCove]=useState(true),[homeTick,setHomeTick]=useState(0),[locked,setLocked]=useState(false),[aim,setAim]=useState(null),[hidden,setHidden]=useState(benchmarkEnabled),[paused,setPaused]=useState(false),[notice,setNotice]=useState(''),[observation,setObservation]=useState({}),[revealed,setRevealed]=useState(false),[leaving,setLeaving]=useState(false);
  const touch=useMemo(createTouchInput,[]),emotes=useMemo(createEmoteInput,[]),touchMode=useTouchMode(),[menu,setMenu]=useState(false);
  const leaveWorld=useCallback(()=>{setInhabiting(false);setLocked(false);document.exitPointerLock?.();document.activeElement?.blur();},[]);
  const requestLook=useCallback(()=>{try{const canvas=document.querySelector('canvas');if(!canvas?.requestPointerLock){setNotice('Right-drag to look.');return;}canvas.requestPointerLock()?.catch(()=>setNotice('Right-drag to look.'));}catch{setNotice('Right-drag to look.');}},[]);
@@ -75,7 +92,22 @@ function Viewer(){
  const interact=useCallback(id=>{if(!runtime)return;const position=probe.actorEye??probe.position,query=runtime.interaction(id,position);setNotice(runtime.act(id,position)?query.label:query.reason==='out-of-reach'?'Move closer to interact.':'No action available here.');},[runtime]);
  // Legacy readiness still owns control availability; current render readiness
  // can become false again without resetting the player or disabling movement.
- useEffect(()=>{const timer=setInterval(()=>setObservation({ready:probe.ready,renderReady:probe.renderReady===true,pendingCompiles:probe.pendingCompiles,settledFrames:probe.settledFrames,backend:probe.backend,position:probe.position,actor:probe.actor,errors:probe.errors}),500);return()=>clearInterval(timer);},[]);
+ useEffect(()=>{
+  const tick=()=>setObservation({ready:probe.ready,renderReady:probe.renderReady===true,pendingCompiles:probe.pendingCompiles,settledFrames:probe.settledFrames,backend:probe.backend,position:probe.position,actor:probe.actor,errors:probe.errors});
+  tick();const timer=setInterval(tick,revealed?500:120);return()=>clearInterval(timer);
+ },[revealed]);
+ // The first settled view plays the loader out once. Later readiness dips stay quiet.
+ useEffect(()=>{
+  if(error||revealed||leaving)return;
+  if(benchmarkEnabled){if(bundle)setRevealed(true);return;}
+  if(!bundle||observation.renderReady!==true)return;
+  setLeaving(true);
+ },[bundle,error,observation.renderReady,revealed,leaving]);
+ useEffect(()=>{
+  if(!leaving||revealed)return;
+  const reduce=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const timer=setTimeout(()=>setRevealed(true),reduce?0:780);return()=>clearTimeout(timer);
+ },[leaving,revealed]);
  useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),4000);return()=>clearTimeout(timer);},[notice]);
  // Photo mode: every control hides, in any view. H toggles it (the walk controls send H to
  // toggleHud), Esc leaves it before it would leave the world, and moving the pointer shows a
@@ -99,6 +131,9 @@ function Viewer(){
  if(runtime){runtime.paused=paused||!inhabiting;runtime.originVisible=cove;}
  const possessed=!!runtime?.scene.runtime.possession,interaction=runtime?.interaction(aim,probe.actorEye??probe.position),effectiveMode=inhabiting?cameraMode:'overview',forcedGL=new URLSearchParams(location.search).get('backend')==='webgl';
  function enterWorld(){setInhabiting(true);setCameraMode('walk');setHidden(false);document.activeElement?.blur();if(!touchMode)requestLook();}
+ const home=sceneHomeHref(location.pathname),loadingAssets=!bundle&&!error,showLoader=!error&&!revealed&&(loadingAssets||leaving||(!benchmarkEnabled&&!!bundle));
+ const frames=Math.min(3,Number(observation.settledFrames)||0)/3,compiling=(observation.pendingCompiles||0)>0;
+ const shownProgress=leaving||observation.renderReady?1:loadingAssets?0.06+Math.min(1,progress)*0.66:Math.min(0.96,0.74+frames*(compiling?0.12:0.22));
  const hint=touchMode?(inhabiting?(cameraMode==='free'?'Left thumb flies · drag to look · Up and Down rise and sink':`Left thumb moves, push to the edge to run · drag to look${possessed?' · tap to interact · Emote opens the wheel':''}`):'Drag to orbit · pinch to zoom · Enter the world to walk.')
   :(inhabiting?(cameraMode==='free'?'WASD fly · Q / E down / up · Shift faster · G return':possessed?'WASD move · Space jump · Shift run · T or 1–9 emote · V view · E interact':'WASD move · Shift faster · E interact'):'Enter the world to explore. Right-drag to orbit; scroll to zoom.')+' · H photo mode';
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
@@ -109,8 +144,8 @@ function Viewer(){
   </Canvas>}</RenderBoundary></div>
   {hidden&&!benchmarkEnabled&&!touchMode&&<button type="button" className={`viewer-photo-exit ${awake?'awake':''}`} onClick={()=>setHidden(false)}>Show controls <kbd>H</kbd></button>}
   {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
-  <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href="./">holodeck <span>world</span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
-  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:!bundle?<section className="viewer-card" role="status">Loading the scene…</section>:!benchmarkEnabled&&!observation.renderReady?<section className="viewer-card" role="status">Preparing the current view…</section>:null}
+  <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href={home} {...(home==='./'?{}:{title:'All scenes','aria-label':'Back to all scenes'})}><i className="viewer-mark" aria-hidden="true"/><span className="viewer-brand-name">holodeck <span>world</span></span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
+  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:showLoader?<SceneLoader label={loadingAssets?'Loading the scene':'Preparing the current view'} progress={shownProgress} leaving={leaving} onLeave={event=>{if(event.animationName==='viewer-load-out'&&event.target===event.currentTarget)setRevealed(true);}}/>:null}
   {inhabiting&&possessed&&<EmoteWheel input={emotes}/>}
   {/* Benchmark captures show the world alone, without the walk reticle (H78). */}
   {inhabiting&&!benchmarkEnabled&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
