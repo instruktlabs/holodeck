@@ -357,10 +357,10 @@
       },
       {
         "id": "arcade-arch",
-        "file": "assets/imports/31800d916aee1b6bca31ab51c3577b813cef9982ba0d7fbdc5e6760d83a3ab7b.glb",
+        "file": "assets/imports/ac28768682b314ed66ad7b04689ebd46d94708073be16269ec3d38a81d2390bd.glb",
         "provenance": {
           "assetId": "a_71cef64b7f8143478db7afd63d553974",
-          "revisionId": "r_e9e14002aa444492805007f0bf30dfee",
+          "revisionId": "r_0ee353009dba467da1a001ce093dcdc0",
           "collection": "project"
         }
       },
@@ -778,10 +778,10 @@
       },
       {
         "id": "arcade-bay",
-        "file": "assets/imports/bf2e816bd344c60734361a581266831601546c8afddd49e80554110d64de815d.glb",
+        "file": "assets/imports/75f2c2550908103bbd11872a441903c024bcafcfbada4a5890846696eac94521.glb",
         "provenance": {
           "assetId": "a_ebda3dd3bf5f41d6ad0dea5b6a9c3ef6",
-          "revisionId": "r_60cc31247cad446a95672bddc01ae520",
+          "revisionId": "r_d12e35c947c840d5911f9e3df01fe9e2",
           "collection": "project"
         }
       },

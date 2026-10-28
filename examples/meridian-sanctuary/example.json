@@ -18,21 +18,21 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "911fe13d1121caccc90ae8d9549307ac4f07cf2506daa726f63a7d8cc7ad5db2",
+    "sha256": "f1b53cdd6f9f4433eaf57abbb8d477333164d3f9db78c45afdf2c6d2f67dcb3f",
     "bytes": 438478
   },
   "assets": [
     {
       "id": "arcade-arch",
-      "file": "assets/imports/31800d916aee1b6bca31ab51c3577b813cef9982ba0d7fbdc5e6760d83a3ab7b.glb",
-      "sha256": "31800d916aee1b6bca31ab51c3577b813cef9982ba0d7fbdc5e6760d83a3ab7b",
-      "bytes": 446504
+      "file": "assets/imports/ac28768682b314ed66ad7b04689ebd46d94708073be16269ec3d38a81d2390bd.glb",
+      "sha256": "ac28768682b314ed66ad7b04689ebd46d94708073be16269ec3d38a81d2390bd",
+      "bytes": 493376
     },
     {
       "id": "arcade-bay",
-      "file": "assets/imports/bf2e816bd344c60734361a581266831601546c8afddd49e80554110d64de815d.glb",
-      "sha256": "bf2e816bd344c60734361a581266831601546c8afddd49e80554110d64de815d",
-      "bytes": 561964
+      "file": "assets/imports/75f2c2550908103bbd11872a441903c024bcafcfbada4a5890846696eac94521.glb",
+      "sha256": "75f2c2550908103bbd11872a441903c024bcafcfbada4a5890846696eac94521",
+      "bytes": 608836
     },
     {
       "id": "arcade-pier",
@@ -366,10 +366,10 @@
   ],
   "preview": {
     "file": "preview.png",
-    "sha256": "67070971ce19e48884613c2baa54379330b8cea910ed565535f5f56a5522d97e",
-    "bytes": 936051,
+    "sha256": "080a95abb6fafcc31a63ca9fbecd6e4a6183cb8a1fa27a4a68ed5d518dc8dcbf",
+    "bytes": 943378,
     "width": 1280,
     "height": 720
   },
-  "integrity": "a7d4d25150c22be69b78c2dcf1ad76633b6488aef9f096ee33fd03c18cbe7c8b"
+  "integrity": "af92b71665dba80f10fe4ddce864a8ea2f7d2aef10eabaaf883f1ea6e6b313e2"
 }
