@@ -2,13 +2,14 @@
  {
   "id": "medieval-castle",
   "title": "Medieval Castle",
-  "blurb": "A fortress holding a mountain pass: a bridge across a gorge to an open gate, a walled courtyard, a stair to a wall ballista and an inner barricade. The same layout in Unity and in the browser, along the same 20-second camera path.",
-  "status": "In progress. This is an earlier blockout pass, not final quality. A rebuild is underway and will replace it.",
-  "updated": "2026-10-27",
-  "cardAlt": "The Medieval Castle blockout from above: a crenellated gatehouse and walled courtyard beyond a long stone bridge over a gorge, with rounded hills and a few oaks.",
+  "blurb": "A fortress holding a mountain pass: a stone bridge over a gorge to a gatehouse between round towers, a curtain wall and a keep. The B6 rebuild in progress, then the earlier B5 pass, along the same 20-second camera path.",
+  "status": "In progress. B6 is a partial assembly for a showing: saved modules beside unsaved draft gate towers and keep, grey stand-ins and a river sheet floating above the gorge. A Unity build of B6 is still to come.",
+  "updated": "2026-10-28",
+  "cardAlt": "The B6 castle from above the gorge: a gatehouse between two round gate towers with conical roofs, a curtain wall and a tall keep behind, a long arched stone bridge in front, and a flat green river sheet floating in the gorge.",
   "videos": [
-   {"engine": "Unity", "mp4": "lab/medieval-castle/unity.mp4", "poster": "lab/medieval-castle/unity.jpg", "width": 1920, "height": 1080, "caption": "Unity 6 with URP on Vulkan, as the project is configured: no anti-aliasing."},
-   {"engine": "R3F (WebGPU)", "mp4": "lab/medieval-castle/r3f.mp4", "poster": "lab/medieval-castle/r3f.jpg", "width": 1920, "height": 1080, "caption": "Holodeck's React Three Fiber viewer, captured with WebGPU. It also renders with WebGL2 when that is forced."}
+   {"engine": "B6 in R3F (WebGPU)", "mp4": "lab/medieval-castle/b6-r3f.mp4", "poster": "lab/medieval-castle/b6-r3f.jpg", "width": 1920, "height": 1080, "caption": "B6, in progress: Holodeck's React Three Fiber viewer, captured with WebGPU. The gate towers and keep are unsaved drafts and the grey blocks are stand-ins. It also renders with WebGL2 when that is forced."},
+   {"engine": "B5 in R3F (WebGPU)", "mp4": "lab/medieval-castle/b5-r3f.mp4", "poster": "lab/medieval-castle/b5-r3f.jpg", "width": 1920, "height": 1080, "caption": "The earlier B5 pass, a flat blockout on stamped terrain, in the same viewer along the same camera path, captured with WebGPU."},
+   {"engine": "B5 in Unity", "mp4": "lab/medieval-castle/b5-unity.mp4", "poster": "lab/medieval-castle/b5-unity.jpg", "width": 1920, "height": 1080, "caption": "Unity, earlier B5 pass: Unity 6 with URP on Vulkan, as the project is configured, with no anti-aliasing."}
   ],
   "scene": {"example": "medieval-castle"}
  },

@@ -81,8 +81,8 @@ entry's page.
  "updated": "2026-10-27",
  "cardAlt": "Alt text for the entry's 1200×630 card.",
  "videos": [
-  {"engine": "Unity", "mp4": "lab/medieval-castle/unity.mp4", "poster": "lab/medieval-castle/unity.jpg", "width": 1920, "height": 1080, "caption": "Optional."},
-  {"engine": "React Three Fiber", "mp4": "lab/medieval-castle/r3f.mp4", "poster": "lab/medieval-castle/r3f.jpg", "width": 1920, "height": 1080}
+  {"engine": "B6 in R3F (WebGPU)", "mp4": "lab/medieval-castle/b6-r3f.mp4", "poster": "lab/medieval-castle/b6-r3f.jpg", "width": 1920, "height": 1080, "caption": "Optional."},
+  {"engine": "B5 in Unity", "mp4": "lab/medieval-castle/b5-unity.mp4", "poster": "lab/medieval-castle/b5-unity.jpg", "width": 1920, "height": 1080}
  ],
  "scene": {"example": "medieval-castle"}
 }
@@ -90,9 +90,10 @@ entry's page.
 
 Each entry's folder `site/lab/<id>/` holds `card.jpg` (1200×630), each
 video's MP4 and JPEG poster, and the rendered `index.html`, and nothing else.
-An entry has two or more videos. Each is H.264 (`avc1`), at most 8 MB, with
-its `moov` box first so it streams at once (`ffmpeg -c:v libx264 -pix_fmt
-yuv420p -movflags +faststart`); its poster and its listed `width` and `height`
+An entry has two or more videos, and no two share an `engine` label: to compare
+passes in one engine, name the pass in the label, as in `B6 in R3F (WebGPU)`.
+Each is H.264 (`avc1`), at most 8 MB, with its `moov` box first so it streams
+at once (`ffmpeg -c:v libx264 -pix_fmt yuv420p -movflags +faststart`); its poster and its listed `width` and `height`
 match the video's coded size. `npm run render:site` checks all of this and
 renders `site/lab/index.html` and each entry's page, where the videos sit side
 by side (`controls muted playsinline`, `preload="none"`, with the poster) under

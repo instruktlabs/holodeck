@@ -19,12 +19,13 @@ Winter Mountainside Cabin (`winter-mountainside-cabin`) is a snowy conifer
 mountainside at dusk with a trailhead, woodland loop and lake viewpoint, and a
 furnished two-storey timber cabin with a sleeping loft, deck and hinged doors.
 
-Medieval Castle (`medieval-castle`) is an in-progress blockout of a fortress
-holding a mountain pass: a bridge over a gorge, an open gate, a walled lower
-courtyard, a stair to a wall ballista and an inner barricade on stamped
-heightfield terrain. It is an earlier pass that is not final quality; see its
-[README](../examples/medieval-castle/README.md). It is in the site's experimental
-Lab, not on the scene shelf.
+Medieval Castle (`medieval-castle`) is the in-progress B6 rebuild of a fortress
+holding a mountain pass: a stone bridge over a gorge to a gatehouse between round
+gate towers, a coursed curtain wall, terraces and a keep on sampled heightmap
+terrain. It is a partial assembly for a work-in-progress showing, with saved
+modules beside labelled drafts and grey stand-ins and some visible defects; see
+its [README](../examples/medieval-castle/README.md). It is in the site's
+experimental Lab, not on the scene shelf.
 
 The bundle contains the editable world document, exact pinned GLBs and curated
 public bible guidance. Its physical mood board starts empty. You can change
@@ -74,9 +75,9 @@ Agent connection retains the existing Kiln setup workflow.
 - Winter Mountainside Cabin: Enter world at the trailhead and follow the trail
   markers up to the cabin. Press E near a door to open it; the interior stair
   leads to the loft, and the return path passes the lake viewpoint seat.
-- Medieval Castle: Enter world on the approach south of the bridge. The authored
-  route crosses the bridge, passes the gate and climbs the courtyard stair to the
-  ballista; this revision's walk has not been re-observed in Holodeck.
+- Medieval Castle: Enter world on the approach south of the bridge, by the
+  waymark. The route crosses the bridge to the gatehouse; this revision's walk has
+  not been observed in Holodeck.
 - Courtyard: Enter world, approach and aim at the garden gate, then press E to
   open/close it within 3.5 metres of its current bounds. Follow the path to the basin.
 - Kinetic exhibit: independently Start / stop nearby mechanisms, pause/resume
