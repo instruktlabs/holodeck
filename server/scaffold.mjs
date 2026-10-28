@@ -1,5 +1,4 @@
-import {mkdir,readFile,writeFile,cp} from 'node:fs/promises';
-import {fileURLToPath} from 'node:url';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {installStarter} from './starter.mjs';
 import {atomicJson} from './world-store.mjs';
@@ -7,8 +6,8 @@ import {validateWorld} from '../src/world/contract.mjs';
 import {resolveExample,listExamples} from './example-catalog.mjs';
 import {installExampleBundle} from './example-bundle.mjs';
 import {SKILLS_GUIDE,KILN_GUIDE} from './world-guide.mjs';
+import {installWorldSkills} from './world-skills.mjs';
 export {listExamples};
-const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 export async function scaffold(root,example='construct',{examplesDirectory}={}){
  const entry=await resolveExample(example,{directory:examplesDirectory});
  if(entry.kind==='bundle')return installExampleBundle(entry.file,root);
@@ -24,7 +23,7 @@ export async function scaffold(root,example='construct',{examplesDirectory}={}){
  if(example!=='construct')world.scene.moodboard.position=[3.6,0,-2.8];
  world.references=world.references.filter(r=>r.kind==='note');world.references[0].notes=template.intent;
  validateWorld(world);await atomicJson(path.join(root,'world/world.json'),world);
- await cp(path.join(packageRoot,'skills'),path.join(root,'.agents/skills'),{recursive:true});
+ await installWorldSkills(root,world);
  await writeFile(path.join(root,'AGENTS.md'),`# Holodeck world workspace\n\nUse the installed holodeck-author-world, holodeck-integrate-asset and holodeck-verify-world skills. ${SKILLS_GUIDE}\nUse world_read and world_propose for edits; observe the displayed revision.\nThis is a schema v2 world. Read scene.runtime for enabled built-in capabilities.\nKeep saved authoring data separate from transient activity. Never edit installed packages.\n${KILN_GUIDE}\n`);
  return world;
 }

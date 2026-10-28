@@ -8,6 +8,8 @@ import { CursorAgent } from './cursor.mjs';
 import { ClaudeAgent } from './claude.mjs';
 import { MAX_ASSET_BYTES } from '../src/world/contract.mjs';
 import {ensureKilnWorkspace} from './kiln-workspace.mjs';
+import {syncOptionalSkills} from './world-skills.mjs';
+import {enabledOptionalSkills} from '../src/world/optional-skills.mjs';
 import {checkWorld} from './coherence.mjs';
 import {listRevisions,restoreRevision,remixRevision} from './history.mjs';
 import {retainHeightSamples,releaseHeightSamples,heightSamples} from '../src/world/terrain.mjs';
@@ -58,7 +60,11 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
     }
     return agent;
   };
-  const onWorld=data=>{stage(null);emit('proposal',null);emit('world',data);},onDiagnostic=message=>emit('diagnostic',message),onAgent=s=>emit('agent',s);
+  // Optional skills follow scene.destinations: synced on every connection and
+  // whenever an accepted revision changes the declared set.
+  let skillSync=Promise.resolve(),syncedSkills=null;
+  const syncSkills=()=>skillSync=skillSync.catch(()=>{}).then(async()=>{syncedSkills=JSON.stringify(await syncOptionalSkills(store.root,store.current));});
+  const onWorld=data=>{stage(null);emit('proposal',null);emit('world',data);if(syncedSkills!==null&&JSON.stringify(enabledOptionalSkills(store.current))!==syncedSkills)syncSkills().catch(e=>emit('diagnostic',`World skills could not be updated: ${e.message}`));},onDiagnostic=message=>emit('diagnostic',message),onAgent=s=>emit('agent',s);
   store.on('world',onWorld);store.on('diagnostic',onDiagnostic);agent.on('agent',onAgent);
   const keepalive=setInterval(()=>broadcast(': heartbeat\n\n'),15000);keepalive.unref();
   async function middleware(req,res,next){
@@ -140,6 +146,7 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
       if(route==='/api/agent/connect'){
         const provider=data.provider||agent.snapshot?.().provider||'codex';selectAgent(provider);
         const upgrade=await ensureWorkspace(root,{provider});
+        await syncSkills();
         // Kiln's upgrade report (1.4.0 and 1.6.0) lists the files it rewrote in `changed`.
         const files=upgrade?.changed?.length;
         if(files)emit('notice',`Kiln workspace upgraded for the installed Kiln · ${files} Kiln-managed file${files===1?'':'s'} refreshed`);
@@ -169,7 +176,7 @@ export async function createHost(root,{agentFactory,cursorFactory,claudeFactory,
     store.off('world',onWorld);store.off('diagnostic',onDiagnostic);agent.off('agent',onAgent);stage(null);
     const responses=[...clients];clients.clear();
     for(const res of responses)if(!res.destroyed&&!res.writableEnded)res.end();
-    closePromise=(async()=>{try{await codexAgent.persistQueue;codexAgent.close?.();if(cursor){await cursor.persistQueue;cursor.close?.();}if(claude){await claude.persistQueue;claude.close?.();}}finally{await store.close();}})();return closePromise;
+    closePromise=(async()=>{try{await codexAgent.persistQueue;codexAgent.close?.();if(cursor){await cursor.persistQueue;cursor.close?.();}if(claude){await claude.persistQueue;claude.close?.();}}finally{await skillSync.catch(()=>{});await store.close();}})();return closePromise;
   }};
 }
 

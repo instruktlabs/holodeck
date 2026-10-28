@@ -1,0 +1,3 @@
+interface:
+  display_name: "Holodeck Unity Export"
+  short_description: "Move a Holodeck world into a Unity project and qualify it"

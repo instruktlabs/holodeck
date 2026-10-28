@@ -34,6 +34,11 @@ collision and light placement. Keep the cove's origin layer distinct from the
 surrounding world so hiding it also removes its interactions and blockers.
 Use actual dimensions and destination observations instead of perspective guesses.
 
+When a script hands the world to another destination, export terrain with its
+resolved appearance and normals from the accepted revision; never retype a
+palette (holodeck#31). Engine-specific guidance is an optional skill that the
+world enables by naming its destination in `scene.destinations`.
+
 Use `world_propose` with the current base revision for scene, bible and board
 changes. The current interface stages a proposal for review. Do not claim it is
 applied until the runtime reports that revision through `world_observe`. On a
