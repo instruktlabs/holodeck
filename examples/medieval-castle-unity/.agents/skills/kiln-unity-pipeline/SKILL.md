@@ -71,6 +71,18 @@ exposure and shader support before replacing materials or darkening source albed
 The initial kit has flat PBR factors and no texture maps: that is not lost texture data.
 Linear lighting is the current bridge baseline; retain before/after captures when
 changing it. More complex Kiln procedural shaders still need explicit export checks.
+COLOR_0 only darkens, and it darkens in both renderers. Holodeck multiplies the GLB
+base-color factor by it; CastleKit multiplies the tiling albedo by it at full strength.
+Keep per-stone tint and grime centred near 1. Measure the area-weighted mean per
+primitive, not the vertex mean, and the resulting L* in each renderer before saving.
+Evidence (B6 kit, 2026-10-27): tints averaging 0.82–0.85 by area put limestone at
+L* 69–70 in Unity, against a 72–78 target.
+Match each tiling albedo's linear mean to the Kiln factor of the same material name,
+so flat Holodeck staging and textured Unity agree. Once stones, joints and chamfers
+are modelled, tiling maps must carry surface only. A map that also paints mortar
+joints draws a second joint grid over the geometry.
+Kiln-managed skill files (`kiln-init` hashes them) are not the place for project
+lessons. An edited copy becomes a conflict at the next `kiln-init --upgrade`.
 Isolate apparent geometry artifacts with matched shadow-on/off captures before
 editing the source. Record effective URP shadow settings, not only the Light's
 stored bias: `usePipelineSettings` can make those Light values inactive. Increased
