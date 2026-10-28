@@ -11,5 +11,17 @@
    {"engine": "R3F (WebGPU)", "mp4": "lab/medieval-castle/r3f.mp4", "poster": "lab/medieval-castle/r3f.jpg", "width": 1920, "height": 1080, "caption": "Holodeck's React Three Fiber viewer, captured with WebGPU. It also renders with WebGL2 when that is forced."}
   ],
   "scene": {"example": "medieval-castle"}
+ },
+ {
+  "id": "firearms-through-time",
+  "title": "Firearms Through Time: Colt M4 at the range",
+  "blurb": "A first-person range game whose rules run in two engines from shared fixtures. The same M4 sequence in Unreal and in the browser: aim, a semi round, a held 3-round burst, a short pull the cam remembers, inspect, reload, bursts until dry, and the empty reload.",
+  "status": "In progress. Placeholder range art, test readouts still on screen in Unreal, and the reload is mostly below the view. Not playable on the site yet; the code is in the repository as an example.",
+  "updated": "2026-10-27",
+  "cardAlt": "Two first-person views of the Colt M4 aimed at a paper target on an indoor-style range: Unreal on the left, the browser on the right.",
+  "videos": [
+   {"engine": "Unreal", "mp4": "lab/firearms-through-time/unreal.mp4", "poster": "lab/firearms-through-time/unreal.jpg", "width": 1280, "height": 720, "caption": "Unreal Engine 5.8 editor game, recorded during the automated M4 check run (57 checks passed). The on-screen text is that run's test readout."},
+   {"engine": "R3F (WebGPU)", "mp4": "lab/firearms-through-time/r3f.mp4", "poster": "lab/firearms-through-time/r3f.jpg", "width": 1280, "height": 720, "caption": "Holodeck in Chromium on WebGPU, driven by a script with the same action order."}
+  ]
  }
 ]
