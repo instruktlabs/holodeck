@@ -37,6 +37,9 @@ test('bundle install verifies all hashes before creating a fresh editable revisi
 test('tampered manifest, unlisted files and unsafe metadata never become installable bundles',async t=>{
  const {root,parent}=await fixture(t),out=path.join(parent,'bundle');await createExampleBundle(root,options(out));const manifestPath=path.join(out,'example.json'),manifest=JSON.parse(await readFile(manifestPath,'utf8'));manifest.title='changed';await writeFile(manifestPath,JSON.stringify(manifest));await assert.rejects(readExampleBundle(out),/integrity/);
  const second=path.join(parent,'second');await createExampleBundle(root,options(second));await writeFile(path.join(second,'private.txt'),'PRIVATE_TEXT');await assert.rejects(readExampleBundle(second),/Unexpected bundle file/);
+ // A top-level README.md is documentation, accepted but never installed; a nested one is not.
+ const third=path.join(parent,'third');await createExampleBundle(root,options(third));await writeFile(path.join(third,'README.md'),'# Portable Study\n');await readExampleBundle(third);const installed=path.join(parent,'third-installed');await installExampleBundle(third,installed);await assert.rejects(stat(path.join(installed,'README.md')),{code:'ENOENT'});
+ await writeFile(path.join(third,'world','README.md'),'nested');await assert.rejects(readExampleBundle(third),/Unexpected bundle file/);
  await assert.rejects(createExampleBundle(root,{...options(path.join(parent,'unsafe')),title:'C:\\private\\world'}),/absolute|portable/i);
 });
 test('example catalog advertises portable metadata and scaffold installs a named bundle',async t=>{

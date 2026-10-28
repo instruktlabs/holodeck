@@ -33,6 +33,8 @@ The versioned format is `holodeck-example-v1`. It contains only:
   with its hash, byte count and sample size.
 - Optional `preview.png`: an actual runtime screenshot, limited to 8 MiB and
   4096 pixels per dimension, with its own hash, byte count and dimensions.
+- Optional top-level `README.md` describing the bundle in the repository. It has
+  no receipt, is not part of the integrity hash and is never installed.
 
 Each receipt contains SHA-256 and byte size. The manifest `integrity` is SHA-256
 over UTF-8 JSON with object keys recursively sorted, original array order, no

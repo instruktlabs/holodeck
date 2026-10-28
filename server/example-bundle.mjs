@@ -71,9 +71,11 @@ async function verifiedPreview(directory,receipt){
 export async function readExamplePreview(directory){
  const manifest=await readExampleManifest(directory);return manifest.preview?verifiedPreview(directory,manifest.preview):null;
 }
+// A top-level README.md documents the bundle in the repository. It is not a receipt
+// and is never installed.
 async function verifyInventory(root,expected){
  const directories=new Set(['']);for(const file of expected){let directory=path.posix.dirname(file);while(directory!=='.'){directories.add(directory);directory=path.posix.dirname(directory);}}
- async function visit(relative){for(const entry of await readdir(path.join(root,relative),{withFileTypes:true})){const file=relative?`${relative}/${entry.name}`:entry.name;if(entry.isDirectory()&&directories.has(file))await visit(file);else if(!entry.isFile()||!expected.has(file))fail(`Unexpected bundle file: ${file}`);}}
+ async function visit(relative){for(const entry of await readdir(path.join(root,relative),{withFileTypes:true})){const file=relative?`${relative}/${entry.name}`:entry.name;if(file==='README.md'&&entry.isFile())continue;if(entry.isDirectory()&&directories.has(file))await visit(file);else if(!entry.isFile()||!expected.has(file))fail(`Unexpected bundle file: ${file}`);}}
  await visit('');
 }
 // Metadata-only listing is cheap. Installation uses this full, bounded check,

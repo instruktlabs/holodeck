@@ -1,0 +1,163 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "medieval-castle",
+  "title": "Medieval Castle",
+  "description": "In progress: a mountain-pass fortress. A bridge crosses a gorge to an open gate, a walled lower courtyard, a stair to a wall ballista and an inner barricade. This is an earlier blockout pass; a rebuild is underway.",
+  "sourceRevision": 10,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "inhabitant.maker@1",
+      "terrain.heightfield@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "fe1e6d5ca14fa5bfb50fe195a64ec25786ed57ea4df8d0792c6babdd0b5aeaf0",
+    "bytes": 87051
+  },
+  "assets": [
+    {
+      "id": "canopy",
+      "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+      "sha256": "0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0",
+      "bytes": 929100
+    },
+    {
+      "id": "hearth",
+      "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+      "sha256": "07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba",
+      "bytes": 1656308
+    },
+    {
+      "id": "lamp",
+      "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+      "sha256": "c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808",
+      "bytes": 254364
+    },
+    {
+      "id": "moodboard",
+      "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+      "sha256": "0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
+    },
+    {
+      "id": "planting",
+      "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+      "sha256": "cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8",
+      "bytes": 1053324
+    },
+    {
+      "id": "rug",
+      "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+      "sha256": "4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857",
+      "bytes": 121880
+    },
+    {
+      "id": "seating",
+      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "bytes": 890340
+    },
+    {
+      "id": "siege-barricade",
+      "file": "assets/imports/7a1c9dccb81c67a0ef84fc9be70038b175c842c6c5ae6a726483c597be633cf5.glb",
+      "sha256": "7a1c9dccb81c67a0ef84fc9be70038b175c842c6c5ae6a726483c597be633cf5",
+      "bytes": 17704
+    },
+    {
+      "id": "siege-bridge",
+      "file": "assets/imports/6b36185ca8176830b58365f090becbfeab31c9503676d1865ec0c5715d3386c4.glb",
+      "sha256": "6b36185ca8176830b58365f090becbfeab31c9503676d1865ec0c5715d3386c4",
+      "bytes": 3752
+    },
+    {
+      "id": "siege-court",
+      "file": "assets/imports/f68261c13aa356fbabaa7beb3e1ae578b180dd4117fe72975ae4a14a71ce8480.glb",
+      "sha256": "f68261c13aa356fbabaa7beb3e1ae578b180dd4117fe72975ae4a14a71ce8480",
+      "bytes": 2052
+    },
+    {
+      "id": "siege-gate",
+      "file": "assets/imports/3ed101aea8d9072475a9da1ceb533d1d5207b8c6e8759138a78c0252ed1c20c8.glb",
+      "sha256": "3ed101aea8d9072475a9da1ceb533d1d5207b8c6e8759138a78c0252ed1c20c8",
+      "bytes": 7616
+    },
+    {
+      "id": "siege-landing",
+      "file": "assets/imports/66ef9f49d973be882b338f2c5590f996be451d8076663610113290ef7420e60a.glb",
+      "sha256": "66ef9f49d973be882b338f2c5590f996be451d8076663610113290ef7420e60a",
+      "bytes": 17180
+    },
+    {
+      "id": "siege-mantlet",
+      "file": "assets/imports/d62f56ac8a2216f9d17c8fd1267904bf98be171e63f90b225db14fbfb2e31057.glb",
+      "sha256": "d62f56ac8a2216f9d17c8fd1267904bf98be171e63f90b225db14fbfb2e31057",
+      "bytes": 37016
+    },
+    {
+      "id": "siege-stair-flight-lower",
+      "file": "assets/imports/506ed59cc37cd2a57ebf4d71a53de99fed00580cfd127743e6ea0d642ce884b0.glb",
+      "sha256": "506ed59cc37cd2a57ebf4d71a53de99fed00580cfd127743e6ea0d642ce884b0",
+      "bytes": 19492
+    },
+    {
+      "id": "siege-stair-flight-middle",
+      "file": "assets/imports/408221054cf01704572e898b752373120656599edd2c34c99cc2e7779459fd72.glb",
+      "sha256": "408221054cf01704572e898b752373120656599edd2c34c99cc2e7779459fd72",
+      "bytes": 18228
+    },
+    {
+      "id": "siege-stair-flight-upper",
+      "file": "assets/imports/1453671be0fabfce47cfe79096c52047a2a3731ba8754ef239dea121c12b8521.glb",
+      "sha256": "1453671be0fabfce47cfe79096c52047a2a3731ba8754ef239dea121c12b8521",
+      "bytes": 21780
+    },
+    {
+      "id": "siege-wall",
+      "file": "assets/imports/172e2b2a82ab8f3f68ef9fbada6851c21accb2d39fdc2e416b5fad0831a1527a.glb",
+      "sha256": "172e2b2a82ab8f3f68ef9fbada6851c21accb2d39fdc2e416b5fad0831a1527a",
+      "bytes": 3776
+    },
+    {
+      "id": "siege-wall-corner",
+      "file": "assets/imports/a9ccdc37a0e6e8b054c8bd77f41578cf74e903e71309f9c41ec8f08540891977.glb",
+      "sha256": "a9ccdc37a0e6e8b054c8bd77f41578cf74e903e71309f9c41ec8f08540891977",
+      "bytes": 15696
+    },
+    {
+      "id": "slice-ballista",
+      "file": "assets/imports/5300fcd81865b90625a5dd8b90d9fede69903db63c87ec1d606a373adff4532e.glb",
+      "sha256": "5300fcd81865b90625a5dd8b90d9fede69903db63c87ec1d606a373adff4532e",
+      "bytes": 46000
+    },
+    {
+      "id": "slice-cliff-support",
+      "file": "assets/imports/15125a2b9338a979351cc05a39fa5f89c136f2dbdba579c557df206f9c8f32e2.glb",
+      "sha256": "15125a2b9338a979351cc05a39fa5f89c136f2dbdba579c557df206f9c8f32e2",
+      "bytes": 12472
+    },
+    {
+      "id": "slice-ground-cover",
+      "file": "assets/imports/18f0f1b346a889811fb545181a92e6bb5672c669d4d0dd02ba16cd8839f687aa.glb",
+      "sha256": "18f0f1b346a889811fb545181a92e6bb5672c669d4d0dd02ba16cd8839f687aa",
+      "bytes": 40768
+    },
+    {
+      "id": "slice-oak",
+      "file": "assets/imports/11a18b2187aa029c1eedd60d58afbe000c05c9e292f735bd4ca2c43bd07a62eb.glb",
+      "sha256": "11a18b2187aa029c1eedd60d58afbe000c05c9e292f735bd4ca2c43bd07a62eb",
+      "bytes": 163480
+    },
+    {
+      "id": "structure",
+      "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+      "sha256": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "bytes": 1398268
+    }
+  ],
+  "integrity": "041bffe27be2406180bb32d2c61fd6e5e44dc51517f919e62dc4852fec4331dd"
+}

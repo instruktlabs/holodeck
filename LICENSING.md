@@ -10,7 +10,7 @@ Holodeck uses MIT for code and CC0 1.0 Universal for the designated first-party 
 
 Matthew Kissinger applies [CC0 1.0 Universal](LICENSES/CC0-1.0.txt) to his copyright and related rights in the following first-party content, to the extent permitted by law:
 
-- Scene data, manifests, GLBs, terrain textures and previews under examples/, including Construct, Kinetic, Crescent Cove, the Quiet Courtyard, Meridian Sanctuary, Tidemark Island, Winter Mountainside Cabin and the Firearms Through Time range and weapon models (examples/firearms-through-time: world data and GLBs; its code, Unreal C++ module, scripts and Kiln programs are MIT as above), and the asset-free Courtyard template kept as a test fixture under test/fixtures/.
+- Scene data, manifests, GLBs, terrain textures and previews under examples/, including Construct, Kinetic, Crescent Cove, the Quiet Courtyard, Meridian Sanctuary, Tidemark Island, Winter Mountainside Cabin, the in-progress Medieval Castle and the Firearms Through Time range and weapon models (examples/firearms-through-time: world data and GLBs; its code, Unreal C++ module, scripts and Kiln programs are MIT as above), and the asset-free Courtyard template kept as a test fixture under test/fixtures/.
 - The CastleKit look-dev study under examples/medieval-castle-unity/Assets/LookDev/: tiling maps, materials, GLB models, Unity scenes, the terrain crop and their JSON data. Its shaders and C# scripts, and the editor scripts under Assets/Editor/LookDev/, are code under MIT.
 - Models under public/assets/.
 - Images and non-code asset metadata under assets/cove/. Procedural JavaScript programs remain MIT.
