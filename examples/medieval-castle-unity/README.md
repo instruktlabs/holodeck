@@ -128,7 +128,8 @@ Soldiers walk while advancing and idle while damaging the barricade; authored
 attack clips, foot IK, possession, melee and hybrid GPU crowd animation remain
 future work. The river is a static visual surface. Vegetation, rock and castle
 materials remain blockout art. Crowd timing under shared-machine load is not a
-capacity result.
+capacity result. A CastleKit material look-dev study (triplanar, macro and
+de-tile keywords, with measured cost) is in [Assets/LookDev](Assets/LookDev/README.md).
 
 - [Design bible](../../docs/medieval-siege-design.md)
 - [Full production plan](../../docs/medieval-siege-production-plan.md)

@@ -1,0 +1,1092 @@
+{
+ "schema": "castlekit-lookdev-run02-scene-v2",
+ "resolution": [
+  1920,
+  1080
+ ],
+ "variantsNote": "C run-01 CK_C maps (flat factor where run 01 had none); D run-02 CK_D; F flat Kiln factor; Dalb run-02 albedo only (normal and occlusion strength 0); ID unlit material ids",
+ "frame": "positions here are Unity (x mirrored from Holodeck); holodeck* fields keep the source frame",
+ "groups": [
+  {
+   "name": "wall",
+   "variants": [
+    "C",
+    "D",
+    "F"
+   ],
+   "placements": [
+    {
+     "model": "c6-curtain-bay-4000-a",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -37.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -37.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-curtain-bay-4000-b",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -33.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -33.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-curtain-bay-4000-a",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -29.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -29.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-curtain-bay-4000-b",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -25.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -25.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-curtain-bay-4000-a",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -21.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -21.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -38.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -38.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -36.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -36.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -34.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -34.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -32.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -32.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -30.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -30.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -28.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -28.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -26.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -26.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -24.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -24.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -22.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -22.35
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "c6-parados-2000",
+     "holodeckPosition": [
+      44.35,
+      0.0,
+      -20.35
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -44.35,
+      0.0,
+      -20.35
+     ],
+     "yawUnityDeg": -0.0
+    }
+   ],
+   "planes": [
+    {
+     "position": [
+      6.15,
+      -2.4,
+      -29.35
+     ],
+     "size": [
+      100.0,
+      120.0
+     ]
+    },
+    {
+     "position": [
+      -76.85,
+      0.0,
+      -29.35
+     ],
+     "size": [
+      60.0,
+      120.0
+     ]
+    }
+   ],
+   "terrain": false,
+   "views": [
+    {
+     "name": "wall-60m",
+     "holodeckPosition": [
+      -4.802,
+      12.919,
+      -63.242
+     ],
+     "holodeckTarget": [
+      43.6,
+      2.5,
+      -29.35
+     ],
+     "distanceM": 60.0,
+     "note": "",
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      4.802,
+      12.919,
+      -63.242
+     ],
+     "target": [
+      -43.6,
+      2.5,
+      -29.35
+     ]
+    },
+    {
+     "name": "wall-25m",
+     "holodeckPosition": [
+      23.432,
+      6.841,
+      -43.472
+     ],
+     "holodeckTarget": [
+      43.6,
+      2.5,
+      -29.35
+     ],
+     "distanceM": 25.0,
+     "note": "",
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -23.432,
+      6.841,
+      -43.472
+     ],
+     "target": [
+      -43.6,
+      2.5,
+      -29.35
+     ]
+    },
+    {
+     "name": "wall-7m",
+     "holodeckPosition": [
+      37.518,
+      3.974,
+      -31.93
+     ],
+     "holodeckTarget": [
+      43.8,
+      3.0,
+      -29.0
+     ],
+     "distanceM": 7.0,
+     "note": "",
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -37.518,
+      3.974,
+      -31.93
+     ],
+     "target": [
+      -43.8,
+      3.0,
+      -29.0
+     ]
+    },
+    {
+     "name": "wall-3m",
+     "holodeckPosition": [
+      41.306,
+      2.657,
+      -30.375
+     ],
+     "holodeckTarget": [
+      44.2,
+      2.5,
+      -29.6
+     ],
+     "distanceM": 3.0,
+     "note": "",
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -41.306,
+      2.657,
+      -30.375
+     ],
+     "target": [
+      -44.2,
+      2.5,
+      -29.6
+     ]
+    },
+    {
+     "name": "wall-walk-eye",
+     "holodeckPosition": [
+      46.0,
+      8.0,
+      -36.9
+     ],
+     "holodeckTarget": [
+      45.6,
+      7.4,
+      -24.0
+     ],
+     "distanceM": 12.9,
+     "note": "eye 1.7 m over the 6.3 m walk, looking north along three bays",
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -46.0,
+      8.0,
+      -36.9
+     ],
+     "target": [
+      -45.6,
+      7.4,
+      -24.0
+     ]
+    },
+    {
+     "name": "wall-ortho-48ppm",
+     "holodeckPosition": [
+      18.6,
+      4.0,
+      -29.35
+     ],
+     "holodeckTarget": [
+      43.6,
+      4.0,
+      -29.35
+     ],
+     "distanceM": 25.0,
+     "orthographic": true,
+     "orthoSize": 11.25,
+     "note": "orthographic 40 x 22.5 m frame, outer face square on; measurement only",
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -18.6,
+      4.0,
+      -29.35
+     ],
+     "target": [
+      -43.6,
+      4.0,
+      -29.35
+     ]
+    }
+   ]
+  },
+  {
+   "name": "site",
+   "variants": [
+    "C",
+    "D",
+    "F"
+   ],
+   "placements": [
+    {
+     "model": "b6-bridge-bay-12000-r2",
+     "holodeckPosition": [
+      60.0,
+      0.0,
+      -53.5
+     ],
+     "yawDeg": 90.0,
+     "position": [
+      -60.0,
+      0.0,
+      -53.5
+     ],
+     "yawUnityDeg": -90.0
+    },
+    {
+     "model": "b6-bridge-pier-r2",
+     "holodeckPosition": [
+      60.0,
+      0.0,
+      -47.5
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -60.0,
+      0.0,
+      -47.5
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "b6-bridge-pier-r2",
+     "holodeckPosition": [
+      60.0,
+      0.0,
+      -59.5
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -60.0,
+      0.0,
+      -59.5
+     ],
+     "yawUnityDeg": -0.0
+    },
+    {
+     "model": "g6-gate-tower",
+     "holodeckPosition": [
+      54.0,
+      0.0,
+      -33.0
+     ],
+     "yawDeg": 0.0,
+     "position": [
+      -54.0,
+      0.0,
+      -33.0
+     ],
+     "yawUnityDeg": -0.0
+    }
+   ],
+   "planes": [],
+   "terrain": true,
+   "views": [
+    {
+     "name": "bridge-60m",
+     "holodeckPosition": [
+      3.927,
+      2.272,
+      -73.909
+     ],
+     "holodeckTarget": [
+      60.0,
+      -4.0,
+      -53.5
+     ],
+     "distanceM": 60.0,
+     "note": "",
+     "terrainClearanceM": 17.61,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "b6-bridge-bay-12000-r2"
+     ],
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -3.927,
+      2.272,
+      -73.909
+     ],
+     "target": [
+      -60.0,
+      -4.0,
+      -53.5
+     ]
+    },
+    {
+     "name": "bridge-25m",
+     "holodeckPosition": [
+      36.947,
+      -0.387,
+      -62.814
+     ],
+     "holodeckTarget": [
+      60.0,
+      -3.0,
+      -53.5
+     ],
+     "distanceM": 25.0,
+     "note": "",
+     "terrainClearanceM": 18.02,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "b6-bridge-bay-12000-r2"
+     ],
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -36.947,
+      -0.387,
+      -62.814
+     ],
+     "target": [
+      -60.0,
+      -3.0,
+      -53.5
+     ]
+    },
+    {
+     "name": "bridge-7m",
+     "holodeckPosition": [
+      48.855,
+      -1.712,
+      -53.807
+     ],
+     "holodeckTarget": [
+      55.6,
+      -2.2,
+      -52.0
+     ],
+     "distanceM": 7.0,
+     "note": "",
+     "terrainClearanceM": 20.28,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -48.855,
+      -1.712,
+      -53.807
+     ],
+     "target": [
+      -55.6,
+      -2.2,
+      -52.0
+     ]
+    },
+    {
+     "name": "bridge-3m",
+     "holodeckPosition": [
+      52.547,
+      -1.495,
+      -51.521
+     ],
+     "holodeckTarget": [
+      55.5,
+      -1.6,
+      -51.0
+     ],
+     "distanceM": 3.0,
+     "note": "",
+     "terrainClearanceM": 20.46,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [],
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -52.547,
+      -1.495,
+      -51.521
+     ],
+     "target": [
+      -55.5,
+      -1.6,
+      -51.0
+     ]
+    },
+    {
+     "name": "rock-60m",
+     "holodeckPosition": [
+      20.283,
+      6.678,
+      -65.116
+     ],
+     "holodeckTarget": [
+      72.0,
+      -11.863,
+      -41.0
+     ],
+     "distanceM": 60.0,
+     "note": "north gorge wall seen along the gorge, slope 71 deg",
+     "terrainClearanceM": 25.69,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "b6-bridge-bay-12000-r2",
+      "b6-bridge-pier-r2"
+     ],
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -20.283,
+      6.678,
+      -65.116
+     ],
+     "target": [
+      -72.0,
+      -11.863,
+      -41.0
+     ]
+    },
+    {
+     "name": "rock-25m",
+     "holodeckPosition": [
+      80.297,
+      -5.815,
+      -63.794
+     ],
+     "holodeckTarget": [
+      72.0,
+      -11.863,
+      -41.0
+     ],
+     "distanceM": 25.0,
+     "note": "",
+     "terrainClearanceM": 11.7,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -80.297,
+      -5.815,
+      -63.794
+     ],
+     "target": [
+      -72.0,
+      -11.863,
+      -41.0
+     ]
+    },
+    {
+     "name": "rock-7m",
+     "holodeckPosition": [
+      70.791,
+      -11.131,
+      -47.856
+     ],
+     "holodeckTarget": [
+      72.0,
+      -11.863,
+      -41.0
+     ],
+     "distanceM": 7.0,
+     "note": "",
+     "terrainClearanceM": 10.34,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -70.791,
+      -11.131,
+      -47.856
+     ],
+     "target": [
+      -72.0,
+      -11.863,
+      -41.0
+     ]
+    },
+    {
+     "name": "rock-3m",
+     "holodeckPosition": [
+      71.739,
+      -11.706,
+      -43.984
+     ],
+     "holodeckTarget": [
+      72.0,
+      -11.863,
+      -41.0
+     ],
+     "distanceM": 3.0,
+     "note": "",
+     "terrainClearanceM": 5.81,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [],
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -71.739,
+      -11.706,
+      -43.984
+     ],
+     "target": [
+      -72.0,
+      -11.863,
+      -41.0
+     ]
+    },
+    {
+     "name": "tower-60m",
+     "holodeckPosition": [
+      2.828,
+      18.419,
+      -62.544
+     ],
+     "holodeckTarget": [
+      54.0,
+      8.0,
+      -33.0
+     ],
+     "distanceM": 60.0,
+     "note": "",
+     "terrainClearanceM": 39.39,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "g6-gate-tower"
+     ],
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -2.828,
+      18.419,
+      -62.544
+     ],
+     "target": [
+      -54.0,
+      8.0,
+      -33.0
+     ]
+    },
+    {
+     "name": "tower-25m",
+     "holodeckPosition": [
+      32.678,
+      12.341,
+      -45.31
+     ],
+     "holodeckTarget": [
+      54.0,
+      8.0,
+      -33.0
+     ],
+     "distanceM": 25.0,
+     "note": "",
+     "terrainClearanceM": 27.94,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "g6-gate-tower"
+     ],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -32.678,
+      12.341,
+      -45.31
+     ],
+     "target": [
+      -54.0,
+      8.0,
+      -33.0
+     ]
+    },
+    {
+     "name": "tower-talus-7m",
+     "holodeckPosition": [
+      44.597,
+      1.174,
+      -38.466
+     ],
+     "holodeckTarget": [
+      50.6,
+      0.2,
+      -35.0
+     ],
+     "distanceM": 7.0,
+     "note": "rubble talus, plinth",
+     "terrainClearanceM": 13.01,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "g6-gate-tower"
+     ],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -44.597,
+      1.174,
+      -38.466
+     ],
+     "target": [
+      -50.6,
+      0.2,
+      -35.0
+     ]
+    },
+    {
+     "name": "tower-talus-3m",
+     "holodeckPosition": [
+      48.108,
+      -0.391,
+      -36.496
+     ],
+     "holodeckTarget": [
+      50.7,
+      -0.6,
+      -35.0
+     ],
+     "distanceM": 3.0,
+     "note": "rubble talus close",
+     "terrainClearanceM": 10.01,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "g6-gate-tower"
+     ],
+     "variants": [
+      "C",
+      "D"
+     ],
+     "position": [
+      -48.108,
+      -0.391,
+      -36.496
+     ],
+     "target": [
+      -50.7,
+      -0.6,
+      -35.0
+     ]
+    },
+    {
+     "name": "tower-door-7m",
+     "holodeckPosition": [
+      43.436,
+      7.966,
+      -33.609
+     ],
+     "holodeckTarget": [
+      50.4,
+      7.6,
+      -33.0
+     ],
+     "distanceM": 7.0,
+     "note": "west elevation at the first-floor opening (the g6 tower's oak is interior floors only)",
+     "terrainClearanceM": 10.26,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "g6-gate-tower"
+     ],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -43.436,
+      7.966,
+      -33.609
+     ],
+     "target": [
+      -50.4,
+      7.6,
+      -33.0
+     ]
+    },
+    {
+     "name": "tower-roof-7m",
+     "holodeckPosition": [
+      48.961,
+      18.994,
+      -38.828
+     ],
+     "holodeckTarget": [
+      54.0,
+      16.6,
+      -34.6
+     ],
+     "distanceM": 7.0,
+     "note": "slate cone",
+     "terrainClearanceM": 30.79,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "g6-gate-tower"
+     ],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -48.961,
+      18.994,
+      -38.828
+     ],
+     "target": [
+      -54.0,
+      16.6,
+      -34.6
+     ]
+    },
+    {
+     "name": "pier-rock-7m",
+     "holodeckPosition": [
+      72.792,
+      -19.507,
+      -55.6
+     ],
+     "holodeckTarget": [
+      66.0,
+      -21.2,
+      -55.6
+     ],
+     "distanceM": 7.0,
+     "note": "south pier rock base (ck-rock-granite) from the gorge floor, looking west",
+     "terrainClearanceM": 2.46,
+     "lineOfSightBlockedSamples": 0,
+     "modelBoxOccluders": [
+      "b6-bridge-pier-r2"
+     ],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -72.792,
+      -19.507,
+      -55.6
+     ],
+     "target": [
+      -66.0,
+      -21.2,
+      -55.6
+     ]
+    },
+    {
+     "name": "terrain-ortho-top",
+     "holodeckPosition": [
+      32.0,
+      60.0,
+      -108.6
+     ],
+     "holodeckTarget": [
+      32.0,
+      5.5,
+      -108.5
+     ],
+     "distanceM": 54.5,
+     "orthographic": true,
+     "orthoSize": 11.25,
+     "note": "orthographic 40 x 22.5 m frame looking down on flat terrain; measurement only",
+     "modelBoxOccluders": [],
+     "variants": [
+      "C",
+      "D",
+      "F",
+      "Dalb",
+      "ID"
+     ],
+     "position": [
+      -32.0,
+      60.0,
+      -108.6
+     ],
+     "target": [
+      -32.0,
+      5.5,
+      -108.5
+     ]
+    }
+   ]
+  }
+ ]
+}

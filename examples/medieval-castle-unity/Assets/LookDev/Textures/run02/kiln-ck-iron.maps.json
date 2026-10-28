@@ -1,0 +1,137 @@
+{
+  "version": "kiln.material-maps.v1",
+  "material": {
+    "materialId": "ck-iron",
+    "revisionId": "sha256:67f9f5578950ea74fc351bb8486efb6a20729beba86cf65e6c1c270e66828c0f",
+    "name": "CastleKit wrought iron",
+    "tileable": true,
+    "physicalSizeMeters": {
+      "width": 1,
+      "height": 1
+    },
+    "parameters": {
+      "roughness": 1,
+      "metalness": 1,
+      "emissiveIntensity": 1,
+      "alphaMode": "opaque",
+      "alphaCutoff": 0.5,
+      "doubleSided": false
+    },
+    "sources": [
+      {
+        "id": "castlekit",
+        "kind": "procedural",
+        "provider": "Kiln procedural layers (legacy layered draft, saved with Kiln 1.6.0)",
+        "creator": "The Last Crossing castle look-dev run 02 (claude-opus-5-5, Claude Code)",
+        "assetId": "castlekit-lookdev-02",
+        "license": {
+          "spdx": "CC0-1.0",
+          "url": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "attribution": ""
+        },
+        "originalFiles": []
+      }
+    ]
+  },
+  "size": {
+    "width": 512,
+    "height": 512
+  },
+  "repeatMeters": {
+    "width": 1,
+    "height": 1
+  },
+  "resampleFilter": "catmull-rom",
+  "maps": [
+    {
+      "slot": "baseColor",
+      "file": "ck-iron.baseColor.png",
+      "usage": "albedo",
+      "colorSpace": "srgb",
+      "width": 512,
+      "height": 512,
+      "bytes": 51568,
+      "sha256": "sha256:5dda2d6c6598c8605041a52186647e42c3f5c11fc90b4d0090bbb27d599e4398",
+      "method": "copy",
+      "wrap": {
+        "s": "repeat",
+        "t": "repeat"
+      },
+      "source": {
+        "file": "baseColor.png",
+        "sha256": "sha256:5dda2d6c6598c8605041a52186647e42c3f5c11fc90b4d0090bbb27d599e4398",
+        "width": 512,
+        "height": 512
+      }
+    },
+    {
+      "slot": "normal",
+      "file": "ck-iron.normal.png",
+      "usage": "normal",
+      "colorSpace": "linear",
+      "normalConvention": "opengl",
+      "width": 512,
+      "height": 512,
+      "bytes": 176919,
+      "sha256": "sha256:681a0bc49a1739fe5c50fa12424e63cfaefe75128c68381202d2ca7983ec4a8f",
+      "method": "copy",
+      "wrap": {
+        "s": "repeat",
+        "t": "repeat"
+      },
+      "source": {
+        "file": "normal.png",
+        "sha256": "sha256:681a0bc49a1739fe5c50fa12424e63cfaefe75128c68381202d2ca7983ec4a8f",
+        "width": 512,
+        "height": 512
+      }
+    },
+    {
+      "slot": "metallicRoughness",
+      "file": "ck-iron.metallicRoughness.png",
+      "usage": "metallicRoughness",
+      "colorSpace": "linear",
+      "channelPacking": "r-occlusion-g-roughness-b-metallic",
+      "width": 512,
+      "height": 512,
+      "bytes": 105789,
+      "sha256": "sha256:699bf777312cd446a160dfaa341d072189d2131b8f0d4b45e3f3fd3ba7556126",
+      "method": "copy",
+      "wrap": {
+        "s": "repeat",
+        "t": "repeat"
+      },
+      "source": {
+        "file": "metallicRoughness.png",
+        "sha256": "sha256:699bf777312cd446a160dfaa341d072189d2131b8f0d4b45e3f3fd3ba7556126",
+        "width": 512,
+        "height": 512
+      }
+    }
+  ],
+  "preview": {
+    "file": "ck-iron.preview.png",
+    "sha256": "sha256:11f18bd8f91363c5b17b81d04016eb3f41b534796d52468285afe1f8252763b8",
+    "bytes": 34130,
+    "width": 392,
+    "height": 392,
+    "tiles": 3,
+    "planeMeters": 3,
+    "mapSize": 512,
+    "camera": {
+      "azimuthDeg": 30,
+      "elevationDeg": 50
+    },
+    "rendererId": "dawn-vulkan:nvidia-geforce-gtx-1660-ti-with-max-q-design:NVIDIA: 615.78.08 615.78.8.0",
+    "viewFidelity": {
+      "version": "kiln.view-fidelity.v1",
+      "requested": "full-preferred",
+      "delivered": "full-material",
+      "materialFaithful": true,
+      "exactArtifact": false,
+      "rendererId": "dawn-vulkan:nvidia-geforce-gtx-1660-ti-with-max-q-design:NVIDIA: 615.78.08 615.78.8.0",
+      "inputGlbSha256": "sha256:fc9ddf7d5f5174a72a0f598af10debdb5c5086ef333ba615c0a03c0876417784",
+      "degraded": false
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+ "models": [
+  {
+   "key": "c6-curtain-bay-4000-a",
+   "path": "Assets/LookDev/Models/B6/c6-curtain-bay-4000-a.glb",
+   "sha256": "95da6e832320e898014654f09b79b3f43f7cfd699ddd954aa33d3ea7e514c866",
+   "source": "playable-slice/b6/authoring/curtain-kit/saved-glbs/c6-curtain-bay-4000-a.glb"
+  },
+  {
+   "key": "c6-curtain-bay-4000-b",
+   "path": "Assets/LookDev/Models/B6/c6-curtain-bay-4000-b.glb",
+   "sha256": "cdacc49650b46e8caf1975fbb9d76f4e88a276c871aff2b006fedd583d64c3f4",
+   "source": "playable-slice/b6/authoring/curtain-kit/saved-glbs/c6-curtain-bay-4000-b.glb"
+  },
+  {
+   "key": "c6-parados-2000",
+   "path": "Assets/LookDev/Models/B6/c6-parados-2000.glb",
+   "sha256": "2cc4c1916b2e25aeaa6a9b8c88b5909b0b4763958e9e64e3fad4687d9dab9509",
+   "source": "playable-slice/b6/authoring/curtain-kit/saved-glbs/c6-parados-2000.glb"
+  },
+  {
+   "key": "b6-bridge-bay-12000-r2",
+   "path": "Assets/LookDev/Models/B6/b6-bridge-bay-12000-r2.glb",
+   "sha256": "3a341a0112e7f8395e425861307e9e22703f315dc4d36ad6e33c78527a348908",
+   "source": "playable-slice/b6/authoring/bridge-rock/glb/b6-bridge-bay-12000-r2.glb"
+  },
+  {
+   "key": "b6-bridge-pier-r2",
+   "path": "Assets/LookDev/Models/B6/b6-bridge-pier-r2.glb",
+   "sha256": "060ca5f9d898c101144ffa6fae4830ef1b267f4834496d4a42f97075e5e56797",
+   "source": "playable-slice/b6/authoring/bridge-rock/glb/b6-bridge-pier-r2.glb"
+  },
+  {
+   "key": "g6-gate-tower",
+   "path": "Assets/LookDev/Models/B6/g6-gate-tower.glb",
+   "sha256": "ee7bd19bd08a04edc889eed40ee4a646207486b0f4bfec34c61731a06cf98238",
+   "source": "playable-slice/b6/authoring/gatehouse-keep/saved/g6-gate-tower@3/asset.glb"
+  },
+  {
+   "key": "run01-tower-base-b4",
+   "path": "Assets/LookDev/Models/C/tower-base-b4.glb",
+   "sha256": "a7fd7da2cade96eecfaddaeb87ee1a66f50524fa4fae305503ee8c3cb31a8d4b",
+   "source": "run-01 variant C (unchanged)"
+  },
+  {
+   "key": "run01-west-curtain-bay-4000",
+   "path": "Assets/LookDev/Models/C/west-curtain-bay-4000.glb",
+   "sha256": "a1fa02f9082abed66ead344764d1caaefaa901b15d0d185b0164e4f1dae3f5b9",
+   "source": "run-01 variant C (unchanged)"
+  }
+ ]
+}

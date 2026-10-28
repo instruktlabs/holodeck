@@ -1,0 +1,59 @@
+{
+ "store": "Kiln review store, collection project (Kiln 1.4.0)",
+ "models": [
+  {
+   "variant": "A",
+   "module": "tower-base-b4",
+   "path": "Assets/LookDev/Models/A/tower-base-b4.glb",
+   "sha256": "5288cd6f054cc9f975c3eecb825142645bd8cf3e010d4b1580e73c60eb18a8a4",
+   "assetId": "a_a0f5ed84902645f5b0d3cecf4b9f047b",
+   "revisionId": "r_061f4340e4c3470099e5a480c7b654e5",
+   "programRef": "p_4de330df4138"
+  },
+  {
+   "variant": "A",
+   "module": "west-curtain-bay-4000",
+   "path": "Assets/LookDev/Models/A/west-curtain-bay-4000.glb",
+   "sha256": "02516f79bcfe7574fe5afef84a19535d4dd8ae91b4a7afe5bc3fea03dc0349ef",
+   "assetId": "a_5910c6cd192b401eb3187251b89b46e0",
+   "revisionId": "r_508ad11859fb4981a592e3461d5544c3",
+   "programRef": "p_c8cfbe1f30bd"
+  },
+  {
+   "variant": "B",
+   "module": "tower-base-b4",
+   "path": "Assets/LookDev/Models/B/tower-base-b4.glb",
+   "sha256": "628c26dc9a3812ee5dd0b002332e3f129129b662902b43bd2c197b8db842171b",
+   "assetId": "a_a0f5ed84902645f5b0d3cecf4b9f047b",
+   "revisionId": "r_c31cc9681fd440c19fe1cb44b2879520",
+   "programRef": "p_d4361e70984c"
+  },
+  {
+   "variant": "B",
+   "module": "west-curtain-bay-4000",
+   "path": "Assets/LookDev/Models/B/west-curtain-bay-4000.glb",
+   "sha256": "2715b4a4d852166fa459b944ab9605cc7bd5b39825e43c199585a41874528b42",
+   "assetId": "a_5910c6cd192b401eb3187251b89b46e0",
+   "revisionId": "r_f70c593bf0184785a2a468438c6110d8",
+   "programRef": "p_057c7b91804c"
+  },
+  {
+   "variant": "C",
+   "module": "tower-base-b4",
+   "path": "Assets/LookDev/Models/C/tower-base-b4.glb",
+   "sha256": "a7fd7da2cade96eecfaddaeb87ee1a66f50524fa4fae305503ee8c3cb31a8d4b",
+   "assetId": "a_a0f5ed84902645f5b0d3cecf4b9f047b",
+   "revisionId": "r_08b2999175cc419fbdd657386ea164f0",
+   "programRef": "p_63552eb0ada5"
+  },
+  {
+   "variant": "C",
+   "module": "west-curtain-bay-4000",
+   "path": "Assets/LookDev/Models/C/west-curtain-bay-4000.glb",
+   "sha256": "a1fa02f9082abed66ead344764d1caaefaa901b15d0d185b0164e4f1dae3f5b9",
+   "assetId": "a_5910c6cd192b401eb3187251b89b46e0",
+   "revisionId": "r_7565cb9d2c7741a8a4817ccd1e642911",
+   "programRef": "p_77cb32fc616f"
+  }
+ ]
+}

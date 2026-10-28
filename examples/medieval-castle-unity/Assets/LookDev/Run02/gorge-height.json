@@ -1,0 +1,12 @@
+{
+ "source": "B6 terrain heightmap height.r32 (authoring workspace, not included)",
+ "sourceSha256": "d75ce68a5f9847126905f82a3de5005a4388922fabcb3b546a1bee3644d4a7a7",
+ "holodeckXmin": 0.0,
+ "holodeckZmin": -120.0,
+ "spacing": 0.5,
+ "cols": 261,
+ "rows": 211,
+ "order": "row-major, rows from zmin (south) north, cols from xmin east; float32 LE",
+ "unityFrame": "x_unity = -x_holodeck; vertex colour 0.92 (cliff-skin tint, so the textured mean is the terrain rock colour #797b70)",
+ "bytesSha256": "64b0435f45f5a4354d33b6ab382260f36b71f08b48c77da6d8d369ef339bfc01"
+}

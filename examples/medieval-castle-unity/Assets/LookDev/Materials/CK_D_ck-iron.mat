@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CK_D_ck-iron
+  m_Shader: {fileID: 4800000, guid: e6fa743513d1638b59c9c704309244cd, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _CK_TILING
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: fc451eb67479e83c1bccd0a269a49726, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: a3d2f5309b6bcd4b79884f0f52141785, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OrmMap:
+        m_Texture: {fileID: 2800000, guid: ce18db2ac728583fbaa1767abcf1dc57, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Detile: 0
+    - _DetileScale: 9
+    - _Macro: 0
+    - _MacroHue: 0.012
+    - _MacroScale: 17
+    - _MacroStrength: 0.05
+    - _Metallic: 0.8454
+    - _MetersPerTile: 1
+    - _NormalStrength: 1
+    - _OcclusionStrength: 1
+    - _Roughness: 0.707
+    - _Tiling: 1
+    - _Triplanar: 0
+    - _TriplanarSharpness: 8
+    - _VertexColorStrength: 1
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
