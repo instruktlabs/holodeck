@@ -251,7 +251,9 @@ test('knees point along the pelvis however far a planted foot is turned',()=>{
     if(front.length()>.04)worst=Math.max(worst,Math.acos(clamp(front.normalize().dot(ahead),-1,1)));
    }
   }
-  assert.ok(worst<.9,`${name}: a knee pointed ${worst.toFixed(3)} rad away from the pelvis's heading`);
+  // A shallower hip bounce leaves the knee a little straighter, so this heading
+  // reading picks up a few degrees of noise on a hard zigzag.
+  assert.ok(worst<.95,`${name}: a knee pointed ${worst.toFixed(3)} rad away from the pelvis's heading`);
  }
 });
 
@@ -286,6 +288,31 @@ test('a stop late in a stride eases the rest of the step instead of covering it 
  }
  // The settle step kept the swing's nearly finished easing and jumped the last 0.25 m at once.
  assert.ok(worst<.08,`an ankle path kinked ${worst.toFixed(3)} m in a frame`);
+});
+
+test('a steady jog keeps the hip bounce near a sine',()=>{
+ const frames=drive([[.4,{}],[3,{forward:1}]]);
+ let prev=null,prevV=null,worst=0;
+ for(const frame of frames.slice(90)){
+  const y=frame.pelvis.y;
+  if(prev){const v=(y-prev)*60;if(prevV!=null)worst=Math.max(worst,Math.abs(v-prevV));prevV=v;}
+  prev=y;
+ }
+ // The jog used to reverse its vertical speed by about 0.4 m/s in a single frame.
+ assert.ok(worst<.09,`hip vertical speed changed by ${worst.toFixed(3)} m/s in a frame`);
+});
+
+test('a crest does not lift the body off the ground it has reached',()=>{
+ const terrain={sample(x,z){const height=z>=-1?0:z<=-4?1.2:(-1-z)/3;return {height,normal:[0,1,0],slope:z<-1&&z>-4?Math.atan(1/3):0,inBounds:true};}};
+ const a=walker(terrain),model=rig(),m=createMakerMotion();
+ let worst=0,seen=false;
+ for(let i=0;i<360;i++){
+  stepInhabitant(a,{forward:1},1/60,{terrain});updateMakerPose(model,a,terrain,m,1/60);
+  if(a.position[2]<-4.4){seen=true;worst=Math.max(worst,model.root.position.y-a.position[1]);}
+ }
+ assert.ok(seen,'the walk reaches the flat crest');
+ // A stale climb held the body about 6 cm above the landing.
+ assert.ok(worst<.02,`the body rose ${worst.toFixed(3)} m past the crest`);
 });
 
 test('stepping off a ledge carries the feet with the body until the air pose takes over',()=>{

@@ -58,10 +58,15 @@ export function firstPersonEyePosition(position,eyeHeight,yaw,pitch,blocked=()=>
 export const FOLLOW_SMOOTHING=Object.freeze({horizontal:.04,vertical:.14,extend:.3,snap:3});
 export const createFollowCamera=()=>({pivot:null,extend:null,position:[0,0,0],focus:[0,0,0]});
 export const resetFollowCamera=state=>{state.pivot=null;state.extend=null;return state;};
-export function stepFollowCamera(state,{eye,yaw,pitch,distance,height,ground=()=>null,blocked=()=>false},seconds){
+// vertical:'lock' copies the eye height. The pose already eased that height; a second
+// spring would lag every slope change and the body would bob in the frame.
+export function stepFollowCamera(state,{eye,yaw,pitch,distance,height,ground=()=>null,blocked=()=>false,vertical='spring'},seconds){
  const dt=Number.isFinite(seconds)?Math.max(0,Math.min(seconds,.1)):0,S=FOLLOW_SMOOTHING;
  if(!state.pivot||Math.hypot(...eye.map((v,i)=>v-state.pivot[i].value))>S.snap){state.pivot=eye.map(v=>spring.create(v));state.extend=null;}
- else state.pivot.forEach((s,i)=>spring.update(s,eye[i],i===1?S.vertical:S.horizontal,1,dt));
+ else state.pivot.forEach((s,i)=>{
+  if(i===1&&vertical==='lock'){s.velocity=dt>0?(eye[1]-s.value)/dt:0;s.value=eye[1];}
+  else spring.update(s,eye[i],i===1?S.vertical:S.horizontal,1,dt);
+ });
  const pivot=state.pivot.map(s=>s.value),cp=Math.cos(pitch),sp=Math.sin(pitch),cy=Math.cos(yaw),sy=Math.sin(yaw);
  const back=height*sp+distance*cp,offset=[back*sy,height*cp-distance*sp,back*cy],steps=Math.ceil(Math.hypot(...offset)/.08);
  // Clear fraction of the boom: march to the first terrain or box obstruction, then bisect it.

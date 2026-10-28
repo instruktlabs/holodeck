@@ -67,7 +67,7 @@ const axis=v=>Math.max(-1,Math.min(1,v));
 const NO_STICK={forward:0,strafe:0,sprint:false};
 function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,setAim,select,focusInput,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes,extensionLook}){
  const {camera,gl,scene}=useThree(),keys=useRef(new Set()),drag=useRef(false),walk=useRef(),view=useRef(),lastMoving=useRef(false),lastPick=useRef({time:-Infinity,pose:[]}),aim=useRef(null),ray=useMemo(()=>new THREE.Raycaster(),[]);
- const actor=useRef(null),free=useRef(null),follow=useRef(createFollowCamera()),skipFrame=useRef(false),wheel=useMemo(()=>emotes??createEmoteInput(),[emotes]),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
+ const actor=useRef(null),free=useRef(null),follow=useRef(createFollowCamera()),supportEye=useRef(null),skipFrame=useRef(false),wheel=useMemo(()=>emotes??createEmoteInput(),[emotes]),walkable=useMemo(()=>(x,z,maxTop)=>runtime.walkableAt(x,z,maxTop),[runtime]);
  // A hidden page is throttled or paused; the first interval after it returns spans
  // the whole absence. Neither is a frame anyone saw, so neither is recorded.
  useEffect(()=>{const changed=()=>{skipFrame.current=true;};document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[]);
@@ -151,6 +151,17 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   window.addEventListener('keydown',down);window.addEventListener('keyup',up);window.addEventListener('pointermove',move);window.addEventListener('pointerup',release);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',drop);window.addEventListener('focusin',clear);document.addEventListener('visibilitychange',drop);document.addEventListener('pointerlockchange',lock);el.addEventListener('pointerdown',pointer);el.addEventListener('contextmenu',context);el.addEventListener('wheel',zoom,{passive:false});
   return()=>{drop();window.removeEventListener('keydown',down);window.removeEventListener('keyup',up);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',drop);window.removeEventListener('focusin',clear);document.removeEventListener('visibilitychange',drop);document.removeEventListener('pointerlockchange',lock);el.removeEventListener('pointerdown',pointer);el.removeEventListener('contextmenu',context);el.removeEventListener('wheel',zoom);};
  },[runtime,mode,inhabiting,gl,camera,select,focusInput,setLocked,setMoving,leaveWorld,interact,requestLook,toggleHud,toggleFree,touch,wheel]);
+ // Aim when the view moves, and at least every 100 ms for things that drift
+ // under a still reticle: picking walks and raycasts the scene (H94).
+ const settleAim=()=>{
+  camera.updateMatrixWorld();
+  const now=performance.now(),pose=camera.matrixWorld.elements,last=lastPick.current;
+  if(now-last.time>=100||pose.some((value,index)=>value!==last.pose[index])){
+   last.time=now;last.pose=[...pose];ray.setFromCamera({x:0,y:0},camera);
+   const target=pickWorldAim(ray,scene,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time});
+   if(aim.current!==target){aim.current=target;setAim(target);}
+  }
+ };
  useFrame((_,dt)=>{
   let moving=false;const stick=touch?stickAxes(touch):NO_STICK,pad=touch?.pad,requested=takeEmoteRequest(wheel);
   if(actor.current)actor.current.camera=person;
@@ -165,15 +176,10 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
     if(requested&&!f&&!r&&!k.has('Space')&&!pad?.jump)requestEmote(a,requested,{start:runtime.time,seat:requested==='sit'?chooseSeat(runtime.colliderTops(a.position[0],a.position[2]),a):null});
     stepInhabitant(a,{forward:f,strafe:r,jump:k.has('Space')||!!pad?.jump,sprint,yaw:w.yaw},dt,inhabitantContext(runtime,a.radius));a.pitch=w.pitch;
     moving=a.speed>.01;
-    const eye=new THREE.Vector3(a.position[0],a.position[1]+a.eyeHeight,a.position[2]);w.position=eye.toArray();
-    camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');
-    if(person==='first')camera.position.set(...firstPersonEyePosition(a.position,a.eyeHeight,w.yaw,w.pitch,(...args)=>runtime.blocked(...args)));
-    if(person==='third'){
-     // A sprung follow boom: it eases steps and swim height, retracts before terrain or a box, and snaps on spawn or recall.
-     const view=stepFollowCamera(follow.current,{eye:eye.toArray(),yaw:w.yaw,pitch:w.pitch,...a.config.thirdPerson,ground:(x,z)=>runtime.terrain?.sample(x,z),blocked:(x,z,radius,feetY,height)=>runtime.blocked(x,z,radius,feetY,height)},dt);
-     camera.position.set(...view.position);camera.lookAt(...view.focus);
-    }else resetFollowCamera(follow.current);
-    probe.actorEye=eye.toArray();
+    const eye=new THREE.Vector3(a.position[0],a.position[1]+a.eyeHeight,a.position[2]);w.position=eye.toArray();probe.actorEye=eye.toArray();
+    // Third person is placed after the pose, from the smoothed eye. Putting the
+    // lens on the raw eye here would hide the head for a frame and aim from it.
+    if(person!=='third'){resetFollowCamera(follow.current);camera.position.copy(eye);camera.rotation.set(w.pitch,w.yaw,0,'YXZ');if(person==='first')camera.position.set(...firstPersonEyePosition(a.position,a.eyeHeight,w.yaw,w.pitch,(...args)=>runtime.blocked(...args)));}
    }else{
    moving=!!(f||r);const distance=Math.min(dt,.04)*(sprint?4.5:2.6)/len,dx=(r*Math.cos(w.yaw)-f*Math.sin(w.yaw))*distance,dz=(-f*Math.cos(w.yaw)-r*Math.sin(w.yaw))*distance;
    // Small steps bound tunnelling through the narrowest supported blockers.
@@ -193,15 +199,9 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
    }
   }
   if(moving!==lastMoving.current){setMoving(moving);lastMoving.current=moving;}
-  camera.updateMatrixWorld();
-  // Aim when the view moves, and at least every 100 ms for things that drift
-  // under a still reticle: picking walks and raycasts the scene (H94).
-  const now=performance.now(),pose=camera.matrixWorld.elements,last=lastPick.current;
-  if(now-last.time>=100||pose.some((value,index)=>value!==last.pose[index])){
-   last.time=now;last.pose=[...pose];ray.setFromCamera({x:0,y:0},camera);
-   const target=pickWorldAim(ray,scene,{terrain:runtime.terrain,water:runtime.scene.water,time:runtime.time});
-   if(aim.current!==target){aim.current=target;setAim(target);}
-  }
+  // Third person aims after its boom is placed. Aiming from the eye would
+  // pick what the body looks at, not what the lens sees.
+  if(!(mode==='walk'&&person==='third'&&actor.current))settleAim();
   const a=actor.current,b=config.bounds;
   // A geometry/bounds edit may strand the existing pose. Report it instead of
   // silently teleporting; the host can offer the explicit Recall action.
@@ -210,7 +210,18 @@ function ViewController({runtime,mode,inhabiting,homeTick,setLocked,setMoving,se
   const look=mode==='free'?free.current:walk.current;
   probe.touch=touch?{stick:[stick.forward,stick.strafe],sprint:stick.sprint,looks:touch.looks.size,pad:{...touch.pad}}:null;
   probe.position=camera.position.toArray();probe.look={yaw:look.yaw,pitch:look.pitch};probe.cameraMode=mode;probe.runtime=runtime.snapshot();probe.backend=gl.backend.isWebGPUBackend?'WebGPU':'WebGL2';if(skipFrame.current||document.hidden){skipFrame.current=document.hidden;probe.skippedFrames=(probe.skippedFrames||0)+1;}else{probe.frames.push(dt*1000);if(probe.frames.length>1800)probe.frames.shift();}if(probe.firstFrameMs==null&&Number.isFinite(probe.activatedAt))probe.firstFrameMs=performance.now()-probe.activatedAt;probe.drawCalls=gl.info.render.drawCalls;probe.triangles=gl.info.render.triangles;gl.info.reset();
- },-0.5);return config.possession?<Maker actor={actor} terrain={runtime.terrain} walkable={walkable} firstPerson={mode==='walk'&&person==='first'} hideBody={hideBodyInFirstPerson}/>:null;
+ },-0.5);
+ // The pose publishes supportEye between these two passes.
+ useFrame((_,dt)=>{
+  if(mode!=='walk'||person!=='third')return;
+  const a=actor.current,w=walk.current;if(!a||!w)return;
+  const eyeY=supportEye.current??a.position[1]+a.eyeHeight;
+  const view=stepFollowCamera(follow.current,{eye:[a.position[0],eyeY,a.position[2]],yaw:w.yaw,pitch:w.pitch,...a.config.thirdPerson,ground:(x,z)=>runtime.terrain?.sample(x,z),blocked:(x,z,radius,feetY,height)=>runtime.blocked(x,z,radius,feetY,height),vertical:supportEye.current==null?'spring':'lock'},dt);
+  camera.position.set(...view.position);camera.lookAt(...view.focus);
+  probe.position=camera.position.toArray();probe.look={yaw:w.yaw,pitch:w.pitch};
+  settleAim();
+ },-0.3);
+ return config.possession?<Maker actor={actor} terrain={runtime.terrain} walkable={walkable} firstPerson={mode==='walk'&&person==='first'} hideBody={hideBodyInFirstPerson} supportEye={supportEye}/>:null;
 }
 // environment.grade (H77): the world's tone mapping while it is shown. Exposure is
 // environment.exposure, applied by EnvironmentLighting.

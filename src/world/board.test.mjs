@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {cardLayout,placeCards} from './board.mjs';
+import {boardPaintKey,cardLayout,placeCards} from './board.mjs';
+
+test('a fresh empty pin list does not change the painted board',()=>{
+ const board={page:0,title:'Hearth',theme:'linen'},card={id:'ref',kind:'image',file:'references/files/a.png',title:'Begin',notes:'A place',group:'Atmosphere',status:'exploring',page:0,layout:{x:30,y:115,w:385,h:385}};
+ assert.equal(boardPaintKey(board,[card],[]),boardPaintKey(board,[card],[]));
+ assert.notEqual(boardPaintKey(board,[card],[]),boardPaintKey(board,[{...card,title:'Changed'}],[]));
+ assert.notEqual(boardPaintKey(board,[card],[]),boardPaintKey(board,[card],['ref']));
+});
 
 test('cards added one at a time take distinct free slots instead of stacking',()=>{
  const refs=[{id:'cove',page:0,layout:{x:840,y:115,w:330,h:385}}];

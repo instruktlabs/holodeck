@@ -2,7 +2,7 @@ import React,{useEffect,useMemo,useRef,useState} from 'react';
 import * as THREE from 'three/webgpu';
 import {useWorldClient} from './client.js';
 import {useEditorDraft} from './world-drafts.jsx';
-import {BOARD_WIDTH,BOARD_HEIGHT,BOARD_THEMES,BOARD_PAGES,referenceKind,cardLayout,boardPage,boardStyle,placeCards} from './board.mjs';
+import {BOARD_WIDTH,BOARD_HEIGHT,BOARD_THEMES,BOARD_PAGES,referenceKind,cardLayout,boardPage,boardStyle,boardPaintKey,placeCards} from './board.mjs';
 import {ImageStudio} from './image-studio.jsx';
 import {readZip,planPack,categorySuggestions} from './reference-pack.mjs';
 export const referenceUrl=(r,scopedUrl=value=>value)=>scopedUrl(`/api/references/${r.file.split('/').at(-1)}`);
@@ -99,6 +99,7 @@ export function MoodBoard({model,board,references,pins,select}){
   const object=useMemo(()=>{const clone=model.scene.clone(true);clone.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true;m.userData={...m.userData,target:'moodboard'};}});return clone;},[model]);
   const texture=useMemo(()=>{const canvas=document.createElement('canvas');canvas.width=2400;canvas.height=1440;const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;},[]);
   useEffect(()=>()=>texture.dispose(),[texture]);
+  const paintKey=boardPaintKey(board,references,pins);
   useEffect(()=>{
     let canceled=false;const style=boardStyle(board),c=BOARD_THEMES[style.theme],visible=references.map((r,i)=>({...r,layout:cardLayout(r,i),page:boardPage(r,i)})).filter(r=>r.page===board.page);
     const draw=images=>{if(canceled)return;const ctx=texture.image.getContext('2d');ctx.setTransform(2,0,0,2,0,0);ctx.fillStyle=c.background;ctx.fillRect(0,0,1200,720);ctx.fillStyle=c.ink;ctx.font='30px Georgia';ctx.fillText(style.title.slice(0,65),30,47);ctx.font='13px sans-serif';ctx.fillStyle=c.muted;ctx.fillText(`SHEET ${board.page+1}   /   ${visible.length} IDEAS   /   SELECT TO EDIT`,32,75);
@@ -108,7 +109,12 @@ export function MoodBoard({model,board,references,pins,select}){
         ctx.fillStyle=c.ink;ctx.font='22px Georgia';lines(ctx,r.title,x+16,ty,w-32,26,2);ty+=r.title.length>w/11?55:32;ctx.font='15px sans-serif';lines(ctx,r.notes,x+16,ty,w-32,22,Math.max(0,Math.floor((y+h-ty-8)/22)));ctx.restore();
       }texture.needsUpdate=true;
     };
-    draw(new Map());Promise.all(visible.filter(r=>referenceKind(r)==='image').map(r=>new Promise(resolve=>{const image=new Image();image.onload=()=>resolve([r.id,image]);image.onerror=()=>resolve([r.id,null]);image.src=referenceUrl(r,scopedUrl);}))).then(entries=>draw(new Map(entries)));return()=>{canceled=true;};
-  },[texture,references,pins,board]);
+    // Paint once the pictures are ready. Clearing first made every parent render
+    // blank the board and load the same images again.
+    const pictures=visible.filter(r=>referenceKind(r)==='image');
+    if(!pictures.length)draw(new Map());
+    else Promise.all(pictures.map(r=>new Promise(resolve=>{const image=new Image();image.onload=()=>resolve([r.id,image]);image.onerror=()=>resolve([r.id,null]);image.src=referenceUrl(r,scopedUrl);}))).then(entries=>{if(!canceled)draw(new Map(entries));});
+    return()=>{canceled=true;};
+  },[texture,paintKey,scopedUrl]);
   return <group position={board.position} rotation={board.rotation} onClick={e=>{e.stopPropagation();select('moodboard');}}><primitive object={object} dispose={null}/><mesh position={[.081,1.72,0]} rotation={[0,Math.PI/2,0]} userData={{target:'moodboard'}} receiveShadow><planeGeometry args={[2.48,1.45]}/><meshStandardMaterial map={texture} roughness={.9} emissive="#ffffff" emissiveMap={texture} emissiveIntensity={.28}/></mesh></group>;
 }

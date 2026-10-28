@@ -5,7 +5,8 @@ import {MAKER_LIMBS} from './maker-model.mjs';
 // Procedural Maker animation. Three layers (ground, air, swim) each produce a
 // full local pose; they blend by quaternion slerp, then look, blink and cloth
 // are layered on top. The controller's actor record is read, never written:
-// feet, pelvis and cloth are visual and never move collision or cameras.
+// feet, pelvis and cloth are visual and never move collision. The third-person
+// boom reads visualEye, which is the eased support height plus the eased eye.
 const clamp=(n,min,max)=>Math.max(min,Math.min(max,n)),TAU=Math.PI*2,UP=[0,1,0];
 const lerp=(a,b,t)=>a+(b-a)*t,smooth=t=>t*t*(3-2*t);
 const ramp=(a,b,v)=>smooth(clamp((v-a)/(b-a),0,1));
@@ -28,7 +29,7 @@ export const createMakerMotion=()=>({
  actor:null,facingYaw:null,turnSpeed:0,previousPosition:[0,0,0],previousVelocity:[0,0],previousMode:'grounded',previousVertical:0,
  time:0,phase:0,lastPhase:0,airTime:0,airLead:1,airSpeed:0,airVertical:0,swimPhase:0,treadPhase:0,moving:false,
  speed:scalar(),run:scalar(),warm:scalar(),travel:spring2.create([0,0]),accel:scalar(),turn:scalar(),wade:scalar(),air:scalar(),swim:scalar(),crawl:scalar(),
- leanForward:scalar(),leanSide:scalar(),reach:spring.create(PELVIS),land:scalar(),rise:scalar(),climb:scalar(),
+ leanForward:scalar(),leanSide:scalar(),reach:spring.create(0),land:scalar(),rise:scalar(),climb:scalar(),eye:spring.create(1.72),visualEye:0,
  lookYaw:scalar(),lookPitch:scalar(),blink:{next:2.2,start:-1},
  cloth:{backPitch:scalar(),backRoll:scalar(),frontPitch:scalar(),frontRoll:scalar(),tie1:scalar(),tie1Roll:scalar(),tie2:scalar(),tie3:scalar(),side1:scalar(),side2:scalar()},
  feet:{left:footState(),right:footState()},
@@ -237,23 +238,37 @@ function groundPose(pose,context,g,dt){
  // Pelvis: crouch with speed, a bob twice per cycle (high mid-stance walking,
  // low mid-stance running), sway toward the support foot, and idle weight shifts.
  const breath=Math.sin(t*TAU/4.4),shift=Math.sin(t*.53)*Math.sin(t*.19+1),stance=g.duty/2;
- const bob=Math.cos(2*TAU*(m.phase-stance))*lerp(.017,-.026,run)*move;
+ // The default walk is already a jog, so the gait blend is the run. A run-sized
+ // hip bounce at that cadence reversed every step. The bounce stays a shallow
+ // walk until the speed is actually a sprint.
+ const bob=Math.cos(2*TAU*(m.phase-stance))*lerp(.01,-.016,ramp(3.1,4.4,m.speed.value))*move;
  const crouch=lerp(.022,lerp(.03+.01*g.v,.034+.007*g.v,run),move)+.05*wade;
  const base=PELVIS-crouch+bob+.003*breath*idle;
  pose.p[0]=(-Math.sin(phase)*lerp(.022,.008,run)*move+shift*.022*idle);pose.p[2]=0;
- // Reach: never ask a supporting leg for more than it has.
+ // Reach: never ask a supporting leg for more than it has. The limit uses the sole's
+ // contact, not the ankle: swing clearance and the heel/toe roll lift the ankle
+ // several centimetres and were pulling the hips up, then dumping them at the plant.
  const cy=Math.cos(m.facingYaw),sy=Math.sin(m.facingYaw);let reach=base;
  for(const [name,side] of SIDES){
-  const foot=m.feet[name];if(foot.swing&&foot.t<.85)continue;
+  const foot=m.feet[name];
+  // A step fades in over its last 15% and out across the end of stance, so the
+  // lower bound eases from one foot to the other instead of switching in a frame.
+  let influence=1;
+  if(foot.swing){if(foot.timed||foot.t<.85)continue;influence=smooth((foot.t-.85)/.15);}
+  else if(m.moving)influence=1-ramp(g.duty*.72,Math.max(g.duty*.72+.04,g.duty),(m.phase+(side<0?0:.5))%1);
+  if(influence<=0)continue;
   const dx=foot.target[0]-actor.position[0],dz=foot.target[2]-actor.position[2],lx=cy*dx-sy*dz-side*HIP-pose.p[0],lz=sy*dx+cy*dz,horizontal=Math.hypot(lx,lz);
-  const late=m.moving&&!foot.swing&&(m.phase+(side<0?0:.5))%1>g.duty*.72;if(late)continue;
-  // A foot near full stretch is about to lift: it lets go of the pelvis gradually rather than pulling it into a squat.
-  const hold=1-ramp(.55,.75,horizontal);reach=Math.min(reach,lerp(base,foot.target[1]-root[1]+Math.sqrt(Math.max(.2,(LEG*SOFT_REACH)**2-horizontal*horizontal)),hold));
+  const contact=foot.swing?foot.land.value+ANKLE:foot.anchor[1],vertical=Math.sqrt(Math.max(0,(LEG*SOFT_REACH)**2-horizontal*horizontal));
+  const hold=1-ramp(.55,.75,horizontal);reach=Math.min(reach,lerp(base,contact-root[1]+vertical,hold*influence));
  }
- // The pelvis sinks for a stretched leg no faster than about a metre a second.
- const sink=m.reach.value-dt;spring.update(m.reach,reach,.08,1,dt);if(m.reach.value<sink){m.reach.value=sink;m.reach.velocity=Math.max(m.reach.velocity,-1);}
- if(context.reset){m.reach.value=reach;m.reach.velocity=0;}const limit=m.reach.value;
- pose.p[1]=Math.min(base,limit)+m.land.value;
+ // The gait height is already a cosine. Springing it made every reversal a
+ // velocity kick. Only the extra crouch for a stretched leg is filtered, and it
+ // cannot add height back.
+ const dip=Math.min(0,reach-base),sink=m.reach.value-dt;
+ spring.update(m.reach,dip,.16,1,dt);
+ if(m.reach.value<sink){m.reach.value=sink;m.reach.velocity=Math.max(m.reach.velocity,-1);}
+ if(context.reset){m.reach.value=dip;m.reach.velocity=0;}
+ pose.p[1]=base+Math.min(0,m.reach.value)+m.land.value;
  // Torso: pelvis yaw follows the swinging leg, the chest counters it, the head stays level.
  const yawAmp=lerp(.07,.12,run)*move*(1+.6*wade),roll=-Math.sin(phase)*lerp(.05,.025,run)*move;
  const lean=m.leanForward.value,side=m.leanSide.value;
@@ -417,20 +432,34 @@ export function updateMakerPose(model,current,terrain,motion,seconds,walkable=nu
  const jump=current.position.map((v,i)=>v-m.previousPosition[i]),reset=m.actor!==current||Math.hypot(jump[0],jump[2])>1||Math.abs(jump[1])>.6+Math.abs(current.verticalVelocity??0)*dt;
  if(reset){
   m.facingYaw=current.yaw;m.turnSpeed=0;m.previousVelocity[0]=current.velocity?.[0]??0;m.previousVelocity[1]=current.velocity?.[2]??0;m.lastPhase=current.gaitPhase??0;m.phase=0;
-  for(const key of ['speed','run','warm','accel','turn','wade','air','swim','crawl','leanForward','leanSide','land','rise','lookYaw','lookPitch'])Object.assign(m[key],{value:0,velocity:0});
+  for(const key of ['speed','run','warm','accel','turn','wade','air','swim','crawl','leanForward','leanSide','reach','land','rise','lookYaw','lookPitch'])Object.assign(m[key],{value:0,velocity:0});
   m.swim.value=current.mode==='swimming'?1:0;m.air.value=current.mode==='airborne'?1:0;m.previousMode=current.mode;
   for(const foot of Object.values(m.feet)){foot.planted=false;foot.initialized=false;foot.swing=false;foot.timed=false;foot.carried=false;foot.lifted=true;}
  }
- // The controller lifts or drops its feet anchor a whole tread or collider top in one
- // frame. The visible body follows the smoothed climb rate instead, so a slope is
- // tracked exactly, a stair becomes a ramp and a lone step eases up or down.
+ // The feet anchor sits on the heightfield, so its height kinks on triangle edges
+ // and steps a whole tread at once. Climb tracks the slope the feet also look
+ // ahead with. Motion that matches it is followed exactly. A sharper change is
+ // left in rise and eased; the old allowance let a several-degree crease through
+ // in one frame, which read as a tick. A stale slope must not keep pushing that
+ // ease past the ground: at a crest it held the body several centimetres high
+ // until climb caught up. Climb is not cleared on a tread: the stepping foot
+ // uses it to find the next step up.
+ const along=Math.hypot(jump[0],jump[2]);
  if(!reset&&dt>0&&current.mode!=='airborne'&&m.previousMode!=='airborne'){
-  const expected=m.climb.value*dt,allow=.15*Math.hypot(jump[0],jump[2])+.002;
-  m.rise.value-=jump[1]-clamp(jump[1],expected-allow,expected+allow);spring.update(m.climb,jump[1]/dt,.2,1,dt);
+  const expected=m.climb.value*dt,allow=.0015+.01*along,followed=clamp(jump[1],expected-allow,expected+allow);
+  const next=m.rise.value-(jump[1]-followed);
+  // A real tread is a bigger step than the slope we believed, and has to be absorbed.
+  // A crest is the opposite: the slope was steeper than the ground, and following
+  // it would lift the body off the surface it has already reached.
+  const milder=Math.abs(jump[1])<Math.abs(expected)-allow,floats=milder&&((next>0&&next>m.rise.value)||(next<0&&next<m.rise.value));
+  if(!floats)m.rise.value=next;spring.update(m.climb,jump[1]/dt,.2,1,dt);
  }else{m.climb.value=0;m.climb.velocity=0;}
- // While climbing the body never rises above the feet anchor, nor sinks below it descending.
- spring.update(m.rise,0,.12,1,dt);m.rise.value=clamp(m.rise.value,m.climb.value<0?0:-.4,m.climb.value>0?0:.4);
+ spring.update(m.rise,0,.12,1,dt);m.rise.value=clamp(m.rise.value,-.4,.4);
+ // Eye height changes with swimming. It eases on its own so a stroke does not
+ // drop the view by the whole standing-to-swim difference in one frame.
+ if(reset){m.eye.value=current.eyeHeight;m.eye.velocity=0;}else spring.update(m.eye,current.eyeHeight,.14,1,dt);
  const root=[current.position[0],current.position[1]+m.rise.value,current.position[2]];
+ m.visualEye=root[1]+m.eye.value;
  m.actor=current;for(let i=0;i<3;i++)m.previousPosition[i]=current.position[i];m.time+=dt;
  const vx=current.velocity?.[0]??0,vz=current.velocity?.[2]??0,speed=Math.hypot(vx,vz),previousYaw=m.facingYaw;
  // Facing: first person follows the camera; third person turns toward travel at a bounded rate.
