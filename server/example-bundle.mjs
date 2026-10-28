@@ -1,16 +1,15 @@
-import {readFile,writeFile,mkdir,readdir,lstat,realpath,cp,unlink} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,readdir,lstat,realpath,unlink} from 'node:fs/promises';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {readRevisionBundle} from './history.mjs';
 import {SKILLS_GUIDE,KILN_GUIDE} from './world-guide.mjs';
+import {installWorldSkills} from './world-skills.mjs';
 import {validateWorld,validateGlb,MAX_ASSET_BYTES} from '../src/world/contract.mjs';
 import {placedSourceTriangles,MAX_ASSETS,MAX_PLACED_TRIANGLES} from '../src/world/asset-budget.mjs';
 import {terrainTextureFiles,checkTerrainTextures,renameTerrainTextures,pngInfo,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
 import {HEIGHTMAP_LIMITS} from '../src/world/terrain.mjs';
 import {heightmapOf,admitHeight,heightBlob,HEIGHT_FILE_BYTES} from './terrain-heights.mjs';
 
-const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const hashPattern=/^[a-f0-9]{64}$/;
 const MAX_PREVIEW_BYTES=8*1024*1024;
@@ -177,7 +176,7 @@ export async function installExampleBundle(directory,destination){
  for(const asset of Object.values(assets)){if(copied.has(asset.file))continue;await writeFile(path.join(output,asset.file),asset.bytes,{flag:'wx'});copied.add(asset.file);}
  for(const [file,texture] of Object.entries(textures))await writeFile(path.join(output,file),texture.content,{flag:'wx'});
  if(height)await writeFile(path.join(output,height.file),height.content,{flag:'wx'});
- await cp(path.join(packageRoot,'skills'),path.join(output,'.agents/skills'),{recursive:true});
+ await installWorldSkills(output,world);
  await writeFile(path.join(output,'AGENTS.md'),`# Holodeck example workspace\n\nUse the installed Holodeck skills and world_read/world_propose. ${SKILLS_GUIDE} This is a new editable revision history. Exact GLBs and public scene guidance came from a validated local example bundle; sessions, reference attachments and source authoring files were not copied. Never edit installed packages.\n${KILN_GUIDE}\n`,{flag:'wx'});
  if(previewBytes)await writeFile(path.join(output,'EXAMPLE-preview.png'),previewBytes,{flag:'wx'});
  await writeFile(path.join(output,'EXAMPLE.json'),JSON.stringify({format:'holodeck-example-install-v1',id:manifest.id,integrity:manifest.integrity,sourceRevision:manifest.sourceRevision,...(manifest.preview?{preview:{...manifest.preview,file:'EXAMPLE-preview.png'}}:{})},null,2)+'\n',{flag:'wx'});

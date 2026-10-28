@@ -1,14 +1,13 @@
-import {readFile,readdir,stat,realpath,mkdir,writeFile,cp,unlink} from 'node:fs/promises';
+import {readFile,readdir,stat,realpath,mkdir,writeFile,unlink} from 'node:fs/promises';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {validateWorld,validateGlb,MAX_ASSET_BYTES} from '../src/world/contract.mjs';
 import {SKILLS_GUIDE,KILN_GUIDE} from './world-guide.mjs';
+import {installWorldSkills} from './world-skills.mjs';
 import {terrainTextureFiles,checkTerrainTextures,pngInfo,renameTerrainTextures,TERRAIN_LAYER_LIMITS} from '../src/world/terrain-layers.mjs';
 import {heightSamples} from '../src/world/terrain.mjs';
 import {heightmapOf,admitHeight,heightBlob,HEIGHT_FILE_BYTES} from './terrain-heights.mjs';
 
-const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const revisionId=value=>{if(!Number.isSafeInteger(value)||value<0)throw new Error('Choose a non-negative integer revision');return value;};
 async function containedBytes(root,file,limit){
@@ -150,7 +149,7 @@ export async function remixRevision(root,revision,destination){
   copiedReferences.add(reference.file);
  }
  await writeFile(path.join(output,'world/world.json'),JSON.stringify(world,null,2)+'\n');
- await cp(path.join(packageRoot,'skills'),path.join(output,'.agents/skills'),{recursive:true});
+ await installWorldSkills(output,world);
  await writeFile(path.join(output,'AGENTS.md'),`# Remixed Holodeck world\n\nUse the installed Holodeck skills and world_read/world_propose. ${SKILLS_GUIDE} This scene starts a new revision history. Imported assets retain exact saved bytes and source provenance; their external Kiln library and unversioned source files are not copied. Never edit installed engine packages.\n${KILN_GUIDE}\n`);
  await writeFile(path.join(output,'REMIX.json'),JSON.stringify({format:'holodeck-remix-v1',sourceRevision:bundle.world.revision,title:world.bible.title,assets:bundle.assets,...(bundle.textures?{textures:bundle.textures}:{}),...(bundle.height?{height:bundle.height}:{}),includes:'Scene, bible, board references, pinned GLBs, terrain textures and terrain height samples. No agent sessions, credentials, external Kiln library or unversioned source.'},null,2)+'\n');
  await unlink(path.join(output,'REMIX-INCOMPLETE.txt'));

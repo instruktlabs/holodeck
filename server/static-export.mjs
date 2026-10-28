@@ -104,7 +104,7 @@ export async function exportStaticWorld(root,{out,revision,page}={}){
  }
  if(receipt.world.schemaVersion!==2)throw new Error('Static export currently requires a schema v2 world with a registered runtime.');
  const world=structuredClone(receipt.world),scene=world.scene;
- world.bible={title:'Holodeck world',intent:'',rules:''};world.references=[];delete scene.moodboard;
+ world.bible={title:'Holodeck world',intent:'',rules:''};world.references=[];delete scene.moodboard;delete scene.destinations;
  const needed=new Set([scene.origin,...scene.objects.map(o=>o.asset).filter(Boolean),...(scene.scatters||[]).flatMap(s=>s.variants.map(v=>v.asset))]),assets={},blobs=new Map();
  scene.assets=scene.assets.filter(asset=>needed.has(asset.id)).map(asset=>{
   const hash=receipt.assets[asset.id].hash,file=`assets/imports/${hash}.glb`,provenance=publicProvenance(asset.provenance);

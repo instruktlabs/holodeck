@@ -225,6 +225,15 @@ review and performance evidence are distinct results.
 
 Public skills contain general principles and independently written requirements.
 Private research is not a package input. See [distribution](distribution.md).
+Core skills are installed in every world. Optional skills, listed only in
+`src/world/optional-skills.mjs`, install in a schema v2 world whose
+`scene.destinations` names their destination (`unity` installs
+`holodeck-export-unity`); an unknown destination fails validation. The host
+syncs them when a world is created, on each agent connection and when an accepted
+revision changes the list, and removes a skill whose destination was dropped; the
+Claude Code session plugin leaves out undeclared ones. Destinations change no
+scene, runtime or static export behavior. The Unity skill describes a
+project-owned adapter; Holodeck ships no Unity exporter.
 
 Agent connections remain product-specific sessions. Codex uses the installed
 app-server with native login. Cursor uses the installed `agent acp` process

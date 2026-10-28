@@ -12,6 +12,8 @@ async function fixture(t,layout){
   const app=path.join(directory,'consumer app'),host=path.join(app,'node_modules/@instruktlabs/holodeck'),world=path.join(directory,'my world'),module=path.join(host,'server/kiln-workspace.mjs');
   await mkdir(path.dirname(module),{recursive:true});await mkdir(world);
   await writeFile(module,await readFile(new URL('./kiln-workspace.mjs',import.meta.url)));
+  // The adapter's one relative import: the dependency-free optional skill registry.
+  await mkdir(path.join(host,'src/world'),{recursive:true});await writeFile(path.join(host,'src/world/optional-skills.mjs'),await readFile(new URL('../src/world/optional-skills.mjs',import.meta.url)));
   if(layout){
     const kiln=path.join(layout==='nested'?host:app,'node_modules/@instruktlabs/kiln');
     await mkdir(path.join(kiln,'lib'),{recursive:true});await mkdir(path.join(kiln,'scripts'));
@@ -109,6 +111,21 @@ test('the session skills plugin copies installed world skills once, without the 
   await rm(path.join(world,'.claude/skills'),{recursive:true});
   assert.deepEqual((await adapter.worldSkillsPlugin(world,out)).skills,['holodeck-author-world','kiln-author-asset']);
   assert.equal(await readFile(path.join(out,'skills/kiln-author-asset/SKILL.md'),'utf8'),'kiln registry copy','a rebuild replaces the previous copy');
+});
+
+test('the session plugin loads an optional skill only while the world declares its destination',async t=>{
+  const {world,adapter}=await fixture(t),out=path.join(world,'..','plugin');
+  t.after(()=>rm(out,{recursive:true,force:true}));
+  for(const name of ['holodeck-author-world','holodeck-export-unity']){await mkdir(path.join(world,'.agents/skills',name),{recursive:true});await writeFile(path.join(world,'.agents/skills',name,'SKILL.md'),name);}
+  await mkdir(path.join(world,'skills/kiln-compose-scene'),{recursive:true});await writeFile(path.join(world,'skills/kiln-compose-scene/SKILL.md'),'compose');
+  const scene=destinations=>({schemaVersion:2,scene:{...(destinations?{destinations}:{})}});
+  assert.deepEqual((await adapter.worldSkillsPlugin(world,out)).skills,['holodeck-author-world'],'no world document enables nothing');
+  await mkdir(path.join(world,'world'));await writeFile(path.join(world,'world/world.json'),JSON.stringify(scene(['unity'])));
+  assert.deepEqual((await adapter.worldSkillsPlugin(world,out)).skills,['holodeck-author-world','holodeck-export-unity'],'read from world/world.json by default');
+  assert.deepEqual((await adapter.worldSkillsPlugin(world,out,{world:scene()})).skills,['holodeck-author-world'],'a stale copy stays out once the destination is removed');
+  await assert.rejects(readFile(path.join(out,'skills/holodeck-export-unity/SKILL.md')),{code:'ENOENT'});
+  assert.deepEqual((await adapter.worldSkillsPlugin(world,out,{world:scene(['unity'])})).skills,['holodeck-author-world','holodeck-export-unity']);
+  assert.deepEqual((await adapter.worldSkillsPlugin(world,out,{world:{schemaVersion:1,scene:{destinations:['unity']}}})).skills,['holodeck-author-world'],'schema v1 has no destinations');
 });
 
 test('an existing workspace keeps its setup manifest without resolving or invoking Kiln again',async t=>{

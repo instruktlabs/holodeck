@@ -270,7 +270,7 @@ export class ClaudeAgent extends EventEmitter{
     await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(file,()=>{server.off('error',reject);resolve();});});
     this.bridge={server,file};
   }
-  async writePlugin(){this.plugin=this.configDir?await worldSkillsPlugin(this.store.root,path.join(this.configDir,'plugin')):null;}
+  async writePlugin(){this.plugin=this.configDir?await worldSkillsPlugin(this.store.root,path.join(this.configDir,'plugin'),{world:this.store.current}):null;}
   async writeMcpConfig(){
     const kiln=await kilnServer(this.store.root);
     const mcpServers={[SERVER]:{type:'stdio',command:process.execPath,args:[BRIDGE],env:{HOLODECK_BRIDGE_PIPE:this.bridge.file,HOLODECK_BRIDGE_TOKEN:this.token}},...(kiln?{kiln_workspace:{type:'stdio',...kiln}}:{})};
