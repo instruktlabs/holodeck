@@ -1,14 +1,15 @@
 import {test,before,after} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,readFile,readdir,rm,stat} from 'node:fs/promises';
+import {cp,mkdir,mkdtemp,readFile,readdir,rm,stat,writeFile} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
-import {renderSite,imageSize,PAGES,SITE_URL} from '../scripts/render-site.mjs';
+import {renderSite,imageSize,videoInfo,readLab,LAB,MAX_LAB_VIDEO_BYTES,PAGES,SITE_URL} from '../scripts/render-site.mjs';
 import {buildSite} from '../scripts/build-site.mjs';
+import {mp4} from '../test/fixtures/mp4.mjs';
 
 const site=fileURLToPath(new URL('../site/',import.meta.url));
 // The deployable site, built once from the bundled examples as CI builds it.
@@ -65,12 +66,14 @@ test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
 
 test('long-lived caching covers only content-hashed scene files, and every page gets the security headers',async()=>{
  const rules=(await readFile(path.join(site,'_headers'),'utf8')).split(/\n(?=\S)/).filter(block=>block.startsWith('/')).map(block=>{const [route,...lines]=block.trim().split('\n');return {route,headers:Object.fromEntries(lines.map(line=>line.trim().split(/:\s*/,2)))};});
- assert.deepEqual(rules.map(rule=>rule.route),['/*','/worlds/:world/assets/*']);
+ assert.deepEqual(rules.map(rule=>rule.route),['/*','/worlds/:world/assets/*','/lab/:entry/play/assets/*']);
  for(const name of ['X-Content-Type-Options','Referrer-Policy','Content-Security-Policy','X-Frame-Options','Permissions-Policy'])assert.ok(rules[0].headers[name],name);
  assert.doesNotMatch(rules[0].headers['Content-Security-Policy'],/script-src|default-src/,'no script policy that could break the viewer');
- assert.match(rules[1].headers['Cache-Control'],/immutable/);
+ for(const rule of rules.slice(1))assert.match(rule.headers['Cache-Control'],/immutable/);
  const cached=(await readdir(path.join(built,'worlds'),{recursive:true})).map(name=>name.replaceAll('\\','/')).filter(name=>/^[^/]+\/assets\/.+\.\w+$/.test(name));
  assert.ok(cached.length>100);
+ const lab=await readdir(path.join(built,'lab'),{recursive:true}).catch(()=>[]);
+ cached.push(...lab.map(name=>name.replaceAll('\\','/')).filter(name=>/^[^/]+\/play\/assets\/.+\.\w+$/.test(name)));
  for(const name of cached)assert.match(name,/\/(?:[0-9a-f]{64}\.(?:glb|png|r32)|index-[\w-]{8}\.(?:js|css))$/,`${name} would be cached forever without a content hash`);
 });
 
@@ -140,6 +143,10 @@ test('sitemap dates are not older than the git history of each page',async t=>{
  const sources={'':['site/index.html','site/scenes.json','site/images'],'about/':['site/about']};
  const pages=[...PAGES.map(page=>({...page,paths:sources[page.path]})),...scenes.map(scene=>({path:scene.path,updated:scene.updated,
   paths:[`examples/${scene.example}`,`examples/${scene.example}.json`,`site/cards/${scene.id}.jpg`,...(scene.example==='construct'?['assets/cove']:[])]}))];
+ // The Lab's index is rendered from its catalog; an entry's page from its folder and, when it plays, its example.
+ const lab=await readLab(site);
+ if(lab)pages.push({...LAB,paths:['site/lab.json','site/lab/index.html']},...lab.map(entry=>({path:entry.path,updated:entry.updated,
+  paths:[`site/${entry.path}`,...(entry.scene?[`examples/${entry.scene.example}`,`examples/${entry.scene.example}.json`]:[])]})));
  for(const page of pages){
   assert.ok(page.paths,`/${page.path} has no source paths to check`);
   const changed=await newest(page.paths);if(changed)assert.ok(page.updated>=changed,`/${page.path} lastmod ${page.updated} is older than its last change on ${changed}; update it`);
@@ -156,4 +163,82 @@ test('llms.txt names every scene at its canonical URL and links only over https'
  }
  for(const link of links)assert.match(link,/^https:\/\//,`${link} is not an absolute https URL`);
  assert.ok(links.includes(new URL('about/',SITE_URL).href));
+});
+
+// The Lab: experimental entries, off the shelf, each with its engines' videos side by side.
+test('the Lab is linked from the footers and kept off the shelf, its hero, its Scenes menu and llms.txt\'s scene list',async()=>{
+ const lab=await readLab(site);if(!lab)return;
+ const html=await readFile(path.join(site,'index.html'),'utf8'),text=await readFile(path.join(built,'llms.txt'),'utf8');
+ assert.match(html,/<footer>[\s\S]*<a href="lab\/">Lab<\/a>[\s\S]*<\/footer>/);
+ assert.match(await readFile(path.join(site,'about/index.html'),'utf8'),/<footer>[\s\S]*<a href="\/lab\/">Lab<\/a>[\s\S]*<\/footer>/);
+ const shelf=html.replace(/<footer>[\s\S]*<\/footer>/,'');assert.doesNotMatch(shelf,/href="\/?lab\//,'the shelf above the footer links into the Lab');
+ const scenes=text.slice(text.indexOf('## Scenes'),text.indexOf('## Use and build'));assert.doesNotMatch(scenes,/\/lab\//);
+ assert.ok(text.includes(`- [Lab (experimental)](${new URL(LAB.path,SITE_URL).href}):`));
+ for(const entry of lab)assert.ok(!text.includes(new URL(entry.path,SITE_URL).href),`llms.txt lists ${entry.path}`);
+ const sitemap=await readFile(path.join(site,'sitemap.xml'),'utf8');
+ for(const page of [LAB,...lab])assert.ok(sitemap.includes(`<loc>${new URL(page.path,SITE_URL).href}</loc><lastmod>${page.updated}</lastmod>`),page.path);
+});
+
+test('each Lab page is self-canonical, and an entry shows its videos side by side with a status note and, when it plays, its export',async()=>{
+ const lab=await readLab(site);if(!lab)return;
+ const pages=[[LAB.path,await readFile(path.join(built,'lab/index.html'),'utf8')]];
+ for(const entry of lab)pages.push([entry.path,await readFile(path.join(built,entry.path,'index.html'),'utf8')]);
+ for(const [page,html] of pages){
+  const url=new URL(page,SITE_URL).href;
+  assert.ok(html.includes(`<link rel="canonical" href="${url}">`),page);assert.ok(html.includes(`<meta property="og:url" content="${url}">`),page);
+  const card=html.match(/<meta property="og:image" content="([^"]+)">/)[1];assert.ok(card.startsWith(SITE_URL),page);
+  assert.deepEqual(imageSize(await readFile(path.join(built,card.slice(SITE_URL.length)))),{width:1200,height:630});
+  assert.equal(ldBlocks(html)[0].url,url);assert.match(html,/<p class="eyebrow">[^<]*(<a href="\/lab\/">Lab<\/a>|Lab) · experimental<\/p>/);
+  for(const [,ref] of html.matchAll(/\s(?:src|href|poster)="(\/[^"#]*)"/g))assert.ok(await exists(path.join(built,ref.endsWith('/')?`${ref}index.html`:ref)),`${page} links a missing ${ref}`);
+  for(const tag of html.match(/<(script|link|img|video|source)\b[^>]*>/g))for(const name of ['src','href','poster'])if(/^https?:/.test(attr(tag,name)||''))assert.ok(/rel="canonical"/.test(tag),`External resource ${tag}`);
+ }
+ const index=pages[0][1];
+ assert.deepEqual([...index.matchAll(/<article class="lab-entry" id="lab-([a-z0-9-]+)">/g)].map(m=>m[1]),lab.map(entry=>entry.id));
+ for(const [i,entry] of lab.entries()){
+  const html=pages[i+1][1],videos=[...html.matchAll(/<figure class="lab-video">\s*(<video\b[^>]*>)<source src="([^"]+)" type="video\/mp4">/g)];
+  assert.match(html,new RegExp(`<p class="lab-status" role="note"><strong>Status</strong> ${entry.status.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}</p>`));
+  assert.equal(videos.length,entry.videos.length);assert.ok(videos.length>=2);
+  for(const [j,[,tag,src]] of videos.entries()){
+   const video=entry.videos[j];
+   for(const flag of ['controls','muted','playsinline'])assert.match(tag,new RegExp(`\\s${flag}[\\s>]`),`${entry.id} ${video.engine} video lacks ${flag}`);
+   assert.equal(src,`/${video.mp4}`);assert.equal(attr(tag,'poster'),`/${video.poster}`);assert.equal(attr(tag,'preload'),'none');
+   assert.deepEqual([Number(attr(tag,'width')),Number(attr(tag,'height'))],[video.width,video.height]);
+   const bytes=await readFile(path.join(built,video.mp4)),info=videoInfo(bytes);
+   assert.ok(bytes.length<=MAX_LAB_VIDEO_BYTES);assert.equal(info.codec,'avc1');assert.ok(info.faststart);
+   assert.deepEqual(imageSize(await readFile(path.join(built,video.poster))),{width:video.width,height:video.height});
+  }
+  const play=path.join(built,entry.path,'play');
+  if(!entry.scene){await assert.rejects(stat(play),{code:'ENOENT'});assert.doesNotMatch(html,/\/play\//);continue;}
+  const url=new URL(`${entry.path}play/`,SITE_URL).href,exported=await readFile(path.join(play,'index.html'),'utf8');
+  assert.ok(exported.includes(`<link rel="canonical" href="${url}">`));assert.match(exported,/<title>[^<]*\(Lab, experimental\)[^<]*<\/title>/);
+  assert.deepEqual(await readFile(path.join(play,'preview.jpg')),await readFile(path.join(site,entry.path,'card.jpg')));
+  const manifest=JSON.parse(await readFile(path.join(play,'manifest.json'),'utf8'));
+  for(const file of manifest.files)assert.equal(digest(await readFile(path.join(play,file.file))),file.sha256,`${entry.path}play/${file.file}`);
+ }
+});
+
+test('a Lab entry needs H.264 videos of their listed size with matching posters, and nothing unlisted in its folder',async t=>{
+ assert.deepEqual(videoInfo(mp4({width:1920,height:1080})),{codec:'avc1',width:1920,height:1080,faststart:true});
+ assert.equal(videoInfo(mp4({codec:'hvc1'})).codec,'hvc1');assert.equal(videoInfo(mp4({faststart:false})).faststart,false);
+ assert.throws(()=>videoInfo(Buffer.from('not a video at all')),/MP4/);
+ const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-lab-test-')),folder=path.join(root,'lab/demo');t.after(()=>rm(root,{recursive:true,force:true}));
+ await mkdir(folder,{recursive:true});
+ const card=await readFile(path.join(site,'images/card.jpg')),jpeg=Buffer.from(card);
+ // A JPEG's size is in its frame header; the poster reuses the card's bytes with that header set to 1280×720.
+ const sof=[...jpeg.keys()].find(i=>jpeg[i]===0xff&&jpeg[i+1]>=0xc0&&jpeg[i+1]<=0xc2);jpeg.writeUInt16BE(720,sof+5);jpeg.writeUInt16BE(1280,sof+7);
+ await writeFile(path.join(folder,'card.jpg'),card);
+ for(const name of ['a','b']){await writeFile(path.join(folder,`${name}.mp4`),mp4());await writeFile(path.join(folder,`${name}.jpg`),jpeg);}
+ const video=name=>({engine:name.toUpperCase(),mp4:`lab/demo/${name}.mp4`,poster:`lab/demo/${name}.jpg`,width:1280,height:720});
+ const entry={id:'demo',title:'Demo',blurb:'A demo entry.',status:'In progress.',updated:'2026-10-27',cardAlt:'A demo card.',videos:[video('a'),video('b')]};
+ const write=value=>writeFile(path.join(root,'lab.json'),JSON.stringify([value]));
+ await write(entry);assert.equal((await readLab(root))[0].path,'lab/demo/');
+ await write({...entry,videos:[video('a')]});await assert.rejects(readLab(root),/two or more videos/);
+ await write({...entry,videos:[video('a'),{...video('b'),width:1920}]});await assert.rejects(readLab(root),/is 1280×720, not the listed 1920×720/);
+ await write({...entry,videos:[video('a'),{...video('b'),mp4:'images/b.mp4'}]});await assert.rejects(readLab(root),/mp4 must be a lab\/demo\/<name>\.mp4 file/);
+ await write({...entry,scene:{example:'medieval-castle',path:'x'}});await assert.rejects(readLab(root),/scene names only the example/);
+ await write(entry);await writeFile(path.join(folder,'b.mp4'),mp4({codec:'hvc1'}));await assert.rejects(readLab(root),/must be H\.264/);
+ await writeFile(path.join(folder,'b.mp4'),mp4({faststart:false}));await assert.rejects(readLab(root),/moov box first/);
+ await writeFile(path.join(folder,'b.mp4'),Buffer.concat([mp4(),Buffer.alloc(MAX_LAB_VIDEO_BYTES)]));await assert.rejects(readLab(root),/the cap is/);
+ await writeFile(path.join(folder,'b.mp4'),mp4());await writeFile(path.join(folder,'placeholder.mp4'),mp4());await assert.rejects(readLab(root),/placeholder\.mp4 is not listed/);
+ await rm(path.join(folder,'placeholder.mp4'));await cp(folder,path.join(root,'lab/stray'),{recursive:true});await assert.rejects(readLab(root),/site\/lab\/stray is not a Lab entry/);
 });

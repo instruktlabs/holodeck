@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {renderSite,SITE_URL} from '../scripts/render-site.mjs';
 import {deploy,preflight,parseArgs,WRANGLER_VERSION} from '../scripts/deploy-site.mjs';
+import {mp4} from '../test/fixtures/mp4.mjs';
 
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a63sAAAAASUVORK5CYII=','base64');
 // The same PNG with a 1200×630 header: the site checks card sizes, not pixels.
@@ -139,6 +140,32 @@ test('the preflight refuses dirty, uncommitted, stale, unfinished, foreign and W
  const linked=await fixture(t);
  try{await symlink(path.join(linked.built,'images/cove.png'),path.join(linked.built,'images/link.png'));}catch{return;}// Windows without symlink rights.
  await assert.rejects(preflight({root:linked.root,siteDir:linked.built,run:linked.run}),/Symlink/);
+});
+
+test('a Lab entry\'s page and media ship from site/, and only a playable entry may have an export at lab/<id>/play/',async t=>{
+ const {root,site,built,state,run}=await fixture(t),folder=path.join(site,'lab/demo');
+ await mkdir(folder,{recursive:true});await writeFile(path.join(folder,'card.jpg'),CARD);
+ // The poster is the card PNG header resized: the site checks sizes, not pixels or the extension's format.
+ const poster=Buffer.from(PNG);poster.writeUInt32BE(1280,16);poster.writeUInt32BE(720,20);
+ for(const name of ['a','b']){await writeFile(path.join(folder,`${name}.mp4`),mp4());await writeFile(path.join(folder,`${name}.jpg`),poster);}
+ const entry={id:'demo',title:'Demo',blurb:'A demo.',status:'In progress.',updated:'2026-10-27',cardAlt:'A demo card.',
+  videos:['a','b'].map(name=>({engine:name,mp4:`lab/demo/${name}.mp4`,poster:`lab/demo/${name}.jpg`,width:1280,height:720}))};
+ const publish=async value=>{
+  await writeFile(path.join(site,'lab.json'),JSON.stringify([value]));
+  for(const [name,text] of Object.entries(await renderSite(site))){await mkdir(path.dirname(path.join(site,name)),{recursive:true});await writeFile(path.join(site,name),text);}
+  await cp(site,built,{recursive:true,force:true,filter:source=>path.relative(site,source).split(path.sep)[0]!=='cards'});
+  state.tracked=(await readdir(site,{recursive:true,withFileTypes:true})).filter(e=>e.isFile()).map(e=>path.relative(root,path.join(e.parentPath??e.path,e.name)).replaceAll('\\','/'));
+ };
+ await publish(entry);
+ assert.equal((await preflight({root,siteDir:built,run})).files,19);
+ const play=path.join(built,'lab/demo/play');await mkdir(play,{recursive:true});
+ await writeFile(path.join(play,'index.html'),`<link rel="canonical" href="${SITE_URL}lab/demo/play/">`);
+ await writeFile(path.join(play,'preview.jpg'),CARD);await writeFile(path.join(play,'scene.json'),'{}');
+ await writeFile(path.join(play,'manifest.json'),JSON.stringify({files:[{file:'scene.json',sha256:'44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a'}]}));
+ await assert.rejects(preflight({root,siteDir:built,run}),/lab\/demo\/play\/index\.html, which is neither in site\/ nor in a catalog scene/);
+ await publish({...entry,scene:{example:'construct'}});
+ assert.equal((await preflight({root,siteDir:built,run})).files,23);
+ await writeFile(path.join(play,'scene.json'),'{"changed":true}');await assert.rejects(preflight({root,siteDir:built,run}),/demo file scene\.json does not match its manifest/);
 });
 
 test('the project name is required and options are strict',async()=>{

@@ -15,6 +15,7 @@ Matthew Kissinger applies [CC0 1.0 Universal](LICENSES/CC0-1.0.txt) to his copyr
 - Models under public/assets/.
 - Images and non-code asset metadata under assets/cove/. Procedural JavaScript programs remain MIT.
 - Scene data (scene.json), manifests and GLBs in the static scene exports the site build makes from these examples at holodeck.kilnstudio.tools/worlds/: Meridian Sanctuary, Crescent Cove, the Quiet Courtyard, the Cove, Tidemark Island and Winter Mountainside Cabin. The compiled viewer scripts and styles beside them are code under MIT. Their preview.jpg cards are not part of this dedication.
+- Scene data (scene.json), manifests and GLBs in the playable Lab scenes the site build exports from these examples at holodeck.kilnstudio.tools/lab/<entry>/play/. Their compiled viewer scripts and styles are code under MIT, and their preview.jpg cards are not part of this dedication.
 - Concept images under design/ and public/design/.
 - The first-party reference SVG and synthesized speech fixtures under public/fixtures/.
 
@@ -22,9 +23,9 @@ These assets may be reused, modified and redistributed, including commercially, 
 
 This designation does not apply to users' own worlds, uploads, references or generated assets. Users choose their own terms and are responsible for rights in imported material. Copying a bundled CC0 asset into a world preserves that asset's CC0 status; it does not place the rest of the world under CC0.
 
-## Project site images
+## Project site images and videos
 
-Screenshots, scene previews, social cards and icons under site/ (site/images/, site/cards/, which become each scene's preview.jpg, and the site icons) are not covered by the CC0 designation above.
+Screenshots, scene previews, social cards and icons under site/ (site/images/, site/cards/, which become each scene's preview.jpg, and the site icons) are not covered by the CC0 designation above. Nor are the Lab's videos, their posters and its cards under site/lab/ (each entry's card.jpg also becomes its playable scene's preview.jpg).
 
 ## Third-party material
 

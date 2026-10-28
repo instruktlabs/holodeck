@@ -30,4 +30,5 @@ Holodeck is an early source prototype: a local workspace where you and your codi
 
 ## Optional
 
+- [Lab (experimental)](https://holodeck.kilnstudio.tools/lab/): Work in progress kept off the scene shelf: unfinished scenes and the same scene in different engines, side by side. Entries change or disappear without notice.
 - [Sitemap](https://holodeck.kilnstudio.tools/sitemap.xml)
