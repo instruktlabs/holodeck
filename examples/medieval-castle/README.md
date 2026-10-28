@@ -48,9 +48,10 @@ shapes), 6.9 MB of GLBs and 105,722 placed source triangles, within the schema-v
 limits. `holodeck check` validates the installed world and its hashes.
 
 Not measured for this revision in Holodeck: frame time, visual quality on
-either renderer backend, and walking the full route. There is no runtime preview
-image yet; a generated concept is not a substitute. The Unity slice's technical
-smoke results belong to that project and do not qualify this scene.
+either renderer backend, and walking the full route. `preview.png` is a real 1280×720 WebGPU render of this
+bundle from above the approach, not a generated concept, and it is not a
+quality judgment. The Unity slice's technical smoke results belong to that
+project and do not qualify this scene.
 
 ## Content and licensing
 

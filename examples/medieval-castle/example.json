@@ -159,5 +159,12 @@
       "bytes": 1398268
     }
   ],
-  "integrity": "041bffe27be2406180bb32d2c61fd6e5e44dc51517f919e62dc4852fec4331dd"
+  "preview": {
+    "file": "preview.png",
+    "sha256": "8837903a03169c75872a73854b28c223dae73871b0444d1767cf4f3e6a2bfef7",
+    "bytes": 1066502,
+    "width": 1280,
+    "height": 720
+  },
+  "integrity": "1ef1443457be087194178ac8f98dbb972c2278ab23cc622f7029986282b6ac05"
 }

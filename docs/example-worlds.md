@@ -22,8 +22,9 @@ furnished two-storey timber cabin with a sleeping loft, deck and hinged doors.
 Medieval Castle (`medieval-castle`) is an in-progress blockout of a fortress
 holding a mountain pass: a bridge over a gorge, an open gate, a walled lower
 courtyard, a stair to a wall ballista and an inner barricade on stamped
-heightfield terrain. It is an earlier pass that is not final quality, and it has
-no runtime preview yet; see its [README](../examples/medieval-castle/README.md).
+heightfield terrain. It is an earlier pass that is not final quality; see its
+[README](../examples/medieval-castle/README.md). It is in the site's experimental
+Lab, not on the scene shelf.
 
 The bundle contains the editable world document, exact pinned GLBs and curated
 public bible guidance. Its physical mood board starts empty. You can change
