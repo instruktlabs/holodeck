@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "profile": "boltNo4",
+  "space": "camera-local metres, +X right, +Y up, -Z forward",
+  "hipPosition": [
+    0.1,
+    -0.2,
+    -0.4
+  ],
+  "aimPosition": [
+    0,
+    -0.139,
+    -0.2195
+  ],
+  "assetForwardRotationY": 1.5707963267948966,
+  "recoilBack": 0.03,
+  "recoilPitch": 0.06,
+  "eye": {
+    "position": [
+      -0.2195,
+      0.139,
+      0
+    ],
+    "distanceToRear": 0.1,
+    "source": "anchor_eye"
+  },
+  "sightLine": {
+    "rear": [
+      -0.1195,
+      0.139,
+      0
+    ],
+    "front": [
+      0.578,
+      0.139,
+      0
+    ],
+    "radius": 0.6975,
+    "slopeRadians": 0
+  },
+  "aimFovDeg": 45,
+  "aimNear": 0.01,
+  "ghostRing": {
+    "node": "Joint_RearSight",
+    "apertureDiameter": 0.0062,
+    "apertureStatus": "Estimate (no measured source; owner decision 8)",
+    "pupil": 0.004,
+    "darken": 0.35
+  },
+  "frontSight": {
+    "node": "Joint_FrontSight",
+    "anchor": "anchor_sight_front",
+    "minPixels": 2.5,
+    "referenceHeightPx": 1080
+  },
+  "gun": {
+    "assetId": "a_84c94455cca54d4baba72eef11958017",
+    "revisionId": "r_7a36158e3c3b4db99eacb702f1785f64",
+    "pins": "authoring/firearm-bolt-v2-pins.json"
+  },
+  "scope": "Owner-approved sight presentation (docs/sight-research-v1.md section 8). Eye distance, aim FOV and pupil are Targets; the ghost ring is an analytic aperture vignette and targets stay sharp."
+}

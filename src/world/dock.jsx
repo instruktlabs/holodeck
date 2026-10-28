@@ -56,6 +56,8 @@ export function DecisionSlot({requests,run,writeDisabled}){
 export function proposalChips(diff){
   const t=diff.scene.placements.totals,chips=[t.added&&`+${t.added} placed`,t.removed&&`−${t.removed} removed`,t.moved&&`${t.moved} moved`,t.changed&&`${t.changed} changed`].filter(Boolean);
   if(diff.scene.assets.added.length)chips.push(`+${diff.scene.assets.added.length} assets`);
+  if(diff.scene.assets.changed.length)chips.push(`${diff.scene.assets.changed.length} assets updated`);
+  if(diff.scene.assets.removed.length)chips.push(`${diff.scene.assets.removed.length} assets removed`);
   const sc=diff.scene.scatters,scatters=sc?sc.added.length+sc.removed.length+sc.changed.length:0;if(scatters)chips.push(`${scatters} ${scatters===1?'scatter':'scatters'}`);
   if(diff.scene.settings.length)chips.push(diff.scene.settings.map(s=>s.field).join(', '));
   if(diff.bible.length)chips.push('bible');

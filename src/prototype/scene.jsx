@@ -9,6 +9,7 @@ import { useAssetFoliage } from '../world/foliage.jsx';
 import { useAssetFlow } from '../world/flow.jsx';
 import { useAssetReflection } from '../world/reflection.jsx';
 import { useAssetGait } from '../world/gait.jsx';
+import { useAssetJoint } from '../world/joint.jsx';
 import { SHADOW_ONLY_LAYER, shadowProxies } from '../world/sun-shadow.mjs';
 import { translucent } from '../world/static-batches.mjs';
 
@@ -231,6 +232,7 @@ export function PlacedAsset({model,item,select,asset,runtime,gaitScale}){
   useAssetFlow({object,asset,runtime,enabled:item.materialStyle!=='cove'});
   useAssetReflection({object,asset,enabled:item.materialStyle!=='cove'});
   useAssetGait({object,item,runtime,scaleX:gaitScale??item.scale[0]});
+  useAssetJoint({object,item,runtime});
   return <group position={item.position} rotation={item.rotation} scale={item.scale} onClick={e=>{e.stopPropagation();select(item.id,{additive:e.shiftKey});}}>{item.materialStyle==='cove'?<Cove gltf={model} target={item.id}/>:<primitive object={object} dispose={null}/>} {item.light&&<pointLight position={item.light.offset} color={item.light.color} intensity={item.light.intensity} distance={item.light.distance} decay={2}/>}</group>;
 }
 export function Scene({session,cove,bundle,collisionScene,...controls}) {

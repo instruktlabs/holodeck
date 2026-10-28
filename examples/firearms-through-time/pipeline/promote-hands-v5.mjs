@@ -1,0 +1,9 @@
+import {readFile,writeFile,copyFile} from 'node:fs/promises';import {createHash} from 'node:crypto';import assert from 'node:assert/strict';
+const read=async p=>JSON.parse((await readFile(p,'utf8')).replace(/^\uFEFF/,'')),pins=await read('game/asset-pins.json'),saved=await read('evidence/hands-v5-saved.json'),source=await read('evidence/hands-v5-source.json'),render=await read('evidence/hands-v5-render.json');assert(saved.ok&&source.ok&&render.ok);const a=saved.asset;
+for(const [path,key]of [['authoring/first-hands-v5.glb','asset.glb'],['authoring/first-hands-v5-final3-exact.kiln.js','source.kiln.js']])assert.equal('sha256:'+createHash('sha256').update(await readFile(path)).digest('hex'),a.files[key].sha256,'Saved revision mismatch: '+path);
+const b=await readFile('authoring/first-hands-v5.glb'),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)));assert.deepEqual(j.animations.map(a=>a.name),['Ready','Reload','Inspect','Fire']);assert.equal(j.skins[0].joints.length,41);
+pins.assets.hands={assetId:a.assetId,revisionId:a.revisionId,programRef:source.programRef,sha256:a.files['asset.glb'].sha256.slice(7),sourceSha256:a.files['source.kiln.js'].sha256.slice(7),bytes:b.length,nodes:j.nodes.length,skins:1,bones:41,rigVersion:3,triangles:render.tris,clips:j.animations.map(a=>a.name)};
+await copyFile('authoring/first-hands-v5.glb','authoring/first-hands.glb');await copyFile('authoring/first-hands-v5-final3-exact.kiln.js','authoring/first-hands.kiln.js');await writeFile('game/asset-pins.json',JSON.stringify(pins,null,2));console.log(JSON.stringify(pins.assets.hands));
+
+
+

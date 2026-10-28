@@ -132,7 +132,8 @@ export async function exportStaticWorld(root,{out,revision,page}={}){
  await writeFile(path.join(output,'EXPORT-INCOMPLETE.txt'),'Export did not finish. Do not deploy this directory. Choose a fresh directory to retry.\n',{flag:'wx'});
  const {build}=await import('vite');
  await build({configFile:false,envDir:false,root:path.join(packageRoot,'src/viewer'),base:'./',publicDir:false,logLevel:'warn',
-  resolve:{alias:[{find:path.join(packageRoot,'src/world/moodboard.jsx').replaceAll('\\','/'),replacement:path.join(packageRoot,'src/viewer/excluded-board.jsx')}]},
+  // Static export is not extension-aware: the scene page always gets the no-op client extension.
+  resolve:{alias:[{find:path.join(packageRoot,'src/world/moodboard.jsx').replaceAll('\\','/'),replacement:path.join(packageRoot,'src/viewer/excluded-board.jsx')},{find:'@holodeck/client-extension',replacement:path.join(packageRoot,'src/world/no-client-extension.jsx')}]},
   plugins:[{name:'scene-only-viewer',enforce:'pre',resolveId(source,importer){if(importer&&/\/(world\/runtime-scene|prototype\/scene)\.jsx$/.test(importer.replaceAll('\\','/'))&&source.endsWith('/moodboard.jsx'))return path.join(packageRoot,'src/viewer/excluded-board.jsx');}}],
   build:{outDir:output,emptyOutDir:false,sourcemap:false,target:'es2022',minify:true,assetsDir:'assets',chunkSizeWarningLimit:2500}});
  if(metadata){

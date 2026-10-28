@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "space": "camera-local metres, +X right, +Y up, -Z forward",
+  "hipPosition": [0.09, -0.25, -0.58],
+  "aimPosition": [0, -0.2, -0.58],
+  "assetForwardRotationY": 1.5707963267948966,
+  "recoilBack": 0.035,
+  "recoilPitch": 0.07,
+  "scope": "Prototype first-person framing; sight alignment is checked against the delivered sight anchors."
+}

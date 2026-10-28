@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "profile": "boltNo4",
+  "id": "no4-mk1-star-bolt-authored-01",
+  "title": "No.4 Mk I* bolt rifle",
+  "capacity": 10,
+  "reserve": 30,
+  "cooldown": 1.25,
+  "reload": 3.0,
+  "inspect": 3.6,
+  "reloadCommitPhase": 0.6,
+  "reloadPolicy": "charger-per-cycle-until-full",
+  "roundsPerCommit": 5,
+  "initialFinish": "restored-furniture",
+  "slots": {"grip": [], "optic": [], "muzzle": [], "sling": [], "finish": ["restored-furniture"]},
+  "scope": "Prototype game tuning and visual animation timing, not historical capacity, rate of fire or calibrated firearm behavior. Fire includes a visual bolt cycle; each reload cycle strips up to five rounds from one charger. No functional internal mechanism is modeled."
+}

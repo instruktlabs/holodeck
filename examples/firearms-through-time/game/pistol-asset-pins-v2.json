@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "profile": "pistol",
+  "assets": {
+    "pistol": {
+      "assetId": "a_b6ba0dec31d14d90ae315fa5e555ec1d",
+      "revisionId": "r_7074467518f94364b59838f83f31ff93",
+      "source": "authoring/assets/kiln/a_b6ba0dec31d14d90ae315fa5e555ec1d/revisions/r_7074467518f94364b59838f83f31ff93/asset.glb",
+      "alias": "authoring/first-pistol-v6.glb",
+      "sha256": "d5ef4e9f695adc4b88cea7cde0d5854c40579a262f4ff099b5f873e3c0d88435",
+      "bytes": 941576,
+      "receipt": "authoring/first-pistol-v6-pins.json"
+    },
+    "hands": {
+      "assetId": "a_42eb15873bde4c8fad62f46d032f42d8",
+      "revisionId": "r_686f213a922647ce967c27f5afdcebb1",
+      "parentRevision": "r_248b93182e044a78b525862b756fc663",
+      "programRef": "p_b0f08db6a6b3",
+      "sha256": "0c02a07f7bfeb9c2ba12b78fdca82bb78122757f0407b7a7eaea88d095fbe033",
+      "sourceSha256": "b0f08db6a6b3579905a88ecf8eb46bc1de0fceaae59e5c8d5c5c215ed6a0ecee",
+      "bytes": 14414376,
+      "nodes": 44,
+      "skins": 1,
+      "bones": 41,
+      "rigVersion": 3,
+      "rig": "game/arm-rig-v6.json",
+      "triangles": 62270,
+      "clips": [
+        "Ready",
+        "Reload",
+        "Inspect",
+        "Fire"
+      ],
+      "source": "authoring/assets/kiln/a_42eb15873bde4c8fad62f46d032f42d8/revisions/r_686f213a922647ce967c27f5afdcebb1/asset.glb",
+      "alias": "authoring/first-hands-v7.glb"
+    }
+  }
+}

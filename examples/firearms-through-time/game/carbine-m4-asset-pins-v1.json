@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "profile": "carbineM4",
+  "assets": {
+    "gun": {
+      "assetId": "a_b50808618ce54c1386d12212e186cc47",
+      "revisionId": "r_f0ad6458af8b40c48ca99eca88d48abe",
+      "source": "authoring/assets/kiln/a_b50808618ce54c1386d12212e186cc47/revisions/r_f0ad6458af8b40c48ca99eca88d48abe/asset.glb",
+      "alias": "authoring/carbine-m4-v3.glb",
+      "sha256": "d91af29c8b87e85ca1bb277eed9991b9c6b46a738919704ab943fc4f6b60162b",
+      "bytes": 959976,
+      "receipt": "authoring/firearm-carbine-v3-pins.json"
+    },
+    "hands": {
+      "assetId": "a_960aeb0b45694d409e3f0b8bfb1863f6",
+      "revisionId": "r_19df90fcdb034e58ad345c705bfa2b42",
+      "source": "authoring/assets/kiln/a_960aeb0b45694d409e3f0b8bfb1863f6/revisions/r_19df90fcdb034e58ad345c705bfa2b42/asset.glb",
+      "alias": "authoring/carbine-m4-hands-v1.glb",
+      "sha256": "8abcb4b5c0eaab62b30419ea9fe2e52f1f5cf1fa09cb8be870ad1a154054db32",
+      "bytes": 12883496,
+      "receipt": "authoring/carbine-m4-hands-v1-pins.json"
+    }
+  }
+}

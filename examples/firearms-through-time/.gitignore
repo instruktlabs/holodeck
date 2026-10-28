@@ -1,0 +1,11 @@
+# Host state and agent installs from running the world in place, and Unreal build output.
+holodeck-range-slice/.holodeck/
+holodeck-range-slice/.agents/
+native/ToolchainValidation/Binaries/
+native/ToolchainValidation/Content/
+native/ToolchainValidation/DerivedDataCache/
+native/ToolchainValidation/Intermediate/
+native/ToolchainValidation/Saved/
+__pycache__/
+.holodeck-library.json
+.holodeck-library.lock

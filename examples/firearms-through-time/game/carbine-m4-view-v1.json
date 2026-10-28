@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "profile": "carbineM4",
+  "space": "camera-local metres, +X right, +Y up, -Z forward",
+  "hipPosition": [
+    0.1,
+    -0.2,
+    -0.4
+  ],
+  "aimPosition": [
+    0,
+    -0.1435,
+    -0.1723
+  ],
+  "assetForwardRotationY": 1.5707963267948966,
+  "recoilBack": 0.02,
+  "recoilPitch": 0.035,
+  "eye": {
+    "position": [
+      -0.1723,
+      0.1435,
+      0
+    ],
+    "distanceToRear": 0.07,
+    "source": "anchor_eye"
+  },
+  "sightLine": {
+    "rear": [
+      -0.1023,
+      0.1435,
+      0
+    ],
+    "front": [
+      0.268974,
+      0.1435,
+      0
+    ],
+    "radius": 0.371274,
+    "slopeRadians": 0
+  },
+  "aimFovDeg": 45,
+  "aimNear": 0.01,
+  "ghostRing": {
+    "node": "Joint_RearSight",
+    "apertureDiameter": 0.00508,
+    "apertureStatus": "Documented (secondary, S3): the large 0.200 in aperture, default for range work under 200 m (sight research 4.5); the small 1.78 mm aperture is not selectable yet",
+    "pupil": 0.004,
+    "darken": 0.35
+  },
+  "frontSight": {
+    "node": "Joint_FrontSight",
+    "anchor": "anchor_sight_front",
+    "minPixels": 2.5,
+    "referenceHeightPx": 1080
+  },
+  "gun": {
+    "assetId": "a_b50808618ce54c1386d12212e186cc47",
+    "revisionId": "r_f0ad6458af8b40c48ca99eca88d48abe",
+    "pins": "authoring/firearm-carbine-v3-pins.json"
+  },
+  "scope": "Owner-approved sight presentation (docs/sight-research-v1.md section 8). Eye distance, aim FOV and pupil are Targets; the ghost ring is an analytic aperture vignette and targets stay sharp."
+}

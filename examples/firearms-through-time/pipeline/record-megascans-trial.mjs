@@ -1,0 +1,22 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const root=new URL('../',import.meta.url);
+const read=async n=>JSON.parse(await readFile(new URL('evidence/'+n,root),'utf8'));
+const [saved,comparison,pixels,repair,editor,packaged,delivery]=await Promise.all(['megascans-case-saved.json','megascans-case-compare.json','megascans-native-pixel-check.json','megascans-native-texture-repair.json','megascans-editor-game.json','megascans-packaged.json','megascans-holodeck-delivery.json'].map(read));
+assert(saved.ok&&pixels.ok&&repair.ok&&delivery.ok);
+assert.equal(editor.status,'passed');assert.equal(packaged.status,'passed');
+assert.equal(editor.checks.length,9);assert.equal(packaged.checks.length,9);
+assert(comparison.comparison.geometryIdentical);assert.equal(comparison.comparison.summary.changed,2);
+const ax={};
+for(const key of ['live-before','live-after','open','closed','reopened','reset','webgl-open'])ax[key]=await readFile(new URL('evidence/megascans-holodeck-'+key+'.txt',root),'utf8');
+assert(ax['live-before'].includes('-0.65'));assert(ax['live-after'].includes('-0.65'));
+assert(ax['live-before'].includes('36.37'));assert(ax['live-after'].includes('36.37'));
+assert(ax['live-after'].includes('paused'));assert(ax['live-after'].includes('revision 14'));
+assert(ax.open.includes('-1.83'));assert(ax.closed.includes('closed  /  0.00'));assert(ax.reopened.includes('-1.83'));assert(ax.reset.includes('closed  /  0.00'));assert(ax['webgl-open'].includes('-1.83'));
+const result={ok:true,completedAt:new Date().toISOString(),assetId:saved.asset.assetId,revisionId:saved.asset.revisionId,programRef:'p_667461e5bcd6',sourceSha256:saved.asset.files['asset.glb'].sha256,geometryIdentical:true,uvChange:'Only timber V coordinates scale by 0.5 for the 0.5 x 1 m scan',holodeck:{revision:delivery.worldRevision,checks:['only_case_asset_and_provenance_changed','source_and_shared_images_match','paused_angle_and_clock_preserved_to_display_precision','webgpu_open_close_reopen_reset','webgl_loaded_and_opened'],screenshots:['evidence/megascans-holodeck-webgpu-open.png','evidence/megascans-holodeck-webgl-open.png']},unreal:{editorChecks:editor.checks,packagedChecks:packaged.checks,texturePixelsVerified:pixels.checks.length,overrides:repair.overrides,editorCaptures:editor.captures,packagedCaptures:packaged.captures},failureAndRepair:'Interchange texture identity drift after GLB image insertion; repaired by explicit name/source mapping and material texture/switch synchronization. Initial raw import is not a complete pass.',visualDecision:'Technically works; panel grooves conflict with case slats. Prefer continuous wood grain for the next refinement.',limits:['Native lid remains lighter/less saturated than Holodeck; lighting/BRDF equivalence unresolved.','GPU compression, grazing-angle mips and performance budgets not qualified.','No Unreal live PIE-state update claim.','One Fab surface tested; seven CC0 candidates are catalog links only.','No publishing or redistribution of standalone Fab maps.']};
+await writeFile(new URL('evidence/megascans-summary.json',root),JSON.stringify(result,null,2));
+const catalog=JSON.parse(await readFile(new URL('materials/catalog.json',root),'utf8'));
+const candidates=[['fine_grained_wood','Fine Grained Wood','continuous grain on case slats'],['weathered_brown_planks','Weathered Brown Planks','exterior plank surfaces'],['white_plaster_02','White Plaster 02','neutral interior walls'],['concrete_floor_02','Concrete Floor 02','floors and roughness'],['corrugated_iron','Corrugated Iron','weathered metallic roofing'],['red_brick_03','Red Brick 03','masonry scale and mortar'],['stone_brick_wall_001','Stone Brick Wall 001','rough stone masonry']];
+for(const [id,name,intendedTest] of candidates){if(catalog.entries.some(e=>e.id==='polyhaven-'+id))continue;catalog.entries.push({id:'polyhaven-'+id,name,provider:'Poly Haven',url:'https://polyhaven.com/a/'+id,license:'CC0-1.0',licenseUrl:'https://polyhaven.com/license',bundleEligibleByAssetLicense:true,bundled:false,acquired:false,physicalSizeMeters:null,normalConvention:'Choose vendor Normal (GL); verify downloaded files',curation:{status:'source-and-license-reviewed; runtime qualification pending',intendedTest},checkedAt:'2026-10-26'});}
+await writeFile(new URL('materials/catalog.json',root),JSON.stringify(catalog,null,2));
+console.log(JSON.stringify({ok:true,revision:result.revisionId,nativeChecks:18,verifiedTexturePixels:pixels.checks.length,catalogEntries:catalog.entries.length}));

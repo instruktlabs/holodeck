@@ -1,0 +1,7 @@
+import {readFile,writeFile} from 'node:fs/promises';import {spawnSync} from 'node:child_process';import assert from 'node:assert/strict';
+const env={...process.env,KILN_RENDER_SERVICE_PORT:'8010',KILN_RENDER_PORT_URL:'http://127.0.0.1:8010',KILN_GLTF_EXPORTER:'three'};
+const call=args=>{const p=spawnSync(process.execPath,['authoring/kiln.mjs',...args],{env,encoding:'utf8',windowsHide:true,maxBuffer:30e6});const r=JSON.parse(p.stdout);assert(r.ok,JSON.stringify(r));return r;};
+const edits=[{oldString:"[[-.088,.027],[.127,.027],[.127,.008],[.025,.008],[.009,-.012],[-.011,-.087],[-.063,-.099],[-.082,-.068],[-.058,-.004],[-.09,.005]]",newString:"[[-.088,.027],[.127,.027],[.127,.008],[.025,.008],[-.015,.008],[-.015,-.026],[.0052,-.026],[-.011,-.087],[-.063,-.099],[-.082,-.068],[-.058,-.004],[-.09,.005]]"}];
+await writeFile('evidence/pistol-v5-well-edits.json',JSON.stringify(edits));const e=call(['edit','p_bdbee4d83453','--edits','evidence/pistol-v5-well-edits.json','--json']);await writeFile('evidence/pistol-v5-edit.json',JSON.stringify(e));console.log(e.programRef);
+const r=call(['render',e.programRef,'--materials','materials/weapon-v2/pins.json','--out','authoring/first-pistol-v5.glb','--views','evidence/pistol-v5-well.png','--render','gpu','--json']);await writeFile('evidence/pistol-v5-render.json',JSON.stringify(r));
+const s=call(['source',e.programRef,'--out','authoring/first-pistol-v5-exact.kiln.js','--json']);await writeFile('evidence/pistol-v5-source.json',JSON.stringify(s));console.log({ref:e.programRef,triangles:r.tris});

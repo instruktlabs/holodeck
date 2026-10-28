@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "profile": "carbineM4",
+  "id": "colt-m4-r0977-authored-01",
+  "title": "Colt M4 carbine (R0977)",
+  "capacity": 30,
+  "reserve": 90,
+  "cooldown": 0.075,
+  "cycleBlocksActions": false,
+  "reload": 2.3,
+  "reloadCommitPhase": 0.62,
+  "reloadEmpty": 2.9,
+  "reloadEmptyCommitPhase": 0.5,
+  "inspect": 3.6,
+  "reloadPolicy": "magazine-swap",
+  "fire": {
+    "modes": ["semi", "burst"],
+    "initialMode": "semi",
+    "modeKey": "B",
+    "cyclicRpm": 800,
+    "cycleSeconds": 0.075,
+    "burst": {"rounds": 3, "cam": "non-resetting"},
+    "ignitionDelaySeconds": 0,
+    "basis": {
+      "modes": "Documented: the M4's S-1-3 trigger group (safe, semi-automatic, 3-round burst) per MIL-C-70599A and the NSN listing for Colt R0977AU; the M4A1 replaced it with S-1-F. SAFE is not modelled; no gun in the game models a safety.",
+      "cyclicRpm": "Estimate inside the documented range: 700-970 rounds a minute cyclic (Wikipedia M4 carbine infobox); 700-900 for the M4 (GlobalSecurity, search snippet).",
+      "burstCam": "Documented: the M16A2/M4 burst cam does not reset when the trigger is released mid-burst, so the next pull fires only the remaining one or two rounds (US Army armorer course M16A2 supplement; patent US5623114 background). Owner decision 27 Oct: keep the real cam and show the count.",
+      "owner": "27 Oct 2026, question tool: semi plus 3-round burst, real non-resetting cam."
+    }
+  },
+  "clips": {"Ready": 1, "Inspect": 3.6, "Fire": 0.2, "Reload": 2.3, "ReloadEmpty": 2.9},
+  "initialFinish": null,
+  "slots": {"grip": [], "optic": [], "muzzle": [], "sling": [], "finish": []},
+  "scope": "Prototype game tuning and visual animation timing, not calibrated firearm behaviour. Capacity counts the magazine only (no chambered round); a reload tops up from the reserve. The selector lever and bolt carrier are not articulated; the HUD shows the mode and the burst count."
+}

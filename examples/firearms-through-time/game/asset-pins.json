@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "assets": {
+    "hands": {
+      "assetId": "a_42eb15873bde4c8fad62f46d032f42d8",
+      "revisionId": "r_248b93182e044a78b525862b756fc663",
+      "programRef": "p_5b63d8f033f8",
+      "sha256": "66c4393cafade7715bcea85a19d03db63329a3064c5e782a3933d76ac8e3d3c9",
+      "sourceSha256": "5b63d8f033f88ea59dbe5678076594849688b32e1d4a7489eb8242108cca524f",
+      "bytes": 14544180,
+      "nodes": 44,
+      "skins": 1,
+      "bones": 41,
+      "rigVersion": 3,
+      "triangles": 63006,
+      "clips": [
+        "Ready",
+        "Reload",
+        "Inspect",
+        "Fire"
+      ]
+    },
+    "pistol": {
+      "assetId": "a_b6ba0dec31d14d90ae315fa5e555ec1d",
+      "revisionId": "r_5dd04d19ed3d445f9cb2c9fa2cc00494",
+      "programRef": "p_4fd2bcef25d9",
+      "sha256": "9a707e472c77c308a9a34000921dc657687edee1cd8e9549a91ea9cb052d255a",
+      "sourceSha256": "4fd2bcef25d937d41ab2288eac0d5a6c5d6a1492e9de8129c7e5c68b01da7aa2",
+      "bytes": 931920,
+      "nodes": 81,
+      "skins": 0,
+      "bones": 0,
+      "triangles": 4104
+    }
+  }
+}

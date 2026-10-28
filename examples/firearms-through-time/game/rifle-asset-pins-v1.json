@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "profile": "rifle1866",
+  "assets": {
+    "gun": {
+      "assetId": "a_a8c8a92ae979442dbcf5836c8e72ee2e",
+      "revisionId": "r_d1fa6f16dd67465ba6f41a66a1b9d6f8",
+      "source": "assets/next-firearm-v1/a_a8c8a92ae979442dbcf5836c8e72ee2e/revisions/r_d1fa6f16dd67465ba6f41a66a1b9d6f8/asset.glb",
+      "alias": "authoring/rifle-1866-v2.glb",
+      "sha256": "7496ea5eda935106a15d53b8de3546216d0a78f78575a2a45a4923d983026efe",
+      "bytes": 555636,
+      "receipt": "authoring/rifle-1866-v2-pins.json"
+    },
+    "hands": {
+      "assetId": "a_e22b20538f204e1ca7a86886cf630a89",
+      "revisionId": "r_3fcbc30917df47179ebe0efa04281019",
+      "source": "assets/next-firearm-v1/a_e22b20538f204e1ca7a86886cf630a89/revisions/r_3fcbc30917df47179ebe0efa04281019/asset.glb",
+      "alias": "authoring/rifle-hands-v1.glb",
+      "sha256": "4d6346ca492db20f34e64111258e0a90ec9722b2610aae77434cfbfe8e5b412a",
+      "bytes": 13979152,
+      "receipt": "authoring/rifle-hands-v1-pins.json"
+    },
+    "token": {
+      "assetId": "a_98ff5290ff394615bd25913a3a60f3d4",
+      "revisionId": "r_3ff9c7f1eb254f14a4efbb7ec4e58265",
+      "source": "assets/next-firearm-v1/a_98ff5290ff394615bd25913a3a60f3d4/revisions/r_3ff9c7f1eb254f14a4efbb7ec4e58265/asset.glb",
+      "alias": "authoring/rifle-loading-token-v1.glb",
+      "sha256": "a6c1ab594c8e5595c788345ce91a01baa408255c94860d88526b01d9c43026f5",
+      "bytes": 12632,
+      "receipt": "authoring/rifle-1866-v2-loading-token-pins.json"
+    }
+  }
+}

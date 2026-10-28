@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "profile": "flintlock1742",
+  "id": "pattern-1742-land-service-authored-01",
+  "title": "Pattern 1742 Land Service musket",
+  "capacity": 1,
+  "reserve": 24,
+  "cooldown": 0.6,
+  "cycleBlocksActions": true,
+  "reload": 10,
+  "reloadCommitPhase": 0.75,
+  "inspect": 3.6,
+  "reloadPolicy": "one-round-per-cycle-until-full",
+  "roundsPerCommit": 1,
+  "fire": {
+    "modes": ["semi"],
+    "initialMode": "semi",
+    "ignitionDelaySeconds": 0.06,
+    "panFlashSeconds": 0.04,
+    "misfires": false,
+    "basis": {
+      "ignition": "Estimate: measured flintlock times to the pan flash run about 34-42 ms (T. Gaylord, Pyramyd Air) with about 39 ms typical (L. Pletcher, Muzzle Blasts 1990), and muzzleloader lock times about 20-50 ms trigger to exit (US patent 6374525). No measured flash-to-charge interval was found; 40 ms to the pan flash and 60 ms to the shot were chosen.",
+      "misfires": "Owner decision 27 Oct: no misfires. Period figures vary widely (historyofwar.org gives a 20-40% misfire rate; forum accounts of the 1834 Woolwich trials differ).",
+      "owner": "27 Oct 2026, question tool: lock delay, no misfires; the ball goes where the muzzle points as it fires."
+    }
+  },
+  "drill": {
+    "order": ["half-cock", "handle cartridge", "prime", "shut pan", "cast about", "charge", "draw rammer", "ram down cartridge", "return rammer", "make ready (full cock)"],
+    "basis": "Owner decision 27 Oct: a condensed drill of about 10 s (half-cock, prime, shut pan, charge, draw rammer, ram, return rammer, cock). Handling the cartridge and casting about join those steps physically. Trained soldiers were expected to fire one shot every fifteen seconds, and twenty to thirty seconds was more realistic (historyofwar.org)."
+  },
+  "clips": {"Ready": 1, "Fired": 1, "Inspect": 3.6, "Fire": 0.6, "Reload": 10},
+  "reserveBasis": "Game tuning: one loaded and 24 cartridges in the box.",
+  "initialFinish": null,
+  "slots": {"grip": [], "optic": [], "muzzle": [], "sling": [], "finish": []},
+  "scope": "Prototype game tuning and visual animation timing, not calibrated firearm behaviour or ballistics. Fire runs the lock (cock falls, frizzen opens, pan flash) and the shot leaves after the ignition delay along the aim at that moment. The drill is condensed; no bayonet, sling or misfire is modelled."
+}

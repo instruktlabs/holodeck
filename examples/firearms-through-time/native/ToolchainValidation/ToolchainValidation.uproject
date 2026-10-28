@@ -1,0 +1,54 @@
+{
+  "Plugins": [
+    {
+      "TargetAllowList": [
+        "Editor"
+      ],
+      "Name": "ModelContextProtocol",
+      "Enabled": true
+    },
+    {
+      "TargetAllowList": [
+        "Editor"
+      ],
+      "Name": "ToolsetRegistry",
+      "Enabled": true
+    },
+    {
+      "TargetAllowList": [
+        "Editor"
+      ],
+      "Name": "EditorToolset",
+      "Enabled": true
+    },
+    {
+      "TargetAllowList": [
+        "Editor"
+      ],
+      "Name": "PythonScriptPlugin",
+      "Enabled": true
+    },
+    {
+      "TargetAllowList": [
+        "Editor"
+      ],
+      "Name": "AutomationTestToolset",
+      "Enabled": true
+    },
+    {
+      "Enabled": false,
+      "Name": "AndroidFileServer"
+    }
+  ],
+  "Description": "Isolated compiler, editor, MCP, asset and packaging qualification. No game systems.",
+  "Modules": [
+    {
+      "LoadingPhase": "Default",
+      "Type": "Runtime",
+      "Name": "ToolchainValidation"
+    }
+  ],
+  "FileVersion": 3,
+  "Category": "Toolchain validation",
+  "EngineAssociation": "5.8"
+}
