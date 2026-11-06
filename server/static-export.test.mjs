@@ -94,6 +94,16 @@ test('static export page metadata without a URL keeps only the title and descrip
  const html=await readFile(path.join(out,'index.html'),'utf8');
  assert.match(html,/<title>Garden<\/title><meta name="description" content="A walled garden\.">/);assert.doesNotMatch(html,/canonical|og:|twitter:|ld\+json/);
 });
+test('static export places about text beside the root, escaped, so the viewer mount cannot replace it',async t=>{
+ const {root,parent}=await fixture(t),out=path.join(parent,'about');
+ await exportStaticWorld(root,{out,page:{title:'Garden',description:'A walled garden.',about:{heading:'The <garden>',summary:'A walled garden & a gate.',details:['From the gate.'],links:[{href:'../../',text:'All scenes'},{href:'https://example.com/g/',text:'Gallery'}]}}});
+ const html=await readFile(path.join(out,'index.html'),'utf8'),manifest=JSON.parse(await readFile(path.join(out,'manifest.json'),'utf8'));
+ assert.ok(html.includes('<div id="root"></div><details class="scene-about"><summary>About this world</summary><h1>The &lt;garden&gt;</h1><p>A walled garden &amp; a gate.</p><ul><li>From the gate.</li></ul><p><a href="../../">All scenes</a> · <a href="https://example.com/g/">Gallery</a></p></details>'));
+ assert.ok(manifest.files.some(entry=>entry.file==='index.html'&&entry.sha256===digest(Buffer.from(html))));
+ const plain=path.join(parent,'plain-about');await exportStaticWorld(root,{out:plain,page:{title:'Garden',description:'A walled garden.'}});
+ assert.doesNotMatch(await readFile(path.join(plain,'index.html'),'utf8'),/scene-about/);
+ for(const [about,error] of [[{heading:'G'},/about summary/],[{heading:'G',summary:'S',extra:1},/about fields/],[{heading:'G',summary:'S',links:[{href:'javascript:alert(1)',text:'x'}]},/https or relative/]])await assert.rejects(exportStaticWorld(root,{out:path.join(parent,'bad'),page:{title:'G',description:'D',about}}),error);
+});
 test('static export refuses unsafe page metadata before creating output',async t=>{
  const {root,parent}=await fixture(t),out=path.join(parent,'refused');
  const cases=[

@@ -64,7 +64,7 @@ function imageInfo(bytes){
 }
 async function pageMetadata(page){
  if(page==null)return null;
- if(typeof page!=='object'||Object.keys(page).some(key=>!['title','description','url','image','imageAlt','license'].includes(key)))throw new Error('Invalid page metadata fields');
+ if(typeof page!=='object'||Object.keys(page).some(key=>!['title','description','url','image','imageAlt','license','about'].includes(key)))throw new Error('Invalid page metadata fields');
  const result={title:pageText(page.title,100,'title'),description:pageText(page.description,300,'description')};
  for(const key of ['url','license'])if(page[key]!==undefined){
   let url;try{url=new URL(page[key]);}catch{throw new Error(`Page ${key} must be an absolute https URL`);}
@@ -77,7 +77,25 @@ async function pageMetadata(page){
   const bytes=await readFile(page.image),size=imageInfo(bytes);if(![size.width,size.height].every(n=>Number.isInteger(n)&&n>=1&&n<=4096))throw new Error('Page image dimensions exceed 4096 pixels');
   result.image={bytes,file:`preview.${size.type}`,width:size.width,height:size.height,alt:pageText(page.imageAlt??result.title,300,'image alt')};
  }else if(page.imageAlt!==undefined)throw new Error('Page image alt needs a page image');
+ if(page.about!==undefined)result.about=pageAbout(page.about);
  return result;
+}
+// Optional words for crawlers and people, kept beside #root (never inside it) so the viewer's mount leaves them in place.
+function pageAbout(about){
+ if(about===null||typeof about!=='object'||Object.keys(about).some(key=>!['heading','summary','details','links'].includes(key)))throw new Error('Invalid page about fields');
+ const details=about.details??[],links=about.links??[];
+ if(!Array.isArray(details)||details.length>12||!Array.isArray(links)||links.length>6)throw new Error('Invalid page about fields');
+ return {heading:pageText(about.heading,100,'about heading'),summary:pageText(about.summary,400,'about summary'),details:details.map(text=>pageText(text,300,'about detail')),
+  links:links.map(link=>{
+   if(link===null||typeof link!=='object'||Object.keys(link).sort().join()!=='href,text')throw new Error('Invalid page about link');
+   const href=pageText(link.href,300,'about link');if(!/^(?:https:\/\/|\.\.?\/)/.test(href))throw new Error('A page about link must be https or relative');
+   return {href,text:pageText(link.text,100,'about link')};
+  })};
+}
+export function pageAboutHtml(about){
+ return `<details class="scene-about"><summary>About this world</summary><h1>${escapeHtml(about.heading)}</h1><p>${escapeHtml(about.summary)}</p>`
+  +(about.details.length?`<ul>${about.details.map(text=>`<li>${escapeHtml(text)}</li>`).join('')}</ul>`:'')
+  +(about.links.length?`<p>${about.links.map(link=>`<a href="${escapeHtml(link.href)}">${escapeHtml(link.text)}</a>`).join(' · ')}</p>`:'')+'</details>';
 }
 export function pageHead(page){
  const meta=(attribute,name,content)=>`<meta ${attribute}="${name}" content="${escapeHtml(String(content))}">`;
@@ -141,7 +159,8 @@ export async function exportStaticWorld(root,{out,revision,page,clientExtension:
   build:{outDir:output,emptyOutDir:false,sourcemap:false,target:'es2022',minify:true,assetsDir:'assets',chunkSizeWarningLimit:2500}});
  if(metadata){
   const index=path.join(output,'index.html'),html=await readFile(index,'utf8');if(!html.includes('<title>Holodeck world</title>'))throw new Error('Viewer page has no title to replace');
-  await writeFile(index,html.replace('<title>Holodeck world</title>',()=>pageHead(metadata)));
+  if(metadata.about&&!html.includes('<div id="root"></div>'))throw new Error('Viewer page has no root to place the about text beside');
+  await writeFile(index,html.replace('<title>Holodeck world</title>',()=>pageHead(metadata)).replace('<div id="root"></div>',match=>metadata.about?match+pageAboutHtml(metadata.about):match));
   if(metadata.image)await writeFile(path.join(output,metadata.image.file),metadata.image.bytes,{flag:'wx'});
  }
  await mkdir(path.join(output,'assets/imports'),{recursive:true});

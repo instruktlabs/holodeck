@@ -72,6 +72,10 @@ holodeck export ./my-world --out ./site/worlds/garden \
   --image-alt "The garden from its gate" --license https://creativecommons.org/publicdomain/zero/1.0/
 ```
 
+- `--about-file` takes a JSON file of `{heading, summary, details[], links[]}` and adds
+  it to the page as a closed `<details class="scene-about">` beside `#root`, so the text is
+  in the static HTML and stays after the viewer mounts. It hides while walking and in photo
+  mode. `build-site` fills it for each shelf world from `site/scenes.json`.
 - `--title` and `--description` are required together. They set `<title>` and the
   meta description.
 - `--url` is the page's absolute `https` address and must end with `/`. It adds a

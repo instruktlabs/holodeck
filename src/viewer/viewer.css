@@ -31,3 +31,9 @@
 @keyframes viewer-load-gleam{to{stroke-dashoffset:-1}}
 @keyframes viewer-load-dot{0%,70%,100%{opacity:.18;transform:translateY(0)}35%{opacity:1;transform:translateY(-1px)}}
 @media(prefers-reduced-motion:reduce){.viewer-load,.viewer-load.is-leaving,.viewer-load-disc,.viewer-load-ring .gleam,.viewer-load-ellipsis span{animation:none}.viewer-load{transform:translate(-50%,-50%)}.viewer-load.is-leaving{opacity:0}.viewer-load-ring .progress{transition:none}}
+/* Static page text from `holodeck export --about-file`, a sibling of #root that stays after mount. Closed it is one small
+   control; it leaves with the rest of the controls while walking, in photo mode and in benchmark captures. */
+.scene-about{position:fixed;z-index:3;top:72px;left:20px;width:max-content;max-width:min(420px,calc(100vw - 40px));max-height:calc(100vh - 170px);overflow:auto;padding:8px 14px;border:1px solid #53624926;border-radius:22px;background:#f5f2e7ed;font-size:13px;line-height:1.45}
+.scene-about summary{cursor:pointer}.scene-about h1{margin:10px 0 6px;font-size:18px;font-weight:600}.scene-about p{margin:6px 0}.scene-about ul{margin:6px 0;padding-left:18px}.scene-about a{color:#7a5310}
+body:has(.static-viewer.inhabiting) .scene-about,body:has(.static-viewer.hud-hidden) .scene-about,body:has(.viewer-diagnostics) .scene-about{display:none}
+@media(max-width:700px){.scene-about{top:64px;left:10px;max-width:calc(100vw - 20px)}}

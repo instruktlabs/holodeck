@@ -10,6 +10,7 @@ import {promisify} from 'node:util';
 import {renderSite,imageSize,videoInfo,readLab,LAB,MAX_LAB_VIDEO_BYTES,PAGES,SITE_URL} from '../scripts/render-site.mjs';
 import {buildSite} from '../scripts/build-site.mjs';
 import {mp4} from '../test/fixtures/mp4.mjs';
+const escapeHtml=value=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const site=fileURLToPath(new URL('../site/',import.meta.url));
 // The deployable site, built once from the bundled examples as CI builds it.
@@ -101,6 +102,10 @@ test('each scene, exported from its bundled example, has its own head tags, card
   assert.ok(html.includes(`<link rel="canonical" href="${url}">`));assert.ok(html.includes(`<meta property="og:image" content="${url}preview.jpg">`));
   assert.deepEqual(imageSize(await readFile(path.join(root,'preview.jpg'))),{width:1200,height:630});
   const [data]=ldBlocks(html);assert.equal(data['@type'],'CreativeWork');assert.equal(data.url,url);
+  // The page's words are static and outside #root, and say only what the catalog says.
+  const about=html.match(/<div id="root"><\/div>(<details class="scene-about">.*?<\/details>)/s)?.[1];assert.ok(about,`${scene.id} has no static about text`);
+  assert.ok(about.includes('<h1>'));for(const shot of scene.shots)assert.ok(about.includes(`<li>${escapeHtml(shot.alt)}</li>`),shot.alt);
+  assert.ok(about.split(/\s+/).length>=50,`${scene.id} about text is thin`);
   const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
   for(const entry of manifest.files){const bytes=await readFile(path.join(root,entry.file));assert.equal(digest(bytes),entry.sha256,`${scene.id}/${entry.file}`);}
   const view=JSON.parse(await readFile(path.join(root,'scene.json'),'utf8'));assert.equal(view.world.bible.intent,'');assert.deepEqual(view.world.references,[]);
