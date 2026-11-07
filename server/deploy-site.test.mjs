@@ -16,7 +16,7 @@ const ACCOUNT='0123456789abcdef0123456789abcdef';
 // the Pages API is the fixture's stub.
 const go=options=>deploy({env:{CLOUDFLARE_API_TOKEN:'test-value',CLOUDFLARE_ACCOUNT_ID:ACCOUNT},fetch:options.run?.fetch,...options});
 const SHOTS=Array.from({length:4},(_,i)=>({src:'images/cove.png',alt:`Cove shot ${i+1}`}));
-const scenes=title=>JSON.stringify([{id:'cove',example:'construct',title,summary:'A small cove.',shots:SHOTS,path:'worlds/cove/',updated:'2026-10-26'}]);
+const scenes=title=>JSON.stringify([{id:'cove',example:'construct',title,summary:'A small cove.',placard:{line:'A small cove.',more:'A seat under a canopy.'},shots:SHOTS,path:'worlds/cove/',updated:'2026-10-26'}]);
 
 // A one-scene shelf, rendered current, and a site built from it, with git and
 // Wrangler and the Pages API replaced by recorders.

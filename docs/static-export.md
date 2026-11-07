@@ -72,6 +72,14 @@ holodeck export ./my-world --out ./site/worlds/garden \
   --image-alt "The garden from its gate" --license https://creativecommons.org/publicdomain/zero/1.0/
 ```
 
+- `--about-file` takes a JSON file of `{heading, line, more, links[]}` (`more` and `links`
+  are optional) and adds a quiet placard to the page: an `<aside class="scene-placard">`
+  beside `#root`, so the text is in the static HTML, is the page's `h1`, and stays after the
+  viewer mounts. The heading and line show on the overview; `more` and the links open under
+  More. It leaves the screen while walking, in photo mode and in benchmark captures, and it
+  passes drags, pinches and the wheel through to the scene. `build-site` fills it for each
+  shelf world from the `placard` in `site/scenes.json`, and `npm run probe:placard -- --site
+  <folder>` walks a built shelf in a real browser to check it.
 - `--title` and `--description` are required together. They set `<title>` and the
   meta description.
 - `--url` is the page's absolute `https` address and must end with `/`. It adds a

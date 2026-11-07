@@ -71,7 +71,8 @@ Agent connection retains the existing Kiln setup workflow.
   lets you inspect the scene. Patrol joints and flock wings use procedural gait.
 - Meridian Sanctuary: Enter world at the arrival, walk the causeway between the
   pools and climb the terraces to the gate. The east arch leads over the bridge to
-  the pavilion and down three flights to the plaza; the mirror orbs reflect you.
+  the pavilion and the plaza, then up three flights to a second pavilion; the mirror
+  orbs reflect you.
 - Winter Mountainside Cabin: Enter world at the trailhead and follow the trail
   markers up to the cabin. Press E near a door to open it; the interior stair
   leads to the loft, and the return path passes the lake viewpoint seat.

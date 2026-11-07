@@ -73,18 +73,20 @@ export async function renderSite(site){
  if(!Array.isArray(scenes)||!scenes.length)fail('Scene catalog needs at least one scene');const ids=new Set();
  const cards=[],items=[];
  for(const [index,scene] of scenes.entries()){
-  if(Object.keys(scene).some(key=>!['id','example','kicker','title','summary','shots','path','updated','gallery','hero'].includes(key)))fail('Unexpected scene catalog field');
+  if(Object.keys(scene).some(key=>!['id','example','kicker','title','summary','placard','shots','path','updated','gallery','hero'].includes(key)))fail('Unexpected scene catalog field');
   if(!/^[a-z][a-z0-9-]{0,63}$/.test(scene.id)||ids.has(scene.id))fail('Scene ids must be unique slugs');ids.add(scene.id);
   // The deployed scene is exported from this bundled example by scripts/build-site.mjs, with site/cards/<id>.jpg as its card.
   if(typeof scene.example!=='string'||!/^[a-z][a-z0-9-]{0,63}$/.test(scene.example))fail(`Scene ${scene.id} needs the example it is built from`);
   const card=imageSize(await file(site,`cards/${scene.id}.jpg`,'Scene card'));if(card.width!==1200||card.height!==630)fail(`Scene ${scene.id} card must be 1200×630`);
   for(const key of ['title','summary'])if(typeof scene[key]!=='string'||!scene[key].trim())fail(`Scene ${scene.id} needs a ${key}`);
   if(scene.kicker!==undefined&&(typeof scene.kicker!=='string'||!scene.kicker.trim()))fail(`Scene ${scene.id} kicker must be text`);
+  // placard: the words on the scene's own page, a line always shown and a little more behind More. Short enough to leave the scene in view.
+  const {line,more}=scene.placard??{};if(Object.keys(scene.placard??{}).join()!=='line,more'||typeof line!=='string'||!line.trim()||line.length>120||typeof more!=='string'||!more.trim()||more.length>400)fail(`Scene ${scene.id} needs a placard: a line of at most 120 characters and at most 400 more`);
   // Feature + 3: the first shot is the large one, the other three sit beneath it.
   if(!Array.isArray(scene.shots)||scene.shots.length!==4)fail(`Scene ${scene.id} needs four shots`);
   for(const shot of scene.shots)if(Object.keys(shot).join()!=='src,alt'||typeof shot.src!=='string'||typeof shot.alt!=='string'||!shot.alt.trim())fail(`Scene ${scene.id} shots need a src and alt`);
   if(scene.path!==`worlds/${scene.id}/`)fail(`Scene ${scene.id} must live at worlds/${scene.id}/`);
-  // updated: the date the scene's example or card last changed, the sitemap lastmod of its page.
+  // updated: the date the scene's example, card or placard last changed, the sitemap lastmod of its page.
   if(typeof scene.updated!=='string'||!W3C_DATE.test(scene.updated))fail(`Scene ${scene.id} needs an updated date (YYYY-MM-DD)`);
   if(scene.gallery!==undefined&&!/^https:\/\/kilnstudio\.tools\//.test(scene.gallery))fail(`Scene ${scene.id} gallery must be a kilnstudio.tools page`);
   // hero: the scene's slide in the home hero's carousel.

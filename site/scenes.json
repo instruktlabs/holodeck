@@ -4,6 +4,10 @@
   "example": "meridian-sanctuary",
   "title": "Meridian Sanctuary",
   "summary": "A marble sanctuary above the clouds: a causeway between mirror pools, terraces climbing to a gate tower, floating statues and mirrored orbs, and a bridge path off to the side.",
+  "placard": {
+   "line": "A marble sanctuary above the clouds, with a causeway running between mirror pools to a gate tower.",
+   "more": "From the arrival, walk the causeway and climb the terraces to the gate. Overhead, statues of a figure and a whale float among polished cubes, and the mirrored orbs reflect you as you pass. An arch on the east side leads over a bridge to a pavilion and a plaza, then up three flights to a second pavilion."
+  },
   "shots": [
    {
     "src": "images/scenes/meridian-sanctuary-arrival.webp",
@@ -23,7 +27,7 @@
    }
   ],
   "path": "worlds/meridian-sanctuary/",
-  "updated": "2026-10-28",
+  "updated": "2026-11-06",
   "hero": {
    "src": "images/hero-meridian-sanctuary.webp",
    "alt": "Meridian Sanctuary: a causeway between mirror pools toward a marble gate tower, with floating statues and a mirrored orb above the clouds."
@@ -35,6 +39,10 @@
   "example": "crescent-cove",
   "title": "Crescent Cove",
   "summary": "A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.",
+  "placard": {
+   "line": "A palm-lined crescent of beach around a turquoise lagoon, with a rocky headland to climb.",
+   "more": "You arrive on the sand. West along the beach stand a thatched shelter and a low timber jetty; a path on the headland to the east climbs to a view over the lagoon's shallows and coral heads. The lagoon is open for wading and swimming, over seagrass and coral."
+  },
   "shots": [
    {
     "src": "images/scenes/crescent-cove-aerial-southwest.webp",
@@ -54,7 +62,7 @@
    }
   ],
   "path": "worlds/crescent-cove/",
-  "updated": "2026-10-26",
+  "updated": "2026-11-06",
   "hero": {
    "src": "images/hero-crescent-cove.webp",
    "alt": "Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon."
@@ -66,6 +74,10 @@
   "example": "courtyard",
   "title": "The Quiet Courtyard",
   "summary": "A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.",
+  "placard": {
+   "line": "A walled garden of cypress and olive around a stone fountain.",
+   "more": "You start at the cove, just outside the open gateway. A paved axis leads through it to the tiered fountain, ringed with benches, and three statues stand at the ends of the paths. Plane trees, cypresses and olives shade four planted beds."
+  },
   "shots": [
    {
     "src": "images/scenes/courtyard-overview.webp",
@@ -85,7 +97,7 @@
    }
   ],
   "path": "worlds/courtyard/",
-  "updated": "2026-10-26",
+  "updated": "2026-11-06",
   "hero": {
    "src": "images/hero-courtyard.webp",
    "alt": "The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."
@@ -97,6 +109,10 @@
   "example": "tidemark",
   "title": "Tidemark Island",
   "summary": "A quiet tropical island with open beaches, layered jungle, a thatched shelter and gently moving wildlife.",
+  "placard": {
+   "line": "A quiet tropical island of open beach and layered jungle, with wildlife moving gently through it.",
+   "more": "Walk the shore, wade or swim in the shallows, or head through the palms and ferns to a small thatched shelter. Three residents, a few birds and some crabs walk short rounds of their own, and a flock passes overhead."
+  },
   "shots": [
    {
     "src": "images/scenes/tidemark-overview.webp",
@@ -116,7 +132,7 @@
    }
   ],
   "path": "worlds/tidemark/",
-  "updated": "2026-10-26",
+  "updated": "2026-11-06",
   "gallery": "https://kilnstudio.tools/packs/holodeck/tidemark/"
  },
  {
@@ -124,6 +140,10 @@
   "example": "winter-mountainside-cabin",
   "title": "Winter Mountainside Cabin",
   "summary": "A snowy forest trail leads to a furnished timber cabin, with a sleeping loft, a mountain-facing deck and a stone seat overlooking the lake.",
+  "placard": {
+   "line": "A snowy forest trail leads to a furnished timber cabin on a mountainside at dusk.",
+   "more": "From the trailhead, markers lead up through the conifers to the cabin. Open the door to find a kitchen, a dining table and a living room around a stone hearth, with a stair up to a sleeping loft and a desk. A deck faces the mountains, and the way back passes a stone seat above the lake."
+  },
   "shots": [
    {
     "src": "images/scenes/winter-mountainside-cabin-exterior.webp",
@@ -143,7 +163,7 @@
    }
   ],
   "path": "worlds/winter-mountainside-cabin/",
-  "updated": "2026-10-25",
+  "updated": "2026-11-06",
   "hero": {
    "src": "images/hero-winter-mountainside-cabin.webp",
    "alt": "Winter Mountainside Cabin: a timber cabin on a snowy slope among snow-laden pines."
@@ -156,6 +176,10 @@
   "kicker": "The maker space",
   "title": "The Cove",
   "summary": "The starter workspace is a curved stone seat under a linen canopy, with a hearth, ferns and lamps, where you and your agent begin building.",
+  "placard": {
+   "line": "A curved stone seat under a linen canopy, where you and your agent begin building.",
+   "more": "Every new Holodeck world starts here, on an open grid with nothing else built yet: a hearth stone on a round table, potted ferns and lamps. In your own workspace, the world around it takes shape from what you and your agent agree on. This page is only the starting point to walk around, with no agent connected."
+  },
   "shots": [
    {
     "src": "images/scenes/cove-side.webp",
@@ -175,7 +199,7 @@
    }
   ],
   "path": "worlds/cove/",
-  "updated": "2026-10-26",
+  "updated": "2026-11-06",
   "gallery": "https://kilnstudio.tools/packs/holodeck/cove/"
  }
 ]

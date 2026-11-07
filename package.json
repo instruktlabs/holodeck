@@ -47,6 +47,7 @@
     "check:distribution": "node scripts/check-distribution.mjs",
     "render:site": "node scripts/render-site.mjs",
     "build:site": "node scripts/build-site.mjs",
+    "probe:placard": "node scripts/placard-probe.mjs",
     "probe:world": "node scripts/world-probe.mjs"
   },
   "dependencies": {

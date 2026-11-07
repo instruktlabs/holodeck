@@ -10,6 +10,7 @@ import {promisify} from 'node:util';
 import {renderSite,imageSize,videoInfo,readLab,LAB,MAX_LAB_VIDEO_BYTES,PAGES,SITE_URL} from '../scripts/render-site.mjs';
 import {buildSite} from '../scripts/build-site.mjs';
 import {mp4} from '../test/fixtures/mp4.mjs';
+const escapeHtml=value=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const site=fileURLToPath(new URL('../site/',import.meta.url));
 // The deployable site, built once from the bundled examples as CI builds it.
@@ -101,10 +102,24 @@ test('each scene, exported from its bundled example, has its own head tags, card
   assert.ok(html.includes(`<link rel="canonical" href="${url}">`));assert.ok(html.includes(`<meta property="og:image" content="${url}preview.jpg">`));
   assert.deepEqual(imageSize(await readFile(path.join(root,'preview.jpg'))),{width:1200,height:630});
   const [data]=ldBlocks(html);assert.equal(data['@type'],'CreativeWork');assert.equal(data.url,url);
+  // The placard's words are static, outside #root, written in the catalog, and the page's one h1.
+  const placard=html.match(/<div id="root"><\/div>(<aside class="scene-placard">.*?<\/aside>)/s)?.[1];assert.ok(placard,`${scene.id} has no placard`);
+  assert.equal(html.match(/<h1\b/g).length,1,`${scene.id} has one h1`);
+  assert.ok(placard.startsWith(`<aside class="scene-placard"><h1>${escapeHtml(scene.title)}</h1><p>${escapeHtml(scene.placard.line)}</p><details><summary>More</summary><div><p>${escapeHtml(scene.placard.more)}</p>`),`${scene.id} placard words`);
+  assert.ok(placard.includes('<a href="../../">All Holodeck scenes</a>'));
+  assert.ok(placard.includes(`<a href="${escapeHtml(scene.gallery)}">Its assets in the Kiln gallery</a>`),`${scene.id} gallery link`);
   const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
   for(const entry of manifest.files){const bytes=await readFile(path.join(root,entry.file));assert.equal(digest(bytes),entry.sha256,`${scene.id}/${entry.file}`);}
   const view=JSON.parse(await readFile(path.join(root,'scene.json'),'utf8'));assert.equal(view.world.bible.intent,'');assert.deepEqual(view.world.references,[]);
  }
+});
+
+test('only the shelf carries a placard, and a shelf scene cannot go without one',async t=>{
+ for(const entry of (await readLab(site))?.filter(entry=>entry.scene)??[])assert.doesNotMatch(await readFile(path.join(built,entry.path,'play/index.html'),'utf8'),/scene-placard/,entry.path);
+ const root=await mkdtemp(path.join(os.tmpdir(),'holodeck-placard-test-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ await cp(site,root,{recursive:true,filter:source=>path.relative(site,source).split(path.sep)[0]!=='worlds'});
+ const scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8')),write=placard=>writeFile(path.join(root,'scenes.json'),JSON.stringify([{...scenes[0],placard},...scenes.slice(1)]));
+ for(const placard of [undefined,{line:'A line.'},{line:'A line.',more:'More.',extra:'x'},{line:'x'.repeat(121),more:'More.'},{line:'A line.',more:'x'.repeat(401)}]){await write(placard);await assert.rejects(renderSite(root),/needs a placard/);}
 });
 
 test('the pages.dev hosts are kept out of search and the production host is not',async()=>{
@@ -138,9 +153,10 @@ test('sitemap dates are not older than the git history of each page',async t=>{
  if(await git('rev-parse','--is-shallow-repository').catch(()=>'true')!=='false')return t.skip('no full git history');
  const newest=async paths=>(await git('log','-1','--format=%cs','--',...paths))||null;
  const scenes=JSON.parse(await readFile(path.join(site,'scenes.json'),'utf8'));
- // A page is built from its HTML and, for the shelf, the catalog and images; a scene from its example
+ // A page is built from its HTML and, for the shelf, its images: site/index.html is committed as rendered, so a catalog
+ // change that reaches the shelf shows there and one that does not leaves its date alone. A scene from its example
  // (the construct template also scaffolds the cove's assets) and its card.
- const sources={'':['site/index.html','site/scenes.json','site/images'],'about/':['site/about']};
+ const sources={'':['site/index.html','site/images'],'about/':['site/about']};
  const pages=[...PAGES.map(page=>({...page,paths:sources[page.path]})),...scenes.map(scene=>({path:scene.path,updated:scene.updated,
   paths:[`examples/${scene.example}`,`examples/${scene.example}.json`,`site/cards/${scene.id}.jpg`,...(scene.example==='construct'?['assets/cove']:[])]}))];
  // The Lab's index is rendered from its catalog; an entry's page from its folder and, when it plays, its example.

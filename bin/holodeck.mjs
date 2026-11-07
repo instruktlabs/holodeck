@@ -7,7 +7,7 @@ import {defaultLaunchDirectory,openPrototype,parseLaunchArgs,prepareLaunchDirect
 import {validateWorld,validateGlb} from '../src/world/contract.mjs';
 const packageRoot=fileURLToPath(new URL('../',import.meta.url));
 const [command,folder,...args]=process.argv.slice(2);
-const usage='Usage: holodeck launch [directory] [--port 4186]; holodeck init <new-folder> [--example <id> | --bundle <local-directory>]; holodeck dev <folder> [--port 4186]; holodeck check <folder>; holodeck export <folder> --out <new-directory> [--revision N] [--title T --description D [--url https://…/] [--image preview.jpg] [--image-alt A] [--license https://…]]';
+const usage='Usage: holodeck launch [directory] [--port 4186]; holodeck init <new-folder> [--example <id> | --bundle <local-directory>]; holodeck dev <folder> [--port 4186]; holodeck check <folder>; holodeck export <folder> --out <new-directory> [--revision N] [--title T --description D [--url https://…/] [--image preview.jpg] [--image-alt A] [--license https://…] [--about-file about.json]]';
 async function serve(root,port){
  await readFile(path.join(root,'world/world.json'));process.env.HOLODECK_WORKSPACE=root;
  await import('../scripts/prepare-runtime.mjs');
@@ -35,8 +35,9 @@ try{
   const {WorldStore}=await import('../server/world-store.mjs');await (await WorldStore.open(root)).close();
  }else if(command==='export'){
   const pageFlags={'--title':'title','--description':'description','--url':'url','--image':'image','--image-alt':'imageAlt','--license':'license'};
-  const options={};for(let i=0;i<args.length;i+=2){const name=args[i],value=args[i+1];if(!['--out','--revision','--client-extension',...Object.keys(pageFlags)].includes(name)||!value||value.startsWith('--')||Object.hasOwn(options,name))throw new Error('Use --out <new-directory>, optional --revision <non-negative integer>, optional --client-extension <absolute module path> and optional page metadata (--title, --description, --url, --image, --image-alt, --license)');options[name]=value;}
+  const options={};for(let i=0;i<args.length;i+=2){const name=args[i],value=args[i+1];if(!['--out','--revision','--client-extension','--about-file',...Object.keys(pageFlags)].includes(name)||!value||value.startsWith('--')||Object.hasOwn(options,name))throw new Error('Use --out <new-directory>, optional --revision <non-negative integer>, optional --client-extension <absolute module path> and optional page metadata (--title, --description, --url, --image, --image-alt, --license, --about-file)');options[name]=value;}
   const page=Object.fromEntries(Object.entries(pageFlags).filter(([flag])=>options[flag]!==undefined).map(([flag,key])=>[key,key==='image'?path.resolve(options[flag]):options[flag]]));
+  if(options['--about-file']!==undefined)page.about=JSON.parse(await readFile(path.resolve(options['--about-file']),'utf8'));
   const revision=options['--revision']===undefined?undefined:Number(options['--revision']);if(revision!==undefined&&(!/^\d+$/.test(options['--revision'])||!Number.isSafeInteger(revision)))throw new Error('Choose a non-negative integer revision');
   const {exportStaticWorld}=await import('../server/static-export.mjs');const result=await exportStaticWorld(root,{out:options['--out'],revision,...(options['--client-extension']?{clientExtension:path.resolve(options['--client-extension'])}:{}),...(Object.keys(page).length?{page}:{})});
   console.log(`Exported revision ${result.revision}: ${result.files} files, ${result.assets} pinned assets at ${result.path}. Upload the entire directory to a static host.`);
