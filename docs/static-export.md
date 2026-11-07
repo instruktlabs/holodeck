@@ -18,8 +18,9 @@ Upload the entire finished directory to a static HTTP(S) host. URLs are relative
 so the same package works at the domain root or beneath a path such as
 `/worlds/example/`. No Node process, agent login, provider credential or API route
 is needed. Open through the host rather than `file://`. HTTPS enables WebGPU on
-supported browsers; the renderer falls back to WebGL2. `?backend=webgl` forces that
-backend for verification.
+supported browsers; the renderer falls back to WebGL2, including when the browser
+reports that WebGPU can only offer a software adapter. `?backend=webgl` forces that
+backend for verification. `?benchmark=1` is excluded, and reports what it was given.
 
 `?benchmark=1` opens an opt-in diagnostics panel with actual renderer evidence,
 validated fixed-camera scenarios, bounded measurements and a local JSON download.
