@@ -1,5 +1,6 @@
 // Walks a built shelf in a real GPU browser, a bright world and a dark one on each backend: the placard shows on the
-// overview and takes no keys, it leaves for the world and comes back closed, and walking still moves.
+// overview and takes no keys, it leaves for the world and comes back closed, and walking still moves. Then it really
+// loses the renderer on each backend: the scene stops, the placard goes, and the card's reload draws again.
 // Usage: npm run probe:placard -- --site <folder from build-site>
 // Needs a display. On a hybrid-GPU laptop, set the PRIME variables too, so that Chrome keeps to the one GPU.
 import {chromium} from '@playwright/test';
@@ -26,6 +27,8 @@ const server=http.createServer((request,response)=>{
 await new Promise(done=>server.listen(0,'127.0.0.1',done));
 const origin=`http://127.0.0.1:${server.address().port}`;
 
+const ready=async page=>{await page.waitForFunction(()=>{const b=document.querySelector('.viewer-toolbar button.primary');return b&&!b.disabled&&!document.querySelector('.viewer-load');},null,{timeout:240000});await sleep(800);};
+const label=page=>page.evaluate(()=>document.querySelector('.viewer-footer details summary').textContent.split('·')[0].trim());
 const plate=page=>page.evaluate(()=>{const p=document.querySelector('.scene-placard');return {shown:getComputedStyle(p).display!=='none',open:p.querySelector('details').open};});
 const status=page=>page.evaluate(()=>{const lines=[...document.querySelectorAll('.viewer-footer details p')].map(p=>p.textContent),camera=lines.find(line=>line.startsWith('Camera'))??'';return {feet:(camera.match(/Feet: ([-\d.]+), ([-\d.]+), ([-\d.]+)/)||[]).slice(1).map(Number),state:(camera.match(/State: (.+)$/)||[])[1],walking:document.querySelector('.static-viewer').classList.contains('inhabiting'),active:document.activeElement?.tagName};});
 // Held keys walk; a spawn can face a post, so a key that is blocked hands over to the opposite one.
@@ -40,9 +43,9 @@ async function walkWorld(browser,world,backend){
  const context=await browser.newContext({viewport:{width:1280,height:720}}),page=await context.newPage(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));page.on('console',message=>{if(/Device Lost/.test(message.text()))errors.push(message.text());});
  await page.goto(`${origin}/worlds/${world}/${backend.query}`,{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>{const b=document.querySelector('.viewer-toolbar button.primary');return b&&!b.disabled&&!document.querySelector('.viewer-load');},null,{timeout:240000});await sleep(800);
- assert.equal(await page.evaluate(()=>document.querySelector('.viewer-footer details summary').textContent.split('·')[0].trim()),backend.name,'the backend this pass is for');
- if(backend.name==='WebGPU'){const adapter=await page.evaluate(async()=>{const a=await navigator.gpu.requestAdapter({featureLevel:'compatibility'});return {name:`${a?.info?.vendor}/${a?.info?.architecture}`,software:a?.info?.isFallbackAdapter};});assert.ok(!adapter.software,`WebGPU fell back to ${adapter.name}, which is not this GPU`);}
+ await ready(page);
+ assert.equal(await label(page),backend.name,'the backend this pass is for');
+ if(backend.name==='WebGPU'){const adapter=await page.evaluate(async()=>{const a=await navigator.gpu.requestAdapter({powerPreference:'high-performance',featureLevel:'compatibility'});return {name:`${a?.info?.vendor}/${a?.info?.architecture}`,software:a?.info?.isFallbackAdapter};});assert.ok(!adapter.software,`WebGPU fell back to ${adapter.name}, which is not this GPU`);}
  assert.deepEqual(await plate(page),{shown:true,open:false},'on the overview');
  // More, then in with the mouse: the keys go to the world and the placard is gone.
  await page.click('.scene-placard summary');assert.equal((await plate(page)).open,true,'More opens');
@@ -60,10 +63,31 @@ async function walkWorld(browser,world,backend){
  assert.deepEqual(errors,[],'no page errors, and the device stayed');
  await context.close();
 }
+// Mid-walk, a real loss: on WebGPU this test browser's own GPU process crashes, as `device.destroy()` is filtered out as deliberate, and on
+// WebGL2 the context goes. Last in its browser, which is not the same after a crash.
+async function loseRenderer(browser,world,backend){
+ const context=await browser.newContext({viewport:{width:1280,height:720}}),page=await context.newPage(),errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ await page.goto(`${origin}/worlds/${world}/${backend.query}`,{waitUntil:'domcontentloaded'});await ready(page);
+ await page.click('.viewer-toolbar button.primary');await sleep(1000);assert.ok((await status(page)).walking,'in the world');
+ await page.keyboard.down('KeyW');
+ if(backend.name==='WebGPU'){const devtools=await browser.newBrowserCDPSession();devtools.send('Browser.crashGpuProcess').catch(()=>{});}
+ else await page.evaluate(()=>document.querySelector('canvas').getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
+ await page.waitForSelector('.viewer-lost',{timeout:30000});await page.keyboard.up('KeyW');
+ assert.deepEqual(await page.evaluate(()=>({canvases:document.querySelectorAll('canvas').length,footers:document.querySelectorAll('.viewer-footer').length,walking:document.querySelector('.static-viewer').classList.contains('inhabiting'),locked:!!document.pointerLockElement,onReload:document.activeElement===document.querySelector('.viewer-lost button')})),{canvases:0,footers:0,walking:false,locked:false,onReload:true},'the scene stopped, with focus on the way back');
+ assert.equal((await plate(page)).shown,false,'the placard goes with it');
+ await Promise.all([page.waitForEvent('load'),page.keyboard.press('Enter')]);await ready(page);
+ assert.equal(await label(page),'WebGL2','the reload draws, on WebGL2');
+ assert.deepEqual(errors,[],'no page errors');
+ await context.close();
+}
 let failed=false;
 try{for(const backend of BACKENDS){
  const browser=await chromium.launch({channel:'chrome',headless:false,args:['--no-first-run',...backend.args]});
- try{for(const world of WORLDS)try{await walkWorld(browser,world,backend);console.log(`ok ${world} on ${backend.name}`);}catch(error){failed=true;console.log(`not ok ${world} on ${backend.name}: ${error.message}`);}}
+ try{
+  for(const world of WORLDS)try{await walkWorld(browser,world,backend);console.log(`ok ${world} on ${backend.name}`);}catch(error){failed=true;console.log(`not ok ${world} on ${backend.name}: ${error.message}`);}
+  try{await loseRenderer(browser,WORLDS[0],backend);console.log(`ok a lost renderer on ${backend.name}`);}catch(error){failed=true;console.log(`not ok a lost renderer on ${backend.name}: ${error.message}`);}
+ }
  finally{await browser.close();}
 }}finally{server.close();}
 if(failed)process.exitCode=1;

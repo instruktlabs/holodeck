@@ -1,4 +1,4 @@
-import React,{useCallback,useEffect,useLayoutEffect,useMemo,useState} from 'react';
+import React,{useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Canvas} from '@react-three/fiber';
 import {WebGPURenderer,ACESFilmicToneMapping} from 'three/webgpu';
@@ -15,7 +15,7 @@ import './viewer.css';
 import {Benchmark} from './benchmark.jsx';
 import {Diagnostics,RenderReadiness} from './diagnostics.jsx';
 import {createInitializationEvidence} from './renderer-diagnostics.mjs';
-import {avoidSoftwareWebGPU} from './renderer-recovery.mjs';
+import {avoidSoftwareWebGPU,reloadAfterLoss,watchRendererLoss} from './renderer-recovery.mjs';
 import {enableParallelCompile} from '../world/parallel-compile.js';
 import {DEFAULT_EXPOSURE} from '../world/lighting.mjs';
 import {validateScenario,scenarioCamera,withoutMaker} from './benchmark-protocol.mjs';
@@ -88,6 +88,10 @@ function Viewer(){
  const [inhabiting,setInhabiting]=useState(benchmarkEnabled),[cameraMode,setCameraMode]=useState(benchmarkEnabled?'free':'walk'),[person,setPerson]=useState('first'),[cove,setCove]=useState(true),[homeTick,setHomeTick]=useState(0),[locked,setLocked]=useState(false),[aim,setAim]=useState(null),[hidden,setHidden]=useState(benchmarkEnabled),[paused,setPaused]=useState(false),[notice,setNotice]=useState(''),[observation,setObservation]=useState({}),[revealed,setRevealed]=useState(false),[leaving,setLeaving]=useState(false);
  const touch=useMemo(createTouchInput,[]),emotes=useMemo(createEmoteInput,[]),touchMode=useTouchMode(),[menu,setMenu]=useState(false);
  const leaveWorld=useCallback(()=>{setInhabiting(false);setLocked(false);document.exitPointerLock?.();document.activeElement?.blur();},[]);
+ // A lost renderer ends the scene. The canvas goes with it, so nothing draws or moves behind the error state, and the way back is a reload,
+ // which takes focus once leaving the world has dropped it.
+ const [lost,setLost]=useState(null),reload=useRef(null);
+ useEffect(()=>{if(lost){leaveWorld();setHidden(false);setMenu(false);reload.current?.focus();}},[lost,leaveWorld]);
  const requestLook=useCallback(()=>{try{const canvas=document.querySelector('canvas');if(!canvas?.requestPointerLock){setNotice('Right-drag to look.');return;}canvas.requestPointerLock()?.catch(()=>setNotice('Right-drag to look.'));}catch{setNotice('Right-drag to look.');}},[]);
  const toggleHud=useCallback(()=>setHidden(v=>!v),[]),toggleFree=useCallback(()=>{setCameraMode(m=>m==='free'?'walk':'free');document.activeElement?.blur();},[]);
  const interact=useCallback(id=>{if(!runtime)return;const position=probe.actorEye??probe.position,query=runtime.interaction(id,position);setNotice(runtime.act(id,position)?query.label:query.reason==='out-of-reach'?'Move closer to interact.':'No action available here.');},[runtime]);
@@ -122,12 +126,13 @@ function Viewer(){
   return()=>{clearTimeout(timer);setAwake(false);window.removeEventListener('pointermove',wake);window.removeEventListener('keydown',key,true);};
  },[hidden]);
  useEffect(()=>{
-  if(inhabiting||benchmarkEnabled)return;
+  if(inhabiting||benchmarkEnabled||lost)return;
   const key=e=>{if(e.code==='KeyH'&&!e.repeat&&!e.target.closest?.('input,textarea,[contenteditable]'))setHidden(v=>!v);};
   window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);
- },[inhabiting]);
+ },[inhabiting,lost]);
  // A shelf world's placard is static text beside #root, for the overview only. It closes on the way out so it comes back quiet.
- useLayoutEffect(()=>{const placard=document.querySelector('.scene-placard');if(!placard)return;placard.hidden=inhabiting||hidden||menu;if(inhabiting||hidden)placard.querySelector('details')?.removeAttribute('open');},[inhabiting,hidden,menu]);
+ // A lost renderer leaves no overview, only the card and its reload, which the plate would otherwise crowd on a small window.
+ useLayoutEffect(()=>{const placard=document.querySelector('.scene-placard');if(!placard)return;placard.hidden=inhabiting||hidden||menu||!!lost;if(inhabiting||hidden)placard.querySelector('details')?.removeAttribute('open');},[inhabiting,hidden,menu,lost]);
  // It rests just above the footer, whose height changes as its controls wrap and its details open, and More's text scrolls within what
  // the footer and the plate's own head leave. Enter stays with More and the links: on window it means compose to the scene's keys, which
  // would take it from them.
@@ -153,20 +158,20 @@ function Viewer(){
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
  return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden?'hud-hidden':''}`}>
-  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&<Canvas shadows="percentage" dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL||(!benchmarkEnabled&&await avoidSoftwareWebGPU({powerPreference:props.powerPreference})),antialias:true});renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
+  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&!lost&&<Canvas shadows="percentage" dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL||(!benchmarkEnabled&&await avoidSoftwareWebGPU({powerPreference:props.powerPreference})),antialias:true});if(!benchmarkEnabled)watchRendererLoss(renderer,setLost);renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
    <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects effects={bundle.payload.world.scene.environment?.effects} grade={bundle.payload.world.scene.environment?.grade}/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
   {hidden&&!benchmarkEnabled&&!touchMode&&<button type="button" className={`viewer-photo-exit ${awake?'awake':''}`} onClick={()=>setHidden(false)}>Show controls <kbd>H</kbd></button>}
   {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
-  <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href={home} {...(home==='./'?{}:{title:'All scenes','aria-label':'Back to all scenes'})}><i className="viewer-mark" aria-hidden="true"/><span className="viewer-brand-name">holodeck <span>world</span></span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error} onClick={enterWorld}>Enter world ↗</button>}</div></header>
-  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:showLoader?<SceneLoader label={loadingAssets?'Loading the scene':'Preparing the current view'} progress={shownProgress} leaving={leaving} onLeave={event=>{if(event.animationName==='viewer-load-out'&&event.target===event.currentTarget)setRevealed(true);}}/>:null}
+  <header className="viewer-toolbar" inert={benchmarkEnabled}><a className="viewer-brand" href={home} {...(home==='./'?{}:{title:'All scenes','aria-label':'Back to all scenes'})}><i className="viewer-mark" aria-hidden="true"/><span className="viewer-brand-name">holodeck <span>world</span></span></a><div>{inhabiting?<button onClick={leaveWorld}>Stop exploring <kbd>Esc</kbd></button>:<button className="primary" disabled={!observation.ready||!!error||!!lost} onClick={enterWorld}>Enter world ↗</button>}</div></header>
+  {error?<section className="viewer-card viewer-error" role="alert">{error}</section>:lost?<section className="viewer-card viewer-error viewer-lost" role="alert">The graphics device stopped responding, so this scene can't keep drawing.<button ref={reload} type="button" className="primary" onClick={()=>reloadAfterLoss(lost)}>Reload the scene</button></section>:showLoader?<SceneLoader label={loadingAssets?'Loading the scene':'Preparing the current view'} progress={shownProgress} leaving={leaving} onLeave={event=>{if(event.animationName==='viewer-load-out'&&event.target===event.currentTarget)setRevealed(true);}}/>:null}
   {inhabiting&&possessed&&<EmoteWheel input={emotes}/>}
   {/* Benchmark captures show the world alone, without the walk reticle (H78). */}
   {inhabiting&&!benchmarkEnabled&&<><div className="viewer-reticle"/><div className="viewer-aim">{cameraMode==='walk'&&interaction?.action?(interaction.available?`${touchMode?'Tap':'E'} · ${interaction.label}`:'Move closer to interact'):''}</div></>}
-  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} emotes={emotes} bottom={hidden?24:150}>
+  <TouchControls touch={touch} active={!benchmarkEnabled&&touchMode&&!!observation.ready&&!lost} mode={effectiveMode} possessed={possessed} interaction={interaction} onInteract={()=>interact(aim)} emotes={emotes} bottom={hidden?24:150}>
    <button type="button" className="touch-button quiet" aria-pressed={hidden} onClick={toggleHud}>{hidden?'Show controls':'Photo mode'}</button>
   </TouchControls>
-  <footer className="viewer-footer" inert={benchmarkEnabled}>
+  {!lost&&<footer className="viewer-footer" inert={benchmarkEnabled}>
    <div className={`viewer-view ${menu?'open':''}`}>
    <button className="viewer-view-toggle" aria-expanded={menu} aria-controls="viewer-controls" onClick={()=>setMenu(v=>!v)}>View · {view}</button>
    <div id="viewer-controls" className="viewer-controls" role="group" aria-label="Scene controls" onClick={e=>{if(e.target.closest('button'))setMenu(false);}}>
@@ -179,7 +184,7 @@ function Viewer(){
    </div>
    <p role="status">{notice||hint}{inhabiting&&!locked&&!touchMode?' · Right-drag to look, or click the scene to capture the mouse.':''}</p>
    <details><summary>{observation.backend??'Preparing renderer'} · Revision {bundle?.payload.world.revision??'…'} · Static scene</summary><RenderReadiness evidence={observation}/><p>Scene activity stays in this browser session. No agent or backend connection.</p><p>Camera: {effectiveMode}{possessed?` / ${person}`:''} · Feet: {observation.actor?.position?.map(n=>n.toFixed(2)).join(', ')??'—'} · State: {observation.actor?.mode??'—'}</p>{observation.errors?.length>0&&<p role="alert">{observation.errors.join(' · ')}</p>}</details>
-  </footer>
+  </footer>}
  </main>;
 }
 createRoot(document.getElementById('root')).render(<Viewer/>);

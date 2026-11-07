@@ -12,3 +12,14 @@ export async function avoidSoftwareWebGPU({powerPreference,gpu=globalThis.naviga
   return (adapter?.info?.isFallbackAdapter??adapter?.isFallbackAdapter)===true&&hasWebGL2(createCanvas);
  }catch{return false;}
 }
+// Three's own handler logs the loss and stops drawing, so it stays. A lost WebGL2 context arrives here too, and Three never restores one.
+export function watchRendererLoss(renderer,report){
+ const own=renderer.onDeviceLost;
+ renderer.onDeviceLost=info=>{own.call(renderer,info);report(info.api);};
+}
+// A lost WebGPU device may well go the same way again, so the way back is on WebGL2, if the browser has it: without, that page could only
+// show an error. WebGL2 has nothing further to fall to, so it only reloads.
+export function reloadAfterLoss(api,{page=location,createCanvas=newCanvas}={}){
+ if(api!=='WebGPU'||!hasWebGL2(createCanvas)){page.reload();return;}
+ const next=new URL(page.href);next.searchParams.set('backend','webgl');page.replace(next.href);
+}

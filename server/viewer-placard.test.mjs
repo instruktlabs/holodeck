@@ -22,7 +22,7 @@ test('the placard passes pointers through, except on More, its links and its tex
 
 test('the placard shows on the overview only, and comes back closed',async()=>{
  const main=await source('main.jsx'),rules=await placardRules();
- assert.ok(main.includes('placard.hidden=inhabiting||hidden||menu;'),'walking, photo mode and the View menu must hide it');
+ assert.ok(main.includes('placard.hidden=inhabiting||hidden||menu||!!lost;'),'walking, photo mode, the View menu and a lost renderer must hide it');
  assert.ok(main.includes("if(inhabiting||hidden)placard.querySelector('details')?.removeAttribute('open');"),'leaving must close it');
  assert.ok(main.includes('const [inhabiting,setInhabiting]=useState(benchmarkEnabled)'),'benchmark captures start in the world, which hides it');
  // A display on the plate would override the `hidden` that main.jsx sets.
