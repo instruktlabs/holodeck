@@ -1,4 +1,4 @@
-import React,{useCallback,useEffect,useMemo,useState} from 'react';
+import React,{useCallback,useEffect,useLayoutEffect,useMemo,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {Canvas} from '@react-three/fiber';
 import {WebGPURenderer,ACESFilmicToneMapping} from 'three/webgpu';
@@ -125,6 +125,19 @@ function Viewer(){
   const key=e=>{if(e.code==='KeyH'&&!e.repeat&&!e.target.closest?.('input,textarea,[contenteditable]'))setHidden(v=>!v);};
   window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);
  },[inhabiting]);
+ // A shelf world's placard is static text beside #root, for the overview only. It closes on the way out so it comes back quiet.
+ useLayoutEffect(()=>{const placard=document.querySelector('.scene-placard');if(!placard)return;placard.hidden=inhabiting||hidden||menu;if(inhabiting||hidden)placard.querySelector('details')?.removeAttribute('open');},[inhabiting,hidden,menu]);
+ // It rests just above the footer, whose height changes as its controls wrap and its details open, and More's text scrolls within what
+ // the footer and the plate's own head leave. Enter stays with More and the links: on window it means compose to the scene's keys, which
+ // would take it from them.
+ useEffect(()=>{
+  const placard=document.querySelector('.scene-placard'),footer=document.querySelector('.viewer-footer');if(!placard||!footer||benchmarkEnabled)return;
+  const more=placard.querySelector('details>div'),keep=e=>{if(e.code==='Enter')e.stopPropagation();};
+  const measure=()=>{placard.style.setProperty('--viewer-footer',`${footer.offsetHeight}px`);if(!more)return;placard.style.setProperty('--placard-head',`${placard.offsetHeight-more.offsetHeight}px`);more.classList.toggle('scrolls',more.scrollHeight>more.clientHeight+1);};
+  // A frame later, as measuring changes the size being observed.
+  const fit=new ResizeObserver(()=>requestAnimationFrame(measure));
+  placard.addEventListener('keydown',keep);fit.observe(footer);fit.observe(placard);return()=>{placard.removeEventListener('keydown',keep);fit.disconnect();};
+ },[]);
  useEffect(()=>{const fail=()=>setNotice('Mouse capture is unavailable. Right-drag to look.');document.addEventListener('pointerlockerror',fail);return()=>document.removeEventListener('pointerlockerror',fail);},[]);
  // The phone menu closes when a choice is made or the scene is touched.
  useEffect(()=>{if(!menu)return;const outside=e=>{if(!e.target.closest?.('.viewer-view'))setMenu(false);};window.addEventListener('pointerdown',outside,true);return()=>window.removeEventListener('pointerdown',outside,true);},[menu]);

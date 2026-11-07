@@ -94,15 +94,18 @@ test('static export page metadata without a URL keeps only the title and descrip
  const html=await readFile(path.join(out,'index.html'),'utf8');
  assert.match(html,/<title>Garden<\/title><meta name="description" content="A walled garden\.">/);assert.doesNotMatch(html,/canonical|og:|twitter:|ld\+json/);
 });
-test('static export places about text beside the root, escaped, so the viewer mount cannot replace it',async t=>{
+test('static export places the placard beside the root, escaped, so the viewer mount cannot replace it',async t=>{
  const {root,parent}=await fixture(t),out=path.join(parent,'about');
- await exportStaticWorld(root,{out,page:{title:'Garden',description:'A walled garden.',about:{heading:'The <garden>',summary:'A walled garden & a gate.',details:['From the gate.'],links:[{href:'../../',text:'All scenes'},{href:'https://example.com/g/',text:'Gallery'}]}}});
+ await exportStaticWorld(root,{out,page:{title:'Garden',description:'A walled garden.',about:{heading:'The <garden>',line:'A walled garden & a gate.',more:'From the gate.',links:[{href:'../../',text:'All scenes'},{href:'https://example.com/g/',text:'Gallery'}]}}});
  const html=await readFile(path.join(out,'index.html'),'utf8'),manifest=JSON.parse(await readFile(path.join(out,'manifest.json'),'utf8'));
- assert.ok(html.includes('<div id="root"></div><details class="scene-about"><summary>About this world</summary><h1>The &lt;garden&gt;</h1><p>A walled garden &amp; a gate.</p><ul><li>From the gate.</li></ul><p><a href="../../">All scenes</a> · <a href="https://example.com/g/">Gallery</a></p></details>'));
+ assert.ok(html.includes('<div id="root"></div><aside class="scene-placard"><h1>The &lt;garden&gt;</h1><p>A walled garden &amp; a gate.</p><details><summary>More</summary><div><p>From the gate.</p><p><a href="../../">All scenes</a> <a href="https://example.com/g/">Gallery</a></p></div></details></aside>'));
  assert.ok(manifest.files.some(entry=>entry.file==='index.html'&&entry.sha256===digest(Buffer.from(html))));
+ // A line alone has nothing to reveal, so it has no More.
+ const short=path.join(parent,'short-about');await exportStaticWorld(root,{out:short,page:{title:'Garden',description:'A walled garden.',about:{heading:'Garden',line:'A walled garden.'}}});
+ assert.ok((await readFile(path.join(short,'index.html'),'utf8')).includes('<div id="root"></div><aside class="scene-placard"><h1>Garden</h1><p>A walled garden.</p></aside>'));
  const plain=path.join(parent,'plain-about');await exportStaticWorld(root,{out:plain,page:{title:'Garden',description:'A walled garden.'}});
- assert.doesNotMatch(await readFile(path.join(plain,'index.html'),'utf8'),/scene-about/);
- for(const [about,error] of [[{heading:'G'},/about summary/],[{heading:'G',summary:'S',extra:1},/about fields/],[{heading:'G',summary:'S',links:[{href:'javascript:alert(1)',text:'x'}]},/https or relative/]])await assert.rejects(exportStaticWorld(root,{out:path.join(parent,'bad'),page:{title:'G',description:'D',about}}),error);
+ assert.doesNotMatch(await readFile(path.join(plain,'index.html'),'utf8'),/scene-placard/);
+ for(const [about,error] of [[{heading:'G'},/about line/],[{heading:'G',line:'S',extra:1},/about fields/],[{heading:'G',line:'S',more:''},/about more/],[{heading:'G',line:'S',links:[{href:'javascript:alert(1)',text:'x'}]},/https or relative/]])await assert.rejects(exportStaticWorld(root,{out:path.join(parent,'bad'),page:{title:'G',description:'D',about}}),error);
 });
 test('static export refuses unsafe page metadata before creating output',async t=>{
  const {root,parent}=await fixture(t),out=path.join(parent,'refused');

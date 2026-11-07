@@ -32,8 +32,8 @@ files and editable workspaces are excluded. See [static export](static-export.md
 
 The public scene shelf is a separate static site in `site/`, for
 `https://holodeck.kilnstudio.tools/`. `site/scenes.json` lists each scene by id,
-the bundled example it is built from, title, summary, four collage shots, path
-and Kiln gallery link: Crescent Cove, the Quiet Courtyard, Tidemark Island,
+the bundled example it is built from, title, summary, the words of the placard on
+its own page, four collage shots, path and Kiln gallery link: Crescent Cove, the Quiet Courtyard, Tidemark Island,
 Winter Mountainside Cabin and the Cove (from `construct`). Each scene's 1200×630 social card is
 `site/cards/<id>.jpg`.
 
@@ -42,7 +42,7 @@ the home page JSON-LD, `sitemap.xml`, `robots.txt` and `llms.txt` (a plain-text 
 for language models, in the kilnstudio.tools/llms.txt format: every scene from the
 catalog with its Kiln pack, the About page, getting started and the repository); the
 shelf needs no script at runtime. Each sitemap URL carries a `<lastmod>`: a scene's catalog `updated` date (when
-its example or card last changed) and, for the shelf and `site/about/`, the dates in
+its example, card or placard last changed) and, for the shelf and `site/about/`, the dates in
 `PAGES` in `scripts/render-site.mjs`. Update the date in the commit that changes the page;
 with full git history the site test fails a date older than the page's last commit.
 `site/about/` is the About and how-to-use page, linked from the shelf footer.

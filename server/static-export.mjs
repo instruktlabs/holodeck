@@ -80,22 +80,21 @@ async function pageMetadata(page){
  if(page.about!==undefined)result.about=pageAbout(page.about);
  return result;
 }
-// Optional words for crawlers and people, kept beside #root (never inside it) so the viewer's mount leaves them in place.
+// Optional words for people and crawlers, a placard on the overview. It stays beside #root (never inside it) so the viewer's mount leaves it in place.
 function pageAbout(about){
- if(about===null||typeof about!=='object'||Object.keys(about).some(key=>!['heading','summary','details','links'].includes(key)))throw new Error('Invalid page about fields');
- const details=about.details??[],links=about.links??[];
- if(!Array.isArray(details)||details.length>12||!Array.isArray(links)||links.length>6)throw new Error('Invalid page about fields');
- return {heading:pageText(about.heading,100,'about heading'),summary:pageText(about.summary,400,'about summary'),details:details.map(text=>pageText(text,300,'about detail')),
+ if(about===null||typeof about!=='object'||Object.keys(about).some(key=>!['heading','line','more','links'].includes(key)))throw new Error('Invalid page about fields');
+ const links=about.links??[];
+ if(!Array.isArray(links)||links.length>6)throw new Error('Invalid page about fields');
+ return {heading:pageText(about.heading,100,'about heading'),line:pageText(about.line,200,'about line'),more:about.more===undefined?'':pageText(about.more,600,'about more'),
   links:links.map(link=>{
    if(link===null||typeof link!=='object'||Object.keys(link).sort().join()!=='href,text')throw new Error('Invalid page about link');
    const href=pageText(link.href,300,'about link');if(!/^(?:https:\/\/|\.\.?\/)/.test(href))throw new Error('A page about link must be https or relative');
    return {href,text:pageText(link.text,100,'about link')};
   })};
 }
-export function pageAboutHtml(about){
- return `<details class="scene-about"><summary>About this world</summary><h1>${escapeHtml(about.heading)}</h1><p>${escapeHtml(about.summary)}</p>`
-  +(about.details.length?`<ul>${about.details.map(text=>`<li>${escapeHtml(text)}</li>`).join('')}</ul>`:'')
-  +(about.links.length?`<p>${about.links.map(link=>`<a href="${escapeHtml(link.href)}">${escapeHtml(link.text)}</a>`).join(' · ')}</p>`:'')+'</details>';
+function pageAboutHtml(about){
+ const more=(about.more?`<p>${escapeHtml(about.more)}</p>`:'')+(about.links.length?`<p>${about.links.map(link=>`<a href="${escapeHtml(link.href)}">${escapeHtml(link.text)}</a>`).join(' ')}</p>`:'');
+ return `<aside class="scene-placard"><h1>${escapeHtml(about.heading)}</h1><p>${escapeHtml(about.line)}</p>${more?`<details><summary>More</summary><div>${more}</div></details>`:''}</aside>`;
 }
 export function pageHead(page){
  const meta=(attribute,name,content)=>`<meta ${attribute}="${name}" content="${escapeHtml(String(content))}">`;
