@@ -47,3 +47,7 @@ test('the placard keeps only Enter from the scene\'s keys',async()=>{
 test('the placard adds no compositing work',async()=>{
  for(const rule of await placardRules())assert.doesNotMatch(rule.body,/backdrop-filter|transition|animation|will-change|filter:/,rule.selector);
 });
+
+test('toolbar labels may wrap, so a narrow window never clips them',async()=>{
+ assert.doesNotMatch(await source('viewer.css'),/\.viewer-toolbar[^{}]*\{[^{}]*white-space:nowrap/);
+});
