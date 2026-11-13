@@ -19,7 +19,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "0f9e7bd0e84240adb26170181fc965f54d808c418067f8a447fcf13c584831d3",
+    "sha256": "2d2c0b3685e002af23cb2c3c5b06c2260e49f055c094e1a15f34aa0c15b099fd",
     "bytes": 452594
   },
   "assets": [
@@ -31,9 +31,9 @@
     },
     {
       "id": "wmc-armchair-oak",
-      "file": "assets/imports/07b8b0cfce29ff68def0291f1b1f6230bf5124f7b2f4dabc6e2cc477ca8d502a.glb",
-      "sha256": "07b8b0cfce29ff68def0291f1b1f6230bf5124f7b2f4dabc6e2cc477ca8d502a",
-      "bytes": 1167696
+      "file": "assets/imports/ed957ccea98705381ed9f29ef65918f4ffff293b398d757c087e0cfd7e35e868.glb",
+      "sha256": "ed957ccea98705381ed9f29ef65918f4ffff293b398d757c087e0cfd7e35e868",
+      "bytes": 1167216
     },
     {
       "id": "wmc-boulder",
@@ -55,38 +55,38 @@
     },
     {
       "id": "wmc-deck-tile",
-      "file": "assets/imports/4a13c23e6b7ced2213a3a7c48fff5d5ceaee8147ba771857a28239f3737a5026.glb",
-      "sha256": "4a13c23e6b7ced2213a3a7c48fff5d5ceaee8147ba771857a28239f3737a5026",
+      "file": "assets/imports/2f31770b3e04a79cb93d17156c41c4c4934ac127bbbcd96fddf24cbb3fadc0b4.glb",
+      "sha256": "2f31770b3e04a79cb93d17156c41c4c4934ac127bbbcd96fddf24cbb3fadc0b4",
       "bytes": 187144
     },
     {
       "id": "wmc-desk",
-      "file": "assets/imports/161c21bbc664b675b6f6f7a7c10335b6d15b3f5b55b15bdce718bc0ce92c94eb.glb",
-      "sha256": "161c21bbc664b675b6f6f7a7c10335b6d15b3f5b55b15bdce718bc0ce92c94eb",
-      "bytes": 107496
+      "file": "assets/imports/1b2cc02330f8ae223af51c79e2064cc945fa39792c8479d6cd5e5c3a4ce3e4d4.glb",
+      "sha256": "1b2cc02330f8ae223af51c79e2064cc945fa39792c8479d6cd5e5c3a4ce3e4d4",
+      "bytes": 107492
     },
     {
       "id": "wmc-dining-chair",
-      "file": "assets/imports/548033dfe41212ed713367d4f2cf071076b19ea65453b4e87e4264034e7d79d6.glb",
-      "sha256": "548033dfe41212ed713367d4f2cf071076b19ea65453b4e87e4264034e7d79d6",
+      "file": "assets/imports/3335c513833e22ec53a576da690cc048aaea815e50a4ee594c1892745a822a5d.glb",
+      "sha256": "3335c513833e22ec53a576da690cc048aaea815e50a4ee594c1892745a822a5d",
       "bytes": 329496
     },
     {
       "id": "wmc-dining-table",
-      "file": "assets/imports/594d6c40df27995d7bc949c0ad2ae80b915d2cd27e574ff29c7d1f48464880f2.glb",
-      "sha256": "594d6c40df27995d7bc949c0ad2ae80b915d2cd27e574ff29c7d1f48464880f2",
+      "file": "assets/imports/dc50da6b92963eb8a3a2cd7c1f08149f04277f1715b3ded571708a7122f130e4.glb",
+      "sha256": "dc50da6b92963eb8a3a2cd7c1f08149f04277f1715b3ded571708a7122f130e4",
       "bytes": 390856
     },
     {
       "id": "wmc-door-deck",
-      "file": "assets/imports/4e5cb5a7287b2e825ae5658f44fc16ab08e0f0bb047beb10dc43c35c6666e837.glb",
-      "sha256": "4e5cb5a7287b2e825ae5658f44fc16ab08e0f0bb047beb10dc43c35c6666e837",
-      "bytes": 169884
+      "file": "assets/imports/990571d86d0f955f6d725191afa1a90f8b24752e1c2aa0eac385241402e5ebd8.glb",
+      "sha256": "990571d86d0f955f6d725191afa1a90f8b24752e1c2aa0eac385241402e5ebd8",
+      "bytes": 169524
     },
     {
       "id": "wmc-door-entry",
-      "file": "assets/imports/988bfcd1d0bfc15b4d743e123e9af12fea96b625e67d69fe67e364b44a403f43.glb",
-      "sha256": "988bfcd1d0bfc15b4d743e123e9af12fea96b625e67d69fe67e364b44a403f43",
+      "file": "assets/imports/42c02b8c6d28f994ddc36688ea80784ffb26f0b28b6e23859233e913583fdae2.glb",
+      "sha256": "42c02b8c6d28f994ddc36688ea80784ffb26f0b28b6e23859233e913583fdae2",
       "bytes": 167796
     },
     {
@@ -97,9 +97,9 @@
     },
     {
       "id": "wmc-entry-bench",
-      "file": "assets/imports/9edb1292dcd614d3bec97f122e76240022312ad61933539cbd98400aa26073d2.glb",
-      "sha256": "9edb1292dcd614d3bec97f122e76240022312ad61933539cbd98400aa26073d2",
-      "bytes": 1474736
+      "file": "assets/imports/5f8a4d89430608f56fb5109cc2a7c3f44ad990dc2f0064446b92e738902d4973.glb",
+      "sha256": "5f8a4d89430608f56fb5109cc2a7c3f44ad990dc2f0064446b92e738902d4973",
+      "bytes": 1474732
     },
     {
       "id": "wmc-fallen-log",
@@ -169,15 +169,15 @@
     },
     {
       "id": "wmc-hearth-masonry",
-      "file": "assets/imports/6810ba00d23509597e452397d343d709b92c1ece80f854bb55e29ab1d42631c7.glb",
-      "sha256": "6810ba00d23509597e452397d343d709b92c1ece80f854bb55e29ab1d42631c7",
-      "bytes": 470728
+      "file": "assets/imports/c3d113a70df16f5d639ea32d5c88f22b817aafa58a766ed3186bcbf5dcdf7952.glb",
+      "sha256": "c3d113a70df16f5d639ea32d5c88f22b817aafa58a766ed3186bcbf5dcdf7952",
+      "bytes": 470720
     },
     {
       "id": "wmc-kitchen-run",
-      "file": "assets/imports/9cc826394db01b32c1bc7d62a5053b657a53c1ed9305f46194e0baa081d9b288.glb",
-      "sha256": "9cc826394db01b32c1bc7d62a5053b657a53c1ed9305f46194e0baa081d9b288",
-      "bytes": 837244
+      "file": "assets/imports/87acdc501b31417e6ef10baf268fb76c46b998999f7a15524a736688a0464980.glb",
+      "sha256": "87acdc501b31417e6ef10baf268fb76c46b998999f7a15524a736688a0464980",
+      "bytes": 836988
     },
     {
       "id": "wmc-lantern",
@@ -187,14 +187,14 @@
     },
     {
       "id": "wmc-living-rug-wool",
-      "file": "assets/imports/26b742b9b2ccc0fe25efc6c7f4ebefa79c49f1c9b39a9199a1dda0043ae3b8d9.glb",
-      "sha256": "26b742b9b2ccc0fe25efc6c7f4ebefa79c49f1c9b39a9199a1dda0043ae3b8d9",
-      "bytes": 649692
+      "file": "assets/imports/2a24ac226d76903289b16b0354ddc4281c29a4c3264c846c68c439907bb7c885.glb",
+      "sha256": "2a24ac226d76903289b16b0354ddc4281c29a4c3264c846c68c439907bb7c885",
+      "bytes": 649932
     },
     {
       "id": "wmc-loft-bed",
-      "file": "assets/imports/235c03dabaff62b16db447fc7d08ccaea5fb04e70b4b027a44a047582abd40c7.glb",
-      "sha256": "235c03dabaff62b16db447fc7d08ccaea5fb04e70b4b027a44a047582abd40c7",
+      "file": "assets/imports/c32c3b1aa1e523a6ca87bb10c873150decfb94267c6c1316c5ffabf45097e2c9.glb",
+      "sha256": "c32c3b1aa1e523a6ca87bb10c873150decfb94267c6c1316c5ffabf45097e2c9",
       "bytes": 3731352
     },
     {
@@ -211,15 +211,15 @@
     },
     {
       "id": "wmc-rafter-frame",
-      "file": "assets/imports/db443e084f6674c221d4940acbc44151d414f29b753f717d3786c255a00e0a0d.glb",
-      "sha256": "db443e084f6674c221d4940acbc44151d414f29b753f717d3786c255a00e0a0d",
+      "file": "assets/imports/0cd6feaf01908dd884c9174cd34221dd4634903b6b72084c313705250f654270.glb",
+      "sha256": "0cd6feaf01908dd884c9174cd34221dd4634903b6b72084c313705250f654270",
       "bytes": 53964
     },
     {
       "id": "wmc-rail-span",
-      "file": "assets/imports/610b49be8200c3259dc8e6ca66bee2ef53dccf52df46ac05c8bcfadd36386e3f.glb",
-      "sha256": "610b49be8200c3259dc8e6ca66bee2ef53dccf52df46ac05c8bcfadd36386e3f",
-      "bytes": 73496
+      "file": "assets/imports/089f272274709490218aaae6796d379fcf2427f5f92ef6e5db78483d988b63cc.glb",
+      "sha256": "089f272274709490218aaae6796d379fcf2427f5f92ef6e5db78483d988b63cc",
+      "bytes": 73616
     },
     {
       "id": "wmc-ridge-band",
@@ -235,8 +235,8 @@
     },
     {
       "id": "wmc-roof-east",
-      "file": "assets/imports/426760d4f8c963729d6ca10f9aac697345cafe804d47edd2da3ddb5e0241d066.glb",
-      "sha256": "426760d4f8c963729d6ca10f9aac697345cafe804d47edd2da3ddb5e0241d066",
+      "file": "assets/imports/366e0a6b7e8ce935fba105d68f04ea35bc4979cbf590333ddc8a9cc06046469e.glb",
+      "sha256": "366e0a6b7e8ce935fba105d68f04ea35bc4979cbf590333ddc8a9cc06046469e",
       "bytes": 951996
     },
     {
@@ -247,15 +247,15 @@
     },
     {
       "id": "wmc-side-table",
-      "file": "assets/imports/b38e325dcfb767c16d840e3987d669b05cf606a46efe72731681f790c8ec0318.glb",
-      "sha256": "b38e325dcfb767c16d840e3987d669b05cf606a46efe72731681f790c8ec0318",
+      "file": "assets/imports/a658a8dda3ff59294d79dd344682d1440b5e7ffd163aff7273034a4697cfd937.glb",
+      "sha256": "a658a8dda3ff59294d79dd344682d1440b5e7ffd163aff7273034a4697cfd937",
       "bytes": 184028
     },
     {
       "id": "wmc-small-props",
-      "file": "assets/imports/36eb43ffd240300c10a2a7548681708576db54af903f05b94f564a5dacbc85f3.glb",
-      "sha256": "36eb43ffd240300c10a2a7548681708576db54af903f05b94f564a5dacbc85f3",
-      "bytes": 359460
+      "file": "assets/imports/608f7061594639cf4e8ab42996844fd9dd0bc7b539bd4a64734add5ed0fca6fb.glb",
+      "sha256": "608f7061594639cf4e8ab42996844fd9dd0bc7b539bd4a64734add5ed0fca6fb",
+      "bytes": 359456
     },
     {
       "id": "wmc-snow-bank",
@@ -265,9 +265,9 @@
     },
     {
       "id": "wmc-sofa-wool",
-      "file": "assets/imports/31208887ca28acce4b78d71814b2365922f79e0b9d5529e44955d4bc04659a44.glb",
-      "sha256": "31208887ca28acce4b78d71814b2365922f79e0b9d5529e44955d4bc04659a44",
-      "bytes": 3925956
+      "file": "assets/imports/b4506df0cdf89a501616e17bd07ff13f3f4625af12283b78a99cf722c3384c54.glb",
+      "sha256": "b4506df0cdf89a501616e17bd07ff13f3f4625af12283b78a99cf722c3384c54",
+      "bytes": 3925476
     },
     {
       "id": "wmc-spruce-background-a",
@@ -289,14 +289,14 @@
     },
     {
       "id": "wmc-stair-rail-exterior",
-      "file": "assets/imports/78b9bd4d0c2613d8b4d708b9a3a884a24b345c2f0075555479c6d7d6aa25e2f0.glb",
-      "sha256": "78b9bd4d0c2613d8b4d708b9a3a884a24b345c2f0075555479c6d7d6aa25e2f0",
+      "file": "assets/imports/1920e271c19fad3a8b78f3d75c0878db3d9da1cb5513117ba8b09c68202657c4.glb",
+      "sha256": "1920e271c19fad3a8b78f3d75c0878db3d9da1cb5513117ba8b09c68202657c4",
       "bytes": 115604
     },
     {
       "id": "wmc-stair-rail-interior",
-      "file": "assets/imports/cf7ddfb5dc84041f8b2ffa86140cd81e8c61d51f659ee67ff4ba62f81e4bdf12.glb",
-      "sha256": "cf7ddfb5dc84041f8b2ffa86140cd81e8c61d51f659ee67ff4ba62f81e4bdf12",
+      "file": "assets/imports/10c9af15d7f9c195971c4bde28e009d1a10dcd0823397fbc3c28befffbb85a47.glb",
+      "sha256": "10c9af15d7f9c195971c4bde28e009d1a10dcd0823397fbc3c28befffbb85a47",
       "bytes": 136804
     },
     {
@@ -313,39 +313,39 @@
     },
     {
       "id": "wmc-trail-marker",
-      "file": "assets/imports/be9a3042b84c29260944d6fadb5608fe69876b05a8a05497ea4c216c73a994cd.glb",
-      "sha256": "be9a3042b84c29260944d6fadb5608fe69876b05a8a05497ea4c216c73a994cd",
+      "file": "assets/imports/33e566e8d081d7c2537979c3110f1220059cb0461e5428a556bc84df5b5e51f8.glb",
+      "sha256": "33e566e8d081d7c2537979c3110f1220059cb0461e5428a556bc84df5b5e51f8",
       "bytes": 235424
     },
     {
       "id": "wmc-tread-timber",
-      "file": "assets/imports/ed466a3865232ab707154674ab524220cfd0802ed010b4c575f01d73c2bf4c97.glb",
-      "sha256": "ed466a3865232ab707154674ab524220cfd0802ed010b4c575f01d73c2bf4c97",
+      "file": "assets/imports/e4777e1880bf9bae417e40113980f49cbe8ff469b0946e9e487f8c793005fb7e.glb",
+      "sha256": "e4777e1880bf9bae417e40113980f49cbe8ff469b0946e9e487f8c793005fb7e",
       "bytes": 74468
     },
     {
       "id": "wmc-wall-east",
-      "file": "assets/imports/bec7b6538e0f61594607449088e44d847822a54b4afe06e740d35eb2a751a381.glb",
-      "sha256": "bec7b6538e0f61594607449088e44d847822a54b4afe06e740d35eb2a751a381",
-      "bytes": 1205672
+      "file": "assets/imports/e490b3f1f814c0d9c5a30eebcab5fe3f128df8f1d45b54eda093e07f1b75460c.glb",
+      "sha256": "e490b3f1f814c0d9c5a30eebcab5fe3f128df8f1d45b54eda093e07f1b75460c",
+      "bytes": 1202084
     },
     {
       "id": "wmc-wall-facade",
-      "file": "assets/imports/b53e834f0d8ea900736cf277e30c926b8c171844a934c9ec0ce89332fc04c782.glb",
-      "sha256": "b53e834f0d8ea900736cf277e30c926b8c171844a934c9ec0ce89332fc04c782",
-      "bytes": 1281148
+      "file": "assets/imports/ab64de45dc6ed75aab72c6d9a7bcf6e07dc3110148ca7f5dffed5be374a63da5.glb",
+      "sha256": "ab64de45dc6ed75aab72c6d9a7bcf6e07dc3110148ca7f5dffed5be374a63da5",
+      "bytes": 1277668
     },
     {
       "id": "wmc-wall-rear",
-      "file": "assets/imports/cf8b764038bea4437e6e7a46f6d9d7839e4e0b3e87303bd76bd5ba822d35d654.glb",
-      "sha256": "cf8b764038bea4437e6e7a46f6d9d7839e4e0b3e87303bd76bd5ba822d35d654",
-      "bytes": 827940
+      "file": "assets/imports/d262d1fcabb40f79fe373a23facb6d2444a238414a914609bfa366c694fa8d63.glb",
+      "sha256": "d262d1fcabb40f79fe373a23facb6d2444a238414a914609bfa366c694fa8d63",
+      "bytes": 827960
     },
     {
       "id": "wmc-wall-west",
-      "file": "assets/imports/7a5d2bc1993fb74d6778227fa039ca7ed9cd63eb4881bca2763175dc29aeba33.glb",
-      "sha256": "7a5d2bc1993fb74d6778227fa039ca7ed9cd63eb4881bca2763175dc29aeba33",
-      "bytes": 1002436
+      "file": "assets/imports/9395db73f9ea92db5306dd5524355a0852e7f1537564aa788faa5f43c46bf429.glb",
+      "sha256": "9395db73f9ea92db5306dd5524355a0852e7f1537564aa788faa5f43c46bf429",
+      "bytes": 1001032
     },
     {
       "id": "wmc-window-tall",
@@ -404,5 +404,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "3bda48d3f83e611d8a9f6600eb6f1e55ab91433bdcb85eba1f5b6b2230a60ace"
+  "integrity": "a2e2ef27709324b76e996aabd70596ecb96cbcae8ee91153a785f0d4b1dd8674"
 }

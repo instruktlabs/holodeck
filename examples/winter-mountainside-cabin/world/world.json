@@ -182,19 +182,19 @@
       },
       {
         "id": "wmc-sofa-wool",
-        "file": "assets/imports/31208887ca28acce4b78d71814b2365922f79e0b9d5529e44955d4bc04659a44.glb",
+        "file": "assets/imports/b4506df0cdf89a501616e17bd07ff13f3f4625af12283b78a99cf722c3384c54.glb",
         "provenance": {
           "assetId": "a_5af9bd51de70444cb02f1cc5e926043f",
-          "revisionId": "r_900d94fea90f4b8486bc7aa81e84fec7",
+          "revisionId": "r_b2c8b849e6da44c3b56bed180f764e81",
           "collection": "project"
         }
       },
       {
         "id": "wmc-hearth-masonry",
-        "file": "assets/imports/6810ba00d23509597e452397d343d709b92c1ece80f854bb55e29ab1d42631c7.glb",
+        "file": "assets/imports/c3d113a70df16f5d639ea32d5c88f22b817aafa58a766ed3186bcbf5dcdf7952.glb",
         "provenance": {
           "assetId": "a_873885321d9441419a5e22f993bf833e",
-          "revisionId": "r_69a2424559ec43b4a6194d3bdaf984f2",
+          "revisionId": "r_751a6bbaccc341beb85ae33375b45d94",
           "collection": "project"
         }
       },
@@ -209,73 +209,73 @@
       },
       {
         "id": "wmc-wall-facade",
-        "file": "assets/imports/b53e834f0d8ea900736cf277e30c926b8c171844a934c9ec0ce89332fc04c782.glb",
+        "file": "assets/imports/ab64de45dc6ed75aab72c6d9a7bcf6e07dc3110148ca7f5dffed5be374a63da5.glb",
         "provenance": {
           "assetId": "a_5b4f6100aa984ab993ed3f672bdb810e",
-          "revisionId": "r_6b70ff0e8baf45dd96f6a3dec221853c",
+          "revisionId": "r_451733fc5b3c4c679edde72d5c5a476c",
           "collection": "project"
         }
       },
       {
         "id": "wmc-deck-tile",
-        "file": "assets/imports/4a13c23e6b7ced2213a3a7c48fff5d5ceaee8147ba771857a28239f3737a5026.glb",
+        "file": "assets/imports/2f31770b3e04a79cb93d17156c41c4c4934ac127bbbcd96fddf24cbb3fadc0b4.glb",
         "provenance": {
           "assetId": "a_bb7581d6dd994620b828cb48e0540571",
-          "revisionId": "r_24ad3a121ea949b3819e19192a07aecb",
+          "revisionId": "r_19b823f2d7b04c66bf6dfecad7b5da8a",
           "collection": "project"
         }
       },
       {
         "id": "wmc-door-entry",
-        "file": "assets/imports/988bfcd1d0bfc15b4d743e123e9af12fea96b625e67d69fe67e364b44a403f43.glb",
+        "file": "assets/imports/42c02b8c6d28f994ddc36688ea80784ffb26f0b28b6e23859233e913583fdae2.glb",
         "provenance": {
           "assetId": "a_d30677f997eb4f8f998e8c5c8687b801",
-          "revisionId": "r_81e404f1e10f4ee6a408880168ee7344",
+          "revisionId": "r_a9aa85c28abe4cdc91a1b9a9e0144c11",
           "collection": "project"
         }
       },
       {
         "id": "wmc-stair-rail-interior",
-        "file": "assets/imports/cf7ddfb5dc84041f8b2ffa86140cd81e8c61d51f659ee67ff4ba62f81e4bdf12.glb",
+        "file": "assets/imports/10c9af15d7f9c195971c4bde28e009d1a10dcd0823397fbc3c28befffbb85a47.glb",
         "provenance": {
           "assetId": "a_160b654df5ff4658b92412c87af1a4ec",
-          "revisionId": "r_abff23385acf408694274758d8e525bb",
+          "revisionId": "r_7d04e7b3de3e4a29859078955c46e40f",
           "collection": "project"
         }
       },
       {
         "id": "wmc-armchair-oak",
-        "file": "assets/imports/07b8b0cfce29ff68def0291f1b1f6230bf5124f7b2f4dabc6e2cc477ca8d502a.glb",
+        "file": "assets/imports/ed957ccea98705381ed9f29ef65918f4ffff293b398d757c087e0cfd7e35e868.glb",
         "provenance": {
           "assetId": "a_0cc64d69fec0441884617672724738c2",
-          "revisionId": "r_63ad6298f8c24d7fa220eeb8b4bfd300",
+          "revisionId": "r_55f468f5d52942ffb54d0ae345f7735b",
           "collection": "project"
         }
       },
       {
         "id": "wmc-wall-west",
-        "file": "assets/imports/7a5d2bc1993fb74d6778227fa039ca7ed9cd63eb4881bca2763175dc29aeba33.glb",
+        "file": "assets/imports/9395db73f9ea92db5306dd5524355a0852e7f1537564aa788faa5f43c46bf429.glb",
         "provenance": {
           "assetId": "a_449715d72b4f4404922170fe5dd8680d",
-          "revisionId": "r_a06b37dfb34843d394c049e0b9913019",
+          "revisionId": "r_692a8f9dcb2e49fb803217953be953f1",
           "collection": "project"
         }
       },
       {
         "id": "wmc-wall-east",
-        "file": "assets/imports/bec7b6538e0f61594607449088e44d847822a54b4afe06e740d35eb2a751a381.glb",
+        "file": "assets/imports/e490b3f1f814c0d9c5a30eebcab5fe3f128df8f1d45b54eda093e07f1b75460c.glb",
         "provenance": {
           "assetId": "a_4c1cb01001994fb3be31dea1e484fcdb",
-          "revisionId": "r_c9a234d398ed4d78b1c7a94023ae2ab0",
+          "revisionId": "r_9c45dbf488bc47cbaadf28308954185a",
           "collection": "project"
         }
       },
       {
         "id": "wmc-wall-rear",
-        "file": "assets/imports/cf8b764038bea4437e6e7a46f6d9d7839e4e0b3e87303bd76bd5ba822d35d654.glb",
+        "file": "assets/imports/d262d1fcabb40f79fe373a23facb6d2444a238414a914609bfa366c694fa8d63.glb",
         "provenance": {
           "assetId": "a_65cb0abafd7b4697b40285c7871a1040",
-          "revisionId": "r_6225dd8469d646c8a555c201713a5761",
+          "revisionId": "r_374aff5ea5e144a1ad61b38cb10ac7a0",
           "collection": "project"
         }
       },
@@ -317,46 +317,46 @@
       },
       {
         "id": "wmc-rafter-frame",
-        "file": "assets/imports/db443e084f6674c221d4940acbc44151d414f29b753f717d3786c255a00e0a0d.glb",
+        "file": "assets/imports/0cd6feaf01908dd884c9174cd34221dd4634903b6b72084c313705250f654270.glb",
         "provenance": {
           "assetId": "a_875448873b5e4f1b9693982de3cc2ee1",
-          "revisionId": "r_4d62127be4ea41e7a8387e812bf4a811",
+          "revisionId": "r_a9d4652f39e9426992e92f88a2f19993",
           "collection": "project"
         }
       },
       {
         "id": "wmc-door-deck",
-        "file": "assets/imports/4e5cb5a7287b2e825ae5658f44fc16ab08e0f0bb047beb10dc43c35c6666e837.glb",
+        "file": "assets/imports/990571d86d0f955f6d725191afa1a90f8b24752e1c2aa0eac385241402e5ebd8.glb",
         "provenance": {
           "assetId": "a_e90781181b414dc1b596ee7de369184f",
-          "revisionId": "r_2c207a3161084bfbbd9608cf261ba6c7",
+          "revisionId": "r_f602680f2fd445e591ca8397e95b6c1c",
           "collection": "project"
         }
       },
       {
         "id": "wmc-tread-timber",
-        "file": "assets/imports/ed466a3865232ab707154674ab524220cfd0802ed010b4c575f01d73c2bf4c97.glb",
+        "file": "assets/imports/e4777e1880bf9bae417e40113980f49cbe8ff469b0946e9e487f8c793005fb7e.glb",
         "provenance": {
           "assetId": "a_0fa76a4fc9ca4d6aa7a7b2befbaf10c4",
-          "revisionId": "r_8b684e59f24b4408862ed20026389cce",
+          "revisionId": "r_a55c3e8e3d464cb09720488448ce54ee",
           "collection": "project"
         }
       },
       {
         "id": "wmc-stair-rail-exterior",
-        "file": "assets/imports/78b9bd4d0c2613d8b4d708b9a3a884a24b345c2f0075555479c6d7d6aa25e2f0.glb",
+        "file": "assets/imports/1920e271c19fad3a8b78f3d75c0878db3d9da1cb5513117ba8b09c68202657c4.glb",
         "provenance": {
           "assetId": "a_bdf0c3426f2648dd8874fc543ee42def",
-          "revisionId": "r_659dbb66e23b4b64ab989ed92e795da5",
+          "revisionId": "r_cfb522c48edd495fac96906784f8c3b2",
           "collection": "project"
         }
       },
       {
         "id": "wmc-rail-span",
-        "file": "assets/imports/610b49be8200c3259dc8e6ca66bee2ef53dccf52df46ac05c8bcfadd36386e3f.glb",
+        "file": "assets/imports/089f272274709490218aaae6796d379fcf2427f5f92ef6e5db78483d988b63cc.glb",
         "provenance": {
           "assetId": "a_2e2adb67c53c4839a0760672abfb69ae",
-          "revisionId": "r_9a172a5524904a298f8d475d722de2a1",
+          "revisionId": "r_a60f9cd124434aa2bdb79108e3f731ad",
           "collection": "project"
         }
       },
@@ -380,10 +380,10 @@
       },
       {
         "id": "wmc-living-rug-wool",
-        "file": "assets/imports/26b742b9b2ccc0fe25efc6c7f4ebefa79c49f1c9b39a9199a1dda0043ae3b8d9.glb",
+        "file": "assets/imports/2a24ac226d76903289b16b0354ddc4281c29a4c3264c846c68c439907bb7c885.glb",
         "provenance": {
           "assetId": "a_81cee922309d48cf9799373f0d431b35",
-          "revisionId": "r_c9160d6fc18a4ee2baa2b7a367195e6a",
+          "revisionId": "r_7a815cc3780242259761e44692c655fa",
           "collection": "project"
         }
       },
@@ -398,10 +398,10 @@
       },
       {
         "id": "wmc-roof-east",
-        "file": "assets/imports/426760d4f8c963729d6ca10f9aac697345cafe804d47edd2da3ddb5e0241d066.glb",
+        "file": "assets/imports/366e0a6b7e8ce935fba105d68f04ea35bc4979cbf590333ddc8a9cc06046469e.glb",
         "provenance": {
           "assetId": "a_0811b67773b5487ba90d0b7cbeb8c80b",
-          "revisionId": "r_04edc17050114086831c5e5098b64436",
+          "revisionId": "r_cd1fc2f930154744ad463ac4a3a36679",
           "collection": "project"
         }
       },
@@ -425,64 +425,64 @@
       },
       {
         "id": "wmc-side-table",
-        "file": "assets/imports/b38e325dcfb767c16d840e3987d669b05cf606a46efe72731681f790c8ec0318.glb",
+        "file": "assets/imports/a658a8dda3ff59294d79dd344682d1440b5e7ffd163aff7273034a4697cfd937.glb",
         "provenance": {
           "assetId": "a_19edeafb0e3848718315f8c54bf89885",
-          "revisionId": "r_314b667491c24a52bbd681da663f69cd",
+          "revisionId": "r_985cc15f93f54b2586088a8ebc5fd4b0",
           "collection": "project"
         }
       },
       {
         "id": "wmc-dining-table",
-        "file": "assets/imports/594d6c40df27995d7bc949c0ad2ae80b915d2cd27e574ff29c7d1f48464880f2.glb",
+        "file": "assets/imports/dc50da6b92963eb8a3a2cd7c1f08149f04277f1715b3ded571708a7122f130e4.glb",
         "provenance": {
           "assetId": "a_26dd80ee80db4d85bc2a7b56475c3cbb",
-          "revisionId": "r_49df9f4d840241aab1426e6a6ab2c3e3",
+          "revisionId": "r_f9fc7d0140d54a068f8b0b461f1068f8",
           "collection": "project"
         }
       },
       {
         "id": "wmc-dining-chair",
-        "file": "assets/imports/548033dfe41212ed713367d4f2cf071076b19ea65453b4e87e4264034e7d79d6.glb",
+        "file": "assets/imports/3335c513833e22ec53a576da690cc048aaea815e50a4ee594c1892745a822a5d.glb",
         "provenance": {
           "assetId": "a_1686d36f753d4f9abe0f9991d8bfb36a",
-          "revisionId": "r_c513bc554a7f407eb0c7058055dcfc68",
+          "revisionId": "r_88c5f50fc5ef4be7a67fc8bdf95c8b99",
           "collection": "project"
         }
       },
       {
         "id": "wmc-kitchen-run",
-        "file": "assets/imports/9cc826394db01b32c1bc7d62a5053b657a53c1ed9305f46194e0baa081d9b288.glb",
+        "file": "assets/imports/87acdc501b31417e6ef10baf268fb76c46b998999f7a15524a736688a0464980.glb",
         "provenance": {
           "assetId": "a_43a2c9a0565e4743b82e9d9b51d257c9",
-          "revisionId": "r_8c52171c556a4d9180583dd6a6bdc01d",
+          "revisionId": "r_b3d8583356574aac889f248ed6b8c791",
           "collection": "project"
         }
       },
       {
         "id": "wmc-loft-bed",
-        "file": "assets/imports/235c03dabaff62b16db447fc7d08ccaea5fb04e70b4b027a44a047582abd40c7.glb",
+        "file": "assets/imports/c32c3b1aa1e523a6ca87bb10c873150decfb94267c6c1316c5ffabf45097e2c9.glb",
         "provenance": {
           "assetId": "a_64db2e9702e3427fa9188875a5980146",
-          "revisionId": "r_cd846321ce64474da24aec6c2381178e",
+          "revisionId": "r_5e4689104ea54d409f1314aaafeba599",
           "collection": "project"
         }
       },
       {
         "id": "wmc-desk",
-        "file": "assets/imports/161c21bbc664b675b6f6f7a7c10335b6d15b3f5b55b15bdce718bc0ce92c94eb.glb",
+        "file": "assets/imports/1b2cc02330f8ae223af51c79e2064cc945fa39792c8479d6cd5e5c3a4ce3e4d4.glb",
         "provenance": {
           "assetId": "a_43fa2e2abfd94f308c0a32b127d21c32",
-          "revisionId": "r_d52ea05e031942dfa0fb1a34972226ae",
+          "revisionId": "r_ccda87bdd376416bae412a25c395d23f",
           "collection": "project"
         }
       },
       {
         "id": "wmc-entry-bench",
-        "file": "assets/imports/9edb1292dcd614d3bec97f122e76240022312ad61933539cbd98400aa26073d2.glb",
+        "file": "assets/imports/5f8a4d89430608f56fb5109cc2a7c3f44ad990dc2f0064446b92e738902d4973.glb",
         "provenance": {
           "assetId": "a_d6fe54a2237c4a538f97cc9792e05ba4",
-          "revisionId": "r_78da00aa2eb04b7fbef7a33fab2826b6",
+          "revisionId": "r_e0e4b03b991440739e9224f2619af721",
           "collection": "project"
         }
       },
@@ -497,10 +497,10 @@
       },
       {
         "id": "wmc-small-props",
-        "file": "assets/imports/36eb43ffd240300c10a2a7548681708576db54af903f05b94f564a5dacbc85f3.glb",
+        "file": "assets/imports/608f7061594639cf4e8ab42996844fd9dd0bc7b539bd4a64734add5ed0fca6fb.glb",
         "provenance": {
           "assetId": "a_a71359b812cd4b3fa22d129458e471db",
-          "revisionId": "r_15e05145d9c649de9fe845dd4d4aba9d",
+          "revisionId": "r_08f2b4de9b8d4791b33252130e9aac95",
           "collection": "project"
         }
       },
@@ -569,10 +569,10 @@
       },
       {
         "id": "wmc-trail-marker",
-        "file": "assets/imports/be9a3042b84c29260944d6fadb5608fe69876b05a8a05497ea4c216c73a994cd.glb",
+        "file": "assets/imports/33e566e8d081d7c2537979c3110f1220059cb0461e5428a556bc84df5b5e51f8.glb",
         "provenance": {
           "assetId": "a_315c30d4f7674cb6a346c9b455efb999",
-          "revisionId": "r_b88bfaef911545fe9b4d9625978f5775",
+          "revisionId": "r_50146b48d13247ee8425293802b69500",
           "collection": "project"
         }
       }
