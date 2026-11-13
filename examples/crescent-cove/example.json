@@ -18,7 +18,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "5dc28372550010c247e31681c5270341da08b16e889c62bce16143dc3bc6f5b2",
+    "sha256": "6012774993f45dd4700c97331968187f412967a369000aa00c9fc4b9fbc3c850",
     "bytes": 507541
   },
   "assets": [
@@ -78,8 +78,8 @@
     },
     {
       "id": "debris-shells",
-      "file": "assets/imports/deafe78c73b46bda31d451d7fde1cae92a89a20ccf81f9dc2791c7515568da33.glb",
-      "sha256": "deafe78c73b46bda31d451d7fde1cae92a89a20ccf81f9dc2791c7515568da33",
+      "file": "assets/imports/8b4b28bbae7a795acec164f845bd7c905f6d7873c7bb8481df0a7579b16c0fdb.glb",
+      "sha256": "8b4b28bbae7a795acec164f845bd7c905f6d7873c7bb8481df0a7579b16c0fdb",
       "bytes": 27664
     },
     {
@@ -294,14 +294,14 @@
     },
     {
       "id": "seagrass",
-      "file": "assets/imports/b35d2a2c6db3d358acb38e2b79fa370e16aef52f48406f008bb6bb6c026cacb4.glb",
-      "sha256": "b35d2a2c6db3d358acb38e2b79fa370e16aef52f48406f008bb6bb6c026cacb4",
-      "bytes": 16592
+      "file": "assets/imports/84b34fecbf23989e5a15e3c2c7e35a781562711ffdbb885aabd2d8de1c586d15.glb",
+      "sha256": "84b34fecbf23989e5a15e3c2c7e35a781562711ffdbb885aabd2d8de1c586d15",
+      "bytes": 16596
     },
     {
       "id": "seating",
-      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
-      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "file": "assets/imports/3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf.glb",
+      "sha256": "3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf",
       "bytes": 890340
     },
     {
@@ -312,8 +312,8 @@
     },
     {
       "id": "structure",
-      "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
-      "sha256": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "file": "assets/imports/6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338.glb",
+      "sha256": "6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338",
       "bytes": 1398268
     }
   ],
@@ -382,5 +382,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "44684235adff54af82a848d71c0338fe227c56bda5117da0aaf45d43f51f872b"
+  "integrity": "87d61a9f02034a16ad6b43cfb6cc4d4e95f82f4311d22d7bf1e4f2b167adf92f"
 }

@@ -189,7 +189,7 @@ async function build() {
   const covers = [], pages = [];
   [[0.24, 0.17, 0.034, 4], [0.21, 0.15, 0.028, -9], [0.19, 0.14, 0.024, 13]].reduce((h, [w, d, t, turn]) => {
     covers.push(bake(metricUV(await0(w, t, d), 4), [bx, by + h + t / 2, bz], [0, 90 - ba / DEG + turn, 0]));
-    pages.push(bake(metricUV(new THREE.BoxGeometry(w - 0.012, t - 0.008, d - 0.008), 4), [bx + 0.004 * Math.cos(ba), by + h + t / 2, bz + 0.004 * Math.sin(ba)], [0, 90 - ba / DEG + turn, 0]));
+    pages.push(bake(metricUV(new THREE.BoxGeometry(w - 0.012, t - 0.008, d - 0.008), 4), [bx + 0.001 * Math.cos(ba), by + h + t / 2, bz + 0.001 * Math.sin(ba)], [0, 90 - ba / DEG + turn, 0]));
     return h + t;
   }, 0);
   function await0(w, t, d) { return new THREE.BoxGeometry(w, t, d); }

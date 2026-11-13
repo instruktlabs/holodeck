@@ -34,10 +34,10 @@
     "assets": [
       {
         "id": "structure",
-        "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+        "file": "assets/imports/6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338.glb",
         "provenance": {
           "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
-          "revisionId": "r_2387ce274123402dbdafd818e6fb0043",
+          "revisionId": "r_1b8338546f534885a1529037bc207e94",
           "collection": "project"
         }
       },
@@ -52,10 +52,10 @@
       },
       {
         "id": "seating",
-        "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+        "file": "assets/imports/3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf.glb",
         "provenance": {
           "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
-          "revisionId": "r_e35c94ed7da74b32a49f2d9933babba8",
+          "revisionId": "r_f73aa8b1c4b749dd8076bf152b29afe7",
           "collection": "project"
         }
       },
@@ -255,10 +255,10 @@
       },
       {
         "id": "debris-shells",
-        "file": "assets/imports/deafe78c73b46bda31d451d7fde1cae92a89a20ccf81f9dc2791c7515568da33.glb",
+        "file": "assets/imports/8b4b28bbae7a795acec164f845bd7c905f6d7873c7bb8481df0a7579b16c0fdb.glb",
         "provenance": {
           "assetId": "a_f618554ec7034438843ccfc6af2fbb4d",
-          "revisionId": "r_362b7d0ce6904b4cbe8a63acc3296e6b",
+          "revisionId": "r_c4b4feebb92e4b73bc24d016561b2fcf",
           "collection": "project"
         }
       },
@@ -708,10 +708,10 @@
       },
       {
         "id": "seagrass",
-        "file": "assets/imports/b35d2a2c6db3d358acb38e2b79fa370e16aef52f48406f008bb6bb6c026cacb4.glb",
+        "file": "assets/imports/84b34fecbf23989e5a15e3c2c7e35a781562711ffdbb885aabd2d8de1c586d15.glb",
         "provenance": {
           "assetId": "a_675613e1a07241bfac5e903469b306a4",
-          "revisionId": "r_cd79d419d444441a8299b6739e6435d7",
+          "revisionId": "r_934ea81017634afc83591980f95dfadc",
           "collection": "project"
         }
       }
