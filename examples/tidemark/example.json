@@ -20,7 +20,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "4e7955ea1bf2824d49aa466024b5fe668ba27b5ff9de35e0846c7d072467574a",
+    "sha256": "f401eac231a60ae7f61227ae1df376116bf3a6c01df0e10e0aaab9ca0b039baf",
     "bytes": 314103
   },
   "assets": [
@@ -152,14 +152,14 @@
     },
     {
       "id": "seating",
-      "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
-      "sha256": "e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "file": "assets/imports/3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf.glb",
+      "sha256": "3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf",
       "bytes": 890340
     },
     {
       "id": "structure",
-      "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
-      "sha256": "cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "file": "assets/imports/6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338.glb",
+      "sha256": "6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338",
       "bytes": 1398268
     }
   ],
@@ -170,5 +170,5 @@
     "width": 1146,
     "height": 884
   },
-  "integrity": "ed777c8a5ddbf67b4378307e5243b5402266f74acb7ad89019915e156b5686f5"
+  "integrity": "49f40ab37878f8fd5303be85944df28bacbc519e69a6f2cdbaa26fc650bb878c"
 }

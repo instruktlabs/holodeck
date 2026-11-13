@@ -173,7 +173,7 @@ async function build() {
   // The enclosing wall, low seat and their stone caps sit behind the observer and to the left.
   shellPart(root, 'CurvedBack', arcGeo(3.95, 4.25, 0.02, 1.38, 0.10, 3.65, { wobble: true, segments: 48, bevelSegments: 2 }), plaster, 0.8, 4.1);
   shellPart(root, 'WallCap', arcGeo(3.92, 4.28, 1.385, 1.415, 0.085, 3.665, { follow: true, segments: 48, bevel: 0.016, bevelSegments: 1 }), rim, 1.2, 4.1);
-  shellPart(root, 'SeatPlinth', arcGeo(3.12, 3.99, 0.02, 0.38, 0.18, 3.6, { segments: 40, bevelSegments: 2 }), plaster, 0.8, 3.5);
+  shellPart(root, 'SeatPlinth', arcGeo(3.12, 3.99, 0.022, 0.38, 0.18, 3.6, { segments: 40, bevelSegments: 2 }), plaster, 0.8, 3.5);
   shellPart(root, 'SeatTop', arcGeo(3.10, 3.99, 0.39, 0.47, 0.18, 3.6, { hug: true, segments: 40, bevel: 0.022, bevelSegments: 2 }), rim, 1.2, 3.5);
   // Scuffed base courses where feet and floor water wear the plaster.
   shellPart(root, 'BaseCourseBack', arcGeo(4.27, 4.305, 0.0, 0.15, 0.10, 3.65, { hug: true, segments: 48, bevel: 0 }), base, 1, 4.26);

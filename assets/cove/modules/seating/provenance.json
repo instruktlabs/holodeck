@@ -1,17 +1,17 @@
 {
-  "engine": "@instruktlabs/kiln@1.4.0",
-  "programRef": "p_451abb23d982",
+  "engine": "@instruktlabs/kiln@1.7.0 plus unreleased flush-face changes",
+  "programRef": "p_c15299dda5f2",
   "collection": "project",
   "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
-  "revisionId": "r_e35c94ed7da74b32a49f2d9933babba8",
-  "parentRevisionId": "r_6602fd828a5341eeaa0877fc58289960",
+  "revisionId": "r_f73aa8b1c4b749dd8076bf152b29afe7",
+  "parentRevisionId": "r_e35c94ed7da74b32a49f2d9933babba8",
   "files": {
     "asset.glb": {
-      "sha256": "sha256:e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f",
+      "sha256": "sha256:3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf",
       "bytes": 890340
     },
     "source.kiln.js": {
-      "sha256": "sha256:451abb23d98291784cefd05ba33d9c87388160dcf8fb71cc64a879a665f59689",
+      "sha256": "sha256:c15299dda5f2049af7ac18f3c1abb680ea67df6b0397db71878761634515a58d",
       "bytes": 17880
     }
   },
@@ -20,5 +20,5 @@
     "revisionId": "r_62e28c9e86fe47e7859d08c4379328e5"
   },
   "scope": "Prototype module; runtime and architecture checked separately",
-  "review": "Kiln CPU geometry sheet plus browser WebGPU views of the throw against the wall cap, ledge and canopy mast"
+  "review": "Kiln CPU geometry sheet; the browser views recorded for the parent revision were not retaken for this one"
 }

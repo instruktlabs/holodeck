@@ -34,10 +34,10 @@
     "assets": [
       {
         "id": "structure",
-        "file": "assets/imports/cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd.glb",
+        "file": "assets/imports/6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338.glb",
         "provenance": {
           "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
-          "revisionId": "r_2387ce274123402dbdafd818e6fb0043",
+          "revisionId": "r_1b8338546f534885a1529037bc207e94",
           "collection": "project"
         }
       },
@@ -52,10 +52,10 @@
       },
       {
         "id": "seating",
-        "file": "assets/imports/e5f0e8495f9bdc06646fe2d9910f873c268f55d0d34746e53e016e19e856324f.glb",
+        "file": "assets/imports/3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf.glb",
         "provenance": {
           "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
-          "revisionId": "r_e35c94ed7da74b32a49f2d9933babba8",
+          "revisionId": "r_f73aa8b1c4b749dd8076bf152b29afe7",
           "collection": "project"
         }
       },

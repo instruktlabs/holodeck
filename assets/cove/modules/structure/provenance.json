@@ -1,22 +1,22 @@
 {
-  "engine": "@instruktlabs/kiln@1.3.1",
-  "programRef": "p_98b414a7f72a",
+  "engine": "@instruktlabs/kiln@1.7.0 plus unreleased flush-face changes",
+  "programRef": "p_c16671e10417",
   "collection": "project",
   "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
-  "revisionId": "r_2387ce274123402dbdafd818e6fb0043",
-  "parentRevisionId": "r_e96d8b9675f845d0b6cb20087815c302",
+  "revisionId": "r_1b8338546f534885a1529037bc207e94",
+  "parentRevisionId": "r_2387ce274123402dbdafd818e6fb0043",
   "files": {
     "asset.glb": {
-      "sha256": "sha256:cf10e38925edffb8a14178de42874d09b9ae881e93e37f27fe3d2587c27c2ffd",
+      "sha256": "sha256:6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338",
       "bytes": 1398268
     },
     "source.kiln.js": {
-      "sha256": "sha256:98b414a7f72a3c06ce3a5df84b43d23cc78c3e6dfc14ad4c2eab287feae270de",
-      "bytes": 15819
+      "sha256": "sha256:c16671e104172c544f8663f9931786e0dd01219f365a073d1465e8952a1b6964",
+      "bytes": 15820
     },
     "preview.png": {
-      "sha256": "sha256:3f5b3dd49640df669a247218a461ab1f2423b396861b0dc1cca35a2021589584",
-      "bytes": 273831
+      "sha256": "sha256:5e848a7ef7eae5275e977dc64f6b3db4c1ae6d64466110e4214a75f62ad6c706",
+      "bytes": 275130
     }
   },
   "derivedFrom": {
@@ -24,5 +24,5 @@
     "revisionId": "r_62e28c9e86fe47e7859d08c4379328e5"
   },
   "scope": "Prototype module; runtime and architecture checked separately",
-  "review": "Kiln GPU material-faithful sheet plus browser WebGPU/WebGL2 views"
+  "review": "Kiln GPU material-faithful sheet; the browser views recorded for the parent revision were not retaken for this one"
 }
