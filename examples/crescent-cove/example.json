@@ -18,7 +18,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "5dc28372550010c247e31681c5270341da08b16e889c62bce16143dc3bc6f5b2",
+    "sha256": "f29022d620377e132dd85542119e9a0cecfbc0ec73e056d0d5d41ed68e55f44e",
     "bytes": 507541
   },
   "assets": [
@@ -78,8 +78,8 @@
     },
     {
       "id": "debris-shells",
-      "file": "assets/imports/deafe78c73b46bda31d451d7fde1cae92a89a20ccf81f9dc2791c7515568da33.glb",
-      "sha256": "deafe78c73b46bda31d451d7fde1cae92a89a20ccf81f9dc2791c7515568da33",
+      "file": "assets/imports/8b4b28bbae7a795acec164f845bd7c905f6d7873c7bb8481df0a7579b16c0fdb.glb",
+      "sha256": "8b4b28bbae7a795acec164f845bd7c905f6d7873c7bb8481df0a7579b16c0fdb",
       "bytes": 27664
     },
     {
@@ -294,9 +294,9 @@
     },
     {
       "id": "seagrass",
-      "file": "assets/imports/b35d2a2c6db3d358acb38e2b79fa370e16aef52f48406f008bb6bb6c026cacb4.glb",
-      "sha256": "b35d2a2c6db3d358acb38e2b79fa370e16aef52f48406f008bb6bb6c026cacb4",
-      "bytes": 16592
+      "file": "assets/imports/84b34fecbf23989e5a15e3c2c7e35a781562711ffdbb885aabd2d8de1c586d15.glb",
+      "sha256": "84b34fecbf23989e5a15e3c2c7e35a781562711ffdbb885aabd2d8de1c586d15",
+      "bytes": 16596
     },
     {
       "id": "seating",
@@ -382,5 +382,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "44684235adff54af82a848d71c0338fe227c56bda5117da0aaf45d43f51f872b"
+  "integrity": "ae37687204837834dcecbad15a27aa50e25d0130426ef5c97a6106ea560cfa16"
 }

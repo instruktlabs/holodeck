@@ -20,7 +20,7 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "68564b749eb5e4defc07dc0d1a2d3fb8e0552f4368962b906130276e19ebfa2e",
+    "sha256": "4e7955ea1bf2824d49aa466024b5fe668ba27b5ff9de35e0846c7d072467574a",
     "bytes": 314103
   },
   "assets": [
@@ -74,8 +74,8 @@
     },
     {
       "id": "island-hut-roof",
-      "file": "assets/imports/ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf.glb",
-      "sha256": "ed18ca2f5dffd715014691ab6571872997f1118de78f838a68344780a53fcdcf",
+      "file": "assets/imports/4ce18ea477db993d0bf17f92ba6d207831d708d17132d4662b6c0b2e9bfcc4f9.glb",
+      "sha256": "4ce18ea477db993d0bf17f92ba6d207831d708d17132d4662b6c0b2e9bfcc4f9",
       "bytes": 376528
     },
     {
@@ -170,5 +170,5 @@
     "width": 1146,
     "height": 884
   },
-  "integrity": "9d7d480b11561b191e058fdb5b82b4b14f34029c4d312c74c01a560df67cb180"
+  "integrity": "ed777c8a5ddbf67b4378307e5243b5402266f74acb7ad89019915e156b5686f5"
 }

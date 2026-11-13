@@ -16,14 +16,14 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "a99281504140a3ee239477377d454c6fe7b1274bf168869ea35ecce9ba85832c",
+    "sha256": "66588cb802b55aa149d02c3361ebfaf03eefc37f9f8f648baa013ad83374994f",
     "bytes": 109902
   },
   "assets": [
     {
       "id": "bench-park",
-      "file": "assets/imports/f207e62c5261f1fd17b3ba3968e1e58c9fb39d8123e158e6d99682d7429408aa.glb",
-      "sha256": "f207e62c5261f1fd17b3ba3968e1e58c9fb39d8123e158e6d99682d7429408aa",
+      "file": "assets/imports/a1c745490510ea4632af792e4a48910db41a9657e29aa5498d91545314eb689a.glb",
+      "sha256": "a1c745490510ea4632af792e4a48910db41a9657e29aa5498d91545314eb689a",
       "bytes": 235352
     },
     {
@@ -220,5 +220,5 @@
     "width": 1280,
     "height": 720
   },
-  "integrity": "53f046d0253213cbb106095a7b0ec9b08fdedd10987442ec804b5ce48e43edfc"
+  "integrity": "4edc0387ecfabd629ac3fea16f9b2ca4ae9e064b7d159c6cb6f44386c4994f37"
 }
