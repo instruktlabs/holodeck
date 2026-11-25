@@ -24,6 +24,7 @@ import {TouchControls,useTouchMode} from '../world/touch.jsx';
 import {EmoteWheel} from '../world/emote-wheel.jsx';
 import {createEmoteInput} from '../world/emote-wheel.mjs';
 import {sceneHomeHref} from './scene-home.mjs';
+import {QUALITY_TIERS,TIER_ORDER,applyQualityToEffects,browserDeviceSignals,detectDeviceTier,parseQualityOverride,readRendererHardware} from '../world/device-tier.mjs';
 const benchmarkEnabled=new URLSearchParams(location.search).get('benchmark')==='1';
 const benchmarkScenario=benchmarkEnabled&&window.holodeckBenchmarkScenario?validateScenario(window.holodeckBenchmarkScenario):null;
 const benchmarkCamera=benchmarkScenario?scenarioCamera(benchmarkScenario):{};
@@ -86,6 +87,10 @@ class RenderBoundary extends React.Component{
 function Viewer(){
  const {bundle,error,progress}=useStaticBundle(),runtime=useMemo(()=>bundle?new WorldRuntime(bundle.payload.world.scene):null,[bundle]);
  const [inhabiting,setInhabiting]=useState(benchmarkEnabled),[cameraMode,setCameraMode]=useState(benchmarkEnabled?'free':'walk'),[person,setPerson]=useState('first'),[cove,setCove]=useState(true),[homeTick,setHomeTick]=useState(0),[locked,setLocked]=useState(false),[aim,setAim]=useState(null),[hidden,setHidden]=useState(benchmarkEnabled),[paused,setPaused]=useState(false),[notice,setNotice]=useState(''),[observation,setObservation]=useState({}),[revealed,setRevealed]=useState(false),[leaving,setLeaving]=useState(false);
+ const [autoTier,setAutoTier]=useState(()=>detectDeviceTier({...browserDeviceSignals(),benchmark:benchmarkEnabled}));
+ const [manualTier,setManualTier]=useState(()=>benchmarkEnabled?null:parseQualityOverride(location.search));
+ const tier=benchmarkEnabled?QUALITY_TIERS.high:(manualTier??autoTier);
+ const cycleTier=useCallback(()=>{setManualTier(current=>{const cur=(current??autoTier).id,next=TIER_ORDER[(TIER_ORDER.indexOf(cur)+1)%TIER_ORDER.length];return QUALITY_TIERS[next];});document.activeElement?.blur();},[autoTier]);
  const touch=useMemo(createTouchInput,[]),emotes=useMemo(createEmoteInput,[]),touchMode=useTouchMode(),[menu,setMenu]=useState(false);
  const leaveWorld=useCallback(()=>{setInhabiting(false);setLocked(false);document.exitPointerLock?.();document.activeElement?.blur();},[]);
  // A lost renderer ends the scene. The canvas goes with it, so nothing draws or moves behind the error state, and the way back is a reload,
@@ -158,8 +163,8 @@ function Viewer(){
  const view=!inhabiting?'Overlook':cameraMode==='free'?'Free camera':possessed?(person==='first'?'First person':'Third person'):'Walking';
  function chooseCamera(view){setInhabiting(true);if(view==='free')setCameraMode('free');else{setCameraMode('walk');setPerson(view);}document.activeElement?.blur();}
  return <main className={`static-viewer ${inhabiting?'inhabiting':''} ${hidden?'hud-hidden':''}`}>
-  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&!lost&&<Canvas shadows="percentage" dpr={benchmarkEnabled?1:[1,1.5]} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL||(!benchmarkEnabled&&await avoidSoftwareWebGPU({powerPreference:props.powerPreference})),antialias:true});if(!benchmarkEnabled)watchRendererLoss(renderer,setLost);renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);return renderer;}}>
-   <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects effects={bundle.payload.world.scene.environment?.effects} grade={bundle.payload.world.scene.environment?.grade}/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
+  <div className="viewer-scene" inert={benchmarkEnabled}><RenderBoundary>{bundle&&!lost&&<Canvas shadows="percentage" dpr={benchmarkEnabled?1:tier.dpr} camera={{position:bundle.payload.world.scene.runtime.overview,fov:63,near:.05,far:160,...benchmarkCamera}} gl={async props=>{const renderer=new WebGPURenderer({...props,forceWebGL:forcedGL||(!benchmarkEnabled&&await avoidSoftwareWebGPU({powerPreference:props.powerPreference})),antialias:true});if(!benchmarkEnabled)watchRendererLoss(renderer,setLost);renderer.toneMapping=ACESFilmicToneMapping;renderer.toneMappingExposure=DEFAULT_EXPOSURE;renderer.info.autoReset=false;await (initialization?initialization.initialize(renderer):renderer.init());enableParallelCompile(renderer);if(!benchmarkEnabled){const detected=detectDeviceTier({...browserDeviceSignals(),...readRendererHardware(renderer),benchmark:false});setAutoTier(prev=>prev.id===detected.id?prev:detected);probe.qualityTier=detected.id;}return renderer;}}>
+   <RuntimeScene {...{bundle,runtime,cove,homeTick,setLocked,setAim,inhabiting,leaveWorld,interact,requestLook,toggleHud,toggleFree,person,setPerson,touch,emotes}} quality={tier} cameraMode={effectiveMode} setMoving={noop} select={noop} focusInput={leaveWorld}/><CoveEffects effects={applyQualityToEffects(bundle.payload.world.scene.environment?.effects,tier)} grade={bundle.payload.world.scene.environment?.grade} bloomScale={tier.bloomScale}/>{benchmarkEnabled&&<Benchmark runtime={runtime} revision={bundle.payload.world.revision} cove={cove} setCove={setCove} cameraMode={effectiveMode}/>}
   </Canvas>}</RenderBoundary></div>
   {hidden&&!benchmarkEnabled&&!touchMode&&<button type="button" className={`viewer-photo-exit ${awake?'awake':''}`} onClick={()=>setHidden(false)}>Show controls <kbd>H</kbd></button>}
   {benchmarkEnabled&&<Diagnostics readErrors={readViewerErrors} readInitialization={initialization.read}/>}
@@ -178,6 +183,7 @@ function Viewer(){
     {possessed&&<><button aria-pressed={inhabiting&&cameraMode==='walk'&&person==='first'} onClick={()=>chooseCamera('first')}>First person</button><button aria-pressed={inhabiting&&cameraMode==='walk'&&person==='third'} onClick={()=>chooseCamera('third')}>Third person</button></>}
     <button aria-pressed={inhabiting&&cameraMode==='free'} onClick={()=>chooseCamera('free')}>Free camera <kbd>G</kbd></button><button onClick={leaveWorld}>Overlook</button>
     <button onClick={()=>{setCove(v=>!v);document.activeElement?.blur();}}>{cove?'Hide cove':'Show cove'}</button><button onClick={()=>{setHomeTick(n=>n+1);setCove(true);setCameraMode('walk');document.activeElement?.blur();}}>Return to arrival</button>
+    <button onClick={cycleTier}>Quality · {tier.label}</button>
     <button aria-pressed={paused} onClick={()=>setPaused(v=>!v)}>{paused?'Resume activity':'Pause activity'}</button>
     <button onClick={()=>{setHidden(true);document.activeElement?.blur();}}>Photo mode <kbd>H</kbd></button>
    </div>

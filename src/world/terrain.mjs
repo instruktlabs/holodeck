@@ -22,6 +22,7 @@
 
 import {validateTerrainLayers} from './terrain-layers.mjs';
 import {validateSurf} from './surf.mjs';
+import {validateWaterfalls} from './waterfall.mjs';
 
 const assert=(condition,message)=>{if(!condition)throw new Error(message);};
 const record=(value,keys,label)=>assert(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(key=>keys.includes(key)),`Invalid ${label} fields`);
@@ -233,7 +234,7 @@ export function sharedTerrain(terrain){
 }
 
 export function validateWater(water){
- record(water,['type','bounds','level','waves','color','shallowColor','foamWidth','surf','reflection'],'water');
+ record(water,['type','bounds','level','waves','color','shallowColor','foamWidth','surf','reflection','falls'],'water');
  assert(water.type==='ocean','Unsupported water type');bounds(water.bounds,'water bounds');finite(water.level,-1000,1000,'water level');
  assert(Array.isArray(water.waves)&&water.waves.length<=4,'Water allows at most four waves');
  for(const wave of water.waves){
@@ -245,6 +246,7 @@ export function validateWater(water){
  if(water.foamWidth!==undefined)finite(water.foamWidth,.001,20,'foam width');
  if(water.surf!==undefined)validateSurf(water.surf);
  assert(water.reflection===undefined||water.reflection==='planar','Water reflection must be "planar"');
+ if(water.falls!==undefined)validateWaterfalls(water.falls);
  return water;
 }
 

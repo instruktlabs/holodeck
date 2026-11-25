@@ -71,6 +71,9 @@ function update(frame,bounds,level,margin){
  plane.setFromNormalAndCoplanarPoint(normal,mirrorPosition).applyMatrix4(virtualCamera.matrixWorldInverse);
  clip.set(plane.normal.x,plane.normal.y,plane.normal.z,plane.constant);
  const p=virtualCamera.projectionMatrix.elements;
+ // TRAANode applies sub-pixel Halton jitter via camera.setViewOffset on the full
+ // viewport; strip that offset so the half-res planar mirror does not vibrate.
+ if(camera.view?.enabled&&camera.view.width===camera.view.fullWidth&&camera.view.height===camera.view.fullHeight){p[8]=0;p[9]=0;}
  q.set((Math.sign(clip.x)+p[8])/p[0],(Math.sign(clip.y)+p[9])/p[5],-1,(1+p[10])/p[14]);
  clip.multiplyScalar(1/clip.dot(q));
  p[2]=clip.x;p[6]=clip.y;p[10]=renderer.coordinateSystem===WebGPUCoordinateSystem?clip.z:clip.z+1;p[14]=clip.w;
