@@ -1,0 +1,366 @@
+{
+  "format": "holodeck-example-v1",
+  "id": "lagoon-sanctuary",
+  "title": "Lagoon Sanctuary",
+  "description": "A sunlit jungle cenote around a turquoise lagoon: arrive in cool shade beside a carved sun stele, walk a curved stone viaduct or descend to the waterside dock, swim across clear shallows to the stepped sanctuary pavilion, and stand beneath a tall rainforest waterfall.",
+  "sourceRevision": 19,
+  "capabilities": {
+    "schemaVersion": 2,
+    "runtimeVersion": 1,
+    "modules": [
+      "camera.walk-orbit@1",
+      "collision.boxes@1",
+      "inhabitant.maker@1",
+      "motion.boids@1",
+      "motion.drift@1",
+      "motion.gait@1",
+      "scatter.seeded@1",
+      "terrain.heightfield@1",
+      "water.ocean@1"
+    ]
+  },
+  "world": {
+    "file": "world/world.json",
+    "sha256": "9c10d5a401c3f850abc164cf20a0b27fd4cb6ba4e8ac328655adf63731bfb615",
+    "bytes": 152633
+  },
+  "assets": [
+    {
+      "id": "arrival-stair-terrace",
+      "file": "assets/imports/4c2eb4ddca6954cef40675468beaa6ba1483f4a6730ef69f3c83f7d8ef234cd8.glb",
+      "sha256": "4c2eb4ddca6954cef40675468beaa6ba1483f4a6730ef69f3c83f7d8ef234cd8",
+      "bytes": 3642156
+    },
+    {
+      "id": "canopy",
+      "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+      "sha256": "0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0",
+      "bytes": 929100
+    },
+    {
+      "id": "foliage-alocasia",
+      "file": "assets/imports/ed2800b437871b3fadd82078b708b023eee35f8590096181a5df119d0afb62ae.glb",
+      "sha256": "ed2800b437871b3fadd82078b708b023eee35f8590096181a5df119d0afb62ae",
+      "bytes": 304344
+    },
+    {
+      "id": "foliage-bromeliad",
+      "file": "assets/imports/f22fb3c9ce8b16b82d1568ac652d96eff7be088e382b8f1044b1cd1a89fe8153.glb",
+      "sha256": "f22fb3c9ce8b16b82d1568ac652d96eff7be088e382b8f1044b1cd1a89fe8153",
+      "bytes": 269832
+    },
+    {
+      "id": "foliage-canopy-emergent",
+      "file": "assets/imports/c52bd394407d515466fe00506e1ed2a44a96e03cead0d9337b21999625e43726.glb",
+      "sha256": "c52bd394407d515466fe00506e1ed2a44a96e03cead0d9337b21999625e43726",
+      "bytes": 1037060
+    },
+    {
+      "id": "foliage-canopy-umbrella",
+      "file": "assets/imports/72939da87512cbba606c7f256966fb301e9fe53b6587a8b9c10b4604f6746c67.glb",
+      "sha256": "72939da87512cbba606c7f256966fb301e9fe53b6587a8b9c10b4604f6746c67",
+      "bytes": 1027228
+    },
+    {
+      "id": "foliage-cliff-drape",
+      "file": "assets/imports/e00995a5f41061b545d06fccdf26df07ac9a8f803618bf030269c492f632dcd5.glb",
+      "sha256": "e00995a5f41061b545d06fccdf26df07ac9a8f803618bf030269c492f632dcd5",
+      "bytes": 782032
+    },
+    {
+      "id": "foliage-fern-fountain",
+      "file": "assets/imports/b89752d894c161207bd8cb97daeda1a87d837ba34730e1da4b93070d72fdc0f5.glb",
+      "sha256": "b89752d894c161207bd8cb97daeda1a87d837ba34730e1da4b93070d72fdc0f5",
+      "bytes": 686656
+    },
+    {
+      "id": "foliage-fern-low",
+      "file": "assets/imports/0be971e7f9575c04d9e25f4834aa70b0e16ba3e419b1f78b675a9722f34d37b3.glb",
+      "sha256": "0be971e7f9575c04d9e25f4834aa70b0e16ba3e419b1f78b675a9722f34d37b3",
+      "bytes": 120692
+    },
+    {
+      "id": "foliage-monstera-a",
+      "file": "assets/imports/be6389df2218445bfcc834ad44fb5b767efc33b3831c77d864957c69fe966256.glb",
+      "sha256": "be6389df2218445bfcc834ad44fb5b767efc33b3831c77d864957c69fe966256",
+      "bytes": 482560
+    },
+    {
+      "id": "foliage-monstera-b",
+      "file": "assets/imports/f96b41442d8ae82ab93eac91347b1c0788e7695c79ce2876f7326442d1f663ef.glb",
+      "sha256": "f96b41442d8ae82ab93eac91347b1c0788e7695c79ce2876f7326442d1f663ef",
+      "bytes": 408580
+    },
+    {
+      "id": "foliage-palm-island",
+      "file": "assets/imports/aa09644ad44607ab5902494b17d7d85dc5c85c24e5bea6bfcca4dd09cf0f212a.glb",
+      "sha256": "aa09644ad44607ab5902494b17d7d85dc5c85c24e5bea6bfcca4dd09cf0f212a",
+      "bytes": 758288
+    },
+    {
+      "id": "foliage-palm-lean",
+      "file": "assets/imports/41068e086fb83fd315d75d84c38b8f11ae1831038565d42927851d8f3e6906bf.glb",
+      "sha256": "41068e086fb83fd315d75d84c38b8f11ae1831038565d42927851d8f3e6906bf",
+      "bytes": 656968
+    },
+    {
+      "id": "foliage-vine-long",
+      "file": "assets/imports/d678363ee8a8bab34acb6f554ee8f9653628565f93bbed4cc5e34c4155377ec2.glb",
+      "sha256": "d678363ee8a8bab34acb6f554ee8f9653628565f93bbed4cc5e34c4155377ec2",
+      "bytes": 352120
+    },
+    {
+      "id": "foliage-vine-medium",
+      "file": "assets/imports/ff5b689a08efe68524e9841878c9f9d762f592deebe8650744aacfda899e39fb.glb",
+      "sha256": "ff5b689a08efe68524e9841878c9f9d762f592deebe8650744aacfda899e39fb",
+      "bytes": 334248
+    },
+    {
+      "id": "foliage-vine-short",
+      "file": "assets/imports/35bb5c9a366545bfcad1132b5ee8ac812494920aebe2d122fe13ffda6c811379.glb",
+      "sha256": "35bb5c9a366545bfcad1132b5ee8ac812494920aebe2d122fe13ffda6c811379",
+      "bytes": 304220
+    },
+    {
+      "id": "foliage-waterlily",
+      "file": "assets/imports/65ffbe1362fdd263c1bc0095f065485a5731de989aab3208267c50d168e9f802.glb",
+      "sha256": "65ffbe1362fdd263c1bc0095f065485a5731de989aab3208267c50d168e9f802",
+      "bytes": 448132
+    },
+    {
+      "id": "gnarled-canopy-bough",
+      "file": "assets/imports/4382fbcbb5ff90f96452aea85171260e5b7b9832c008410be5ee4b5711e87b4e.glb",
+      "sha256": "4382fbcbb5ff90f96452aea85171260e5b7b9832c008410be5ee4b5711e87b4e",
+      "bytes": 2504024
+    },
+    {
+      "id": "hearth",
+      "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+      "sha256": "07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba",
+      "bytes": 1656308
+    },
+    {
+      "id": "karst-overhang-ledge",
+      "file": "assets/imports/fca546a85857d1dcc72ac77ffc2195f1a0898f6fd5d025c937bba479e156a3fa.glb",
+      "sha256": "fca546a85857d1dcc72ac77ffc2195f1a0898f6fd5d025c937bba479e156a3fa",
+      "bytes": 1691520
+    },
+    {
+      "id": "lagoon-curved-viaduct",
+      "file": "assets/imports/1b8a43590d31198641c12897bb2873103d1b59462a5733d9f1694ab6531edea8.glb",
+      "sha256": "1b8a43590d31198641c12897bb2873103d1b59462a5733d9f1694ab6531edea8",
+      "bytes": 5625988
+    },
+    {
+      "id": "lamp",
+      "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+      "sha256": "c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808",
+      "bytes": 254364
+    },
+    {
+      "id": "moodboard",
+      "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+      "sha256": "0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d",
+      "bytes": 184932
+    },
+    {
+      "id": "mossy-boulder-cluster",
+      "file": "assets/imports/6d8330ea08b5e6c554d2b16f2b2a00c0238fb2df20dd75098ad4acd9fcbe8de7.glb",
+      "sha256": "6d8330ea08b5e6c554d2b16f2b2a00c0238fb2df20dd75098ad4acd9fcbe8de7",
+      "bytes": 1422868
+    },
+    {
+      "id": "mossy-boulder-hero",
+      "file": "assets/imports/781317c5a731699d42ee76d641fec39aedbff69911a5b454fa0fc57b3a26901b.glb",
+      "sha256": "781317c5a731699d42ee76d641fec39aedbff69911a5b454fa0fc57b3a26901b",
+      "bytes": 1435984
+    },
+    {
+      "id": "planting",
+      "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+      "sha256": "cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8",
+      "bytes": 1053324
+    },
+    {
+      "id": "rug",
+      "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+      "sha256": "4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857",
+      "bytes": 121880
+    },
+    {
+      "id": "sanctuary-grand-stairs",
+      "file": "assets/imports/b4aa2f28ea44e4feb72179446f9263a022a7621eab20dc716921241cb6701cd2.glb",
+      "sha256": "b4aa2f28ea44e4feb72179446f9263a022a7621eab20dc716921241cb6701cd2",
+      "bytes": 3542572
+    },
+    {
+      "id": "sanctuary-portal",
+      "file": "assets/imports/a4a9f37dbc7dcf62da5e294e5b00160f26eca46da928c0e9f15e982d3a7ca836.glb",
+      "sha256": "a4a9f37dbc7dcf62da5e294e5b00160f26eca46da928c0e9f15e982d3a7ca836",
+      "bytes": 7070484
+    },
+    {
+      "id": "sanctuary-wing",
+      "file": "assets/imports/38cb41c8d59809d1d1d718e52c73fd52c0e2eac84623ff452dcd70dfdb546974.glb",
+      "sha256": "38cb41c8d59809d1d1d718e52c73fd52c0e2eac84623ff452dcd70dfdb546974",
+      "bytes": 3773468
+    },
+    {
+      "id": "seating",
+      "file": "assets/imports/3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf.glb",
+      "sha256": "3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf",
+      "bytes": 890340
+    },
+    {
+      "id": "stalactite-cluster",
+      "file": "assets/imports/5ea3263bc7a7de4df4fcfb3f7d387848c5cca4e00f88fd671a514900bef6fc54.glb",
+      "sha256": "5ea3263bc7a7de4df4fcfb3f7d387848c5cca4e00f88fd671a514900bef6fc54",
+      "bytes": 1186068
+    },
+    {
+      "id": "stone-brazier",
+      "file": "assets/imports/1b7c6ef326d6cf6423817a631e507d033e3ad64cf84fcc149d02d1405084956e.glb",
+      "sha256": "1b7c6ef326d6cf6423817a631e507d033e3ad64cf84fcc149d02d1405084956e",
+      "bytes": 2020524
+    },
+    {
+      "id": "structure",
+      "file": "assets/imports/6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338.glb",
+      "sha256": "6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338",
+      "bytes": 1398268
+    },
+    {
+      "id": "sun-stele-pillar",
+      "file": "assets/imports/b966e152044d1f0a0d5c7825cfc7fa917329b6b6eef3f18a1265bbe420dfdd2e.glb",
+      "sha256": "b966e152044d1f0a0d5c7825cfc7fa917329b6b6eef3f18a1265bbe420dfdd2e",
+      "bytes": 3990484
+    },
+    {
+      "id": "waterside-stone-dock",
+      "file": "assets/imports/d547e8abb70e73192705d54fe514dc56670e6a7195deb2b2622fabc40d3fe14b.glb",
+      "sha256": "d547e8abb70e73192705d54fe514dc56670e6a7195deb2b2622fabc40d3fe14b",
+      "bytes": 2685440
+    },
+    {
+      "id": "wildlife-fish-gold",
+      "file": "assets/imports/dacfd18b764da0053510fa8a1748448c9272cf9fa506912cfc22ea44cdc1c419.glb",
+      "sha256": "dacfd18b764da0053510fa8a1748448c9272cf9fa506912cfc22ea44cdc1c419",
+      "bytes": 152896
+    },
+    {
+      "id": "wildlife-fish-silver",
+      "file": "assets/imports/c85ffae0851b36eb25b582a896c5988c51bbbcf87ba1cd3bbd851078836659b9.glb",
+      "sha256": "c85ffae0851b36eb25b582a896c5988c51bbbcf87ba1cd3bbd851078836659b9",
+      "bytes": 83848
+    },
+    {
+      "id": "wildlife-swallow",
+      "file": "assets/imports/4155dc124ff0dcccff2c0d83c602cc0e59fecf9906275e0de893f2ef4f5fd3a3.glb",
+      "sha256": "4155dc124ff0dcccff2c0d83c602cc0e59fecf9906275e0de893f2ef4f5fd3a3",
+      "bytes": 91692
+    }
+  ],
+  "textures": [
+    {
+      "file": "assets/imports/terrain/1882dad5a2d3d761f65cba1277c60454034b216cbb89a27644c61ab3800d3baa.png",
+      "sha256": "1882dad5a2d3d761f65cba1277c60454034b216cbb89a27644c61ab3800d3baa",
+      "bytes": 102309,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/2b7e20a2268076e13484f18da3f4b6e5775c098bdad7a7318cc35a998dee5a06.png",
+      "sha256": "2b7e20a2268076e13484f18da3f4b6e5775c098bdad7a7318cc35a998dee5a06",
+      "bytes": 247244,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/4eeafd75cceacfaf5eed8d25cd235ff38a8a2ff2d091e32f7bd243e8aeb93df2.png",
+      "sha256": "4eeafd75cceacfaf5eed8d25cd235ff38a8a2ff2d091e32f7bd243e8aeb93df2",
+      "bytes": 12804,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/5e1a34fdf2cb47a4b307e52a3407ef0bd7ce202cd549f7de1d776fc4c9207e22.png",
+      "sha256": "5e1a34fdf2cb47a4b307e52a3407ef0bd7ce202cd549f7de1d776fc4c9207e22",
+      "bytes": 49555,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/6371e7755b3e30dea3e2279cc0b8b237988fbda60b97773a05c6651a17459264.png",
+      "sha256": "6371e7755b3e30dea3e2279cc0b8b237988fbda60b97773a05c6651a17459264",
+      "bytes": 120191,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/669be1c0479894212ff0da79267f6bf9075537465fce00e33cd9be54d895a5db.png",
+      "sha256": "669be1c0479894212ff0da79267f6bf9075537465fce00e33cd9be54d895a5db",
+      "bytes": 321199,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/bab3be4d437799fef18c99890d0cff1021ac57827ff58ac7a81debfc390a23fb.png",
+      "sha256": "bab3be4d437799fef18c99890d0cff1021ac57827ff58ac7a81debfc390a23fb",
+      "bytes": 312512,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/ce40dc107d5b1f9e60af0f63ed8ad85e1d72cca005508926630ce0ae80ee1369.png",
+      "sha256": "ce40dc107d5b1f9e60af0f63ed8ad85e1d72cca005508926630ce0ae80ee1369",
+      "bytes": 96616,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/d8114817dd413982d83e863b429a09e4db3b88aa89dfd9ef14991237ece0bd5d.png",
+      "sha256": "d8114817dd413982d83e863b429a09e4db3b88aa89dfd9ef14991237ece0bd5d",
+      "bytes": 126211,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/e5f260ec7781b6a46ba603a3d77dc30bcf2ad1fcc3433bf02afb58e3e9d94236.png",
+      "sha256": "e5f260ec7781b6a46ba603a3d77dc30bcf2ad1fcc3433bf02afb58e3e9d94236",
+      "bytes": 198970,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/ecc6cf5a4e5b8a7e9772f1f00862bc0e432eb2dd7f8e368b2ae7cc6892221906.png",
+      "sha256": "ecc6cf5a4e5b8a7e9772f1f00862bc0e432eb2dd7f8e368b2ae7cc6892221906",
+      "bytes": 72666,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "file": "assets/imports/terrain/f41749254b294f20069ead74aa51da24dd2c2b9d6d69dbe12db0bc4e6830b1e5.png",
+      "sha256": "f41749254b294f20069ead74aa51da24dd2c2b9d6d69dbe12db0bc4e6830b1e5",
+      "bytes": 36810,
+      "width": 512,
+      "height": 512
+    }
+  ],
+  "height": {
+    "file": "assets/imports/terrain/8e7dadc52ed212eec475fae2bb58dc2208b98e9eb7877257df0f4a517b5a6209.r32",
+    "sha256": "8e7dadc52ed212eec475fae2bb58dc2208b98e9eb7877257df0f4a517b5a6209",
+    "bytes": 264196,
+    "size": [
+      257,
+      257
+    ]
+  },
+  "preview": {
+    "file": "preview.png",
+    "sha256": "91c93d6a2813b53e313215f2ef0cdcaf3020c2363a46773eedd8af4955c4970a",
+    "bytes": 1510435,
+    "width": 1280,
+    "height": 720
+  },
+  "integrity": "d9b204ec673792b5f1c7676c7a197798c8a32abfbae01928ce3411f74d7f8a2c"
+}

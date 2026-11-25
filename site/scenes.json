@@ -1,5 +1,40 @@
 [
  {
+  "id": "lagoon-sanctuary",
+  "example": "lagoon-sanctuary",
+  "title": "Lagoon Sanctuary",
+  "summary": "A sunlit rainforest cenote around a turquoise lagoon: shaded arrival steps beside a carved sun stele, a curved stone viaduct with a glowing brazier alcove, a stepped temple pavilion and a tall twin waterfall.",
+  "placard": {
+   "line": "A rainforest cenote around a turquoise lagoon, with a curved stone viaduct, temple pavilion and tall waterfall.",
+   "more": "Arrive in cool shade beside the carved sun stele and overhanging orchid bough. Descend to the waterside dock among water lilies and schooling fish, follow the curved stone viaduct past the brazier alcove into the sanctuary colonnade, or swim straight across the shallows and climb the grand staircase beneath the waterfall."
+  },
+  "shots": [
+   {
+    "src": "images/scenes/lagoon-sanctuary-arrival.webp",
+    "alt": "Lagoon Sanctuary from the shaded arrival steps: a carved sun stele and tropical foliage framing a curved stone viaduct, turquoise shallows with water lilies, a sunlit stone sanctuary pavilion and a tall waterfall."
+   },
+   {
+    "src": "images/scenes/lagoon-sanctuary-viaduct.webp",
+    "alt": "From the curved stone viaduct looking across the turquoise lagoon toward the temple island, flanking palms, grand staircase and waterfall mist."
+   },
+   {
+    "src": "images/scenes/lagoon-sanctuary-return.webp",
+    "alt": "From inside the warm sunlit sanctuary doorway looking back across the lagoon toward the curved viaduct, stone dock, cove canopy and overhanging orchid bough."
+   },
+   {
+    "src": "images/scenes/lagoon-sanctuary-overview.webp",
+    "alt": "Lagoon Sanctuary from above: the circular rainforest cenote, rim canopy, curved stone viaduct, temple island and waterfall feeding the turquoise basin."
+   }
+  ],
+  "path": "worlds/lagoon-sanctuary/",
+  "updated": "2026-11-25",
+  "hero": {
+   "src": "images/hero-lagoon-sanctuary.webp",
+   "alt": "Lagoon Sanctuary: shaded limestone steps beside a carved sun stele opening onto a turquoise cenote lagoon, curved stone viaduct, sunlit sanctuary doorway and waterfall."
+  },
+  "gallery": "https://kilnstudio.tools/packs/holodeck/lagoon-sanctuary/"
+ },
+ {
   "id": "meridian-sanctuary",
   "example": "meridian-sanctuary",
   "title": "Meridian Sanctuary",
@@ -62,7 +97,7 @@
    }
   ],
   "path": "worlds/crescent-cove/",
-  "updated": "2026-11-13",
+  "updated": "2026-11-14",
   "hero": {
    "src": "images/hero-crescent-cove.webp",
    "alt": "Crescent Cove from the air: a palm-lined crescent beach and a rocky headland around a turquoise lagoon."
@@ -98,10 +133,6 @@
   ],
   "path": "worlds/courtyard/",
   "updated": "2026-11-13",
-  "hero": {
-   "src": "images/hero-courtyard.webp",
-   "alt": "The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."
-  },
   "gallery": "https://kilnstudio.tools/packs/holodeck/courtyard/"
  },
  {
@@ -163,7 +194,7 @@
    }
   ],
   "path": "worlds/winter-mountainside-cabin/",
-  "updated": "2026-11-13",
+  "updated": "2026-11-14",
   "hero": {
    "src": "images/hero-winter-mountainside-cabin.webp",
    "alt": "Winter Mountainside Cabin: a timber cabin on a snowy slope among snow-laden pines."

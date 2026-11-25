@@ -13,7 +13,7 @@ const KILN_PACKS='https://kilnstudio.tools/packs/';
 // The shelf's own pages and the date each last changed in substance (its copy, links or structured
 // data), as the sitemap's lastmod; a scene's date is its catalog `updated`. Update a date in the commit
 // that changes the page: server/site.test.mjs checks each against git history when the checkout has it.
-export const PAGES=[{path:'',updated:'2026-11-13'},{path:'about/',updated:'2026-10-27'}];
+export const PAGES=[{path:'',updated:'2026-11-25'},{path:'about/',updated:'2026-11-25'}];
 // The Lab's index, rendered from site/lab.json; each entry's page takes its catalog `updated`.
 export const LAB={path:'lab/',updated:'2026-11-13'};
 // A Lab video is an H.264 MP4 of at most 8 MB with its moov box first (ffmpeg -movflags +faststart),
@@ -249,7 +249,7 @@ function renderLab(entries){
           </div>
         </article>`);
  files['lab/index.html']=labHead({title:'Lab · Holodeck',description:'Experimental, in-progress Holodeck work kept off the scene shelf: unfinished scenes and the same scene in different engines, side by side.',url:labUrl,
-  image:new URL('images/card.jpg',SITE_URL).href,imageAlt:'Four Holodeck worlds: Meridian Sanctuary\'s marble terraces above the clouds, Crescent Cove\'s lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard\'s fountain among cypress and olive trees.',
+  image:new URL('images/card.jpg',SITE_URL).href,imageAlt:'Four Holodeck worlds: Lagoon Sanctuary\'s turquoise cenote and waterfall, Meridian Sanctuary\'s marble terraces above the clouds, Crescent Cove\'s lagoon from the air, and a snowbound mountain cabin among pines.',
   data:{'@context':'https://schema.org','@type':'CollectionPage','@id':`${labUrl}#page`,name:'Holodeck Lab',url:labUrl,isPartOf:{'@id':`${SITE_URL}#website`},
    breadcrumb:crumbs([['Holodeck',SITE_URL],['Lab',labUrl]]),hasPart:entries.map(entry=>({'@type':'WebPage',name:entry.title,url:new URL(entry.path,SITE_URL).href}))}})+`
       <div class="hero-copy">

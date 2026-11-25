@@ -10,6 +10,13 @@ water, jungle vegetation, articulated patrols and flying boid flocks. Select it
 under **Start from an example** in the [world picker](world-library.md), or use
 the CLI below. Each copy has its own name, saved revisions and local agent session.
 
+Lagoon Sanctuary (`lagoon-sanctuary`) is a sunlit rainforest cenote around a
+turquoise lagoon: shaded limestone arrival steps beside a carved sun stele and
+overhanging orchid bough, a waterside stone dock among water lilies and
+schooling fish, a monolithic curved stone viaduct with a brazier alcove leading
+flush into a carved sanctuary pavilion, a 14-step grand staircase into the
+shallows, and a tall twin-ribbon native waterfall on the right.
+
 Meridian Sanctuary (`meridian-sanctuary`) is a marble sanctuary above a sea of
 cloud: a causeway between mirror pools, terraces and stairs up to a colossal gate
 tower, floating statues of a figure and a whale, live mirror orbs, and a bridge
@@ -47,6 +54,8 @@ node bin/holodeck.mjs check ../my-world
 node bin/holodeck.mjs dev ../my-world --port 4189
 node bin/holodeck.mjs init ../my-island --example tidemark
 node bin/holodeck.mjs dev ../my-island --port 4192
+node bin/holodeck.mjs init ../my-lagoon --example lagoon-sanctuary
+node bin/holodeck.mjs dev ../my-lagoon --port 4196
 node bin/holodeck.mjs init ../my-sanctuary --example meridian-sanctuary
 node bin/holodeck.mjs dev ../my-sanctuary --port 4194
 node bin/holodeck.mjs init ../my-cabin --example winter-mountainside-cabin
@@ -69,6 +78,9 @@ Agent connection retains the existing Kiln setup workflow.
 - Tidemark Island: Enter world to explore the beach and jungle. Maker possession
   supports first/third person, walking, running, jumping and swimming. Free camera
   lets you inspect the scene. Patrol joints and flock wings use procedural gait.
+- Lagoon Sanctuary: Enter world in cool shade beside the sun stele. Descend to
+  the stone dock, walk the curved stone viaduct past the brazier alcove into the
+  sanctuary colonnade, or swim across the lagoon and climb the grand stairs.
 - Meridian Sanctuary: Enter world at the arrival, walk the causeway between the
   pools and climb the terraces to the gate. The east arch leads over the bridge to
   the pavilion and the plaza, then up three flights to a second pavilion; the mirror
