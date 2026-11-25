@@ -1,0 +1,7604 @@
+{
+  "schemaVersion": 2,
+  "revision": 0,
+  "scene": {
+    "environment": {
+      "type": "construct",
+      "clearPath": true,
+      "groundColor": "#5c6e44",
+      "fogColor": "#9ad0d6",
+      "sunColor": "#ffe3b2",
+      "sunIntensity": 4.2,
+      "sunPosition": [
+        -12,
+        58,
+        14
+      ],
+      "fogNear": 90,
+      "fogFar": 420,
+      "fogSky": 0.25,
+      "shadow": {
+        "extent": 50
+      },
+      "grade": {
+        "toneMapping": "neutral",
+        "highlights": 0.7
+      },
+      "exposure": 1.02,
+      "effects": {
+        "bloom": {
+          "strength": 0.14,
+          "radius": 0.32,
+          "threshold": 1.22
+        }
+      },
+      "sky": {
+        "zenithColor": "#1b75cb",
+        "horizonColor": "#b8e2ea",
+        "curve": 0.45,
+        "sunDisc": 1.2,
+        "cloudLight": "#fff9ee",
+        "radiance": "sun",
+        "clouds": {
+          "coverage": 0.36,
+          "density": 0.62,
+          "height": 0.52,
+          "scale": 1.15,
+          "drift": [
+            0.35,
+            0.14
+          ]
+        },
+        "light": {
+          "intensity": 0.42,
+          "probe": [
+            4.5,
+            2.2,
+            -24
+          ],
+          "grid": {
+            "min": [
+              -20,
+              -1,
+              -48
+            ],
+            "max": [
+              24,
+              13,
+              4
+            ],
+            "spacing": 16,
+            "bounces": 1,
+            "intensity": 0.92
+          }
+        }
+      }
+    },
+    "bridge": null,
+    "origin": "structure",
+    "terrain": {
+      "type": "heightmap",
+      "bounds": [
+        -52,
+        52,
+        -74,
+        24
+      ],
+      "size": [
+        257,
+        257
+      ],
+      "height": {
+        "file": "assets/imports/terrain/8e7dadc52ed212eec475fae2bb58dc2208b98e9eb7877257df0f4a517b5a6209.r32",
+        "sha256": "8e7dadc52ed212eec475fae2bb58dc2208b98e9eb7877257df0f4a517b5a6209",
+        "format": "r32"
+      },
+      "stamps": [],
+      "appearance": {
+        "sandColor": "#cfc5a8",
+        "wetSandColor": "#8c8870",
+        "grassColor": "#476b30",
+        "rockColor": "#848075",
+        "grassStart": -1.2,
+        "grassEnd": 1.2,
+        "rockSlope": 0.62,
+        "textureScale": 0.55,
+        "layers": [
+          {
+            "id": "lagoon-sand",
+            "maps": {
+              "albedo": "assets/imports/terrain/6371e7755b3e30dea3e2279cc0b8b237988fbda60b97773a05c6651a17459264.png",
+              "normal": "assets/imports/terrain/669be1c0479894212ff0da79267f6bf9075537465fce00e33cd9be54d895a5db.png",
+              "roughness": "assets/imports/terrain/5e1a34fdf2cb47a4b307e52a3407ef0bd7ce202cd549f7de1d776fc4c9207e22.png"
+            },
+            "scale": 5,
+            "projection": "planar",
+            "strength": 0.92,
+            "mask": {
+              "water": [
+                -10,
+                0.45,
+                0.65
+              ],
+              "slope": [
+                0,
+                36,
+                8
+              ]
+            }
+          },
+          {
+            "id": "karst-cliff",
+            "maps": {
+              "albedo": "assets/imports/terrain/ce40dc107d5b1f9e60af0f63ed8ad85e1d72cca005508926630ce0ae80ee1369.png",
+              "normal": "assets/imports/terrain/e5f260ec7781b6a46ba603a3d77dc30bcf2ad1fcc3433bf02afb58e3e9d94236.png",
+              "roughness": "assets/imports/terrain/4eeafd75cceacfaf5eed8d25cd235ff38a8a2ff2d091e32f7bd243e8aeb93df2.png"
+            },
+            "scale": 7,
+            "projection": "triplanar",
+            "strength": 0.95,
+            "mask": {
+              "slope": [
+                32,
+                90,
+                10
+              ]
+            }
+          },
+          {
+            "id": "cenote-moss",
+            "maps": {
+              "albedo": "assets/imports/terrain/1882dad5a2d3d761f65cba1277c60454034b216cbb89a27644c61ab3800d3baa.png",
+              "normal": "assets/imports/terrain/2b7e20a2268076e13484f18da3f4b6e5775c098bdad7a7318cc35a998dee5a06.png",
+              "roughness": "assets/imports/terrain/ecc6cf5a4e5b8a7e9772f1f00862bc0e432eb2dd7f8e368b2ae7cc6892221906.png"
+            },
+            "scale": 4.5,
+            "projection": "planar",
+            "strength": 0.88,
+            "mask": {
+              "water": [
+                0.35,
+                24,
+                0.8
+              ],
+              "slope": [
+                0,
+                40,
+                10
+              ]
+            }
+          },
+          {
+            "id": "jungle-litter",
+            "maps": {
+              "albedo": "assets/imports/terrain/d8114817dd413982d83e863b429a09e4db3b88aa89dfd9ef14991237ece0bd5d.png",
+              "normal": "assets/imports/terrain/bab3be4d437799fef18c99890d0cff1021ac57827ff58ac7a81debfc390a23fb.png",
+              "roughness": "assets/imports/terrain/f41749254b294f20069ead74aa51da24dd2c2b9d6d69dbe12db0bc4e6830b1e5.png"
+            },
+            "scale": 3.8,
+            "projection": "planar",
+            "strength": 0.72,
+            "mask": {
+              "near": {
+                "scatters": [
+                  "scatter-bank-understory"
+                ],
+                "assets": [
+                  "gnarled-canopy-bough",
+                  "foliage-palm-island",
+                  "foliage-palm-lean"
+                ],
+                "radius": 3.2,
+                "fade": 1.8
+              },
+              "slope": [
+                0,
+                30,
+                6
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "water": {
+      "type": "ocean",
+      "bounds": [
+        -48,
+        48,
+        -68,
+        18
+      ],
+      "level": -2.2,
+      "waves": [
+        {
+          "direction": [
+            0.6,
+            0.8
+          ],
+          "amplitude": 0.006,
+          "wavelength": 8.5,
+          "speed": 0.28,
+          "phase": 0
+        },
+        {
+          "direction": [
+            -0.8,
+            0.6
+          ],
+          "amplitude": 0.003,
+          "wavelength": 6.2,
+          "speed": 0.38,
+          "phase": 1.4
+        }
+      ],
+      "color": "#08546d",
+      "shallowColor": "#24d6ca",
+      "foamWidth": 0.42,
+      "reflection": "planar",
+      "falls": [
+        {
+          "id": "main-cascade",
+          "top": [
+            23.8,
+            15.6,
+            -42.2
+          ],
+          "bottom": [
+            21,
+            -2.2,
+            -39
+          ],
+          "width": 4.2,
+          "spread": 1.45,
+          "arch": 1.75,
+          "speed": 5.4,
+          "opacity": 0.92,
+          "color": "#f2fdff",
+          "tint": "#68dce0",
+          "mist": {
+            "radius": 8.8,
+            "height": 6.8,
+            "opacity": 0.92
+          }
+        },
+        {
+          "id": "side-trickle",
+          "top": [
+            25.6,
+            15,
+            -40.3
+          ],
+          "bottom": [
+            23.2,
+            -2.2,
+            -37.4
+          ],
+          "width": 1.45,
+          "spread": 1.35,
+          "arch": 1.2,
+          "speed": 4.8,
+          "opacity": 0.72,
+          "color": "#ebfbff",
+          "tint": "#5cccd2",
+          "mist": {
+            "radius": 4.5,
+            "height": 4.2,
+            "opacity": 0.65
+          }
+        }
+      ]
+    },
+    "assets": [
+      {
+        "id": "structure",
+        "file": "assets/imports/6ee4a843021c46d7e35ee42055d6124315b48626c23b071ad1ed0e9658487338.glb",
+        "provenance": {
+          "assetId": "a_a6387eb5c9ba4b9b804eca10577e4868",
+          "revisionId": "r_1b8338546f534885a1529037bc207e94",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "canopy",
+        "file": "assets/imports/0c0945592c4324ab41d17ce8ff186a20a84e20641e59dbbdc3617df997ca28c0.glb",
+        "provenance": {
+          "assetId": "a_4f6ce20d78fd4aefa27b934c7a9224c2",
+          "revisionId": "r_df0485467228414780cfa44c0f2e32ad",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "seating",
+        "file": "assets/imports/3431cc9c084ebc748f00f954ee89b3c3de72fa690da02d8e49708e67272868cf.glb",
+        "provenance": {
+          "assetId": "a_8054e921736c4dd2861a28cd63a9213f",
+          "revisionId": "r_f73aa8b1c4b749dd8076bf152b29afe7",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "hearth",
+        "file": "assets/imports/07b604e45577a7425b9ba6e8791827bfc29d4e09d3a9414e2be3fae2d25437ba.glb",
+        "provenance": {
+          "assetId": "a_10ec25ce83e242e3a5f2c7d8ae0f8e2c",
+          "revisionId": "r_5ef43760979043d48f358fe2932147dc",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "planting",
+        "file": "assets/imports/cc1202e270ccce5689ebde9320f2a65ecaa61d4fc2f251ec66bc3ba256218cd8.glb",
+        "provenance": {
+          "assetId": "a_83fa946f4c18476991c1e130c07dd5f9",
+          "revisionId": "r_cdb8552ccdde43f28d3995b2a5a30d25",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "FernFronds_A",
+            "FernFronds_B",
+            "FernFronds_C"
+          ],
+          "translucency": 0.22,
+          "wind": {
+            "amplitude": 0.035,
+            "frequency": 0.6,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "rug",
+        "file": "assets/imports/4157895ec9f3d1f1383ff65536d93106743064d6df95d42043b154a1a630f857.glb",
+        "provenance": {
+          "assetId": "a_695ec90542974d739fb93ae8c9876e26",
+          "revisionId": "r_651bc2867976426996191865ea931163",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "lamp",
+        "file": "assets/imports/c94873ae285ee3a869b7773536b430a0e8a7db5c4b81458fbd65995833326808.glb",
+        "provenance": {
+          "assetId": "a_0e6e95f9c49d445fa83af41f12cabde1",
+          "revisionId": "r_3b14d66959f942c887c5550f60d6d8ce",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "moodboard",
+        "file": "assets/imports/0086ef306f8184464503403fb624d0104217dc0e283660e639d1f5f695fa369d.glb",
+        "provenance": {
+          "assetId": "a_98506f22579948249e81029d5b605ab2",
+          "revisionId": "r_aedc5a07c6d34c1fb19f5cf959ce679c",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "sanctuary-portal",
+        "file": "assets/imports/a4a9f37dbc7dcf62da5e294e5b00160f26eca46da928c0e9f15e982d3a7ca836.glb",
+        "provenance": {
+          "assetId": "a_50b2fc2eef3a490b92fd6582995dea3b",
+          "revisionId": "r_d324dd03b0734a30be89d2e6dd747e44",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "sanctuary-wing",
+        "file": "assets/imports/38cb41c8d59809d1d1d718e52c73fd52c0e2eac84623ff452dcd70dfdb546974.glb",
+        "provenance": {
+          "assetId": "a_165e5d2bf40c4afaa06f6986f6244576",
+          "revisionId": "r_c0b62048da724ce3864fccc7c7db58cd",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "sanctuary-grand-stairs",
+        "file": "assets/imports/b4aa2f28ea44e4feb72179446f9263a022a7621eab20dc716921241cb6701cd2.glb",
+        "provenance": {
+          "assetId": "a_6a59f0b57fe74137bb4f5ac2b12ceb4d",
+          "revisionId": "r_bcfda59cdd174b2b85ad798c9b6c68d4",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "sun-stele-pillar",
+        "file": "assets/imports/b966e152044d1f0a0d5c7825cfc7fa917329b6b6eef3f18a1265bbe420dfdd2e.glb",
+        "provenance": {
+          "assetId": "a_deeeacf1fde742b6951952204e83a471",
+          "revisionId": "r_302870e794fd496f9cc618278ec58363",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "arrival-stair-terrace",
+        "file": "assets/imports/4c2eb4ddca6954cef40675468beaa6ba1483f4a6730ef69f3c83f7d8ef234cd8.glb",
+        "provenance": {
+          "assetId": "a_7e55c2b3fa11464797fd441a0c89e223",
+          "revisionId": "r_63bdf21046b54dd883f9433efd00a878",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "waterside-stone-dock",
+        "file": "assets/imports/d547e8abb70e73192705d54fe514dc56670e6a7195deb2b2622fabc40d3fe14b.glb",
+        "provenance": {
+          "assetId": "a_bcad6bf71e3e4e1192b98fbf6624c11e",
+          "revisionId": "r_b31b6967a9054632982ddcd92b37f7fc",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "lagoon-curved-viaduct",
+        "file": "assets/imports/1b8a43590d31198641c12897bb2873103d1b59462a5733d9f1694ab6531edea8.glb",
+        "provenance": {
+          "assetId": "a_a89316f416f64cb2a88d7b76df334ba1",
+          "revisionId": "r_cb9fd874ba0f4ec89a4e41d927cd5d9d",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "stone-brazier",
+        "file": "assets/imports/1b7c6ef326d6cf6423817a631e507d033e3ad64cf84fcc149d02d1405084956e.glb",
+        "provenance": {
+          "assetId": "a_494aee22f6c6471ea24b59eee84c3095",
+          "revisionId": "r_a6120530e7c94a52a6e9d8ba4632ae3f",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "karst-overhang-ledge",
+        "file": "assets/imports/fca546a85857d1dcc72ac77ffc2195f1a0898f6fd5d025c937bba479e156a3fa.glb",
+        "provenance": {
+          "assetId": "a_19243519e06b4f01adeb205863c6f924",
+          "revisionId": "r_efa7fcc050604f69863d3d702c0e1452",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "stalactite-cluster",
+        "file": "assets/imports/5ea3263bc7a7de4df4fcfb3f7d387848c5cca4e00f88fd671a514900bef6fc54.glb",
+        "provenance": {
+          "assetId": "a_b6370526091742b5b4bc876f9e0951cd",
+          "revisionId": "r_ccdf7a4f562e41b4bad871966b957814",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "mossy-boulder-hero",
+        "file": "assets/imports/781317c5a731699d42ee76d641fec39aedbff69911a5b454fa0fc57b3a26901b.glb",
+        "provenance": {
+          "assetId": "a_eddf145618bb483c863426b4411da8f4",
+          "revisionId": "r_e529e1183560444aa9e7ffcd3d5f8d53",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "mossy-boulder-cluster",
+        "file": "assets/imports/6d8330ea08b5e6c554d2b16f2b2a00c0238fb2df20dd75098ad4acd9fcbe8de7.glb",
+        "provenance": {
+          "assetId": "a_7839231087ef4ffab3922b7eba126d71",
+          "revisionId": "r_b576523c71a64734843883fbefdfa87a",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "gnarled-canopy-bough",
+        "file": "assets/imports/4382fbcbb5ff90f96452aea85171260e5b7b9832c008410be5ee4b5711e87b4e.glb",
+        "provenance": {
+          "assetId": "a_99dcd547802b4d9a928f3b60a6f196f2",
+          "revisionId": "r_cde37c2b08a14de9be5901cd556d0e5c",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_BoughLeaves"
+          ],
+          "translucency": 0.36,
+          "wind": {
+            "amplitude": 0.055,
+            "frequency": 0.55,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-monstera-a",
+        "file": "assets/imports/be6389df2218445bfcc834ad44fb5b767efc33b3831c77d864957c69fe966256.glb",
+        "provenance": {
+          "assetId": "a_88aef670b80040af8aa8ead2b846df5f",
+          "revisionId": "r_f0542e8bca254d22864d0b772bd3f4ed",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_MonsteraLeaves"
+          ],
+          "translucency": 0.34,
+          "wind": {
+            "amplitude": 0.035,
+            "frequency": 0.72,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-monstera-b",
+        "file": "assets/imports/f96b41442d8ae82ab93eac91347b1c0788e7695c79ce2876f7326442d1f663ef.glb",
+        "provenance": {
+          "assetId": "a_b3f59e9aa2374ea6a210f5a23533cded",
+          "revisionId": "r_e2bad590438d4bfebd5a3fbd5df3ae97",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_MonsteraLeaves"
+          ],
+          "translucency": 0.36,
+          "wind": {
+            "amplitude": 0.032,
+            "frequency": 0.78,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-bromeliad",
+        "file": "assets/imports/f22fb3c9ce8b16b82d1568ac652d96eff7be088e382b8f1044b1cd1a89fe8153.glb",
+        "provenance": {
+          "assetId": "a_5a63b72c7ca944dda67ee59b5cc0d674",
+          "revisionId": "r_ad23f16a18674e3388c302f73f66854d",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_BromeliadLeaves"
+          ],
+          "translucency": 0.42,
+          "wind": {
+            "amplitude": 0.022,
+            "frequency": 0.85,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-fern-fountain",
+        "file": "assets/imports/b89752d894c161207bd8cb97daeda1a87d837ba34730e1da4b93070d72fdc0f5.glb",
+        "provenance": {
+          "assetId": "a_4c30edf6f8de47e29d5f119000617785",
+          "revisionId": "r_e2c7472898ca4254bb93276370797058",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_FernFronds"
+          ],
+          "translucency": 0.38,
+          "wind": {
+            "amplitude": 0.045,
+            "frequency": 0.85,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-fern-low",
+        "file": "assets/imports/0be971e7f9575c04d9e25f4834aa70b0e16ba3e419b1f78b675a9722f34d37b3.glb",
+        "provenance": {
+          "assetId": "a_44c00781e40b49eba1d49da51eb8270c",
+          "revisionId": "r_5f55dff76aef4facb096c685df65f76c",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_FernFronds"
+          ],
+          "translucency": 0.38,
+          "wind": {
+            "amplitude": 0.038,
+            "frequency": 0.92,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-waterlily",
+        "file": "assets/imports/65ffbe1362fdd263c1bc0095f065485a5731de989aab3208267c50d168e9f802.glb",
+        "provenance": {
+          "assetId": "a_fb56f6580c21472295bc97af39093834",
+          "revisionId": "r_c4101c3657444cf1a79bcec56da788da",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_LilyPads",
+            "Mesh_LilyBlooms"
+          ],
+          "translucency": 0.28
+        }
+      },
+      {
+        "id": "foliage-palm-island",
+        "file": "assets/imports/aa09644ad44607ab5902494b17d7d85dc5c85c24e5bea6bfcca4dd09cf0f212a.glb",
+        "provenance": {
+          "assetId": "a_e6cb8e1eb9f341d4bc4b6ac22182b0cd",
+          "revisionId": "r_a5890f3919de4a878f9bdca036bda349",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_PalmFronds"
+          ],
+          "translucency": 0.38,
+          "wind": {
+            "amplitude": 0.075,
+            "frequency": 0.52,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-palm-lean",
+        "file": "assets/imports/41068e086fb83fd315d75d84c38b8f11ae1831038565d42927851d8f3e6906bf.glb",
+        "provenance": {
+          "assetId": "a_ba0f6daabc7942a3aee392050f52d274",
+          "revisionId": "r_5c176f96f0b84715adeb3135c6d0b3ba",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_PalmFronds"
+          ],
+          "translucency": 0.38,
+          "wind": {
+            "amplitude": 0.082,
+            "frequency": 0.48,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-alocasia",
+        "file": "assets/imports/ed2800b437871b3fadd82078b708b023eee35f8590096181a5df119d0afb62ae.glb",
+        "provenance": {
+          "assetId": "a_e5e0be2b4bab4aaabd8bd4e1feb4bc32",
+          "revisionId": "r_6587f547da92481db9ee496d8ffc7ec8",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_AlocasiaLeaves"
+          ],
+          "translucency": 0.36,
+          "wind": {
+            "amplitude": 0.042,
+            "frequency": 0.68,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-vine-short",
+        "file": "assets/imports/35bb5c9a366545bfcad1132b5ee8ac812494920aebe2d122fe13ffda6c811379.glb",
+        "provenance": {
+          "assetId": "a_2a08934a390b4c5ebcce6e8d9f7e713a",
+          "revisionId": "r_47618fec249f40508a8cb7856acb2838",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_VineLeaves"
+          ],
+          "translucency": 0.4,
+          "wind": {
+            "amplitude": 0.065,
+            "frequency": 0.58,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-vine-medium",
+        "file": "assets/imports/ff5b689a08efe68524e9841878c9f9d762f592deebe8650744aacfda899e39fb.glb",
+        "provenance": {
+          "assetId": "a_308a3af01eae441abb301d60dce0c8a5",
+          "revisionId": "r_f959721ce3054d1f9dddacb563f3b4d2",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_VineLeaves"
+          ],
+          "translucency": 0.4,
+          "wind": {
+            "amplitude": 0.095,
+            "frequency": 0.42,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-vine-long",
+        "file": "assets/imports/d678363ee8a8bab34acb6f554ee8f9653628565f93bbed4cc5e34c4155377ec2.glb",
+        "provenance": {
+          "assetId": "a_3940e4eb752c4e208fc2cc05309afc0e",
+          "revisionId": "r_f26da827407341cabe8e2f9294f62369",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_VineLeaves"
+          ],
+          "translucency": 0.42,
+          "wind": {
+            "amplitude": 0.12,
+            "frequency": 0.36,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-canopy-umbrella",
+        "file": "assets/imports/72939da87512cbba606c7f256966fb301e9fe53b6587a8b9c10b4604f6746c67.glb",
+        "provenance": {
+          "assetId": "a_dbfacd0794e9461c9612737b4b75115d",
+          "revisionId": "r_40d7fef763864ecdb6b1905965aaca56",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_CanopyLeaves"
+          ],
+          "translucency": 0.35,
+          "wind": {
+            "amplitude": 0.075,
+            "frequency": 0.42,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-canopy-emergent",
+        "file": "assets/imports/c52bd394407d515466fe00506e1ed2a44a96e03cead0d9337b21999625e43726.glb",
+        "provenance": {
+          "assetId": "a_2b21510e21474cc8a87d8b27d5de4327",
+          "revisionId": "r_25c09eedc53341b69d7b41b83e31e2d7",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_CanopyLeaves"
+          ],
+          "translucency": 0.35,
+          "wind": {
+            "amplitude": 0.085,
+            "frequency": 0.38,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "foliage-cliff-drape",
+        "file": "assets/imports/e00995a5f41061b545d06fccdf26df07ac9a8f803618bf030269c492f632dcd5.glb",
+        "provenance": {
+          "assetId": "a_54c500e341b948ee9d7082dd32b5c44e",
+          "revisionId": "r_42ef74caef384c5ab7c4104fb675c555",
+          "collection": "project"
+        },
+        "foliage": {
+          "nodes": [
+            "Mesh_DrapeLeaves"
+          ],
+          "translucency": 0.38,
+          "wind": {
+            "amplitude": 0.06,
+            "frequency": 0.55,
+            "direction": [
+              0.8,
+              0.6
+            ],
+            "weight": "uv-y"
+          }
+        }
+      },
+      {
+        "id": "wildlife-swallow",
+        "file": "assets/imports/4155dc124ff0dcccff2c0d83c602cc0e59fecf9906275e0de893f2ef4f5fd3a3.glb",
+        "provenance": {
+          "assetId": "a_27c1c7427d6349c485f671fac428e3fb",
+          "revisionId": "r_8839e3eea15b433fb2c544d2c5388b71",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "wildlife-fish-gold",
+        "file": "assets/imports/dacfd18b764da0053510fa8a1748448c9272cf9fa506912cfc22ea44cdc1c419.glb",
+        "provenance": {
+          "assetId": "a_9882b7c0204c4357810d3225ef7e779c",
+          "revisionId": "r_4441ce77af2648d3ae4ea5190fad2277",
+          "collection": "project"
+        }
+      },
+      {
+        "id": "wildlife-fish-silver",
+        "file": "assets/imports/c85ffae0851b36eb25b582a896c5988c51bbbcf87ba1cd3bbd851078836659b9.glb",
+        "provenance": {
+          "assetId": "a_04d075fa31d64b949eb83060c2e5b320",
+          "revisionId": "r_9583d38840844de4ad8bba0f85e75366",
+          "collection": "project"
+        }
+      }
+    ],
+    "objects": [
+      {
+        "id": "cove-canopy",
+        "asset": "canopy",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "origin",
+        "materialStyle": "cove",
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                0.2,
+                3.25,
+                0.2
+              ],
+              "offset": [
+                -3.25,
+                1.625,
+                -1.7
+              ]
+            },
+            {
+              "size": [
+                0.2,
+                3.25,
+                0.2
+              ],
+              "offset": [
+                2.55,
+                1.625,
+                -1.7
+              ]
+            },
+            {
+              "size": [
+                0.2,
+                3.25,
+                0.2
+              ],
+              "offset": [
+                -3.25,
+                1.625,
+                2.55
+              ]
+            },
+            {
+              "size": [
+                0.2,
+                3.25,
+                0.2
+              ],
+              "offset": [
+                2.55,
+                1.625,
+                2.55
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "cove-seating",
+        "asset": "seating",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "origin",
+        "materialStyle": "cove",
+        "collider": null
+      },
+      {
+        "id": "cove-hearth",
+        "asset": "hearth",
+        "position": [
+          -1.12,
+          0,
+          0.08
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "origin",
+        "materialStyle": "cove",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.38,
+            0.85,
+            2.38
+          ],
+          "offset": [
+            0,
+            0.425,
+            0
+          ]
+        },
+        "light": {
+          "color": "#ffba79",
+          "intensity": 1.3,
+          "distance": 3.5,
+          "offset": [
+            0,
+            1.45,
+            0
+          ]
+        }
+      },
+      {
+        "id": "cove-planting",
+        "asset": "planting",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "origin",
+        "collider": null
+      },
+      {
+        "id": "cove-rug",
+        "asset": "rug",
+        "position": [
+          0.45,
+          0,
+          0.7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "origin",
+        "materialStyle": "cove",
+        "collider": null
+      },
+      {
+        "id": "cove-lamp-left",
+        "asset": "lamp",
+        "position": [
+          -2.35,
+          0,
+          -1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "origin",
+        "materialStyle": "cove",
+        "collider": {
+          "type": "box",
+          "size": [
+            0.56,
+            0.66,
+            0.56
+          ],
+          "offset": [
+            0,
+            0.33,
+            0
+          ]
+        },
+        "light": {
+          "color": "#ffba79",
+          "intensity": 3,
+          "distance": 3.5,
+          "offset": [
+            0,
+            0.36,
+            0
+          ]
+        }
+      },
+      {
+        "id": "cove-lamp-right",
+        "asset": "lamp",
+        "position": [
+          2.5,
+          0,
+          0.7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "origin",
+        "materialStyle": "cove",
+        "collider": {
+          "type": "box",
+          "size": [
+            0.56,
+            0.66,
+            0.56
+          ],
+          "offset": [
+            0,
+            0.33,
+            0
+          ]
+        },
+        "light": {
+          "color": "#ffba79",
+          "intensity": 3,
+          "distance": 3.5,
+          "offset": [
+            0,
+            0.36,
+            0
+          ]
+        }
+      },
+      {
+        "id": "sanctuary-portal-main",
+        "asset": "sanctuary-portal",
+        "position": [
+          5,
+          0.5,
+          -40
+        ],
+        "rotation": [
+          0,
+          -1.76058,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "light": {
+          "color": "#ffd180",
+          "intensity": 15,
+          "distance": 15,
+          "offset": [
+            0.2,
+            2.4,
+            0
+          ]
+        },
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                6.2,
+                0.6,
+                6.8
+              ],
+              "offset": [
+                0,
+                -0.3,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                1.95,
+                4.2,
+                1.95
+              ],
+              "offset": [
+                2.12,
+                2.1,
+                2.42
+              ]
+            },
+            {
+              "size": [
+                1.95,
+                4.2,
+                1.95
+              ],
+              "offset": [
+                2.12,
+                2.1,
+                -2.42
+              ]
+            },
+            {
+              "size": [
+                1.95,
+                4.2,
+                1.95
+              ],
+              "offset": [
+                -2.12,
+                2.1,
+                2.42
+              ]
+            },
+            {
+              "size": [
+                1.95,
+                4.2,
+                1.95
+              ],
+              "offset": [
+                -2.12,
+                2.1,
+                -2.42
+              ]
+            },
+            {
+              "size": [
+                1.1,
+                0.8,
+                1.1
+              ],
+              "offset": [
+                -1.6,
+                0.4,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "sanctuary-wing-left",
+        "asset": "sanctuary-wing",
+        "position": [
+          -0.9924,
+          0.5,
+          -41.4057
+        ],
+        "rotation": [
+          0,
+          -1.76058,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                4.6,
+                0.6,
+                5.8
+              ],
+              "offset": [
+                0,
+                -0.3,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                1.85,
+                1.55,
+                -2.3
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                1.85,
+                1.55,
+                0
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                1.85,
+                1.55,
+                2.3
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                -1.85,
+                1.55,
+                -2.3
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                -1.85,
+                1.55,
+                0
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                -1.85,
+                1.55,
+                2.3
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "sanctuary-wing-right",
+        "asset": "sanctuary-wing",
+        "position": [
+          11.0867,
+          0.5,
+          -39.0853
+        ],
+        "rotation": [
+          0,
+          -1.76058,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                4.6,
+                0.6,
+                5.8
+              ],
+              "offset": [
+                0,
+                -0.3,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                1.85,
+                1.55,
+                -2.3
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                1.85,
+                1.55,
+                0
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                1.85,
+                1.55,
+                2.3
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                -1.85,
+                1.55,
+                -2.3
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                -1.85,
+                1.55,
+                0
+              ]
+            },
+            {
+              "size": [
+                0.54,
+                3.1,
+                0.54
+              ],
+              "offset": [
+                -1.85,
+                1.55,
+                2.3
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "sanctuary-grand-stairs-main",
+        "asset": "sanctuary-grand-stairs",
+        "position": [
+          3.8776,
+          -2.2,
+          -34.1568
+        ],
+        "rotation": [
+          0,
+          -1.76058,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                2.15,
+                0.44,
+                4.5
+              ],
+              "offset": [
+                3.05,
+                -0.32,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                2.0115,
+                -0.0108,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                1.6346,
+                0.1985,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                1.2577,
+                0.4077,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                0.8808,
+                0.6169,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                0.5038,
+                0.8262,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                0.1269,
+                1.0354,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                -0.25,
+                1.2446,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                -0.6269,
+                1.4538,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                -1.0038,
+                1.6631,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                -1.3808,
+                1.8723,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                -1.7577,
+                2.0815,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                -2.1346,
+                2.2908,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.4369,
+                0.4,
+                4.4
+              ],
+              "offset": [
+                -2.5115,
+                2.5,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                5.9,
+                1.8,
+                0.88
+              ],
+              "offset": [
+                0.15,
+                1.45,
+                2.66
+              ]
+            },
+            {
+              "size": [
+                5.9,
+                1.8,
+                0.88
+              ],
+              "offset": [
+                0.15,
+                1.45,
+                -2.66
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "arrival-stairs-main",
+        "asset": "arrival-stair-terrace",
+        "position": [
+          -2.35,
+          0,
+          -7.35
+        ],
+        "rotation": [
+          0,
+          1.82335,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                2.7,
+                1.2,
+                4.4
+              ],
+              "offset": [
+                -1.9,
+                -0.6,
+                -0.1
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.66,
+                1,
+                4.2
+              ],
+              "offset": [
+                -0.3,
+                -0.65,
+                -0.1
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.66,
+                1,
+                4.2
+              ],
+              "offset": [
+                0.3,
+                -0.8,
+                -0.1
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.66,
+                1,
+                4.2
+              ],
+              "offset": [
+                0.9,
+                -0.95,
+                -0.1
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.7,
+                1.2,
+                4.6
+              ],
+              "offset": [
+                3,
+                -1.2,
+                -0.1
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                4.5,
+                0.95,
+                0.55
+              ],
+              "offset": [
+                -1,
+                0.18,
+                1.92
+              ]
+            },
+            {
+              "size": [
+                0.85,
+                1.05,
+                0.85
+              ],
+              "offset": [
+                1.5,
+                -0.12,
+                1.85
+              ]
+            },
+            {
+              "size": [
+                0.36,
+                0.82,
+                1.9
+              ],
+              "offset": [
+                4.65,
+                -0.22,
+                1.25
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "sun-stele-hero",
+        "asset": "sun-stele-pillar",
+        "position": [
+          -3.92,
+          -0.12,
+          -7.25
+        ],
+        "rotation": [
+          0,
+          -0.52,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            1.08,
+            3.85,
+            1.08
+          ],
+          "offset": [
+            0,
+            1.92,
+            0
+          ]
+        }
+      },
+      {
+        "id": "waterside-dock-main",
+        "asset": "waterside-stone-dock",
+        "position": [
+          1.2361,
+          -1.85,
+          -11.6629
+        ],
+        "rotation": [
+          0,
+          0.25255367320510347,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                3.3,
+                1.6,
+                3.2
+              ],
+              "offset": [
+                1.6,
+                -0.8,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.46,
+                0.5,
+                2.7
+              ],
+              "offset": [
+                -0.2,
+                -0.0417,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.46,
+                0.5,
+                2.7
+              ],
+              "offset": [
+                -0.6,
+                0.1667,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.46,
+                0.5,
+                2.7
+              ],
+              "offset": [
+                -1,
+                0.375,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.46,
+                0.5,
+                2.7
+              ],
+              "offset": [
+                -1.4,
+                0.5833,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.46,
+                0.5,
+                2.7
+              ],
+              "offset": [
+                -1.8,
+                0.7917,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.46,
+                0.5,
+                2.7
+              ],
+              "offset": [
+                -2.2,
+                1,
+                0
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                0.45,
+                0.75,
+                0.45
+              ],
+              "offset": [
+                2.85,
+                0.38,
+                1.25
+              ]
+            },
+            {
+              "size": [
+                0.45,
+                0.75,
+                0.45
+              ],
+              "offset": [
+                2.85,
+                0.38,
+                -1.25
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "lagoon-curved-viaduct-main",
+        "asset": "lagoon-curved-viaduct",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "compound",
+          "boxes": [
+            {
+              "size": [
+                3.3719,
+                0.48,
+                3.2702
+              ],
+              "offset": [
+                -4.7775,
+                -0.8368,
+                -12.998
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.5179,
+                0.48,
+                3.4251
+              ],
+              "offset": [
+                -5.6755,
+                -0.8128,
+                -15.1902
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.5904,
+                0.48,
+                3.5148
+              ],
+              "offset": [
+                -6.7841,
+                -0.7678,
+                -17.288
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.6135,
+                0.48,
+                3.5459
+              ],
+              "offset": [
+                -7.9977,
+                -0.7051,
+                -19.3433
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.5941,
+                0.48,
+                3.5229
+              ],
+              "offset": [
+                -9.2117,
+                -0.6279,
+                -21.4052
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.5239,
+                0.48,
+                3.4426
+              ],
+              "offset": [
+                -10.3214,
+                -0.5394,
+                -23.5231
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                4.2764,
+                0.48,
+                3.5399
+              ],
+              "offset": [
+                -10.7724,
+                -0.4429,
+                -25.8686
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.1161,
+                0.48,
+                3.1053
+              ],
+              "offset": [
+                -11.8078,
+                -0.3415,
+                -28.1398
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                2.8392,
+                0.48,
+                3.2368
+              ],
+              "offset": [
+                -12.0537,
+                -0.2385,
+                -30.926
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                2.927,
+                0.48,
+                3.0179
+              ],
+              "offset": [
+                -12.0058,
+                -0.1371,
+                -33.8288
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.1768,
+                0.48,
+                3.0382
+              ],
+              "offset": [
+                -11.6681,
+                -0.0406,
+                -36.3143
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.332,
+                0.48,
+                3.1142
+              ],
+              "offset": [
+                -11.0333,
+                0.0479,
+                -38.4345
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.3078,
+                0.48,
+                3.2285
+              ],
+              "offset": [
+                -10.0984,
+                0.1251,
+                -40.1252
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                3.0436,
+                0.48,
+                3.2691
+              ],
+              "offset": [
+                -8.8339,
+                0.1878,
+                -41.3082
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                2.621,
+                0.48,
+                3.0669
+              ],
+              "offset": [
+                -7.1781,
+                0.2328,
+                -41.9381
+              ],
+              "walkable": true
+            },
+            {
+              "size": [
+                2.7244,
+                0.48,
+                2.8877
+              ],
+              "offset": [
+                -4.8711,
+                0.2568,
+                -42.0496
+              ],
+              "walkable": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "viaduct-bend-brazier",
+        "asset": "stone-brazier",
+        "position": [
+          -9.5481,
+          -0.21,
+          -26.1427
+        ],
+        "rotation": [
+          0,
+          0.4,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "light": {
+          "color": "#ffaa4c",
+          "intensity": 7.5,
+          "distance": 12,
+          "offset": [
+            0,
+            1.45,
+            0
+          ]
+        },
+        "collider": {
+          "type": "box",
+          "size": [
+            0.72,
+            1.2,
+            0.72
+          ],
+          "offset": [
+            0,
+            0.6,
+            0
+          ]
+        }
+      },
+      {
+        "id": "karst-overhang-1",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          -18.6664,
+          10.8,
+          -15.3367
+        ],
+        "rotation": [
+          0,
+          0.57322,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.15,
+          1.18
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-1",
+        "asset": "stalactite-cluster",
+        "position": [
+          -17.9034,
+          8.96,
+          -17.9717
+        ],
+        "rotation": [
+          0,
+          0.57322,
+          0
+        ],
+        "scale": [
+          1.05,
+          0.95,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-2",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          -22.8279,
+          11,
+          -24.2775
+        ],
+        "rotation": [
+          0,
+          0.18434,
+          0
+        ],
+        "scale": [
+          1.25,
+          1.18,
+          1.22
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-2",
+        "asset": "stalactite-cluster",
+        "position": [
+          -20.2861,
+          9.112,
+          -22.9204
+        ],
+        "rotation": [
+          0,
+          0.8843399999999999,
+          0
+        ],
+        "scale": [
+          1.17,
+          1.17,
+          1.17
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "light": {
+          "color": "#26dcd2",
+          "intensity": 3.2,
+          "distance": 20,
+          "offset": [
+            3.2,
+            -7.8,
+            0
+          ]
+        },
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-3",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          -22.9589,
+          11.2,
+          -34.9511
+        ],
+        "rotation": [
+          0,
+          -0.22963,
+          0
+        ],
+        "scale": [
+          1.22,
+          1.15,
+          1.18
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-3",
+        "asset": "stalactite-cluster",
+        "position": [
+          -20.4109,
+          9.36,
+          -36.204
+        ],
+        "rotation": [
+          0,
+          1.17037,
+          0
+        ],
+        "scale": [
+          1.29,
+          0.95,
+          1.29
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-4",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          -18.1322,
+          11.4,
+          -45.0026
+        ],
+        "rotation": [
+          0,
+          -0.65969,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.12,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-4",
+        "asset": "stalactite-cluster",
+        "position": [
+          -17.5997,
+          9.608,
+          -42.3116
+        ],
+        "rotation": [
+          0,
+          1.4403099999999998,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.17,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-5",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          -9.0236,
+          11.8,
+          -52.6071
+        ],
+        "rotation": [
+          0,
+          -1.11668,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.15,
+          1.22
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-5",
+        "asset": "stalactite-cluster",
+        "position": [
+          -6.498,
+          9.96,
+          -51.5365
+        ],
+        "rotation": [
+          0,
+          1.68332,
+          0
+        ],
+        "scale": [
+          1.17,
+          0.95,
+          1.17
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-6",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          2.7131,
+          12,
+          -55.1992
+        ],
+        "rotation": [
+          0,
+          -1.57893,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.18,
+          1.24
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-7",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          14.8958,
+          11.8,
+          -52.0303
+        ],
+        "rotation": [
+          0,
+          -2.06456,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.15,
+          1.2
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-7",
+        "asset": "stalactite-cluster",
+        "position": [
+          15.4997,
+          9.96,
+          -49.3545
+        ],
+        "rotation": [
+          0,
+          2.135439999999999,
+          0
+        ],
+        "scale": [
+          1.05,
+          0.95,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-8",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          22.7138,
+          11.2,
+          -45.2956
+        ],
+        "rotation": [
+          0,
+          -2.46311,
+          0
+        ],
+        "scale": [
+          1.18,
+          1.15,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-8",
+        "asset": "stalactite-cluster",
+        "position": [
+          19.9305,
+          9.36,
+          -45.3639
+        ],
+        "rotation": [
+          0,
+          2.4368899999999996,
+          0
+        ],
+        "scale": [
+          1.17,
+          1.17,
+          1.17
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-9",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          27.7963,
+          11,
+          -34.7307
+        ],
+        "rotation": [
+          0,
+          -2.91881,
+          0
+        ],
+        "scale": [
+          1.22,
+          1.18,
+          1.18
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-9",
+        "asset": "stalactite-cluster",
+        "position": [
+          26.0523,
+          9.112,
+          -32.49
+        ],
+        "rotation": [
+          0,
+          2.6811899999999995,
+          0
+        ],
+        "scale": [
+          1.29,
+          0.95,
+          1.29
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "light": {
+          "color": "#26dcd2",
+          "intensity": 3.2,
+          "distance": 20,
+          "offset": [
+            3.2,
+            -7.8,
+            0
+          ]
+        },
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-10",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          27.0069,
+          10.8,
+          -22.2293
+        ],
+        "rotation": [
+          0,
+          2.87204,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.15,
+          1.2
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-10",
+        "asset": "stalactite-cluster",
+        "position": [
+          25.4043,
+          8.96,
+          -24.5395
+        ],
+        "rotation": [
+          0,
+          9.172039999999999,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.17,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-11",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          20.6459,
+          10.6,
+          -12.9815
+        ],
+        "rotation": [
+          0,
+          2.41838,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-11",
+        "asset": "stalactite-cluster",
+        "position": [
+          17.9433,
+          8.84,
+          -12.9662
+        ],
+        "rotation": [
+          0,
+          9.418379999999999,
+          0
+        ],
+        "scale": [
+          1.17,
+          0.95,
+          1.17
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-12",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          10.5407,
+          10.2,
+          -1.005
+        ],
+        "rotation": [
+          0,
+          1.85049,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-13",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          -1.2906,
+          10.2,
+          1.1611
+        ],
+        "rotation": [
+          0,
+          1.44577,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "karst-overhang-14",
+        "asset": "karst-overhang-ledge",
+        "position": [
+          -11.1839,
+          10.4,
+          -6.8222
+        ],
+        "rotation": [
+          0,
+          1.01796,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.08,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "stalactite-grotto-14",
+        "asset": "stalactite-cluster",
+        "position": [
+          -8.5935,
+          8.672,
+          -7.5927
+        ],
+        "rotation": [
+          0,
+          10.11796,
+          0
+        ],
+        "scale": [
+          1.17,
+          1.17,
+          1.17
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "waterfall-lip-rock-left",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          21.2,
+          14.8,
+          -44.2
+        ],
+        "rotation": [
+          0,
+          2.2,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.3,
+          1.5
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "waterfall-lip-rock-right",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          26.2,
+          14.9,
+          -40
+        ],
+        "rotation": [
+          0,
+          2.6,
+          0
+        ],
+        "scale": [
+          1.7,
+          1.35,
+          1.5
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "boulder-hero-1",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          -1.6014,
+          -1.85,
+          -36.3803
+        ],
+        "rotation": [
+          0,
+          0.4,
+          0
+        ],
+        "scale": [
+          1.25,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-2",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          9.6505,
+          -1.85,
+          -34.5244
+        ],
+        "rotation": [
+          0,
+          2.1,
+          0
+        ],
+        "scale": [
+          1.35,
+          1.1,
+          1.2
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-3",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          -4.3589,
+          -1.65,
+          -37.9283
+        ],
+        "rotation": [
+          0,
+          1.2,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.15,
+          1.2
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-4",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          14.5941,
+          -1.55,
+          -36.9351
+        ],
+        "rotation": [
+          0,
+          3.6,
+          0
+        ],
+        "scale": [
+          1.45,
+          1.2,
+          1.3
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-5",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          -0.6404,
+          -1.65,
+          -46.684
+        ],
+        "rotation": [
+          0,
+          0.9,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.1,
+          1.2
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-6",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          12.4774,
+          -1.65,
+          -44.4697
+        ],
+        "rotation": [
+          0,
+          4.4,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.15,
+          1.25
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-7",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          16.2,
+          -2.45,
+          -40.5
+        ],
+        "rotation": [
+          0,
+          1.6,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.25,
+          1.35
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-8",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          24.2,
+          -2.35,
+          -36
+        ],
+        "rotation": [
+          0,
+          2.9,
+          0
+        ],
+        "scale": [
+          1.7,
+          1.4,
+          1.5
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-9",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          -6.4,
+          -0.55,
+          -8.8
+        ],
+        "rotation": [
+          0,
+          0.5,
+          0
+        ],
+        "scale": [
+          1.4,
+          1.2,
+          1.3
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "boulder-hero-10",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          -7.8,
+          -1.1,
+          -12.2
+        ],
+        "rotation": [
+          0,
+          1.8,
+          0
+        ],
+        "scale": [
+          1.5,
+          1.3,
+          1.3
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            2.8,
+            1.5,
+            2.2
+          ],
+          "offset": [
+            0,
+            0.75,
+            0
+          ]
+        }
+      },
+      {
+        "id": "reef-cluster-1",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          4.8,
+          -3.15,
+          -12.2
+        ],
+        "rotation": [
+          0,
+          0.6,
+          0
+        ],
+        "scale": [
+          1.15,
+          0.95,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-2",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          8.4,
+          -3.1,
+          -15.4
+        ],
+        "rotation": [
+          0,
+          2.3,
+          0
+        ],
+        "scale": [
+          1.25,
+          1.05,
+          1.2
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-3",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          11.6,
+          -2.95,
+          -11.5
+        ],
+        "rotation": [
+          0,
+          1.1,
+          0
+        ],
+        "scale": [
+          1.3,
+          1.1,
+          1.2
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-4",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          2.2,
+          -3.25,
+          -16.8
+        ],
+        "rotation": [
+          0,
+          3.9,
+          0
+        ],
+        "scale": [
+          1.05,
+          0.85,
+          1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-5",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          13.8,
+          -2.65,
+          -16.8
+        ],
+        "rotation": [
+          0,
+          0.2,
+          0
+        ],
+        "scale": [
+          1.35,
+          1.15,
+          1.25
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-6",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          6.8,
+          -3.55,
+          -21
+        ],
+        "rotation": [
+          0,
+          4.7,
+          0
+        ],
+        "scale": [
+          1.15,
+          0.9,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-7",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          -1.2,
+          -2.55,
+          -14
+        ],
+        "rotation": [
+          0,
+          2.8,
+          0
+        ],
+        "scale": [
+          1,
+          0.9,
+          1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-8",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          -0.0146,
+          -1.95,
+          -34.039
+        ],
+        "rotation": [
+          0,
+          0.8,
+          0
+        ],
+        "scale": [
+          1.1,
+          0.9,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-9",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          7.702,
+          -1.95,
+          -32.8621
+        ],
+        "rotation": [
+          0,
+          2.5,
+          0
+        ],
+        "scale": [
+          1.15,
+          0.95,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-10",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          -3.6564,
+          -1.35,
+          -38.4044
+        ],
+        "rotation": [
+          0,
+          1.5,
+          0
+        ],
+        "scale": [
+          1,
+          0.85,
+          1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "reef-cluster-11",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          12.4868,
+          -1.35,
+          -35.507
+        ],
+        "rotation": [
+          0,
+          3.4,
+          0
+        ],
+        "scale": [
+          1.05,
+          0.9,
+          1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cove-shore-rock-1",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          3.8,
+          -1.85,
+          -4.3
+        ],
+        "rotation": [
+          0,
+          0.8,
+          0
+        ],
+        "scale": [
+          1.25,
+          1.15,
+          1.2
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "cove-shore-rock-2",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          5.6,
+          -2.15,
+          -3.2
+        ],
+        "rotation": [
+          0,
+          2.3,
+          0
+        ],
+        "scale": [
+          1.35,
+          1.15,
+          1.25
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "far-right-islet-rock",
+        "asset": "mossy-boulder-hero",
+        "position": [
+          16.6,
+          -2.45,
+          -20.8
+        ],
+        "rotation": [
+          0,
+          1.4,
+          0
+        ],
+        "scale": [
+          1.55,
+          1.18,
+          1.45
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "hero-canopy-bough-left",
+        "asset": "gnarled-canopy-bough",
+        "position": [
+          -6.45,
+          0.18,
+          -8.65
+        ],
+        "rotation": [
+          0,
+          0.12,
+          0
+        ],
+        "scale": [
+          1.06,
+          1.04,
+          1.06
+        ],
+        "layer": "world",
+        "collider": {
+          "type": "box",
+          "size": [
+            1.2,
+            2.6,
+            1.2
+          ],
+          "offset": [
+            0,
+            1.3,
+            0
+          ]
+        }
+      },
+      {
+        "id": "fg-vine-1",
+        "asset": "foliage-vine-short",
+        "position": [
+          -4.55,
+          4.78,
+          -8.9
+        ],
+        "rotation": [
+          0,
+          0.4,
+          0
+        ],
+        "scale": [
+          0.82,
+          0.68,
+          0.82
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "fg-vine-2",
+        "asset": "foliage-vine-short",
+        "position": [
+          -2.9,
+          5.2,
+          -9.1
+        ],
+        "rotation": [
+          0,
+          1.8,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.7,
+          0.8
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "fg-vine-3",
+        "asset": "foliage-vine-short",
+        "position": [
+          -1.15,
+          5.48,
+          -9.28
+        ],
+        "rotation": [
+          0,
+          3.1,
+          0
+        ],
+        "scale": [
+          0.68,
+          0.58,
+          0.68
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "fg-vine-4",
+        "asset": "foliage-vine-short",
+        "position": [
+          15.2,
+          9.8,
+          -17.5
+        ],
+        "rotation": [
+          0,
+          2.6,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.35,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "fg-vine-5",
+        "asset": "foliage-vine-short",
+        "position": [
+          17.8,
+          10.2,
+          -20.8
+        ],
+        "rotation": [
+          0,
+          4,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.45,
+          1.2
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "fg-monstera-stele",
+        "asset": "foliage-monstera-a",
+        "position": [
+          -2.92,
+          -0.02,
+          -6.32
+        ],
+        "rotation": [
+          0,
+          0.65,
+          0
+        ],
+        "scale": [
+          0.96,
+          0.94,
+          0.96
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-bromeliad-stele-hi",
+        "asset": "foliage-bromeliad",
+        "position": [
+          -3.18,
+          0.52,
+          -7.02
+        ],
+        "rotation": [
+          0,
+          0.35,
+          0
+        ],
+        "scale": [
+          0.92,
+          0.94,
+          0.92
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-bromeliad-stele-lo",
+        "asset": "foliage-bromeliad",
+        "position": [
+          -3.02,
+          -0.06,
+          -5.68
+        ],
+        "rotation": [
+          0,
+          1.95,
+          0
+        ],
+        "scale": [
+          0.94,
+          0.96,
+          0.94
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-monstera-step-left",
+        "asset": "foliage-monstera-b",
+        "position": [
+          -4.05,
+          -0.48,
+          -8.65
+        ],
+        "rotation": [
+          0,
+          1.3,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.08
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-fern-step-left",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          -4.48,
+          -0.62,
+          -10.15
+        ],
+        "rotation": [
+          0,
+          2.4,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.02,
+          1.08
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-alocasia-left-bank",
+        "asset": "foliage-alocasia",
+        "position": [
+          -5.65,
+          -0.55,
+          -7.65
+        ],
+        "rotation": [
+          0,
+          0.4,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-monstera-cove-edge",
+        "asset": "foliage-monstera-a",
+        "position": [
+          -4.2,
+          -0.08,
+          -4.1
+        ],
+        "rotation": [
+          0,
+          2.8,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-fern-cove-right",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          3.65,
+          -1.18,
+          -4.45
+        ],
+        "rotation": [
+          0,
+          4.1,
+          0
+        ],
+        "scale": [
+          1,
+          0.95,
+          1
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-alocasia-cove-right",
+        "asset": "foliage-alocasia",
+        "position": [
+          5.1,
+          -1.35,
+          -3.65
+        ],
+        "rotation": [
+          0,
+          3.4,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.02,
+          1.08
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-fern-parapet-right",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          -0.12,
+          -1.18,
+          -8.85
+        ],
+        "rotation": [
+          0,
+          0.85,
+          0
+        ],
+        "scale": [
+          0.82,
+          0.8,
+          0.82
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-fern-dock-cheek",
+        "asset": "foliage-fern-low",
+        "position": [
+          -0.45,
+          -1.52,
+          -10.25
+        ],
+        "rotation": [
+          0,
+          2.1,
+          0
+        ],
+        "scale": [
+          0.88,
+          0.85,
+          0.88
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "islet-fern-right",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          15.9,
+          -1.75,
+          -20.1
+        ],
+        "rotation": [
+          0,
+          2.1,
+          0
+        ],
+        "scale": [
+          1.05,
+          1,
+          1.05
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "islet-alocasia-right",
+        "asset": "foliage-alocasia",
+        "position": [
+          17.2,
+          -1.7,
+          -21.4
+        ],
+        "rotation": [
+          0,
+          4.2,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.95,
+          0.95
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-alocasia-viaduct-1",
+        "asset": "foliage-alocasia",
+        "position": [
+          -7.2,
+          -1.15,
+          -12.9
+        ],
+        "rotation": [
+          0,
+          0.9,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "fg-bromeliad-viaduct-1",
+        "asset": "foliage-bromeliad",
+        "position": [
+          -6.65,
+          -0.55,
+          -11.5
+        ],
+        "rotation": [
+          0,
+          1.4,
+          0
+        ],
+        "scale": [
+          0.85,
+          0.85,
+          0.85
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "waterlily-cluster-1",
+        "asset": "foliage-waterlily",
+        "position": [
+          3.2,
+          -2.2,
+          -8.8
+        ],
+        "rotation": [
+          0,
+          1.2,
+          0
+        ],
+        "scale": [
+          0.92,
+          0.92,
+          0.92
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "behavior": {
+          "type": "drift",
+          "bob": 0.011,
+          "period": 6.4,
+          "sway": 0.018
+        },
+        "collider": null
+      },
+      {
+        "id": "waterlily-cluster-2",
+        "asset": "foliage-waterlily",
+        "position": [
+          4.6,
+          -2.2,
+          -10.8
+        ],
+        "rotation": [
+          0,
+          0.4,
+          0
+        ],
+        "scale": [
+          0.98,
+          0.96,
+          0.98
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "behavior": {
+          "type": "drift",
+          "bob": 0.011,
+          "period": 6.8,
+          "sway": 0.018
+        },
+        "collider": null
+      },
+      {
+        "id": "waterlily-cluster-3",
+        "asset": "foliage-waterlily",
+        "position": [
+          7,
+          -2.2,
+          -12
+        ],
+        "rotation": [
+          0,
+          2.1,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.06,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "behavior": {
+          "type": "drift",
+          "bob": 0.011,
+          "period": 7.6,
+          "sway": 0.018
+        },
+        "collider": null
+      },
+      {
+        "id": "waterlily-cluster-4",
+        "asset": "foliage-waterlily",
+        "position": [
+          9.6,
+          -2.2,
+          -13.6
+        ],
+        "rotation": [
+          0,
+          3.8,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.08,
+          1.12
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "waterlily-cluster-5",
+        "asset": "foliage-waterlily",
+        "position": [
+          2.4,
+          -2.2,
+          -14.8
+        ],
+        "rotation": [
+          0,
+          5.2,
+          0
+        ],
+        "scale": [
+          0.88,
+          0.88,
+          0.88
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "waterlily-cluster-6",
+        "asset": "foliage-waterlily",
+        "position": [
+          13.2,
+          -2.2,
+          -19.8
+        ],
+        "rotation": [
+          0,
+          1.3,
+          0
+        ],
+        "scale": [
+          1.05,
+          1,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "waterlily-cluster-7",
+        "asset": "foliage-waterlily",
+        "position": [
+          11.4,
+          -2.2,
+          -28.5
+        ],
+        "rotation": [
+          0,
+          4.5,
+          0
+        ],
+        "scale": [
+          0.96,
+          0.96,
+          0.96
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "island-palm-left-hero",
+        "asset": "foliage-palm-island",
+        "position": [
+          -2.984,
+          -0.15,
+          -37.6642
+        ],
+        "rotation": [
+          0,
+          -1.3605800000000001,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.08,
+          1.05
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-palm-left-lean",
+        "asset": "foliage-palm-lean",
+        "position": [
+          -4.9631,
+          -0.65,
+          -37.4334
+        ],
+        "rotation": [
+          0,
+          -0.71058,
+          0
+        ],
+        "scale": [
+          0.96,
+          0.96,
+          0.96
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-palm-left-back",
+        "asset": "foliage-palm-island",
+        "position": [
+          -1.1275,
+          0.3,
+          -46.2685
+        ],
+        "rotation": [
+          0,
+          0.43942000000000014,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.18,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-palm-right-lean",
+        "asset": "foliage-palm-lean",
+        "position": [
+          12.9928,
+          -0.55,
+          -36.0207
+        ],
+        "rotation": [
+          0,
+          -2.91058,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.95,
+          0.95
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-palm-right-back",
+        "asset": "foliage-palm-island",
+        "position": [
+          14.8271,
+          0.3,
+          -42.389
+        ],
+        "rotation": [
+          0,
+          -2.46058,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.15,
+          1.12
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "shore-palm-far-right",
+        "asset": "foliage-palm-lean",
+        "position": [
+          16.6,
+          -1.65,
+          -20.8
+        ],
+        "rotation": [
+          0,
+          2.65,
+          0
+        ],
+        "scale": [
+          0.94,
+          0.92,
+          0.94
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "shore-palm-cove-left",
+        "asset": "foliage-palm-island",
+        "position": [
+          -7.8,
+          -0.2,
+          -5.4
+        ],
+        "rotation": [
+          0,
+          0.9,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.1,
+          1.08
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-bromeliad-right",
+        "asset": "foliage-bromeliad",
+        "position": [
+          8.982,
+          -0.3,
+          -34.7546
+        ],
+        "rotation": [
+          0,
+          0.8,
+          0
+        ],
+        "scale": [
+          1.22,
+          1.25,
+          1.22
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-bromeliad-right2",
+        "asset": "foliage-bromeliad",
+        "position": [
+          11.9731,
+          -0.15,
+          -36.013
+        ],
+        "rotation": [
+          0,
+          3.1,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.1,
+          1.08
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-bromeliad-left",
+        "asset": "foliage-bromeliad",
+        "position": [
+          -0.6609,
+          -0.35,
+          -36.5052
+        ],
+        "rotation": [
+          0,
+          2.5,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.15,
+          1.12
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-bromeliad-far-r",
+        "asset": "foliage-bromeliad",
+        "position": [
+          13.9483,
+          -0.15,
+          -36.7537
+        ],
+        "rotation": [
+          0,
+          4.1,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-alocasia-l1",
+        "asset": "foliage-alocasia",
+        "position": [
+          -2.2738,
+          -0.55,
+          -37.1205
+        ],
+        "rotation": [
+          0,
+          0.3,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.1,
+          1.12
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-alocasia-r1",
+        "asset": "foliage-alocasia",
+        "position": [
+          10.7269,
+          -0.5,
+          -34.8268
+        ],
+        "rotation": [
+          0,
+          2.8,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.12,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-monstera-l1",
+        "asset": "foliage-monstera-a",
+        "position": [
+          -0.7103,
+          -0.15,
+          -37.8384
+        ],
+        "rotation": [
+          0,
+          1.4,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.08,
+          1.1
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-monstera-r1",
+        "asset": "foliage-monstera-a",
+        "position": [
+          9.7371,
+          -0.15,
+          -36.0352
+        ],
+        "rotation": [
+          0,
+          3.9,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.1,
+          1.12
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-monstera-l2",
+        "asset": "foliage-monstera-b",
+        "position": [
+          -3.2104,
+          -0.85,
+          -36.4858
+        ],
+        "rotation": [
+          0,
+          0.4,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.12,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-monstera-r2",
+        "asset": "foliage-monstera-b",
+        "position": [
+          11.3616,
+          -0.85,
+          -33.8902
+        ],
+        "rotation": [
+          0,
+          3.1,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.12,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-fern-l1",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          -0.181,
+          -1.1,
+          -35.2929
+        ],
+        "rotation": [
+          0,
+          0.7,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.02,
+          1.08
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-fern-r1",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          8.1059,
+          -1.05,
+          -33.9046
+        ],
+        "rotation": [
+          0,
+          3.2,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.05,
+          1.1
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-fern-l2",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          -4.2379,
+          -0.55,
+          -37.4978
+        ],
+        "rotation": [
+          0,
+          1.9,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "island-fern-r2",
+        "asset": "foliage-fern-fountain",
+        "position": [
+          13.4234,
+          -0.55,
+          -36.1417
+        ],
+        "rotation": [
+          0,
+          4.4,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "roof-fern-left-1",
+        "asset": "foliage-fern-low",
+        "position": [
+          -2.4935,
+          4.95,
+          -40.2175
+        ],
+        "rotation": [
+          0,
+          0.5,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.9,
+          0.95
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "roof-fern-left-2",
+        "asset": "foliage-fern-low",
+        "position": [
+          0.2407,
+          4.95,
+          -41.7289
+        ],
+        "rotation": [
+          0,
+          1.6,
+          0
+        ],
+        "scale": [
+          0.88,
+          0.82,
+          0.88
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "roof-fern-right-1",
+        "asset": "foliage-fern-low",
+        "position": [
+          11.8443,
+          4.95,
+          -37.4633
+        ],
+        "rotation": [
+          0,
+          2.7,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.9,
+          0.95
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "roof-fern-right-2",
+        "asset": "foliage-fern-low",
+        "position": [
+          10.2198,
+          4.95,
+          -39.6083
+        ],
+        "rotation": [
+          0,
+          4,
+          0
+        ],
+        "scale": [
+          0.9,
+          0.84,
+          0.9
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "roof-fern-portal-l",
+        "asset": "foliage-fern-low",
+        "position": [
+          2.379,
+          6.75,
+          -39.0779
+        ],
+        "rotation": [
+          0,
+          0.9,
+          0
+        ],
+        "scale": [
+          0.78,
+          0.75,
+          0.78
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "roof-fern-portal-r",
+        "asset": "foliage-fern-low",
+        "position": [
+          7.0928,
+          6.75,
+          -38.1724
+        ],
+        "rotation": [
+          0,
+          3.5,
+          0
+        ],
+        "scale": [
+          0.78,
+          0.75,
+          0.78
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "temple-vine-1",
+        "asset": "foliage-vine-short",
+        "position": [
+          -3.3319,
+          5.05,
+          -39.5639
+        ],
+        "rotation": [
+          0,
+          -1.66058,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.75,
+          0.8
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "temple-vine-2",
+        "asset": "foliage-vine-short",
+        "position": [
+          12.5773,
+          5.05,
+          -36.5079
+        ],
+        "rotation": [
+          0,
+          -1.8605800000000001,
+          0
+        ],
+        "scale": [
+          0.8,
+          0.75,
+          0.8
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "temple-vine-3",
+        "asset": "foliage-vine-short",
+        "position": [
+          1.7221,
+          6.7,
+          -37.7785
+        ],
+        "rotation": [
+          0,
+          -1.76058,
+          0
+        ],
+        "scale": [
+          0.65,
+          0.58,
+          0.65
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "temple-vine-4",
+        "asset": "foliage-vine-short",
+        "position": [
+          7.2215,
+          6.7,
+          -36.7221
+        ],
+        "rotation": [
+          0,
+          -1.76058,
+          0
+        ],
+        "scale": [
+          0.65,
+          0.58,
+          0.65
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "viaduct-vine-1",
+        "asset": "foliage-vine-short",
+        "position": [
+          -6.2863,
+          -0.6056,
+          -19.5161
+        ],
+        "rotation": [
+          0,
+          3.6754963267948964,
+          0
+        ],
+        "scale": [
+          0.72,
+          0.55,
+          0.78
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "viaduct-vine-2",
+        "asset": "foliage-vine-short",
+        "position": [
+          -10.5414,
+          -0.0715,
+          -32.2999
+        ],
+        "rotation": [
+          0,
+          3.128526326794897,
+          0
+        ],
+        "scale": [
+          0.72,
+          0.7000000000000001,
+          0.78
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "viaduct-vine-3",
+        "asset": "foliage-vine-short",
+        "position": [
+          -9.572,
+          0.1696,
+          -37.7622
+        ],
+        "rotation": [
+          0,
+          2.7251263267948964,
+          0
+        ],
+        "scale": [
+          0.72,
+          0.55,
+          0.78
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "viaduct-vine-4",
+        "asset": "foliage-vine-short",
+        "position": [
+          -7.5667,
+          0.3214,
+          -40.1074
+        ],
+        "rotation": [
+          0,
+          2.0541963267948966,
+          0
+        ],
+        "scale": [
+          0.72,
+          0.7000000000000001,
+          0.78
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-1",
+        "asset": "foliage-vine-long",
+        "position": [
+          -17.2682,
+          15.2,
+          -18.1379
+        ],
+        "rotation": [
+          0,
+          0.50244,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.02,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-2",
+        "asset": "foliage-vine-medium",
+        "position": [
+          -19.3209,
+          15.4,
+          -22.0463
+        ],
+        "rotation": [
+          0,
+          0.3085,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-3",
+        "asset": "foliage-vine-long",
+        "position": [
+          -19.9835,
+          15.5,
+          -26.8094
+        ],
+        "rotation": [
+          0,
+          0.09713,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-4",
+        "asset": "foliage-vine-medium",
+        "position": [
+          -20.1349,
+          15.6,
+          -32.9042
+        ],
+        "rotation": [
+          0,
+          -0.1708,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-5",
+        "asset": "foliage-vine-long",
+        "position": [
+          -17.7402,
+          15.6,
+          -39.036
+        ],
+        "rotation": [
+          0,
+          -0.46032,
+          0
+        ],
+        "scale": [
+          1.1,
+          0.95,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-6",
+        "asset": "foliage-vine-medium",
+        "position": [
+          -13.8768,
+          15.8,
+          -44.4472
+        ],
+        "rotation": [
+          0,
+          -0.7562,
+          0
+        ],
+        "scale": [
+          0.95,
+          0.9,
+          0.95
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-7",
+        "asset": "foliage-vine-medium",
+        "position": [
+          -7.6411,
+          16,
+          -48.9668
+        ],
+        "rotation": [
+          0,
+          -1.10085,
+          0
+        ],
+        "scale": [
+          1,
+          0.95,
+          1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-8",
+        "asset": "foliage-vine-medium",
+        "position": [
+          12.121,
+          16,
+          -49.2011
+        ],
+        "rotation": [
+          0,
+          -2.01527,
+          0
+        ],
+        "scale": [
+          1.05,
+          1,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-9",
+        "asset": "foliage-vine-long",
+        "position": [
+          17.4505,
+          15.8,
+          -45.7182
+        ],
+        "rotation": [
+          0,
+          -2.30043,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-10",
+        "asset": "foliage-vine-medium",
+        "position": [
+          20.043,
+          15.7,
+          -43.8238
+        ],
+        "rotation": [
+          0,
+          -2.44001,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-11",
+        "asset": "foliage-vine-long",
+        "position": [
+          23.9705,
+          15.5,
+          -36.3354
+        ],
+        "rotation": [
+          0,
+          -2.81237,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.08,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-12",
+        "asset": "foliage-vine-medium",
+        "position": [
+          25.3777,
+          15.4,
+          -31.2661
+        ],
+        "rotation": [
+          0,
+          -3.04286,
+          0
+        ],
+        "scale": [
+          1.05,
+          1,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-13",
+        "asset": "foliage-vine-long",
+        "position": [
+          24.9316,
+          15.2,
+          -25.0972
+        ],
+        "rotation": [
+          0,
+          2.96933,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.02,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "cliff-vine-14",
+        "asset": "foliage-vine-medium",
+        "position": [
+          22.1081,
+          15,
+          -17.5009
+        ],
+        "rotation": [
+          0,
+          2.6112,
+          0
+        ],
+        "scale": [
+          1,
+          0.95,
+          1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-1",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -16.2936,
+          15.55,
+          -13.9488
+        ],
+        "rotation": [
+          0,
+          0.67527,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-2",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -20.053,
+          15.770000000000001,
+          -19.9928
+        ],
+        "rotation": [
+          0,
+          0.37997,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-3",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -21.7977,
+          15.99,
+          -26.8414
+        ],
+        "rotation": [
+          0,
+          0.08861,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-4",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -21.372,
+          15.55,
+          -33.8829
+        ],
+        "rotation": [
+          0,
+          -0.20176,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-5",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -18.8139,
+          15.770000000000001,
+          -40.4882
+        ],
+        "rotation": [
+          0,
+          -0.49436,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-6",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -14.3519,
+          15.99,
+          -46.0672
+        ],
+        "rotation": [
+          0,
+          -0.79175,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-7",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -8.3845,
+          15.55,
+          -50.1217
+        ],
+        "rotation": [
+          0,
+          -1.09497,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-8",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -1.4449,
+          15.770000000000001,
+          -52.2895
+        ],
+        "rotation": [
+          0,
+          -1.403,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-9",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          5.8471,
+          15.99,
+          -52.3769
+        ],
+        "rotation": [
+          0,
+          -1.71301,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-10",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          12.8402,
+          15.55,
+          -50.3761
+        ],
+        "rotation": [
+          0,
+          -2.02134,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-11",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          19.4438,
+          15.770000000000001,
+          -45.9819
+        ],
+        "rotation": [
+          0,
+          -2.35507,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-12",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          22.5942,
+          15.99,
+          -42.3875
+        ],
+        "rotation": [
+          0,
+          -2.55389,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-13",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          25.5581,
+          15.55,
+          -36.7185
+        ],
+        "rotation": [
+          0,
+          -2.81858,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-14",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          26.8513,
+          15.770000000000001,
+          -30.4902
+        ],
+        "rotation": [
+          0,
+          -3.08047,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-15",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          26.3119,
+          15.99,
+          -23.8498
+        ],
+        "rotation": [
+          0,
+          2.92859,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-16",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          23.6748,
+          15.55,
+          -17.2736
+        ],
+        "rotation": [
+          0,
+          2.63584,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.2,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-cliff-drape-17",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          19.1462,
+          15.770000000000001,
+          -11.745
+        ],
+        "rotation": [
+          0,
+          2.33824,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "wf-crest-lip-boulder",
+        "asset": "mossy-boulder-cluster",
+        "position": [
+          23.5,
+          14.95,
+          -41.9
+        ],
+        "rotation": [
+          0,
+          2.3,
+          0
+        ],
+        "scale": [
+          1.55,
+          0.85,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "wf-crest-drape-l",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          21,
+          15.85,
+          -44.1
+        ],
+        "rotation": [
+          0,
+          -2.49809,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.25,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "wf-crest-drape-r",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          25.8,
+          15.75,
+          -39.8
+        ],
+        "rotation": [
+          0,
+          -2.72337,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.25,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "wf-crest-drape-top",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          23.3,
+          15.85,
+          -41.7
+        ],
+        "rotation": [
+          0,
+          -2.60987,
+          0
+        ],
+        "scale": [
+          1.05,
+          0.72,
+          0.95
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "south-return-drape-1",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          -9.5,
+          14.8,
+          -4.5
+        ],
+        "rotation": [
+          0,
+          1.12328,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.15,
+          1.2
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "south-return-drape-2",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          1.5,
+          14.4,
+          1.2
+        ],
+        "rotation": [
+          0,
+          1.53748,
+          0
+        ],
+        "scale": [
+          1.2,
+          1.1,
+          1.25
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "south-return-drape-3",
+        "asset": "foliage-cliff-drape",
+        "position": [
+          12.2,
+          14.6,
+          -3.8
+        ],
+        "rotation": [
+          0,
+          1.9513,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.15,
+          1.2
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "south-return-vine-1",
+        "asset": "foliage-vine-medium",
+        "position": [
+          -7.2,
+          14.5,
+          -5.8
+        ],
+        "rotation": [
+          0,
+          1.2,
+          0
+        ],
+        "scale": [
+          1.05,
+          1,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "south-return-vine-2",
+        "asset": "foliage-vine-medium",
+        "position": [
+          9.5,
+          14.4,
+          -4.5
+        ],
+        "rotation": [
+          0,
+          2,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "south-return-palm-r",
+        "asset": "foliage-palm-island",
+        "position": [
+          8.4,
+          -1.45,
+          -2.6
+        ],
+        "rotation": [
+          0,
+          2.8,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "collider": null
+      },
+      {
+        "id": "rim-tree-1",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          -23.5,
+          15.8,
+          -18
+        ],
+        "rotation": [
+          0,
+          0.4,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.08,
+          1.12
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-2",
+        "asset": "foliage-canopy-emergent",
+        "position": [
+          -26.5,
+          16.2,
+          -27.5
+        ],
+        "rotation": [
+          0,
+          1.7,
+          0
+        ],
+        "scale": [
+          1.05,
+          1.05,
+          1.05
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-3",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          -24,
+          15.9,
+          -36.5
+        ],
+        "rotation": [
+          0,
+          2.9,
+          0
+        ],
+        "scale": [
+          1.18,
+          1.12,
+          1.18
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-4",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          -18.5,
+          16.1,
+          -46.5
+        ],
+        "rotation": [
+          0,
+          4.1,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-5",
+        "asset": "foliage-canopy-emergent",
+        "position": [
+          -11,
+          16.4,
+          -53.5
+        ],
+        "rotation": [
+          0,
+          0.8,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.06,
+          1.08
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-6",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          -3.5,
+          16,
+          -58
+        ],
+        "rotation": [
+          0,
+          2.2,
+          0
+        ],
+        "scale": [
+          0.92,
+          0.82,
+          0.92
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-7",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          11.5,
+          16,
+          -56.5
+        ],
+        "rotation": [
+          0,
+          3.6,
+          0
+        ],
+        "scale": [
+          0.98,
+          0.9,
+          0.98
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-8",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          18.5,
+          16.1,
+          -50.5
+        ],
+        "rotation": [
+          0,
+          1.1,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-9",
+        "asset": "foliage-canopy-emergent",
+        "position": [
+          24.5,
+          16.3,
+          -46.5
+        ],
+        "rotation": [
+          0,
+          2.6,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.15,
+          1.12
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-10",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          28.5,
+          16.1,
+          -38
+        ],
+        "rotation": [
+          0,
+          4.4,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-11",
+        "asset": "foliage-canopy-emergent",
+        "position": [
+          29,
+          16,
+          -27.5
+        ],
+        "rotation": [
+          0,
+          0.5,
+          0
+        ],
+        "scale": [
+          1.1,
+          1.1,
+          1.1
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-12",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          26.5,
+          15.8,
+          -17.5
+        ],
+        "rotation": [
+          0,
+          1.9,
+          0
+        ],
+        "scale": [
+          1.12,
+          1.06,
+          1.12
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-13",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          -15.5,
+          11,
+          9.5
+        ],
+        "rotation": [
+          0,
+          3.2,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-14",
+        "asset": "foliage-canopy-emergent",
+        "position": [
+          -6,
+          11.5,
+          15
+        ],
+        "rotation": [
+          0,
+          0.7,
+          0
+        ],
+        "scale": [
+          1.08,
+          1.05,
+          1.08
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "rim-tree-15",
+        "asset": "foliage-canopy-umbrella",
+        "position": [
+          19.5,
+          11,
+          7.5
+        ],
+        "rotation": [
+          0,
+          2.4,
+          0
+        ],
+        "scale": [
+          1.15,
+          1.1,
+          1.15
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null
+      },
+      {
+        "id": "flock-swallows",
+        "asset": "wildlife-swallow",
+        "position": [
+          4.5,
+          6.8,
+          -30
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.45,
+          1.45,
+          1.45
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null,
+        "behavior": {
+          "type": "flock",
+          "count": 3,
+          "bounds": [
+            -8,
+            16,
+            3.8,
+            9.8,
+            -40,
+            -18
+          ],
+          "speed": 3.6,
+          "neighborRadius": 6.5,
+          "separationRadius": 2.2,
+          "terrainClearance": 2,
+          "seed": 1047,
+          "gait": {
+            "stride": 1.8,
+            "channels": [
+              {
+                "node": "Joint_WingL",
+                "axis": "x",
+                "amplitude": 0.52,
+                "phase": 0
+              },
+              {
+                "node": "Joint_WingR",
+                "axis": "x",
+                "amplitude": 0.52,
+                "phase": 3.14159
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "flock-fish-gold",
+        "asset": "wildlife-fish-gold",
+        "position": [
+          7.5,
+          -2.65,
+          -14.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.28,
+          1.28,
+          1.28
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null,
+        "behavior": {
+          "type": "flock",
+          "count": 5,
+          "bounds": [
+            2.2,
+            13.5,
+            -3.15,
+            -2.35,
+            -21.5,
+            -9.8
+          ],
+          "speed": 1.15,
+          "neighborRadius": 3.2,
+          "separationRadius": 0.65,
+          "terrainClearance": 0.14,
+          "seed": 2083,
+          "gait": {
+            "stride": 0.42,
+            "channels": [
+              {
+                "node": "Joint_Tail",
+                "axis": "y",
+                "amplitude": 0.38,
+                "phase": 0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "flock-fish-silver",
+        "asset": "wildlife-fish-silver",
+        "position": [
+          9.5,
+          -2.72,
+          -16.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1.25,
+          1.25,
+          1.25
+        ],
+        "layer": "world",
+        "castShadow": false,
+        "collider": null,
+        "behavior": {
+          "type": "flock",
+          "count": 3,
+          "bounds": [
+            3,
+            15.5,
+            -3.2,
+            -2.38,
+            -23.5,
+            -10.5
+          ],
+          "speed": 1.3,
+          "neighborRadius": 3.5,
+          "separationRadius": 0.7,
+          "terrainClearance": 0.14,
+          "seed": 3119,
+          "gait": {
+            "stride": 0.46,
+            "channels": [
+              {
+                "node": "Joint_Tail",
+                "axis": "y",
+                "amplitude": 0.35,
+                "phase": 0
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "scatters": [
+      {
+        "id": "scatter-bank-understory",
+        "layer": "world",
+        "label": "Damp Bank Tropical Understory",
+        "seed": 42071,
+        "variants": [
+          {
+            "asset": "foliage-fern-low",
+            "weight": 9
+          },
+          {
+            "asset": "foliage-alocasia",
+            "weight": 1.6
+          },
+          {
+            "asset": "foliage-bromeliad",
+            "weight": 0.9
+          }
+        ],
+        "region": {
+          "polygon": [
+            [
+              -24,
+              8
+            ],
+            [
+              24,
+              8
+            ],
+            [
+              24,
+              -52
+            ],
+            [
+              -24,
+              -52
+            ]
+          ]
+        },
+        "limits": {
+          "height": [
+            -2.05,
+            4.5
+          ],
+          "slope": [
+            0,
+            40
+          ],
+          "waterDepth": [
+            -12,
+            -0.15
+          ]
+        },
+        "density": 11,
+        "maxCount": 56,
+        "minSpacing": 1.95,
+        "jitter": {
+          "scale": [
+            0.85,
+            1.28
+          ],
+          "yaw": [
+            -3.14,
+            3.14
+          ],
+          "lean": [
+            0,
+            0.14
+          ]
+        },
+        "conform": 0.35,
+        "yOffset": -0.05,
+        "keepOut": [
+          {
+            "circle": [
+              0,
+              0,
+              5.6
+            ]
+          },
+          {
+            "path": [
+              [
+                -1.8,
+                -4.6
+              ],
+              [
+                -3.4,
+                -10.8
+              ],
+              [
+                1.8,
+                -11.6
+              ]
+            ],
+            "width": 5.6
+          },
+          {
+            "path": [
+              [
+                -4.4209,
+                -11.7728
+              ],
+              [
+                -5.19,
+                -14.0554
+              ],
+              [
+                -6.2117,
+                -16.2167
+              ],
+              [
+                -7.3851,
+                -18.3079
+              ],
+              [
+                -8.6096,
+                -20.38
+              ],
+              [
+                -9.7841,
+                -22.4842
+              ],
+              [
+                -10.8079,
+                -24.6715
+              ],
+              [
+                -11.5802,
+                -26.9931
+              ],
+              [
+                -12,
+                -29.5
+              ],
+              [
+                -12.0995,
+                -32.4321
+              ],
+              [
+                -11.8994,
+                -35.0664
+              ],
+              [
+                -11.3895,
+                -37.3554
+              ],
+              [
+                -10.5598,
+                -39.2513
+              ],
+              [
+                -9.4001,
+                -40.7066
+              ],
+              [
+                -7.9003,
+                -41.6737
+              ],
+              [
+                -6.0504,
+                -42.1049
+              ],
+              [
+                -3.8403,
+                -41.9528
+              ]
+            ],
+            "width": 5.4
+          },
+          {
+            "circle": [
+              -10.07,
+              -25.96,
+              3.2
+            ]
+          },
+          {
+            "circle": [
+              5,
+              -40,
+              6.6
+            ]
+          },
+          {
+            "circle": [
+              -1,
+              -41.4,
+              4.2
+            ]
+          },
+          {
+            "circle": [
+              11,
+              -38.8,
+              4.2
+            ]
+          },
+          {
+            "path": [
+              [
+                3.5,
+                -29.5
+              ],
+              [
+                5,
+                -40
+              ]
+            ],
+            "width": 7
+          }
+        ],
+        "collider": null
+      },
+      {
+        "id": "scatter-rim-forest",
+        "layer": "world",
+        "label": "Cenote Rim Rainforest Canopy",
+        "seed": 88412,
+        "variants": [
+          {
+            "asset": "foliage-canopy-umbrella",
+            "weight": 1
+          }
+        ],
+        "region": {
+          "polygon": [
+            [
+              -46,
+              18
+            ],
+            [
+              46,
+              18
+            ],
+            [
+              46,
+              -68
+            ],
+            [
+              -46,
+              -68
+            ]
+          ]
+        },
+        "limits": {
+          "height": [
+            14.2,
+            22
+          ],
+          "slope": [
+            0,
+            28
+          ]
+        },
+        "density": 0.9,
+        "maxCount": 18,
+        "minSpacing": 10.5,
+        "jitter": {
+          "scale": [
+            1.12,
+            1.46
+          ],
+          "yaw": [
+            -3.14,
+            3.14
+          ],
+          "lean": [
+            0,
+            0.08
+          ]
+        },
+        "conform": 0.1,
+        "yOffset": -0.35,
+        "keepOut": [
+          {
+            "circle": [
+              2.5,
+              -29,
+              27.5
+            ]
+          },
+          {
+            "circle": [
+              4,
+              -55,
+              10.5
+            ]
+          },
+          {
+            "circle": [
+              23.8,
+              -42.2,
+              5.5
+            ]
+          },
+          {
+            "path": [
+              [
+                6,
+                24
+              ],
+              [
+                6,
+                8
+              ]
+            ],
+            "width": 16
+          }
+        ],
+        "collider": null
+      }
+    ],
+    "moodboard": {
+      "asset": "moodboard",
+      "position": [
+        1.05,
+        0,
+        -2.45
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "page": 0,
+      "title": "World board",
+      "theme": "linen",
+      "collider": {
+        "size": [
+          0.85,
+          2.55,
+          2.665
+        ],
+        "offset": [
+          0,
+          1.275,
+          0
+        ]
+      }
+    },
+    "runtime": {
+      "version": 1,
+      "modules": [
+        "collision.boxes@1",
+        "camera.walk-orbit@1",
+        "inhabitant.maker@1",
+        "terrain.heightfield@1",
+        "water.ocean@1",
+        "scatter.seeded@1",
+        "motion.drift@1",
+        "motion.boids@1",
+        "motion.gait@1"
+      ],
+      "spawn": [
+        -1.8,
+        1.72,
+        -4.6
+      ],
+      "look": [
+        -0.19,
+        -0.075
+      ],
+      "overview": [
+        6,
+        32,
+        22
+      ],
+      "target": [
+        4.5,
+        -1,
+        -32
+      ],
+      "bounds": [
+        -46,
+        46,
+        -68,
+        18
+      ],
+      "possession": {
+        "preset": "maker",
+        "camera": "first",
+        "walkSpeed": 2.6,
+        "runSpeed": 4.5,
+        "swimSpeed": 1.8,
+        "thirdPerson": {
+          "distance": 3.6,
+          "height": 1.3
+        }
+      },
+      "blockers": [
+        {
+          "id": "cove-shell-0",
+          "position": [
+            3.619535,
+            0.725,
+            0.636077
+          ],
+          "rotation": [
+            0,
+            -1.744755,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-1",
+          "position": [
+            3.486266,
+            0.725,
+            1.162571
+          ],
+          "rotation": [
+            0,
+            -1.892671,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-2",
+          "position": [
+            3.27686,
+            0.725,
+            1.663674
+          ],
+          "rotation": [
+            0,
+            -2.040588,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-3",
+          "position": [
+            2.995889,
+            0.725,
+            2.128444
+          ],
+          "rotation": [
+            0,
+            -2.188505,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-4",
+          "position": [
+            2.649489,
+            0.725,
+            2.54673
+          ],
+          "rotation": [
+            0,
+            -2.336421,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-5",
+          "position": [
+            2.245226,
+            0.725,
+            2.909396
+          ],
+          "rotation": [
+            0,
+            -2.484338,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-6",
+          "position": [
+            1.791928,
+            0.725,
+            3.208523
+          ],
+          "rotation": [
+            0,
+            -2.632255,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-7",
+          "position": [
+            1.299495,
+            0.725,
+            3.437577
+          ],
+          "rotation": [
+            0,
+            -2.780171,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-8",
+          "position": [
+            0.778682,
+            0.725,
+            3.591557
+          ],
+          "rotation": [
+            0,
+            -2.928088,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-9",
+          "position": [
+            0.240863,
+            0.725,
+            3.667098
+          ],
+          "rotation": [
+            0,
+            -3.076005,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-10",
+          "position": [
+            -0.302216,
+            0.725,
+            3.662552
+          ],
+          "rotation": [
+            0,
+            -3.223921,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-11",
+          "position": [
+            -0.838695,
+            0.725,
+            3.578018
+          ],
+          "rotation": [
+            0,
+            -3.371838,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-12",
+          "position": [
+            -1.356858,
+            0.725,
+            3.415342
+          ],
+          "rotation": [
+            0,
+            -3.519755,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-13",
+          "position": [
+            -1.845387,
+            0.725,
+            3.178077
+          ],
+          "rotation": [
+            0,
+            -3.667671,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-14",
+          "position": [
+            -2.293614,
+            0.725,
+            2.871404
+          ],
+          "rotation": [
+            0,
+            -3.815588,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-15",
+          "position": [
+            -2.69175,
+            0.725,
+            2.502021
+          ],
+          "rotation": [
+            0,
+            -3.963505,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-16",
+          "position": [
+            -3.031099,
+            0.725,
+            2.077995
+          ],
+          "rotation": [
+            0,
+            -4.111421,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-17",
+          "position": [
+            -3.304251,
+            0.725,
+            1.608587
+          ],
+          "rotation": [
+            0,
+            -4.259338,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-18",
+          "position": [
+            -3.505239,
+            0.725,
+            1.104048
+          ],
+          "rotation": [
+            0,
+            -4.407255,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-19",
+          "position": [
+            -3.629675,
+            0.725,
+            0.575398
+          ],
+          "rotation": [
+            0,
+            -4.555171,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-20",
+          "position": [
+            -3.674841,
+            0.725,
+            0.034181
+          ],
+          "rotation": [
+            0,
+            -4.703088,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-21",
+          "position": [
+            -3.63975,
+            0.725,
+            -0.507783
+          ],
+          "rotation": [
+            0,
+            -4.851005,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-22",
+          "position": [
+            -3.525169,
+            0.725,
+            -1.038657
+          ],
+          "rotation": [
+            0,
+            -4.998921,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "cove-shell-23",
+          "position": [
+            -3.3336,
+            0.725,
+            -1.546847
+          ],
+          "rotation": [
+            0,
+            -5.146838,
+            0
+          ],
+          "size": [
+            0.66,
+            1.45,
+            1.2
+          ],
+          "layer": "origin"
+        },
+        {
+          "id": "viaduct-parapet-r-1",
+          "layer": "world",
+          "position": [
+            -3.7246,
+            -0.1835,
+            -13.8605
+          ],
+          "rotation": [
+            0,
+            1.92268,
+            0
+          ],
+          "size": [
+            3.8333,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-2",
+          "layer": "world",
+          "position": [
+            -5.2058,
+            -0.1353,
+            -17.1784
+          ],
+          "rotation": [
+            0,
+            2.06139,
+            0
+          ],
+          "size": [
+            3.6913,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-3",
+          "layer": "world",
+          "position": [
+            -6.9223,
+            -0.048,
+            -20.2427
+          ],
+          "rotation": [
+            0,
+            2.10208,
+            0
+          ],
+          "size": [
+            3.5746,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-4",
+          "layer": "world",
+          "position": [
+            -8.5206,
+            0.0651,
+            -23.1282
+          ],
+          "rotation": [
+            0,
+            2.04871,
+            0
+          ],
+          "size": [
+            3.2651,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-5",
+          "layer": "world",
+          "position": [
+            -10.5065,
+            0.3394,
+            -29.2948
+          ],
+          "rotation": [
+            0,
+            1.68751,
+            0
+          ],
+          "size": [
+            3.5361,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-6",
+          "layer": "world",
+          "position": [
+            -10.632,
+            0.4828,
+            -32.8395
+          ],
+          "rotation": [
+            0,
+            1.53106,
+            0
+          ],
+          "size": [
+            3.8194,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-7",
+          "layer": "world",
+          "position": [
+            -10.2029,
+            0.6224,
+            -36.13
+          ],
+          "rotation": [
+            0,
+            1.32905,
+            0
+          ],
+          "size": [
+            3.0909,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-8",
+          "layer": "world",
+          "position": [
+            -9.2548,
+            0.7443,
+            -38.5354
+          ],
+          "rotation": [
+            0,
+            1.0193,
+            0
+          ],
+          "size": [
+            2.3816,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-9",
+          "layer": "world",
+          "position": [
+            -7.8602,
+            0.8389,
+            -40.0076
+          ],
+          "rotation": [
+            0,
+            0.56556,
+            0
+          ],
+          "size": [
+            2.02,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-parapet-r-10",
+          "layer": "world",
+          "position": [
+            -5.7433,
+            0.8986,
+            -40.5855
+          ],
+          "rotation": [
+            0,
+            0.0523,
+            0
+          ],
+          "size": [
+            2.7532,
+            0.82,
+            0.3
+          ]
+        },
+        {
+          "id": "viaduct-alcove-rail-1",
+          "layer": "world",
+          "position": [
+            -9.0601,
+            0.19,
+            -25.3532
+          ],
+          "rotation": [
+            0,
+            1.02776,
+            0
+          ],
+          "size": [
+            1.207,
+            0.8,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-alcove-rail-2",
+          "layer": "world",
+          "position": [
+            -8.9569,
+            0.19,
+            -26.3495
+          ],
+          "rotation": [
+            0,
+            1.90741,
+            0
+          ],
+          "size": [
+            1.207,
+            0.8,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-alcove-rail-3",
+          "layer": "world",
+          "position": [
+            -9.6589,
+            0.19,
+            -27.0641
+          ],
+          "rotation": [
+            0,
+            2.78705,
+            0
+          ],
+          "size": [
+            1.207,
+            0.8,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-1",
+          "layer": "world",
+          "position": [
+            -6.3886,
+            -0.317,
+            -13.0939
+          ],
+          "rotation": [
+            0,
+            1.93312,
+            0
+          ],
+          "size": [
+            3.6833,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-2",
+          "layer": "world",
+          "position": [
+            -7.9186,
+            -0.2582,
+            -16.3899
+          ],
+          "rotation": [
+            0,
+            2.07457,
+            0
+          ],
+          "size": [
+            3.8425,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-3",
+          "layer": "world",
+          "position": [
+            -9.7949,
+            -0.1531,
+            -19.7116
+          ],
+          "rotation": [
+            0,
+            2.09487,
+            0
+          ],
+          "size": [
+            4.0279,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-4",
+          "layer": "world",
+          "position": [
+            -11.614,
+            -0.0151,
+            -23.2644
+          ],
+          "rotation": [
+            0,
+            1.99535,
+            0
+          ],
+          "size": [
+            4.2047,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-5",
+          "layer": "world",
+          "position": [
+            -12.9154,
+            0.1428,
+            -27.2575
+          ],
+          "rotation": [
+            0,
+            1.78337,
+            0
+          ],
+          "size": [
+            4.4824,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-6",
+          "layer": "world",
+          "position": [
+            -13.3831,
+            0.3072,
+            -31.7813
+          ],
+          "rotation": [
+            0,
+            1.57396,
+            0
+          ],
+          "size": [
+            4.9035,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-7",
+          "layer": "world",
+          "position": [
+            -12.9688,
+            0.4651,
+            -36.2054
+          ],
+          "rotation": [
+            0,
+            1.36611,
+            0
+          ],
+          "size": [
+            4.2713,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-8",
+          "layer": "world",
+          "position": [
+            -11.6012,
+            0.6031,
+            -39.8226
+          ],
+          "rotation": [
+            0,
+            1.03283,
+            0
+          ],
+          "size": [
+            3.8113,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-9",
+          "layer": "world",
+          "position": [
+            -9.1088,
+            0.7082,
+            -42.3266
+          ],
+          "rotation": [
+            0,
+            0.53612,
+            0
+          ],
+          "size": [
+            3.7182,
+            0.55,
+            0.28
+          ]
+        },
+        {
+          "id": "viaduct-kerb-l-10",
+          "layer": "world",
+          "position": [
+            -5.5711,
+            0.767,
+            -43.2768
+          ],
+          "rotation": [
+            0,
+            0.01568,
+            0
+          ],
+          "size": [
+            4.1026,
+            0.55,
+            0.28
+          ]
+        }
+      ]
+    }
+  },
+  "bible": {
+    "title": "Lagoon Sanctuary",
+    "intent": "A tranquil rainforest cenote sanctuary framed around open turquoise water, a warm sunlit carved limestone doorway, a continuous curved stone viaduct with a brazier alcove, layered tropical foliage, schooling fish, circling swallows, and a tall twin-ribbon waterfall on the right.",
+    "rules": "Keep water native to Holodeck (lagoon ocean + native waterfalls). Keep arrival in cool shade with clear sightlines across the turquoise water to the sunlit doorway. Keep the arrival stairs, waterside dock, curved viaduct, sanctuary colonnade, and grand staircase continuously walkable and swimmable in both directions."
+  },
+  "references": []
+}

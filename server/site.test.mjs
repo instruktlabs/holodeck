@@ -32,8 +32,8 @@ test('the shelf page is self-contained, with sized lazy images and resolvable lo
  for(const [i,tag] of images.entries()){
   for(const name of ['src','width','height','alt'])assert.ok(attr(tag,name)!==undefined,`${tag} lacks ${name}`);
   const size=imageSize(await readFile(path.join(site,attr(tag,'src'))));assert.deepEqual([size.width,size.height],[Number(attr(tag,'width')),Number(attr(tag,'height'))],`${attr(tag,'src')} size attributes`);
-  // Only the four hero tiles load eagerly, the first first.
-  if(i<4)assert.equal(attr(tag,'loading'),undefined);else assert.equal(attr(tag,'loading'),'lazy',`${attr(tag,'src')} should load lazily`);
+  // Only the five hero tiles load eagerly, the first first.
+  if(i<5)assert.equal(attr(tag,'loading'),undefined);else assert.equal(attr(tag,'loading'),'lazy',`${attr(tag,'src')} should load lazily`);
   assert.equal(attr(tag,'fetchpriority'),i===0?'high':undefined);
  }
  for(const [,kind,value] of html.matchAll(/\s(src|href|srcset|imagesrcset)="([^"]+)"/g)){
@@ -60,7 +60,7 @@ test('each scene card is a Feature + 3 collage of its catalog shots',async()=>{
  assert.equal(attr(html.match(/<a class="button primary[^"]*"[^>]*>/)[0],'href'),'#build');assert.match(html,/<section[^>]*id="build"/);
  // The hero tiles open the worlds of the scenes marked hero, in catalog order, and the Scenes menu every world.
  const tiles=[...html.matchAll(/<a class="hero-tile" href="([^"]+)"><img [^>]*src="([^"]+)"/g)].map(m=>[m[1],m[2]]);
- assert.deepEqual(tiles,scenes.filter(scene=>scene.hero).map(scene=>[scene.path,scene.hero.src]));assert.equal(tiles.length,4);
+ assert.deepEqual(tiles,scenes.filter(scene=>scene.hero).map(scene=>[scene.path,scene.hero.src]));assert.equal(tiles.length,5);
  const menu=html.match(/<details class="scenes-menu">[\s\S]*?<\/details>/)[0];
  assert.deepEqual([...menu.matchAll(/href="(worlds\/[^"]+)"/g)].map(m=>m[1]),scenes.map(scene=>scene.path));
 });

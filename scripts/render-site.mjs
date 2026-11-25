@@ -13,9 +13,9 @@ const KILN_PACKS='https://kilnstudio.tools/packs/';
 // The shelf's own pages and the date each last changed in substance (its copy, links or structured
 // data), as the sitemap's lastmod; a scene's date is its catalog `updated`. Update a date in the commit
 // that changes the page: server/site.test.mjs checks each against git history when the checkout has it.
-export const PAGES=[{path:'',updated:'2026-11-13'},{path:'about/',updated:'2026-10-27'}];
+export const PAGES=[{path:'',updated:'2026-11-25'},{path:'about/',updated:'2026-11-25'}];
 // The Lab's index, rendered from site/lab.json; each entry's page takes its catalog `updated`.
-export const LAB={path:'lab/',updated:'2026-11-13'};
+export const LAB={path:'lab/',updated:'2026-11-25'};
 // A Lab video is an H.264 MP4 of at most 8 MB with its moov box first (ffmpeg -movflags +faststart),
 // so it starts streaming at once, and a JPEG poster of the video's own size.
 export const MAX_LAB_VIDEO_BYTES=8*1000*1000;
@@ -117,10 +117,10 @@ export async function renderSite(site){
   {'@type':'ItemList','@id':`${SITE_URL}#scenes`,name:'Holodeck scenes',itemListElement:items},
  ]};
  let index=(await file(site,'index.html','Site page')).toString('utf8');
- // A page with hero markers has a carousel of the four scenes marked hero, in catalog order;
+ // A page with hero markers has a carousel of the five scenes marked hero, in catalog order;
  // each slide opens its world. The preload and the Scenes menu fill their markers where present.
  const marked=name=>index.includes(`<!-- ${name}:start -->`),heroes=scenes.filter(scene=>scene.hero);
- if(marked('hero')&&heroes.length!==4)fail('Mark exactly four scenes as hero tiles');
+ if(marked('hero')&&heroes.length!==5)fail('Mark exactly five scenes as hero tiles');
  const tiles=heroes.map((scene,i)=>`
         <a class="hero-tile" href="${scene.path}"><img src="${escapeHtml(scene.hero.src)}" srcset="${escapeHtml(tileSet(scene.hero.src))}" sizes="${TILE_SIZES}" width="1920" height="1080"${i?'':' fetchpriority="high"'} alt="${escapeHtml(scene.hero.alt)}"><span>${escapeHtml(scene.title)}</span></a>`);
  const preload=heroes.length&&`<link rel="preload" as="image" href="${escapeHtml(heroes[0].hero.src)}" imagesrcset="${escapeHtml(tileSet(heroes[0].hero.src))}" imagesizes="${TILE_SIZES}" fetchpriority="high">`;
@@ -249,7 +249,7 @@ function renderLab(entries){
           </div>
         </article>`);
  files['lab/index.html']=labHead({title:'Lab · Holodeck',description:'Experimental, in-progress Holodeck work kept off the scene shelf: unfinished scenes and the same scene in different engines, side by side.',url:labUrl,
-  image:new URL('images/card.jpg',SITE_URL).href,imageAlt:'Four Holodeck worlds: Meridian Sanctuary\'s marble terraces above the clouds, Crescent Cove\'s lagoon from the air, a snowbound mountain cabin among pines, and the Quiet Courtyard\'s fountain among cypress and olive trees.',
+  image:new URL('images/card.jpg',SITE_URL).href,imageAlt:'Four Holodeck worlds: Lagoon Sanctuary\'s turquoise cenote and waterfall, Meridian Sanctuary\'s marble terraces above the clouds, Crescent Cove\'s lagoon from the air, and a snowbound mountain cabin among pines.',
   data:{'@context':'https://schema.org','@type':'CollectionPage','@id':`${labUrl}#page`,name:'Holodeck Lab',url:labUrl,isPartOf:{'@id':`${SITE_URL}#website`},
    breadcrumb:crumbs([['Holodeck',SITE_URL],['Lab',labUrl]]),hasPart:entries.map(entry=>({'@type':'WebPage',name:entry.title,url:new URL(entry.path,SITE_URL).href}))}})+`
       <div class="hero-copy">

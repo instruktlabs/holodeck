@@ -25,6 +25,7 @@ import {shareMaterials} from './material-share.mjs';
 import {planStaticMerge} from './static-merge.mjs';
 import {FlockAsset} from './flock.jsx';
 import {configureSunShadow,scheduleSunShadow,shadowViewFocus,stableShadowFocus,stableShadowKeys,sunShadowConfig} from './sun-shadow.mjs';
+import {QUALITY_TIERS,applyQualityToEnvironment,applyQualityToShadow,applyQualityToWater} from './device-tier.mjs';
 import {resolveGrade} from './grade.mjs';
 import {applySceneExposure,resolveLighting} from './lighting.mjs';
 
@@ -234,9 +235,9 @@ function WorldGrade({environment}){
  },[gl,grade.toneMapping]);
  return null;
 }
-function Sun({runtime,environment,cameraMode}){
+function Sun({runtime,environment,cameraMode,quality}){
  const {camera,gl}=useThree(),light=useRef(),target=useMemo(()=>new THREE.Object3D(),[]),focus=useMemo(()=>new THREE.Vector3(),[]),last=useRef({});
- const shadow=useMemo(()=>sunShadowConfig(environment),[environment]);
+ const shadow=useMemo(()=>applyQualityToShadow(sunShadowConfig(environment),quality),[environment,quality]);
  useLayoutEffect(()=>stableShadowKeys(gl),[gl]);
  const direction=useMemo(()=>new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize().multiplyScalar(shadow.lightDistance),[environment,shadow]);
  useLayoutEffect(()=>configureSunShadow(light.current,shadow),[shadow]);
@@ -258,8 +259,9 @@ function EnvironmentLighting({environment,fill=true}){
  useLayoutEffect(()=>applySceneExposure(gl,exposure),[gl,exposure]);
  return fill?<hemisphereLight args={[hemisphere.skyColor,hemisphere.groundColor,hemisphere.intensity]}/>:null;
 }
-export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
- const s=bundle.payload.world.scene,e=s.environment;runtime.originVisible=cove;
+export function RuntimeScene({bundle,runtime,cove,cameraMode,quality=QUALITY_TIERS.high,...controls}){
+ const s=bundle.payload.world.scene,e=useMemo(()=>applyQualityToEnvironment(s.environment,quality),[s.environment,quality]);runtime.originVisible=cove;
+ const water=useMemo(()=>applyQualityToWater(s.water,quality),[s.water,quality]);
  const extensionLook=useRef(null);
  // Identical materials become one instance across assets, and static pieces in a
  // shared material bake into one mesh per material (H100).
@@ -270,9 +272,9 @@ export function RuntimeScene({bundle,runtime,cove,cameraMode,...controls}){
   <EnvironmentLighting environment={e} fill={!e.sky?.light}/>
   {/* Optional sky.light.bounce (H76): light rising from sunlit ground, which a probe low over water does not see. */}
   {e.sky?.light?.bounce&&<hemisphereLight args={['#000000',e.sky.light.bounce.color,e.sky.light.bounce.intensity]}/>}
-  <Sun runtime={runtime} environment={e} cameraMode={cameraMode}/><WorldGrade environment={e}/>
-  {(s.terrain||s.water)&&<Landscape terrain={s.terrain} water={s.water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/>}
-  {(s.terrain||s.water||e.sky)&&<LandscapeSky environment={e} runtime={runtime}/>}
+  <Sun runtime={runtime} environment={e} cameraMode={cameraMode} quality={quality}/><WorldGrade environment={e}/>
+  {(s.terrain||water)&&<Landscape terrain={s.terrain} water={water} environment={e} runtime={runtime} textures={bundle.textures} placements={placed}/>}
+  {(s.terrain||water||e.sky)&&<LandscapeSky environment={e} runtime={runtime}/>}
   {!s.terrain&&(e.type==='construct'?<Construct/>:!s.water&&<mesh rotation={[-Math.PI/2,0,0]} position={[0,-.08,0]} receiveShadow><planeGeometry args={[180,180]}/><WorldSurfaceMaterial surface="soil" color={e.groundColor}/></mesh>)}
   <group visible={cove} userData={{skyLightExclude:true}}><Cove gltf={bundle.models[s.origin]}/>{s.moodboard&&<MoodBoard model={bundle.models[s.moodboard.asset]} board={s.moodboard} references={bundle.payload.world.references||[]} pins={bundle.payload.world.bible.referenceIds||[]} select={controls.select}/>}</group>
   {merge.buckets.map(bucket=><StaticMergedMesh key={bucket.key} bucket={bucket} runtime={runtime} select={controls.select}/>)}

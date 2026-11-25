@@ -35,8 +35,8 @@ const neutralHighlights=Fn(([color,exposure,desaturation])=>{
 // may tune the glow and add screen-space passes through environment.effects (H83,
 // H87): ambient occlusion from the pass's depth and normals, light shafts from
 // the sun's shadow map, and temporal anti-aliasing in place of multisampling.
-export function CoveEffects({effects,grade}={}){
-  const {gl,scene,camera}=useThree(),highlights=resolveGrade({grade}).highlights,signature=JSON.stringify([effects??null,highlights]),wantsSun=!!effects?.sunShafts,[sun,setSun]=useState(null);
+export function CoveEffects({effects,grade,bloomScale=.5}={}){
+  const {gl,scene,camera}=useThree(),highlights=resolveGrade({grade}).highlights,scale=Math.max(.25,Math.min(1,Number(bloomScale)||.5)),signature=JSON.stringify([effects??null,highlights,scale]),wantsSun=!!effects?.sunShafts,[sun,setSun]=useState(null);
   // The runtime's sun mounts with the scene, after this renders: look for it each
   // frame until it appears, and rebuild the pipeline with it.
   useFrame(()=>{if(wantsSun&&!sun){const found=findSun(scene);if(found)setSun(found);}});
@@ -67,7 +67,7 @@ export function CoveEffects({effects,grade}={}){
     color=depthAwareBlend(color.isTextureNode?color:convertToTexture(color),beams,depth,camera,{blendColor:uniform(new Color().copy(sun.color).multiplyScalar(1.4))});
    }
    if(settings.temporalAA){const current=color,temporal=traa(color,depth,scenePass.getTextureNode('velocity'),camera);owned.push(temporal);color=mix(temporal,current,marks.r);}
-   const {strength,radius,threshold}=settings.bloom,glow=bloom(color,strength,radius,threshold);glow.setResolutionScale(.5);owned.push(glow);
+   const {strength,radius,threshold}=settings.bloom,glow=bloom(color,strength,radius,threshold);glow.setResolutionScale(scale);owned.push(glow);
    // The pipeline still supplies the grade's tone mapping and colour space to renderOutput,
    // unless grade.highlights asks for the Neutral curve with its own desaturation (H126).
    const lit=color.add(glow),shown=highlights===null?renderOutput(lit):renderOutput(vec4(neutralHighlights(lit.rgb,toneMappingExposure,float(highlights)),lit.a),NoToneMapping);

@@ -4,6 +4,7 @@ Holodeck is an early source prototype: a local workspace where you and your codi
 
 ## Scenes
 
+- [Lagoon Sanctuary](https://holodeck.kilnstudio.tools/worlds/lagoon-sanctuary/): A sunlit rainforest cenote around a turquoise lagoon: shaded arrival steps beside a carved sun stele, a curved stone viaduct with a glowing brazier alcove, a stepped temple pavilion and a tall twin waterfall.
 - [Meridian Sanctuary](https://holodeck.kilnstudio.tools/worlds/meridian-sanctuary/): A marble sanctuary above the clouds: a causeway between mirror pools, terraces climbing to a gate tower, floating statues and mirrored orbs, and a bridge path off to the side.
 - [Crescent Cove](https://holodeck.kilnstudio.tools/worlds/crescent-cove/): A crescent of palm-lined beach around a turquoise lagoon, with seagrass meadows, coral heads, a jetty and a rocky headland to climb.
 - [The Quiet Courtyard](https://holodeck.kilnstudio.tools/worlds/courtyard/): A walled courtyard of cypress, olive and plane trees around a stone fountain, with the cove's shaded seats at its gate.
@@ -21,6 +22,7 @@ Holodeck is an early source prototype: a local workspace where you and your codi
 
 - [Kiln](https://kilnstudio.tools/): The tool the models come from.
 - [Asset packs on Kiln](https://kilnstudio.tools/packs/): Downloadable packs, including one for each scene.
+- [Lagoon Sanctuary assets](https://kilnstudio.tools/packs/holodeck/lagoon-sanctuary/)
 - [Meridian Sanctuary assets](https://kilnstudio.tools/packs/holodeck/meridian-sanctuary/)
 - [Crescent Cove assets](https://kilnstudio.tools/packs/holodeck/crescent-cove/)
 - [The Quiet Courtyard assets](https://kilnstudio.tools/packs/holodeck/courtyard/)

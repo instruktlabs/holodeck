@@ -58,3 +58,17 @@ test('the mirror culls what reflects outside the water but keeps what reflects i
  assert.ok(everything.frustum.containsPoint(aside)&&!pool.frustum.containsPoint(aside),'one that reflects beside the pool is culled');
  assert.ok(!pool.frustum.containsPoint(below)&&!everything.frustum.containsPoint(below),'the water plane still clips what lies below it');
 });
+
+test('the mirror strips full-viewport TAA sub-pixel jitter from the virtual camera projection',()=>{
+ const steady=view([0,2,10],[0,0,-20]),jittered=view([0,2,10],[0,0,-20]);
+ jittered.setViewOffset(1280,720,.37,-.41,1280,720);
+ const capture=camera=>{
+  const node=windowedMirror({bounds:[-5,5,-20,-10],level:0,resolutionScale:.5,margin:2}),scene=new Scene();
+  let proj=null;
+  const renderer={coordinateSystem:WebGPUCoordinateSystem,autoClear:false,getDrawingBufferSize:v=>v.set(1280,720),getRenderTarget(){return null;},getMRT(){return null;},setMRT(){},setRenderTarget(){},clear(){},render(_,mirror){proj=mirror.projectionMatrix.clone();}};
+  node.reflector.updateBefore({scene,camera,renderer,material:{visible:true}});
+  return proj.elements;
+ };
+ const a=capture(steady),b=capture(jittered);
+ for(let i=0;i<16;i++)assert.ok(Math.abs(a[i]-b[i])<1e-6,`projection element ${i}: ${a[i]} vs ${b[i]}`);
+});

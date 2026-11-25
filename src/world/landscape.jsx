@@ -2,7 +2,7 @@ import React,{useEffect,useMemo,useRef} from 'react';
 import {useFrame,useThree} from '@react-three/fiber';
 import * as THREE from 'three/webgpu';
 import {SkyMesh} from 'three/addons/objects/SkyMesh.js';
-import {Fn,If,Loop,abs,acos,asin,atan,cameraPosition,color,cos,dot,exp,float,floor,int,ivec2,materialColor,max,mix,modelViewProjection,normalMap,normalWorldGeometry,output,pmremTexture,positionLocal,positionWorld,rangeFogFactor,select,sin,smoothstep,step,texture,textureLoad,uniform,uv,vec2,vec3,vec4,screenCoordinate,frameId} from 'three/tsl';
+import {Fn,If,Loop,abs,acos,asin,atan,cameraPosition,color,cos,dot,exp,float,floor,int,ivec2,materialColor,max,mix,modelViewProjection,normalMap,normalWorldGeometry,output,pmremTexture,positionLocal,positionWorld,rangeFogFactor,select,sin,smoothstep,step,texture,textureLoad,uniform,uv,vec2,vec3,vec4,vertexColor,screenCoordinate,frameId} from 'three/tsl';
 import {windowedMirror} from './water-mirror.mjs';
 import {createTerrain} from './terrain.mjs';
 import {rasterizeLayerMasks} from './terrain-layers.mjs';
@@ -14,6 +14,8 @@ import {cumulusDeckNode} from './cloud-deck.js';
 import {isReflectionsOnly,probeGridBake} from './probe-grid.js';
 import {probeKey,probeReflections,reflectionProbePoints,skyReflection} from './asset-reflection.mjs';
 import {holdLiveReflections} from './live-reflection.mjs';
+import {markReactive} from './reactive.mjs';
+import {resolveWaterfall,buildWaterfallCurtainData,buildWaterfallSplashData,buildWaterfallMistData} from './waterfall.mjs';
 
 // Two bounded surface draws. Geometry, walking and shoreline shading all read
 // the same terrain lattice; only material detail is evaluated per fragment.
@@ -256,6 +258,7 @@ function makeTerrainMaterial(terrain,water,clock,textures,environment,layerTextu
 
 function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures,environment,surf){
  const material=new THREE.MeshBasicNodeMaterial({transparent:true,depthWrite:false});
+ markReactive(material);
  const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize();
  material.positionNode=Fn(()=>{
   const p=positionLocal;
@@ -283,8 +286,8 @@ function makeOceanMaterial(water,lattice,heightTexture,baseHeight,clock,textures
   // the lighting; a cube probe seen from one point blurs and shifts a mirror.
   let mirror=null;
   if(water.reflection==='planar'){
-   // Rendered only over the water's screen rectangle (H98).
-   mirror=windowedMirror({bounds:water.bounds,level:water.level,resolutionScale:.5});
+   // Rendered only over the water's screen rectangle (H98), scaled by device tier.
+   mirror=windowedMirror({bounds:water.bounds,level:water.level,resolutionScale:water.mirrorResolutionScale??.5});
    mirror.uvNode=mirror.uvNode.add(normal.xz.mul(.04));
   }
   const sky=mirror?mirror.rgb:probe?pmremTexture(probe,reflected,float(.04)).rgb:authored?skyGradientNode(authored,reflected.y).mul(skyRadianceScale(environment)):mix(mix(color(environment.fogColor??'#c5d9dd'),color('#9cc9e6'),.6),color('#3f7fbf'),reflected.y.clamp(0,1).pow(.5));
@@ -345,6 +348,113 @@ function makeOceanGeometry(water){
  g.boundingSphere=g.boundingBox.getBoundingSphere(new THREE.Sphere());return g;
 }
 
+function geometryFromData(data){
+ const g=new THREE.BufferGeometry();
+ g.setAttribute('position',new THREE.BufferAttribute(data.positions,3));
+ g.setAttribute('normal',new THREE.BufferAttribute(data.normals,3));
+ g.setAttribute('uv',new THREE.BufferAttribute(data.uvs,2));
+ if(data.colors)g.setAttribute('color',new THREE.BufferAttribute(data.colors,3));
+ g.setIndex(new THREE.BufferAttribute(data.indices,1));
+ g.computeBoundingBox();g.computeBoundingSphere();
+ return g;
+}
+
+function makeWaterfallCurtainMaterial(fall,clock,textures,environment){
+ const material=new THREE.MeshBasicNodeMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,forceSinglePass:true});
+ markReactive(material);
+ const sun=new THREE.Vector3(...(environment.sunPosition??[-8,14,9])).normalize();
+ const sunCol=color(environment.sunColor??'#ffd6a0'),sunBoost=Math.min(1.5,(environment.sunIntensity??3)/3);
+ const foamCol=color(fall.color),bodyTint=color(fall.tint),baseOpacity=float(fall.opacity);
+ const out=Fn(()=>{
+  const coords=uv(),vc=vertexColor(),u=coords.x,v=coords.y;
+  const layerWeight=vc.r,phase=vc.g,flute=vc.b;
+  const accelV=v.pow(.82);
+  // Multi-speed vertical turbulent streams + fine sparkling spray filaments.
+  const t1=clock.mul(fall.speed*.18).add(phase),t2=clock.mul(fall.speed*.31).add(phase.mul(1.7)),t3=clock.mul(fall.speed*.48).add(phase.mul(2.3));
+  const warp=texture(textures.ocean,vec2(u.mul(1.8).add(phase),accelV.mul(.7).sub(t1.mul(.5)))).ba.sub(.5);
+  const s1=texture(textures.ocean,vec2(u.mul(3.4).add(warp.x.mul(.22)),accelV.mul(.85).sub(t1))).a;
+  const s2=texture(textures.ocean,vec2(u.mul(6.8).sub(warp.y.mul(.18)).add(phase),accelV.mul(1.55).sub(t2))).b;
+  const s3=texture(textures.ocean,vec2(u.mul(12.5).add(warp.x.mul(.14)),accelV.mul(2.4).sub(t3))).a;
+  const ribbon=s1.mul(.5).add(s2.mul(.34)).add(s3.mul(.16));
+  const streak=smoothstep(.26,.82,ribbon.add(flute.mul(.16)));
+  // Natural ragged side silhouettes + soft top lip and frothy plunge base.
+  const edgeNoise=s1.sub(.5).mul(.18).add(s2.sub(.5).mul(.1));
+  const edgeU=smoothstep(0,.2,u.add(edgeNoise)).mul(smoothstep(0,.2,u.oneMinus().add(edgeNoise)));
+  const lipIn=smoothstep(0,.07,v),plungeOut=smoothstep(1,.92,v);
+  const plungeFoam=smoothstep(.68,.97,v).mul(.48);
+  const lipFoam=smoothstep(.16,.02,v).mul(.32);
+  const density=streak.mul(.68).add(.32).add(plungeFoam).add(lipFoam).clamp(0,1);
+  // Warm sunlit whitewater crowns over cool turquoise shadow body.
+  const view=cameraPosition.sub(positionWorld).normalize();
+  const fresnel=normalWorldGeometry.dot(view).abs().clamp(0,1).oneMinus().pow(2.4);
+  const sunFace=normalWorldGeometry.dot(vec3(sun.x,sun.y,sun.z)).mul(.45).add(.55).clamp(0,1);
+  const heightLight=smoothstep(1,.08,v).mul(.32).add(.68);
+  const waterRgb=mix(bodyTint,foamCol,density.mul(.78).add(fresnel.mul(.25)).clamp(0,1));
+  const lit=waterRgb.mul(mix(vec3(.74,.86,.92),sunCol.mul(.38*sunBoost).add(vec3(.78,.8,.82)),sunFace.mul(heightLight)));
+  const alpha=edgeU.mul(lipIn).mul(plungeOut).mul(density.mul(.76).add(.18)).mul(layerWeight).mul(baseOpacity).clamp(0,.96);
+  return vec4(lit,alpha);
+ })();
+ material.colorNode=out.rgb;material.opacityNode=out.a;
+ return material;
+}
+
+function makeWaterfallSplashMaterial(fall,clock,textures,environment){
+ const material=new THREE.MeshBasicNodeMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,forceSinglePass:true});
+ markReactive(material);
+ const foamCol=color(fall.color),bodyTint=color(fall.tint),mistOpacity=float(fall.mist.opacity);
+ const out=Fn(()=>{
+  const d=uv().sub(vec2(.5)).mul(2),r=d.length().clamp(0,1.2),ang=atan(d.y,d.x).div(TAU).add(.5);
+  const ring=sin(r.mul(18).sub(clock.mul(fall.speed*.95))).mul(.5).add(.5);
+  const n1=texture(textures.ocean,vec2(ang.mul(4),r.mul(1.8).sub(clock.mul(.24)))).a;
+  const n2=texture(textures.ocean,d.mul(1.6).add(vec2(clock.mul(.07),clock.mul(-.05)))).b;
+  const core=smoothstep(.55,.04,r),rings=smoothstep(.96,.2,r).mul(ring.mul(.55).add(.45)).mul(smoothstep(.24,.78,n1.mul(.6).add(n2.mul(.4))));
+  const foam=core.mul(.82).add(rings.mul(.72)).clamp(0,1);
+  const rgb=mix(bodyTint,foamCol,foam.mul(.72).add(.28)).mul(color(environment.sunColor??'#ffd6a0').mul(.2).add(vec3(.84,.87,.9)));
+  const alpha=foam.mul(smoothstep(1,.32,r)).mul(mistOpacity.mul(1.15).clamp(0,.95));
+  return vec4(rgb,alpha);
+ })();
+ material.colorNode=out.rgb;material.opacityNode=out.a;
+ return material;
+}
+
+function makeWaterfallMistMaterial(fall,clock,textures,environment){
+ const material=new THREE.MeshBasicNodeMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,forceSinglePass:true});
+ markReactive(material);
+ const foamCol=color(fall.color),bodyTint=color(fall.tint),mistOpacity=float(fall.mist.opacity);
+ const sunCol=color(environment.sunColor??'#ffd6a0');
+ const out=Fn(()=>{
+  const coords=uv(),vc=vertexColor(),u=coords.x,v=coords.y,phase=vc.r;
+  const dx=u.sub(.5).mul(2),dy=v.sub(.42).mul(2.1),radial=dx.mul(dx).add(dy.mul(dy)).sqrt();
+  const n1=texture(textures.ocean,vec2(u.mul(1.7).add(phase).add(clock.mul(.025)),v.mul(1.5).sub(clock.mul(.13)).add(phase))).a;
+  const n2=texture(textures.ocean,vec2(u.mul(3.1).sub(clock.mul(.035)).add(phase.mul(2)),v.mul(2.4).sub(clock.mul(.2)))).b;
+  const billow=n1.mul(.62).add(n2.mul(.38));
+  const envelope=smoothstep(1.02,.18,radial.add(billow.sub(.5).mul(.38))).mul(smoothstep(0,.18,v)).mul(smoothstep(1,.22,v));
+  const view=cameraPosition.sub(positionWorld).normalize();
+  const grazing=smoothstep(.08,.55,normalWorldGeometry.dot(view).abs().clamp(0,1));
+  const sunGlow=mix(bodyTint.mul(.75).add(vec3(.25)),foamCol.mul(.82).add(sunCol.mul(.18)),v.mul(.65).add(billow.mul(.35)).clamp(0,1));
+  const alpha=envelope.mul(billow.mul(.65).add(.35)).mul(grazing).mul(mistOpacity.mul(.78));
+  return vec4(sunGlow,alpha);
+ })();
+ material.colorNode=out.rgb;material.opacityNode=out.a;
+ return material;
+}
+
+function makeWaterfalls(water,clock,textures,environment){
+ if(!water?.falls?.length)return [];
+ return water.falls.map(raw=>{
+  const fall=resolveWaterfall(raw);
+  const curtainGeo=geometryFromData(buildWaterfallCurtainData(fall));
+  const curtainMat=makeWaterfallCurtainMaterial(fall,clock,textures,environment);
+  const splashData=buildWaterfallSplashData(fall,water.level);
+  const splashGeo=splashData?geometryFromData(splashData):null;
+  const splashMat=splashGeo?makeWaterfallSplashMaterial(fall,clock,textures,environment):null;
+  const mistData=buildWaterfallMistData(fall,water.level);
+  const mistGeo=mistData?geometryFromData(mistData):null;
+  const mistMat=mistGeo?makeWaterfallMistMaterial(fall,clock,textures,environment):null;
+  return {id:fall.id,curtainGeo,curtainMat,splashGeo,splashMat,mistGeo,mistMat,dispose(){for(const item of [curtainGeo,curtainMat,splashGeo,splashMat,mistGeo,mistMat])item?.dispose();}};
+ });
+}
+
 export function Landscape({terrain,water,runtime,environment={},textures:images,placements}){
  const clock=useMemo(()=>uniform(0),[]),layers=terrain?.appearance?.layers;
  const layerTextures=useMemo(()=>makeLayerTextures(layers,images),[layers,images]),mask=useMemo(()=>layerTextures?makeMaskTexture():null,[layerTextures]);
@@ -367,13 +477,19 @@ export function Landscape({terrain,water,runtime,environment={},textures:images,
   // mirror cubes that reflect them (H102). Captures draw the water reflecting the
   // sky light instead, as water without planar reflection does.
   if(water?.reflection==='planar'&&environment.sky?.light)oceanCaptureMaterial=makeOceanMaterial({...water,reflection:undefined},lattice,heightTexture,baseHeight,clock,textures,environment,surf);
-  return {terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,oceanCaptureMaterial,dispose(){for(const item of [terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,oceanCaptureMaterial,heightTexture,textures.detail,textures.normal,textures.ocean,surf?.map])item?.dispose();}};
+  const falls=makeWaterfalls(water,clock,textures,environment);
+  return {terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,oceanCaptureMaterial,falls,dispose(){for(const item of [terrainGeometry,terrainMaterial,oceanGeometry,oceanMaterial,oceanCaptureMaterial,heightTexture,textures.detail,textures.normal,textures.ocean,surf?.map,...falls])item?.dispose();}};
  },[terrain,water,runtime?.terrain,environment,clock,layerTextures,mask]);
  useEffect(()=>()=>landscape.dispose(),[landscape]);
  useFrame(()=>{clock.value=runtime?.time??0;},-1);
  return <group name="landscape" dispose={null}>
   {landscape.terrainGeometry&&<mesh name="terrain" geometry={landscape.terrainGeometry} material={landscape.terrainMaterial} receiveShadow/>}
   {landscape.oceanGeometry&&<mesh name="ocean" geometry={landscape.oceanGeometry} material={landscape.oceanMaterial} renderOrder={1} userData={landscape.oceanCaptureMaterial?{skyCaptureMaterial:landscape.oceanCaptureMaterial}:{}}/>}
+  {landscape.falls.map(fall=><group key={fall.id} name={`waterfall-${fall.id}`}>
+   {fall.splashGeo&&<mesh name={`waterfall-splash-${fall.id}`} geometry={fall.splashGeo} material={fall.splashMat} renderOrder={2}/>}
+   <mesh name={`waterfall-curtain-${fall.id}`} geometry={fall.curtainGeo} material={fall.curtainMat} renderOrder={3}/>
+   {fall.mistGeo&&<mesh name={`waterfall-mist-${fall.id}`} geometry={fall.mistGeo} material={fall.mistMat} renderOrder={4}/>}
+  </group>)}
  </group>;
 }
 

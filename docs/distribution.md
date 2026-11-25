@@ -33,7 +33,7 @@ files and editable workspaces are excluded. See [static export](static-export.md
 The public scene shelf is a separate static site in `site/`, for
 `https://holodeck.kilnstudio.tools/`. `site/scenes.json` lists each scene by id,
 the bundled example it is built from, title, summary, the words of the placard on
-its own page, four collage shots, path and Kiln gallery link: Crescent Cove, the Quiet Courtyard, Tidemark Island,
+its own page, four collage shots, path and Kiln gallery link: Lagoon Sanctuary, Meridian Sanctuary, Crescent Cove, the Quiet Courtyard, Tidemark Island,
 Winter Mountainside Cabin and the Cove (from `construct`). Each scene's 1200×630 social card is
 `site/cards/<id>.jpg`.
 
