@@ -133,6 +133,10 @@
   ],
   "path": "worlds/courtyard/",
   "updated": "2026-11-13",
+  "hero": {
+   "src": "images/hero-courtyard.webp",
+   "alt": "The Quiet Courtyard: a walled garden of cypress and olive trees around a tiered stone fountain."
+  },
   "gallery": "https://kilnstudio.tools/packs/holodeck/courtyard/"
  },
  {
