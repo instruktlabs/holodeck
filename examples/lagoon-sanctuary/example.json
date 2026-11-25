@@ -3,7 +3,7 @@
   "id": "lagoon-sanctuary",
   "title": "Lagoon Sanctuary",
   "description": "A sunlit jungle cenote around a turquoise lagoon: arrive in cool shade beside a carved sun stele, walk a curved stone viaduct or descend to the waterside dock, swim across clear shallows to the stepped sanctuary pavilion, and stand beneath a tall rainforest waterfall.",
-  "sourceRevision": 19,
+  "sourceRevision": 23,
   "capabilities": {
     "schemaVersion": 2,
     "runtimeVersion": 1,
@@ -21,8 +21,8 @@
   },
   "world": {
     "file": "world/world.json",
-    "sha256": "9c10d5a401c3f850abc164cf20a0b27fd4cb6ba4e8ac328655adf63731bfb615",
-    "bytes": 152633
+    "sha256": "27b8ab8b38c080d617c21faa81e52778a5515ec8f03d32ed21c37a1a83c0fd81",
+    "bytes": 153388
   },
   "assets": [
     {
@@ -147,9 +147,9 @@
     },
     {
       "id": "lagoon-curved-viaduct",
-      "file": "assets/imports/1b8a43590d31198641c12897bb2873103d1b59462a5733d9f1694ab6531edea8.glb",
-      "sha256": "1b8a43590d31198641c12897bb2873103d1b59462a5733d9f1694ab6531edea8",
-      "bytes": 5625988
+      "file": "assets/imports/680049ee4c12dee9eb3563ecc94e484c9e43a77245d8bdcd445b7b5766258c17.glb",
+      "sha256": "680049ee4c12dee9eb3563ecc94e484c9e43a77245d8bdcd445b7b5766258c17",
+      "bytes": 5666460
     },
     {
       "id": "lamp",
@@ -357,10 +357,10 @@
   },
   "preview": {
     "file": "preview.png",
-    "sha256": "91c93d6a2813b53e313215f2ef0cdcaf3020c2363a46773eedd8af4955c4970a",
-    "bytes": 1510435,
+    "sha256": "f2eaee2591cabf62808e8893fa01b81bd67eb54d48fc4a689f5fcf2486c56910",
+    "bytes": 1533683,
     "width": 1280,
     "height": 720
   },
-  "integrity": "d9b204ec673792b5f1c7676c7a197798c8a32abfbae01928ce3411f74d7f8a2c"
+  "integrity": "25e8fe398a5bc8a0ed58bb1e7872005d1ec65dfb1b7c6cb736e0a5898b9cfd8d"
 }
