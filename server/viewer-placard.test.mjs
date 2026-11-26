@@ -34,7 +34,16 @@ test('only the loader and the footer\'s details put the placard away, never a fa
  assert.deepEqual(away,['body:has(.viewer-load):not(:has(.viewer-error)) .scene-placard','body:has(.viewer-footer details[open]) .scene-placard']);
  // The sentence collapses only where there is a scene to leave room for.
  const collapsed=rules.filter(rule=>/\.scene-placard[^,]*>p$/.test(rule.selector)&&/display:none/.test(rule.body)).map(rule=>rule.selector);
- assert.deepEqual(collapsed,['body:has(canvas) .scene-placard:not(:has(details[open]))>p']);
+ assert.deepEqual(collapsed,['body:has(canvas) .scene-placard:has(details):not(:has(details[open]))>p','body:has(canvas) .scene-placard:not(:has(details[open]))>p']);
+});
+
+test('the placard collapses on phones to its name and More, hangs under the brand, and closed More leaves layout',async()=>{
+ const rules=await placardRules(),css=rules.map(rule=>`${rule.selector}{${rule.body}}`).join('\n');
+ assert.match(css,/\.scene-placard details:not\(\[open\]\)>div\{display:none\}/,'closed More must take no room in any engine');
+ assert.match(css,/top:calc\(max\(16px,env\(safe-area-inset-top\)\) \+ 52px\);bottom:auto/,'on phones the plate hangs from the top');
+ assert.ok(rules.some(rule=>rule.selector==='body:has(canvas) .scene-placard:has(details):not(:has(details[open]))>p'&&/display:none/.test(rule.body)),'the sentence waits behind More on phones');
+ // Only an open More is measured: closed, its height is not part of the plate's and would leave the cap wrong.
+ assert.ok((await source('main.jsx')).includes('if(!more.parentElement.open){more.classList.remove(\'scrolls\');return;}'));
 });
 
 test('the placard keeps only Enter from the scene\'s keys',async()=>{

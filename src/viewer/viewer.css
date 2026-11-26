@@ -54,18 +54,28 @@
 .scene-placard summary:hover{text-decoration:underline}.scene-placard summary:focus-visible{outline-offset:-3px}
 .scene-placard details>div>p:last-child{display:flex;flex-wrap:wrap;gap:0 14px}.scene-placard a{color:#7a5310;white-space:nowrap;pointer-events:auto}.scene-placard a:focus-visible{outline-offset:1px}
 @media(hover:none){.scene-placard summary,.scene-placard a{touch-action:manipulation;-webkit-tap-highlight-color:transparent}.scene-placard a{display:inline-block;padding:6px 0}}
-/* Phones: to the left of the touch Photo mode button, and on the narrowest More takes its own line. */
-@media(max-width:700px){.scene-placard{--rest:calc(var(--viewer-footer,119px) + 18px);left:16px;max-width:min(380px,calc(100vw - 146px))}}
-@media(max-width:520px){.scene-placard{padding:9px 12px 10px}.scene-placard:has(details){padding-bottom:32px}.scene-placard h1{font-size:15px}.scene-placard>p:has(+details),.scene-placard details>div>p:last-child{padding-right:0}.scene-placard summary{right:auto;left:4px}.scene-placard a{white-space:normal}}
+/* More's text is out of layout while it is closed, so no engine leaves its room behind and main.jsx never measures it then. */
+.scene-placard details:not([open])>div{display:none}
+/* Phones: the plate hangs under the brand, left, collapsed to its name and More. Open, it shows the sentence and More's text, which
+   scrolls within what lies between the brand and the footer. More sits on the name's line, so it does not move when it opens. */
+@media(max-width:700px){
+ .scene-placard{top:calc(max(16px,env(safe-area-inset-top)) + 52px);bottom:auto;left:16px;max-width:min(380px,calc(100vw - 32px))}
+ /* Closed, the plate is as wide as the brand above it (main.jsx measures it), and opens to the width its text needs. */
+ .scene-placard:has(details:not([open])){width:var(--brand-w,max-content)}
+ .scene-placard:has(details) h1{padding-right:34px}
+ .scene-placard>p:has(+details),.scene-placard details>div>p:last-child{padding-right:0}
+ /* An arrow alone: the word stays for screen readers, and the arrow keeps its own size. */
+ .scene-placard summary{top:0;right:0;bottom:auto;padding:14px 14px 12px;font-size:0}
+ .scene-placard summary::after{margin-left:0;font-size:15px}
+ .scene-placard details>div{max-height:max(54px,calc(100dvh - max(16px,env(safe-area-inset-top)) - 52px - var(--viewer-footer,119px) - 36px - var(--placard-head,130px)))}
+ body:has(canvas) .scene-placard:has(details):not(:has(details[open]))>p{display:none}
+}
+@media(max-width:520px){.scene-placard{padding:9px 12px 10px}.scene-placard h1{font-size:15px}.scene-placard a{white-space:normal}}
 /* Too short for the footer and More's text together: the footer waits until More closes. */
 @media(max-height:340px){body:has(.scene-placard details[open]) .viewer-footer{display:none}}
-/* The narrowest phones have no width for a paragraph beside the touch Photo mode button: open, the plate rises clear of it and takes the width. */
-@media(max-width:340px){.scene-placard:has(details[open]){--rest:max(calc(var(--viewer-footer,119px) + 18px),198px);max-width:calc(100vw - 32px)}}
 /* The loader passes, so the placard waits for it. A failed scene has no use for the footer, whose room goes to the placard and the error.
    A lost renderer's card has the room alone: main.jsx hides the placard and drops the footer. */
 @media(max-height:700px){body:has(.viewer-load):not(:has(.viewer-error)) .scene-placard{display:none}body:has(.viewer-error) .viewer-footer{display:none}}
 /* Short screens, landscape phones above all: a scene has so little height that the placard collapses to the name and More, whose text
    widens and borrows the hint's and status lines' room, and the footer's details come first. With no scene the placard is all there is, unless a lost renderer has hidden it for the card and its reload. */
 @media(max-height:520px){body:has(.viewer-footer details[open]) .scene-placard{display:none}body:has(canvas) .scene-placard:not(:has(details[open]))>p{display:none}body:has(canvas) .scene-placard:not(:has(details[open])) h1{padding-right:60px}.scene-placard:has(details[open]){max-width:min(720px,calc(100vw - 150px))}body:has(.scene-placard details[open]) .viewer-footer>:not(.viewer-view){display:none}}
-/* Both narrow and short, an older phone with its browser's bars showing: More's text takes the width, and the footer's and Photo mode's room, until it closes. */
-@media(max-width:340px) and (max-height:520px){.scene-placard:has(details[open]){--rest:18px;max-width:calc(100vw - 32px)}body:has(.scene-placard details[open]) .viewer-footer,body:has(.scene-placard details[open]) .touch-actions{display:none}}
