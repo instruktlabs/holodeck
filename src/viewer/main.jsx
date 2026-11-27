@@ -144,10 +144,12 @@ function Viewer(){
  useEffect(()=>{
   const placard=document.querySelector('.scene-placard'),footer=document.querySelector('.viewer-footer');if(!placard||!footer||benchmarkEnabled)return;
   const more=placard.querySelector('details>div'),keep=e=>{if(e.code==='Enter')e.stopPropagation();};
-  const measure=()=>{placard.style.setProperty('--viewer-footer',`${footer.offsetHeight}px`);if(!more)return;placard.style.setProperty('--placard-head',`${placard.offsetHeight-more.offsetHeight}px`);more.classList.toggle('scrolls',more.scrollHeight>more.clientHeight+1);};
-  // A frame later, as measuring changes the size being observed.
-  const fit=new ResizeObserver(()=>requestAnimationFrame(measure));
-  placard.addEventListener('keydown',keep);fit.observe(footer);fit.observe(placard);return()=>{placard.removeEventListener('keydown',keep);fit.disconnect();};
+  // Closed, More's text is out of layout and has no height to take from the plate's, so only an open More is measured.
+  const brand=document.querySelector('.viewer-brand');
+  const measure=()=>{placard.style.setProperty('--viewer-footer',`${footer.offsetHeight}px`);if(brand)placard.style.setProperty('--brand-w',`${brand.offsetWidth}px`);if(!more)return;if(!more.parentElement.open){more.classList.remove('scrolls');return;}placard.style.setProperty('--placard-head',`${placard.offsetHeight-more.offsetHeight}px`);more.classList.toggle('scrolls',more.scrollHeight>more.clientHeight+1);};
+  // A frame later, as measuring changes the size being observed. Opening and closing measure too, where an engine is slow to report the resize.
+  const fit=new ResizeObserver(()=>requestAnimationFrame(measure)),later=()=>requestAnimationFrame(measure);
+  placard.addEventListener('keydown',keep);more?.parentElement.addEventListener('toggle',later);fit.observe(footer);fit.observe(placard);if(brand)fit.observe(brand);return()=>{placard.removeEventListener('keydown',keep);more?.parentElement.removeEventListener('toggle',later);fit.disconnect();};
  },[]);
  useEffect(()=>{const fail=()=>setNotice('Mouse capture is unavailable. Right-drag to look.');document.addEventListener('pointerlockerror',fail);return()=>document.removeEventListener('pointerlockerror',fail);},[]);
  // The phone menu closes when a choice is made or the scene is touched.
